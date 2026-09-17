@@ -134,6 +134,16 @@ async function readBit(session, classId, registerNumberOrWord, bitIndex) {
     return response.data.readUInt8(0) !== 0;
 }
 
+/**
+ * D's bit-mode instance is documented (and confirmed live against a real
+ * DVP32ES2-E) as returning/expecting a 2-byte value even though it's a
+ * single-bit read/write, unlike every other bit-mode register type here
+ * (X/Y/M/S/T/C), which use a plain 1-byte BOOL. A 1-byte write to D's
+ * bit-mode instance is rejected outright (general status 0x01) — this
+ * isn't optional padding, the device requires the full 2 bytes.
+ */
+const TwoByteBitWriteClasses = new Set([RegisterClass.D]);
+
 /** Writes one bit — see readBit() for addressing. Throws if the register type is read-only. */
 async function writeBit(session, classId, registerNumberOrWord, bitIndexOrValue, maybeValue) {
     if (ReadOnlyClasses.has(classId)) {
@@ -146,10 +156,29 @@ async function writeBit(session, classId, registerNumberOrWord, bitIndexOrValue,
     const value = hasBitIndex ? maybeValue : bitIndexOrValue;
 
     const path = registerPath(classId, RegisterInstance.Bit, attribute);
-    const data = Buffer.from([value ? 0x01 : 0x00]);
+    const data = TwoByteBitWriteClasses.has(classId)
+        ? Buffer.from([value ? 0x01 : 0x00, 0x00])
+        : Buffer.from([value ? 0x01 : 0x00]);
     const request = buildRequest({ service: CipCommonServices.SetAttributeSingle, path, data });
     const response = await session.sendUnconnected(request);
     assertGetSuccess(response, `writeBit(0x${classId.toString(16)}, ${attribute})`);
+}
+
+/**
+ * Composes a full-word write from 16 sequential single-bit writes — for
+ * device families that implement only the bit-mode instance (Instance 1)
+ * and reject the word-mode instance (Instance 2) outright (confirmed on a
+ * real DVP32ES2-E: word-mode Set_Attribute_Single for D returns
+ * PathDestinationUnknown, but 16 individual bit writes via Instance 1
+ * work and are read back correctly through the word-level mirror). Slower
+ * (16 round trips instead of 1) but works anywhere writeBit() does. Value
+ * is treated as a 16-bit pattern (bit 15 written as bit 15 = 1, not
+ * sign-extended).
+ */
+async function writeWordViaBits(session, classId, wordIndex, value) {
+    for (let bit = 0; bit < 16; bit++) {
+        await writeBit(session, classId, wordIndex, bit, (value >> bit) & 1);
+    }
 }
 
 // Friendly per-type wrappers — the ergonomic, Modbus-register-like surface.
@@ -184,6 +213,7 @@ module.exports = {
     writeWord,
     readBit,
     writeBit,
+    writeWordViaBits,
     readX,
     readXBit,
     readY,

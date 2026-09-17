@@ -46,9 +46,42 @@ describe('DeltaDevice (explicit device-type wrapper)', function () {
         assert.deepStrictEqual(capturedRequest.subarray(2, 8), Buffer.from([0x20, 0x04, 0x24, 0x65, 0x30, 0x03]));
     });
 
-    it('readX() on an "es2" device rejects clearly (no confirmed mapping)', async function () {
+    it('readX() on an "es2" device reads bit-mode via Class 0x350 (confirmed live against real hardware)', async function () {
+        const device = new DeltaDevice('127.0.0.1', 'es2');
+        let capturedRequest;
+        device.scanner.session = {
+            sendUnconnected: async (cipRequest) => {
+                capturedRequest = cipRequest;
+                return { generalStatus: CipGeneralStatus.Success, additionalStatus: [], data: Buffer.from([0x01]) };
+            }
+        };
+
+        const value = await device.readX(2);
+
+        assert.strictEqual(value, true);
+        // Class 0x350 (X Register, 16-bit segment), Instance 1 (bit), Attribute 2
+        assert.deepStrictEqual(capturedRequest.subarray(2, 10), Buffer.from([0x21, 0x00, 0x50, 0x03, 0x24, 0x01, 0x30, 0x02]));
+    });
+
+    it('writeD() on an "es2" device rejects clearly (no confirmed write path)', async function () {
         const device = new DeltaDevice('127.0.0.1', 'es2');
         device.scanner.session = { sendUnconnected: async () => { throw new Error('should not be called'); } };
-        await assert.rejects(() => device.readX(0), /not supported for device type "es2"/);
+        await assert.rejects(() => device.writeD(0, 1), /not supported for device type "es2"/);
+    });
+
+    it('writeM() on an "es2" device writes bit-mode via Class 0x353 (confirmed live turning on a real relay)', async function () {
+        const device = new DeltaDevice('127.0.0.1', 'es2');
+        let capturedRequest;
+        device.scanner.session = {
+            sendUnconnected: async (cipRequest) => {
+                capturedRequest = cipRequest;
+                return { generalStatus: CipGeneralStatus.Success, additionalStatus: [], data: Buffer.alloc(0) };
+            }
+        };
+
+        await device.writeM(10, true);
+
+        assert.strictEqual(capturedRequest.readUInt8(0), CipCommonServices.SetAttributeSingle);
+        assert.deepStrictEqual(capturedRequest.subarray(-1), Buffer.from([0x01]));
     });
 });

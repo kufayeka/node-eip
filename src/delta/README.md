@@ -68,28 +68,66 @@ exhaustively verified across the full range.
 
 ### `'es2'` — DVP-ES2-E (confirmed on a real DVP32ES2-E)
 
-This family does **not** implement the vendor Register Objects at all
-(`Class 0x350`+ → `PathDestinationUnknown`). Per Delta's own product table
-(manual Ch. 9), it's Adapter-capable but not Scanner-capable — that's a
-device-role distinction, not a reason it can't be read from as an Adapter,
-which is exactly the role this driver uses it in.
+Earlier revisions of this doc said this family didn't implement the vendor
+Register Objects at all — that was wrong. It tested only the **word-mode**
+instance (Instance 2), which this device genuinely doesn't support. The
+**bit-mode** instance (Instance 1) works, for every register type it has —
+fully reverse-engineered live (2026-09) by writing distinguishing patterns
+into the PLC's own X/D/M/Y tables via WPLSoft/ISPSoft and reading them back
+over CIP, and separately by writing over CIP and watching the physical
+device's own live monitor confirm the change.
 
-| Method | Access | How | Live-validated? |
+| Method | Register | Access | Confirmation |
 |---|---|---|---|
-| `readD(n)` | read-only | Assembly-window fallback (Instance 101, offset `n*2`) | ✅ |
-| `readX` / `readY` / `writeY` / `writeD` / `readM` / `writeM` / `readS` / `writeS` / `readT` / `writeT` / `readC` / `writeC` / `readHC` / `writeHC` / `readSM` / `readSR` | — | not implemented | throws a clear "not supported for device type 'es2'" error |
+| `readX(n)` | X (input) | read-only | ✅ live, byte-for-byte match against a WPLSoft-written pattern |
+| `readY(n)` / `writeY(n, v)` | Y (output) | read/write | ✅ live — write confirmed by watching the physical output's state change in WPLSoft |
+| `readM(n)` / `writeM(n, v)` | M (marker/coil) | read/write | ✅ live, same confirmation as Y |
+| `readS(n)` / `writeS(n, v)` | S (step) | read/write | ✅ live, same confirmation as Y |
+| `readT(n)` / `writeT(n, v)` | T (timer) | read/write, **contact/bit state only** | ✅ live (write); no numeric current-value access on this device (see below) |
+| `readC(n)` / `writeC(n, v)` | C (counter) | read/write, **contact/bit state only** | ✅ live (write); no numeric current-value access on this device |
+| `readD(n)` | D (data register) | **read-only** | ✅ live — via the Assembly-window mirror (Instance 101), NOT the vendor Register Object |
+| `writeD(n, v)` | D | — | ❌ **no working path found** — see below |
+| `readHC` / `writeHC` / `readSM` / `readSR` | HC/SM/SR | — | not implemented — these classes don't exist on this device at all |
 
-The `readD` mapping was found empirically: a known pattern
-(`D0=10, D1=0, D2=20, ...`) written into the PLC's own D-table via
-ISPSoft/WPLSoft, then located by scanning every Assembly instance's Data
-attribute for a byte-for-byte match. **Write support for D is an open
-item** — Instance 100 accepts `Set_Attribute_Single` at the wire level, but
-what it's actually wired to (if anything) in the PLC's own register table
-is unconfirmed; see "Open items" below.
+**The D exception, explained:** Class `0x352`'s bit-mode instance is a
+real, working read/write store on this device — but a completely
+**separate one** from the PLC's actual D-table. Writes made through it
+never show up in the Assembly-instance-101 mirror (which *is* proven
+connected to the real D-table), even with a delay, or with an active
+Forward_Open connection kept alive throughout, or through Assembly
+Instance 100's explicit-write path. Every avenue tried came up empty — so
+`readD` uses the Assembly mirror (word-level, efficient, real), and
+`writeD` currently just fails clearly rather than silently writing to
+nowhere.
+
+**Word-level access:** X/Y/M/S/T/C are only accessible bit-by-bit on this
+device (its word-mode instance doesn't exist) — `readX(0)`/`readY(3)`/etc.
+return booleans, matching how these types are actually addressed in
+practice (`X0`, `Y3`, one point at a time). D is the exception in the other
+direction: it's only accessible as a full 16-bit word via the mirror, not
+bit-by-bit through a working path (the bit-mode Class `0x352` exists and
+works, but doesn't connect anywhere real, as above).
+
+**T/C limitation:** this device's Register Objects only expose the
+timer/counter's *contact* (on/off) state, not a numeric elapsed-time or
+count value — there's no word-mode instance to carry that number, unlike
+the `'sx3'` profile where `readT`/`readC` return the real current value.
+
+**Octal addressing reminder (X/Y only):** Delta's own convention for X and
+Y labels is octal, not decimal — `X0`-`X7`, then `X10`-`X17` (`X10` octal =
+8 decimal), `X20`-`X27`, and so on; digits 8 and 9 never appear. The
+attribute numbers this driver uses internally are plain sequential
+integers (`readX(8)` addresses the CIP attribute `8`) — for X/Y labels
+below 8 in each group these line up with the octal label directly (`X0`
+through `X7` = attribute `0`-`7`), but **no octal-label-to-attribute
+conversion is implemented yet** for the `X10`/`X20`/... groups. Passing a
+raw attribute number works for any value confirmed reachable; translating
+a WPLSoft-displayed octal label like `X10` to the correct attribute number
+is on you until this is added — see Open items.
 
 DVP26SE and DVP12SE share this table row in Delta's manual but haven't
-been tested — don't assume the same Instance/offset mapping applies without
-re-confirming (the known-pattern technique below).
+been tested — don't assume the same mapping applies without re-confirming
+(the known-pattern technique below).
 
 ### Why two strategies?
 
@@ -120,10 +158,15 @@ device-types/
   index.js                 Profile registry: register(key, profile) /
                             get(key) / list(). Adding a new PLC type means
                             adding one file here and registering it.
-  sx3.js                     Profile: thin passthrough to registers.js.
-  es2.js                      Profile: readD via assembly-window fallback;
-                               every other method throws clearly rather
-                               than being silently wrong or omitted.
+  sx3.js                     Profile: thin passthrough to registers.js
+                               (word-mode Register Objects).
+  es2.js                      Profile: bit-mode Register Objects for
+                               X/Y/M/S/T/C (registers.js's readXBit/readYBit/
+                               writeYBit/readM/writeM/readS/writeS/readBit/
+                               writeBit — word-mode isn't supported on this
+                               device), D read via the assembly-window
+                               fallback, D write and HC/SM/SR unsupported
+                               (documented why in the file itself).
 
 device.js                  DeltaDevice — wraps a Scanner (session + generic
                             CIP) with a chosen device-type profile. The
@@ -144,11 +187,21 @@ eds-inspect.js              Profile-authoring assist: parses an EDS file's
 
 1. Get the device talking generic CIP first (`Scanner.discover()` /
    `getAttribute()` against Identity) to confirm basic connectivity.
-2. Try `registers.js`'s Class `0x350`-`0x359` directly
-   (`readWord(session, RegisterClass.D, 0)`). If that works, your new type
-   can likely just be a thin passthrough like `sx3.js`.
-3. If it returns `PathDestinationUnknown`, fall back to the known-pattern
-   technique that found the ES2's mapping:
+2. Try `registers.js`'s Class `0x350`-`0x359` directly — **both modes**,
+   don't stop at the first failure: `readWord(session, RegisterClass.D, 0)`
+   (Instance 2, word-mode) AND `readBit(session, RegisterClass.D, 0)`
+   (Instance 1, bit-mode). The ES2 turned out to support only bit-mode; a
+   `PathDestinationUnknown` on word-mode alone does **not** mean the class
+   doesn't exist. If bit-mode read succeeds, immediately cross-check it's
+   not an isolated scratch store (see the D lesson above) — write a known
+   pattern via the device's own software into a *word-mode-readable* type
+   if one exists on this device (or via a completely independent read
+   path, like the assembly-window mirror), and confirm the CIP read
+   matches before trusting it. If word-mode works too, your new type can
+   likely just be a thin passthrough like `sx3.js`; if only bit-mode works,
+   model it after `es2.js`.
+3. If neither mode responds at all, fall back to the known-pattern
+   technique that found the ES2's D mapping:
    - Write a distinguishing value pattern into the register range you care
      about, using the device's own programming software (not this driver).
    - Sweep every Assembly instance's Data attribute
@@ -167,15 +220,25 @@ eds-inspect.js              Profile-authoring assist: parses an EDS file's
 
 ## Open items
 
-- **ES2 write path unconfirmed** — Instance 100 accepts
-  `Set_Attribute_Single`, but nothing observed confirms what (if anything)
-  it writes to in the PLC's own register table. Needs the device owner to
-  cross-check a written marker pattern against their own register monitor.
-- **ES2 X/Y/M/S/C/T/HC/SM/SR mapping** — only D has been found. Same
-  known-pattern technique would work for the others; not yet done.
-- **Bit-mode addressing formula** (`wordIndex * 16 + bitIndex`) — spot-checked,
-  not exhaustively verified.
+- **ES2 D write** — no working path found (Assembly Instance 100 explicit
+  write, Assembly Instance 100 during an active connection, and Class
+  `0x352` bit-mode write were all tried and don't reach the real D-table).
+  May be a genuine firmware limitation on this device rather than something
+  solvable from the CIP side; revisit if a new idea comes up.
+- **X/Y octal-label addressing** — `readX`/`readY`/etc. take the raw CIP
+  attribute number, not the octal-style label (`X10`, `X17`, `X20`, ...)
+  WPLSoft/ISPSoft display. No conversion helper exists yet; needed before
+  this is safe to use with labels above `X7`/`Y7` in each group.
+- **`'sx3'` word-mode T/C/HC write** — read confirmed live, write not yet
+  round-trip tested on that profile (unrelated to the ES2 findings above).
 - **AH/AS mid-range family (AHCPU5xx-EN, AS200/AS100, etc.)** — per Delta's
   manual these share the same Vendor-Specific Register Objects and are
   likely `'sx3'`-compatible, but none has been tested; no profile registered
   for them yet.
+- **EIPSession concurrency** — issuing multiple explicit requests on one
+  session concurrently (e.g. `Promise.all([read(a), read(b)])` without
+  awaiting sequentially) surfaced a real bug during this investigation
+  (responses got mismatched to requests). Every example and profile method
+  in this driver awaits sequentially, which works fine — just don't
+  parallelize calls on a single `EIPSession`/`Scanner`/`DeltaDevice` until
+  this is fixed.

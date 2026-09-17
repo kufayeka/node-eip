@@ -414,25 +414,30 @@ originally proposed (byte-offset config, or unconfirmed symbolic tags):
 no per-device configuration needed — this works the same on any AH/AS-series
 device.
 
-**⚠️ Model-specific, not universal across all Delta PLCs (2026-09 finding):**
-a network scan turned up a second real device on the same LAN, a
-**DVP32ES2-E** (`192.168.68.111`, product code 771 — a different, older DVP
-PLC family, not AS/AH-series). The vendor-neutral core worked identically
-against it (Identity read confirmed `"DVP32ES2-E"`; Assembly sweep found the
-*exact same* 17 instances at the *exact same* sizes as the SX3 — 100-115 at
-200 bytes, 199 at 0 bytes), but **`readD()` failed** with general status
-`0x05` (`PathDestinationUnknown`) — Class `0x352` simply isn't implemented on
-this device. Its EDS (obtained separately, Delta's DVPES2E EIP package) has
-no vendor-specific-object hints either way; EDS files don't declare vendor
-classes regardless of whether they're supported, so this had to be confirmed
-live. **Conclusion: the Register Objects in this domain are an AS/AH-series
-feature, not a Delta-wide one** — exactly why this layer lives in `src/delta/`
-as an *additive* concern on top of the vendor-neutral core rather than being
-assumed universal. A driver caller should not assume `readD()` etc. works
-against every Delta device without checking (e.g. read Vendor ID first
-via generic `Get_Attribute_Single`, cross-reference the Product Code against
-known AS/AH models, or simply try/catch the vendor-specific read and fall
-back to generic Assembly I/O).
+**⚠️ Model-specific, and the details vary more than expected (2026-09,
+corrected):** a network scan turned up a second real device on the same
+LAN, a **DVP32ES2-E** (`192.168.68.111`, product code 771 — a different,
+older DVP PLC family, not AS/AH-series). The vendor-neutral core worked
+identically against it, but `readD()` (word-mode, Instance 2) failed with
+`PathDestinationUnknown` — the original conclusion drawn from that was
+**"this device doesn't implement the Register Objects at all."** That was
+wrong, and worth recording exactly how: a full class-ID sweep later found
+Classes `0x350`-`0x356` (X/Y/D/M/S/T/C) all present and answering — just
+only their **bit-mode instance (Instance 1)**, not word-mode (Instance 2).
+Live cross-validation (writing known patterns via WPLSoft/ISPSoft, reading
+back over CIP, and separately writing over CIP and watching the physical
+device's own monitor react) confirmed bit-mode read/write is real for
+X/Y/M/S/T/C — **except D**, whose bit-mode instance turned out to be a
+real but *completely disconnected* scratch store, not the actual D-table
+(full story and the corrected per-method table in
+[src/delta/README.md](src/delta/README.md)'s `'es2'` section). The
+practical lesson: a `PathDestinationUnknown` on one Instance number is not
+proof a Class doesn't exist — check the other Instance before concluding
+that. A driver caller still should not assume any given register-access
+strategy works against every Delta device without checking — that's why
+this driver requires an explicit device-type choice (`DeltaDevice(host,
+'sx3'|'es2')`) rather than auto-detecting; see "Explicit device-type
+profiles" below.
 
 | Register | Class | Instance | Access | Word type | Status |
 |---|---|---|---|---|---|
@@ -514,6 +519,22 @@ the same `encodeEPath`/`buildRequest` core, nothing new at the wire level)
 DVP-ES2 convention, must be reconfirmed per device). Live example:
 [examples/delta-es2-fallback.js](examples/delta-es2-fallback.js).
 
+**⚠️ Superseded, kept for the investigation trail (2026-09):** everything
+above this point in Domain J was written before the class-ID sweep found
+X/Y/D/M/S/T/C's bit-mode instances actually work on the ES2 (see the
+correction earlier in this section). The Assembly-window `readD` above is
+still the right, live-validated way to read D — that part held up. What's
+now known additionally: X/Y/M/S/T/C are readable **and writable** for real
+via `registers.js`'s bit-mode functions (`readXBit`, `readYBit`/`writeYBit`,
+`readM`/`writeM`, `readS`/`writeS`, and `readBit`/`writeBit` for T/C),
+confirmed by watching the physical device react to a driver-issued write.
+D write is the one confirmed dead end — its bit-mode Class `0x352` exists
+and works, but writes to it don't reach the real D-table by any path tried
+(explicit Assembly write, Assembly write during an active connection, or
+the Class `0x352` bit-mode write itself). Full corrected picture, with a
+per-method table, is in [src/delta/README.md](src/delta/README.md) — that
+file is now authoritative for the `'es2'` profile.
+
 #### Explicit device-type profiles: `DeltaDevice` (2026-09)
 
 Given real capability turned out to vary per specific model rather than
@@ -543,20 +564,28 @@ const es2 = new DeltaDevice('192.168.68.111', 'es2'); // Assembly-window fallbac
 - [src/delta/device-types/sx3.js](src/delta/device-types/sx3.js) — thin
   passthrough to `registers.js` (Delta manual-documented, vendor-wide for
   this family).
-- [src/delta/device-types/es2.js](src/delta/device-types/es2.js) — `readD`
-  via the Assembly-window fallback; every other method throws a clear
-  "not supported for device type 'es2'" error rather than silently doing
-  the wrong thing or being omitted (so every profile has the same method
-  shape to code against).
+- [src/delta/device-types/es2.js](src/delta/device-types/es2.js) — bit-mode
+  read/write for X/Y/M/S/T/C (via `registers.js`), `readD` via the
+  Assembly-window fallback; `writeD`/`readHC`/`writeHC`/`readSM`/`readSR`
+  throw a clear "not supported for device type 'es2'" error with the
+  specific reason (either "no working write path found" for D, or "this
+  Class doesn't exist on this device" for HC/SM/SR) rather than silently
+  doing the wrong thing or being omitted — every profile has the same
+  method shape to code against regardless of what it can actually do.
 - [src/delta/device.js](src/delta/device.js) — `DeltaDevice`, wraps a
   `Scanner` + a chosen profile behind one object.
 
-**Live-validated (2026-09):** `DeltaDevice(sx3Host, 'sx3').readD(0)` and
-`DeltaDevice(es2Host, 'es2').readD(0)` both work; `DeltaDevice(es2Host,
-'sx3').readD(0)` — deliberately mismatched type — fails with the expected
-`0x05 PathDestinationUnknown` from `registers.js`'s Class 0x352, rather than
-silently returning garbage. This is the explicit failure mode the design
-was chosen for.
+**Live-validated (2026-09):** the full `'es2'` read/write surface through
+`DeltaDevice` itself (not just the lower-level functions) — `readX`/`readY`/
+`readM`/`readD` all match values written via WPLSoft/ISPSoft; `writeM`/
+`writeY`/`writeS`/`writeT`/`writeC` round trip cleanly (write true, read
+back true, write back the original value, read back confirms restored) and
+were independently confirmed by watching the physical device's own live
+monitor react. `writeD` fails clearly instead of silently writing nowhere.
+Also: `DeltaDevice(es2Host, 'sx3').readD(0)` — deliberately mismatched
+type — fails with the expected `0x05 PathDestinationUnknown` from
+`registers.js`'s Class 0x352 word-mode, rather than silently returning
+garbage. This is the explicit failure mode the design was chosen for.
 
 **Profile-authoring assist (not auto-generation):**
 [src/delta/eds-inspect.js](src/delta/eds-inspect.js) parses an EDS file's
@@ -722,6 +751,20 @@ real Delta SX-3 PLC:
   data. Extensible: a new PLC type is one new file plus a registry entry.
   Includes a profile-authoring assist tool (`eds-inspect.js`) that reads an
   EDS's Assembly/Connection sections as a starting point.
+- **`'es2'` profile completed — full read/write for X/Y/M/S/T/C, corrected
+  understanding of D (2026-09):** a full CIP class-ID sweep found the ES2
+  actually does implement Delta's Register Objects, just bit-mode only
+  (Instance 1) — the earlier "doesn't implement them at all" conclusion was
+  based on testing only word-mode (Instance 2). Read for X/Y/M and write
+  for Y/M/S/T/C all confirmed live: read values matched a pattern written
+  through WPLSoft/ISPSoft, and writes were independently confirmed by
+  watching the physical device's own monitor react. D turned out to be the
+  one exception — its bit-mode object is real but writes to it don't reach
+  the actual D-table by any path tried, so `readD` stays on the
+  Assembly-mirror fallback and `writeD` fails clearly rather than silently
+  doing nothing. See [src/delta/README.md](src/delta/README.md) for the
+  full per-method breakdown — it's now the authoritative source for the
+  `'es2'` profile, ahead of the narrative in Domain J below.
 
 Phase 2 is now essentially feature-complete for its core scope. **Phase 3
 (EIP Adapter) is underway and its core is done**, validated live via full
@@ -743,7 +786,7 @@ its own new `EIPAdapter`):
   the fixed port 2222 (a protocol/OS constraint, not an implementation gap;
   see Domain H for the full explanation).
 
-`npm test` (97 tests) covers the same logic with synthetic buffers for
+`npm test` (100 tests) covers the same logic with synthetic buffers for
 regression safety. Still ahead: Multiple Service Packet and Rockwell/Logix
 tag services (Phase 2 loose ends), TCP/IP Interface + Ethernet Link Objects
 and real cross-device I/O validation (Phase 3 loose ends).
