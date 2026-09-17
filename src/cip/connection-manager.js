@@ -69,6 +69,46 @@ function decodeNetworkConnectionParams(word) {
     };
 }
 
+/**
+ * Encodes the 32-bit Network Connection Parameters DWORD (CIP Vol 1, Table 3-5.17)
+ * used by Large_Forward_Open (0x5B) for each direction (O->T/T->O).
+ *   bits 0-15 : connection size, 0-65535 bytes
+ *   bits 16-24: reserved (0)
+ *   bit  25   : size type, 0 = fixed, 1 = variable
+ *   bits 26-27: priority (0 = Low, 1 = High, 2 = Scheduled, 3 = Urgent)
+ *   bit  28   : reserved (0)
+ *   bits 29-30: connection type (0 = Null, 1 = Multicast, 2 = PointToPoint)
+ *   bit  31   : redundant owner (0 = exclusive, 1 = redundant)
+ */
+function encodeLargeNetworkConnectionParams({
+    size,
+    variableSize = false,
+    priority = ConnectionPriority.Low,
+    connectionType = ConnectionType.PointToPoint,
+    redundantOwner = false
+}) {
+    if (size < 0 || size > 65535) {
+        throw new RangeError(`encodeLargeNetworkConnectionParams: size must be 0-65535 for Large_Forward_Open, got ${size}`);
+    }
+    let dword = (size & 0xffff) >>> 0;
+    if (variableSize) dword |= (1 << 25);
+    dword |= ((priority & 0x3) << 26);
+    dword |= ((connectionType & 0x3) << 29);
+    if (redundantOwner) dword |= (1 << 31);
+    return dword >>> 0;
+}
+
+function decodeLargeNetworkConnectionParams(dword) {
+    const val = Number(dword) >>> 0;
+    return {
+        size: val & 0xffff,
+        variableSize: Boolean((val >> 25) & 0x1),
+        priority: (val >> 26) & 0x3,
+        connectionType: (val >> 29) & 0x3,
+        redundantOwner: Boolean((val >> 31) & 0x1)
+    };
+}
+
 /** Encodes the Priority/Time_tick + Timeout_ticks pair that appears at the start of both requests. */
 function encodeTimingBytes({ timeTick = 0x0a, timeoutTicks = 0x0e } = {}) {
     return Buffer.from([timeTick & 0xff, timeoutTicks & 0xff]);
@@ -171,6 +211,68 @@ function buildForwardOpenRequest({
 }
 
 /**
+ * Builds a Large_Forward_Open (0x5B) request body per CIP Vol 1, Section 3-5.5.3.
+ * Supports 32-bit connection parameters and connection sizes up to 65535 bytes.
+ */
+function buildLargeForwardOpenRequest({
+    connectionPath,
+    rpiUs = 20000,
+    otRpiUs = rpiUs,
+    toRpiUs = rpiUs,
+    otSize,
+    toSize,
+    otConnectionType = ConnectionType.PointToPoint,
+    toConnectionType = ConnectionType.PointToPoint,
+    otVariableSize = false,
+    toVariableSize = false,
+    connectionTimeoutMultiplier = 3,
+    timeTick = 0x0a,
+    timeoutTicks = 0x0e,
+    connectionSerialNumber = nextConnectionSerialNumber(),
+    originatorVendorId = 0xffff,
+    originatorSerialNumber = 0x00000001,
+    otNetworkConnectionId = 0,
+    toNetworkConnectionId = randomUInt32(),
+    transportTypeTrigger = 0x01
+}) {
+    if (!Buffer.isBuffer(connectionPath) || connectionPath.length % 2 !== 0) {
+        throw new RangeError('buildLargeForwardOpenRequest: connectionPath must be an even-length Buffer (padded EPATH)');
+    }
+    if (typeof otSize !== 'number' || typeof toSize !== 'number') {
+        throw new TypeError('buildLargeForwardOpenRequest: otSize and toSize are required');
+    }
+
+    const parts = [];
+    parts.push(encodeTimingBytes({ timeTick, timeoutTicks }));
+
+    const idsAndSerial = Buffer.alloc(4 + 4 + 2 + 2 + 4);
+    idsAndSerial.writeUInt32LE(otNetworkConnectionId, 0);
+    idsAndSerial.writeUInt32LE(toNetworkConnectionId, 4);
+    idsAndSerial.writeUInt16LE(connectionSerialNumber, 8);
+    idsAndSerial.writeUInt16LE(originatorVendorId, 10);
+    idsAndSerial.writeUInt32LE(originatorSerialNumber, 12);
+    parts.push(idsAndSerial);
+
+    parts.push(Buffer.from([connectionTimeoutMultiplier & 0xff, 0x00, 0x00, 0x00])); // + 3 reserved bytes
+
+    const otParams = Buffer.alloc(8);
+    otParams.writeUInt32LE(otRpiUs, 0);
+    otParams.writeUInt32LE(encodeLargeNetworkConnectionParams({ size: otSize, variableSize: otVariableSize, connectionType: otConnectionType }), 4);
+    parts.push(otParams);
+
+    const toParams = Buffer.alloc(8);
+    toParams.writeUInt32LE(toRpiUs, 0);
+    toParams.writeUInt32LE(encodeLargeNetworkConnectionParams({ size: toSize, variableSize: toVariableSize, connectionType: toConnectionType }), 4);
+    parts.push(toParams);
+
+    parts.push(Buffer.from([transportTypeTrigger & 0xff]));
+    parts.push(Buffer.from([connectionPath.length / 2]));
+    parts.push(connectionPath);
+
+    return { data: Buffer.concat(parts), connectionSerialNumber, originatorVendorId, originatorSerialNumber };
+}
+
+/**
  * Parses a successful Forward_Open response body (already unwrapped from
  * the Message Router envelope — pass response.data from
  * cip/message-router.js's parseResponse(), after confirming generalStatus
@@ -202,6 +304,8 @@ function parseForwardOpenResponse(data) {
         applicationReply
     };
 }
+
+const parseLargeForwardOpenResponse = parseForwardOpenResponse;
 
 /**
  * Builds a Forward_Close request body. `connectionSerialNumber`,
@@ -383,6 +487,40 @@ const ForwardOpenExtendedStatus = Object.freeze({
     0x0128: 'Redundant connection mismatch'
 });
 
+/**
+ * Parses an incoming Large_Forward_Open (0x5B) request body with 32-bit connection parameters.
+ */
+function parseLargeForwardOpenRequest(data) {
+    if (data.length < 40) {
+        throw new RangeError('parseLargeForwardOpenRequest: request too short');
+    }
+    const otParams = decodeLargeNetworkConnectionParams(data.readUInt32LE(26));
+    const toParams = decodeLargeNetworkConnectionParams(data.readUInt32LE(34));
+    const pathSizeWords = data.readUInt8(39);
+    const connectionPath = data.subarray(40, 40 + pathSizeWords * 2);
+
+    return {
+        timeTick: data.readUInt8(0),
+        timeoutTicks: data.readUInt8(1),
+        otNetworkConnectionId: data.readUInt32LE(2),
+        toNetworkConnectionId: data.readUInt32LE(6),
+        connectionSerialNumber: data.readUInt16LE(10),
+        originatorVendorId: data.readUInt16LE(12),
+        originatorSerialNumber: data.readUInt32LE(14),
+        connectionTimeoutMultiplier: data.readUInt8(18),
+        otRpiUs: data.readUInt32LE(22),
+        otSize: otParams.size,
+        otConnectionType: otParams.connectionType,
+        otVariableSize: otParams.variableSize,
+        toRpiUs: data.readUInt32LE(30),
+        toSize: toParams.size,
+        toConnectionType: toParams.connectionType,
+        toVariableSize: toParams.variableSize,
+        transportTypeTrigger: data.readUInt8(38),
+        connectionPath
+    };
+}
+
 module.exports = {
     ConnectionManagerServices,
     ConnectionType,
@@ -390,10 +528,15 @@ module.exports = {
     connectionManagerPath,
     encodeNetworkConnectionParams,
     decodeNetworkConnectionParams,
+    encodeLargeNetworkConnectionParams,
+    decodeLargeNetworkConnectionParams,
     buildForwardOpenRequest,
     parseForwardOpenResponse,
     parseForwardOpenRequest,
     buildForwardOpenResponse,
+    buildLargeForwardOpenRequest,
+    parseLargeForwardOpenResponse,
+    parseLargeForwardOpenRequest,
     buildForwardCloseRequest,
     parseForwardCloseResponse,
     parseForwardCloseRequest,

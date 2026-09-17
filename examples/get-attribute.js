@@ -18,11 +18,7 @@ const { buildRequest, encodeEPath } = (() => {
 const { CipCommonServices, CipGeneralStatus } = require('../src/constants');
 
 async function main() {
-    const host = process.argv[2];
-    if (!host) {
-        console.error('Usage: node examples/get-attribute.js <host> [class] [instance] [attribute]');
-        process.exit(1);
-    }
+    const host = process.argv[2] || '192.168.68.250';
     const classId = process.argv[3] ? Number(process.argv[3]) : 0x01; // Identity Object
     const instance = process.argv[4] ? Number(process.argv[4]) : 1;
     const attribute = process.argv[5] ? Number(process.argv[5]) : 1; // Vendor ID

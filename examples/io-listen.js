@@ -24,12 +24,8 @@ const { buildIoDatagram, parseIoDatagram } = require('../src/cip/io-connection')
 const { EIP_IO_UDP_PORT } = require('../src/constants');
 
 async function main() {
-    const host = process.argv[2];
-    if (!host) {
-        console.error('Usage: node examples/io-listen.js <host> [listenSeconds]');
-        process.exit(1);
-    }
-    const listenSeconds = process.argv[3] ? Number(process.argv[3]) : 5;
+    const host = process.argv[2] || '192.168.68.250';
+    const listenSeconds = process.argv[3] ? Number(process.argv[3]) : 3;
 
     const connectionPath = encodeAssemblyConnectionPath({ configInstance: 0x80, o2tInstance: 0x64, t2oInstance: 0x65 });
 

@@ -1,15 +1,19 @@
 'use strict';
 
 const net = require('net');
+const EventEmitter = require('events');
 const { decodeMessage } = require('./encapsulation/header');
 const { buildRegisterSessionRequest, readRegisterSessionResponse, buildUnRegisterSessionRequest } = require('./encapsulation/session');
 const { buildSendRRData, readSendRRDataResponse } = require('./encapsulation/rrdata');
+const { buildNopRequest } = require('./encapsulation/services');
 const { buildRequest: buildCipRequest, parseResponse: parseCipResponse } = require('./cip/message-router');
 const {
     ConnectionManagerServices,
     connectionManagerPath,
     buildForwardOpenRequest,
     parseForwardOpenResponse,
+    buildLargeForwardOpenRequest,
+    parseLargeForwardOpenResponse,
     buildForwardCloseRequest,
     parseForwardCloseResponse,
     ForwardOpenExtendedStatus
@@ -17,56 +21,218 @@ const {
 const { EIP_ENCAPSULATION_PORT, CipGeneralStatus } = require('./constants');
 
 /**
- * Low-level EtherNet/IP TCP session client — vendor-neutral: RegisterSession,
- * UnRegisterSession, and unconnected explicit messaging (SendRRData) are the
- * same for any ODVA-conformant device; this class has no Rockwell/Logix
- * awareness whatsoever.
- *
- * One request is in flight at a time (a simple FIFO queue of pending
- * transactions) — sufficient for explicit messaging, which is inherently
- * request/response. Implicit (I/O) connections are a separate mechanism
- * (Phase 2/3, connection-manager.js) layered on top later.
+ * Formal EtherNet/IP session lifecycle states per ODVA specifications.
  */
-class EIPSession {
-    constructor(host, { port = EIP_ENCAPSULATION_PORT, timeoutMs = 5000 } = {}) {
+const SessionState = Object.freeze({
+    Disconnected: 'DISCONNECTED',
+    Connecting: 'CONNECTING',
+    Registered: 'REGISTERED',
+    Active: 'ACTIVE',
+    Destroyed: 'DESTROYED'
+});
+
+/**
+ * Low-level EtherNet/IP TCP session client — vendor-neutral: RegisterSession,
+ * UnRegisterSession, unconnected explicit messaging (SendRRData), and NOP keepalive
+ * are the same for any ODVA-conformant device.
+ *
+ * Implements session state machine, FIFO queue backpressure, NOP heartbeat,
+ * and automatic reconnect engine.
+ */
+class EIPSession extends EventEmitter {
+    constructor(host, {
+        port = EIP_ENCAPSULATION_PORT,
+        timeoutMs = 5000,
+        maxInFlight = 1,
+        autoReconnect = false,
+        reconnectDelayMs = 1000,
+        maxReconnectAttempts = 10,
+        heartbeatIntervalMs = 0,
+        heartbeatMethod = 'identity'
+    } = {}) {
+        super();
         this.host = host;
         this.port = port;
         this.timeoutMs = timeoutMs;
+        this.maxInFlight = maxInFlight;
+        this.autoReconnect = autoReconnect;
+        this.reconnectDelayMs = reconnectDelayMs;
+        this.maxReconnectAttempts = maxReconnectAttempts;
+        this.heartbeatIntervalMs = heartbeatIntervalMs;
+        this.heartbeatMethod = heartbeatMethod;
+
+        this.state = SessionState.Disconnected;
         this.socket = null;
         this.sessionHandle = 0;
         this._buffer = Buffer.alloc(0);
-        this._pending = [];
+        this._contextSeq = 1n;
+        this._pending = new Map();
+        this._queue = [];
+        this._heartbeatTimer = null;
+        this._reconnectTimer = null;
+        this._reconnectAttempts = 0;
+        this._reconnecting = false;
+    }
+
+    _setState(newState) {
+        if (this.state === newState) return;
+        const oldState = this.state;
+        this.state = newState;
+        this.emit('stateChange', { oldState, newState });
+        this.emit(newState.toLowerCase());
+    }
+
+    _nextSenderContext() {
+        const buf = Buffer.alloc(8);
+        buf.writeBigUInt64LE(this._contextSeq++, 0);
+        return buf;
     }
 
     /** Opens the TCP connection and performs the RegisterSession handshake. */
     connect() {
+        if (this.state === SessionState.Destroyed) {
+            return Promise.reject(new Error('EIPSession.connect: session has been destroyed — create a new instance'));
+        }
+        if (this.sessionHandle && (this.state === SessionState.Registered || this.state === SessionState.Active)) {
+            return Promise.resolve({ sessionHandle: this.sessionHandle });
+        }
+
+        this._setState(SessionState.Connecting);
+
         return new Promise((resolve, reject) => {
             const socket = new net.Socket();
             this.socket = socket;
 
-            socket.on('error', (err) => this._rejectAllPending(err));
-            socket.on('close', () => {
-                this.sessionHandle = 0;
-                this._rejectAllPending(new Error('EIPSession: socket closed'));
-            });
-            socket.on('data', (chunk) => this._onData(chunk));
-
-            const connectTimer = setTimeout(() => {
+            let connectTimer = setTimeout(() => {
                 socket.destroy();
+                this._setState(SessionState.Disconnected);
                 reject(new Error(`EIPSession.connect: timed out connecting to ${this.host}:${this.port}`));
             }, this.timeoutMs);
 
+            socket.on('error', (err) => {
+                clearTimeout(connectTimer);
+                this.emit('error', err);
+                if (!this._reconnecting) {
+                    this._rejectAllPending(err);
+                }
+            });
+
+            socket.on('close', () => {
+                clearTimeout(connectTimer);
+                const wasConnected = Boolean(this.sessionHandle);
+                this.sessionHandle = 0;
+                this._stopHeartbeat();
+
+                if (this.state === SessionState.Destroyed) {
+                    this._rejectAllPending(new Error('EIPSession: socket closed'));
+                    return;
+                }
+
+                if (this.autoReconnect && wasConnected) {
+                    this._scheduleReconnect();
+                } else {
+                    this._setState(SessionState.Disconnected);
+                    this._rejectAllPending(new Error('EIPSession: socket closed'));
+                }
+            });
+
+            socket.on('data', (chunk) => this._onData(chunk));
+
             socket.connect(this.port, this.host, () => {
                 clearTimeout(connectTimer);
-                this._transact(buildRegisterSessionRequest())
+                this._transact((senderContext) => buildRegisterSessionRequest({ senderContext }))
                     .then((msg) => {
                         const registered = readRegisterSessionResponse(msg);
                         this.sessionHandle = registered.sessionHandle;
+                        this._reconnectAttempts = 0;
+                        this._setState(SessionState.Registered);
+                        this._startHeartbeat();
                         resolve(registered);
                     })
-                    .catch(reject);
+                    .catch((err) => {
+                        socket.destroy();
+                        this._setState(SessionState.Disconnected);
+                        reject(err);
+                    });
             });
         });
+    }
+
+    _scheduleReconnect() {
+        if (this._reconnecting || this.state === SessionState.Destroyed) return;
+        this._reconnecting = true;
+        this._setState(SessionState.Connecting);
+
+        const attempt = ++this._reconnectAttempts;
+        if (attempt > this.maxReconnectAttempts) {
+            this._reconnecting = false;
+            this._setState(SessionState.Disconnected);
+            this._rejectAllPending(new Error(`EIPSession: auto-reconnect failed after ${this.maxReconnectAttempts} attempts`));
+            return;
+        }
+
+        const delay = Math.min(this.reconnectDelayMs * Math.pow(1.3, attempt - 1), 30000);
+        this.emit('reconnecting', { attempt, maxAttempts: this.maxReconnectAttempts, delay });
+
+        this._reconnectTimer = setTimeout(async () => {
+            try {
+                await this.connect();
+                this._reconnecting = false;
+                this._pumpQueue();
+            } catch {
+                this._reconnecting = false;
+                this._scheduleReconnect();
+            }
+        }, delay);
+        if (this._reconnectTimer.unref) this._reconnectTimer.unref();
+    }
+
+    /**
+     * Sends an Encapsulation NOP (0x0000) message per CIP Vol 2 Section 2-3.1.
+     * Can be used as a heartbeat or connectivity test.
+     */
+    async sendNop({ data = Buffer.alloc(0) } = {}) {
+        if (!this.socket || (!this.sessionHandle && this.state !== SessionState.Registered && this.state !== SessionState.Active)) {
+            throw new Error('EIPSession.sendNop: no active session — call connect() first');
+        }
+        const msg = await this._transact((senderContext) =>
+            buildNopRequest({ sessionHandle: this.sessionHandle, senderContext, data })
+        );
+        return {
+            ok: msg.header.status === 0,
+            status: msg.header.status,
+            data: msg.data
+        };
+    }
+
+    _startHeartbeat() {
+        this._stopHeartbeat();
+        if (this.heartbeatIntervalMs <= 0) return;
+
+        this._heartbeatTimer = setInterval(async () => {
+            if (this.state !== SessionState.Registered && this.state !== SessionState.Active) return;
+            try {
+                if (this.heartbeatMethod === 'nop') {
+                    await this.sendNop();
+                } else {
+                    const path = Buffer.from([0x20, 0x01, 0x24, 0x01, 0x30, 0x01]);
+                    const req = buildCipRequest({ service: 0x0E, path });
+                    await this.sendUnconnected(req);
+                }
+            } catch (err) {
+                if (this.socket && !this.socket.destroyed) {
+                    this.socket.destroy(err);
+                }
+            }
+        }, this.heartbeatIntervalMs);
+        if (this._heartbeatTimer.unref) this._heartbeatTimer.unref();
+    }
+
+    _stopHeartbeat() {
+        if (this._heartbeatTimer) {
+            clearInterval(this._heartbeatTimer);
+            this._heartbeatTimer = null;
+        }
     }
 
     /**
@@ -77,30 +243,74 @@ class EIPSession {
      * @param {Buffer} cipRequest - built with cip/message-router.js's buildRequest()
      */
     async sendUnconnected(cipRequest, { timeoutSec = 0 } = {}) {
-        if (!this.sessionHandle) {
+        if (!this.sessionHandle && !this._reconnecting) {
             throw new Error('EIPSession.sendUnconnected: no active session — call connect() first');
         }
-        const msg = await this._transact(buildSendRRData(this.sessionHandle, cipRequest, { timeoutSec }));
+        const msg = await this._transact((senderContext) =>
+            buildSendRRData(this.sessionHandle, cipRequest, { timeoutSec, senderContext })
+        );
         const { cipResponse } = readSendRRDataResponse(msg);
         return parseCipResponse(cipResponse);
     }
 
     /**
-     * Establishes a Class 1/3 connection via Forward_Open (Connection
-     * Manager, CIP Vol 1 3-5.5) — always sent unconnected via SendRRData,
-     * regardless of what kind of connection is being requested. On success,
-     * returns everything needed later to Forward_Close it, plus the
-     * negotiated O->T/T->O Actual Packet Intervals.
+     * Establishes a Class 1/3 connection via Forward_Open (0x54) or Large_Forward_Open (0x5B).
+     * Automatically handles 32-bit connection parameters for buffers > 505 bytes and provides
+     * transparent fallback if the target device rejects 0x5B.
      *
-     * @param {object} forwardOpenParams - see cip/connection-manager.js's buildForwardOpenRequest()
+     * @param {object} forwardOpenParams - parameters per buildForwardOpenRequest / buildLargeForwardOpenRequest
+     * @param {object} [opts]
+     * @param {boolean} [opts.allowFallback=true] - fallback from 0x5B to 0x54 if 0x5B unsupported
+     * @param {boolean} [opts.useLarge=false] - force Large Forward Open (0x5B)
      */
-    async openConnection(forwardOpenParams) {
+    async openConnection(forwardOpenParams, { allowFallback = true, useLarge = false } = {}) {
+        const isLarge = useLarge ||
+            (forwardOpenParams.otSize !== undefined && forwardOpenParams.otSize > 505) ||
+            (forwardOpenParams.toSize !== undefined && forwardOpenParams.toSize > 505);
+
+        if (isLarge) {
+            const built = buildLargeForwardOpenRequest(forwardOpenParams);
+            const request = buildCipRequest({
+                service: ConnectionManagerServices.LargeForwardOpen,
+                path: connectionManagerPath(),
+                data: built.data
+            });
+            const response = await this.sendUnconnected(request);
+
+            const isUnsupported = response.generalStatus === CipGeneralStatus.ServiceNotSupported ||
+                (response.generalStatus === CipGeneralStatus.ConnectionFailure &&
+                 response.additionalStatus[0] === 0x011a);
+
+            if (isUnsupported && allowFallback &&
+                (forwardOpenParams.otSize <= 505 && forwardOpenParams.toSize <= 505)) {
+                return this.openConnection(forwardOpenParams, { allowFallback: false, useLarge: false });
+            }
+
+            if (response.generalStatus !== CipGeneralStatus.Success) {
+                throw this._forwardOpenError(response, 'Large_Forward_Open');
+            }
+
+            const opened = parseLargeForwardOpenResponse(response.data);
+            return {
+                ...opened,
+                connectionPath: forwardOpenParams.connectionPath,
+                connectionSerialNumber: built.connectionSerialNumber,
+                originatorVendorId: built.originatorVendorId,
+                originatorSerialNumber: built.originatorSerialNumber,
+                isLarge: true
+            };
+        }
+
         const built = buildForwardOpenRequest(forwardOpenParams);
-        const request = buildCipRequest({ service: ConnectionManagerServices.ForwardOpen, path: connectionManagerPath(), data: built.data });
+        const request = buildCipRequest({
+            service: ConnectionManagerServices.ForwardOpen,
+            path: connectionManagerPath(),
+            data: built.data
+        });
         const response = await this.sendUnconnected(request);
 
         if (response.generalStatus !== CipGeneralStatus.Success) {
-            throw this._forwardOpenError(response);
+            throw this._forwardOpenError(response, 'Forward_Open');
         }
 
         const opened = parseForwardOpenResponse(response.data);
@@ -109,8 +319,14 @@ class EIPSession {
             connectionPath: forwardOpenParams.connectionPath,
             connectionSerialNumber: built.connectionSerialNumber,
             originatorVendorId: built.originatorVendorId,
-            originatorSerialNumber: built.originatorSerialNumber
+            originatorSerialNumber: built.originatorSerialNumber,
+            isLarge: false
         };
+    }
+
+    /** Explicitly establishes a connection using Large_Forward_Open (0x5B). */
+    async openLargeConnection(forwardOpenParams) {
+        return this.openConnection(forwardOpenParams, { useLarge: true, allowFallback: false });
     }
 
     /** Tears down a connection previously returned by openConnection(). */
@@ -137,13 +353,20 @@ class EIPSession {
         return new Error(`${label} failed: general status 0x${response.generalStatus.toString(16)}${extPart}`);
     }
 
-    /** Sends UnRegisterSession (no reply expected) and closes the socket. */
+    /** Sends UnRegisterSession (no reply expected) and terminates the session. */
     async close() {
+        this._setState(SessionState.Destroyed);
+        this._stopHeartbeat();
+        if (this._reconnectTimer) {
+            clearTimeout(this._reconnectTimer);
+            this._reconnectTimer = null;
+        }
+
         if (this.socket && this.sessionHandle) {
             try {
                 this.socket.write(buildUnRegisterSessionRequest(this.sessionHandle));
             } catch {
-                // socket may already be going away — nothing to do
+                // socket may already be going away
             }
         }
         this.sessionHandle = 0;
@@ -154,22 +377,70 @@ class EIPSession {
         }
     }
 
-    /** Writes `message` and resolves with the next full decoded encapsulation message. */
-    _transact(message) {
+    /** Writes `message` and resolves with the next full decoded encapsulation message matching its Sender Context. */
+    _transact(builderOrMessage) {
         return new Promise((resolve, reject) => {
-            const timer = setTimeout(() => {
-                const idx = this._pending.indexOf(entry);
-                if (idx !== -1) this._pending.splice(idx, 1);
-                reject(new Error('EIPSession: transaction timed out waiting for a reply'));
-            }, this.timeoutMs);
-
-            const entry = {
-                resolve: (msg) => { clearTimeout(timer); resolve(msg); },
-                reject: (err) => { clearTimeout(timer); reject(err); }
-            };
-            this._pending.push(entry);
-            this.socket.write(message);
+            this._queue.push({ builderOrMessage, resolve, reject });
+            this._pumpQueue();
         });
+    }
+
+    _pumpQueue() {
+        if (!this.socket || this.socket.destroyed) return;
+        while (this._pending.size < this.maxInFlight && this._queue.length > 0) {
+            const item = this._queue.shift();
+            this._sendPending(item);
+        }
+    }
+
+    _sendPending(item) {
+        const senderContext = this._nextSenderContext();
+        const key = senderContext.toString('hex');
+
+        let message;
+        if (typeof item.builderOrMessage === 'function') {
+            try {
+                message = item.builderOrMessage(senderContext);
+            } catch (err) {
+                this._pumpQueue();
+                return item.reject(err);
+            }
+        } else if (Buffer.isBuffer(item.builderOrMessage)) {
+            message = Buffer.from(item.builderOrMessage);
+            if (message.length >= 20) {
+                senderContext.copy(message, 12);
+            }
+        } else {
+            this._pumpQueue();
+            return item.reject(new TypeError('EIPSession._transact: expected message builder function or Buffer'));
+        }
+
+        const timer = setTimeout(() => {
+            this._pending.delete(key);
+            this._pumpQueue();
+            item.reject(new Error('EIPSession: transaction timed out waiting for a reply'));
+        }, this.timeoutMs);
+
+        this._pending.set(key, {
+            timer,
+            resolve: (msg) => {
+                this._pumpQueue();
+                item.resolve(msg);
+            },
+            reject: (err) => {
+                this._pumpQueue();
+                item.reject(err);
+            }
+        });
+
+        try {
+            this.socket.write(message);
+        } catch (err) {
+            clearTimeout(timer);
+            this._pending.delete(key);
+            this._pumpQueue();
+            item.reject(err);
+        }
     }
 
     _onData(chunk) {
@@ -180,21 +451,28 @@ class EIPSession {
                 return; // keep buffering, TCP may split the response
             }
             this._buffer = this._buffer.subarray(msg.bytesConsumed);
-            const entry = this._pending.shift();
+            const key = msg.header.senderContext.toString('hex');
+            const entry = this._pending.get(key);
             if (entry) {
+                this._pending.delete(key);
+                clearTimeout(entry.timer);
                 entry.resolve(msg);
             }
-            // else: unsolicited message (shouldn't happen for explicit-only
-            // usage) — drop it and keep processing the rest of the buffer.
         }
     }
 
     _rejectAllPending(err) {
-        const pending = this._pending.splice(0, this._pending.length);
+        const queued = this._queue.splice(0, this._queue.length);
+        for (const item of queued) {
+            item.reject(err);
+        }
+        const pending = Array.from(this._pending.values());
+        this._pending.clear();
         for (const entry of pending) {
+            clearTimeout(entry.timer);
             entry.reject(err);
         }
     }
 }
 
-module.exports = { EIPSession };
+module.exports = { EIPSession, SessionState };

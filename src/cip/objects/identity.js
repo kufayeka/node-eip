@@ -17,15 +17,15 @@ function ok(data) {
 
 class IdentityObject {
     constructor({
-        vendorId,
-        deviceType,
-        productCode,
+        vendorId = 0xffff,
+        deviceType = 0x0e,
+        productCode = 0x0001,
         revision = { major: 1, minor: 0 },
-        productName,
-        serialNumber,
+        productName = 'EIP-Device',
+        serialNumber = 0x12345678,
         status = 0,
         state = 0xff
-    }) {
+    } = {}) {
         this.vendorId = vendorId;
         this.deviceType = deviceType;
         this.productCode = productCode;
@@ -56,9 +56,60 @@ class IdentityObject {
         }
     }
 
+    getAttributesAll(instance) {
+        if (instance !== 1) {
+            return { generalStatus: CipGeneralStatus.PathDestinationUnknown, data: Buffer.alloc(0) };
+        }
+        const b = Buffer.alloc(14);
+        b.writeUInt16LE(this.vendorId, 0);
+        b.writeUInt16LE(this.deviceType, 2);
+        b.writeUInt16LE(this.productCode, 4);
+        b.writeUInt8(this.revision.major, 6);
+        b.writeUInt8(this.revision.minor, 7);
+        b.writeUInt16LE(this.status, 8);
+        b.writeUInt32LE(this.serialNumber >>> 0, 10);
+
+        const nameBuf = Buffer.from(this.productName, 'ascii');
+        const shortString = Buffer.concat([Buffer.from([nameBuf.length]), nameBuf]);
+        const stateBuf = Buffer.from([this.state]);
+
+        return ok(Buffer.concat([b, shortString, stateBuf]));
+    }
+
     setAttributeSingle() {
         return { generalStatus: CipGeneralStatus.AttributeNotSettable, data: Buffer.alloc(0) };
     }
 }
 
-module.exports = { IdentityObject };
+function decodeIdentityAttributesAll(buf) {
+    if (!buf || buf.length < 15) {
+        throw new RangeError('decodeIdentityAttributesAll: buffer too short');
+    }
+    const vendorId = buf.readUInt16LE(0);
+    const deviceType = buf.readUInt16LE(2);
+    const productCode = buf.readUInt16LE(4);
+    const revision = { major: buf[6], minor: buf[7] };
+    const status = buf.readUInt16LE(8);
+    const serialNumber = buf.readUInt32LE(10);
+    const nameLen = buf[14];
+    const productName = buf.subarray(15, 15 + nameLen).toString('ascii');
+    let state = 0xff;
+    if (buf.length >= 15 + nameLen + 1) {
+        state = buf[15 + nameLen];
+    }
+    return {
+        vendorId,
+        deviceType,
+        productCode,
+        revision,
+        status,
+        serialNumber,
+        productName,
+        state
+    };
+}
+
+module.exports = {
+    IdentityObject,
+    decodeIdentityAttributesAll
+};

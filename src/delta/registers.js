@@ -271,6 +271,8 @@ const writeYBitLabel = (session, label, value) => writeYBit(session, octalLabelT
 module.exports = {
     RegisterClass,
     RegisterInstance,
+    ReadOnlyClasses,
+    WordByteWidth,
     bitAttribute,
     octalLabelToIndex,
     indexToOctalLabel,

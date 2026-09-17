@@ -58,10 +58,26 @@ async function main() {
         const identity2 = await probeTcp(HOST, { port: TEST_PORT });
         console.log(`OK: ${identity2.productName}`);
 
+        console.log('\n--- TCP ListServices (no session) ---');
+        const { Scanner } = require('../src/scanner');
+        const services = await Scanner.listServices(HOST, { port: TEST_PORT });
+        console.log(`OK: Service "${services.serviceName}", Flags=0x${services.capabilityFlags.toString(16)}, TCP=${services.supportsTcp}, UDP=${services.supportsUdp}`);
+
         console.log('\n--- RegisterSession / explicit messaging / UnRegisterSession ---');
-        const session = new EIPSession(HOST, { port: TEST_PORT });
-        const registered = await session.connect();
-        console.log(`Session registered: handle=0x${registered.sessionHandle.toString(16)}`);
+        const scanner = new Scanner(HOST, { port: TEST_PORT });
+        await scanner.connect();
+        const session = scanner.session;
+        console.log(`Session registered: handle=0x${session.sessionHandle.toString(16)}`);
+
+        console.log('\n--- High-level Scanner Object Methods on Adapter ---');
+        const identityAll = await scanner.getAttributesAll({ classId: 1 });
+        console.log(`GetAttributesAll (Identity 0x01): Vendor=${identityAll.decoded.vendorId}, Product="${identityAll.decoded.productName}"`);
+
+        const tcpConfig = await scanner.getTcpIpConfig();
+        console.log(`Get TCP/IP Config (0xF5): IP=${tcpConfig.ip}, Netmask=${tcpConfig.netmask}, Host="${tcpConfig.hostName}"`);
+
+        const ethInfo = await scanner.getEthernetLinkInfo();
+        console.log(`Get Ethernet Link (0xF6): Speed=${ethInfo.speedMbps} Mbps, MAC=${ethInfo.macAddress}`);
 
         const { buildRequest } = require('../src/cip/message-router');
         const { encodeEPath } = require('../src/cip/path');

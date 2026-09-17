@@ -20,11 +20,7 @@ const { EIPSession } = require('../src/client');
 const { encodeAssemblyConnectionPath } = require('../src/cip/path');
 
 async function main() {
-    const host = process.argv[2];
-    if (!host) {
-        console.error('Usage: node examples/forward-open.js <host>');
-        process.exit(1);
-    }
+    const host = process.argv[2] || '192.168.68.250';
 
     const connectionPath = encodeAssemblyConnectionPath({ configInstance: 0x80, o2tInstance: 0x64, t2oInstance: 0x65 });
 

@@ -24,40 +24,71 @@ const { encodeCpf, CpfItemType } = require('./encapsulation/cpf');
 const { encodeIdentityItem } = require('./encapsulation/identity');
 const { buildSendRRData, readSendRRDataResponse } = require('./encapsulation/rrdata');
 const { readRegisterSessionRequest, buildRegisterSessionResponse } = require('./encapsulation/session');
+const { buildListServicesResponse, buildNopResponse } = require('./encapsulation/services');
 const { parseRequest, buildResponse } = require('./cip/message-router');
 const { decodeEPath } = require('./cip/path');
 const {
     ConnectionManagerServices,
     parseForwardOpenRequest,
+    parseLargeForwardOpenRequest,
     buildForwardOpenResponse,
     parseForwardCloseRequest,
     buildForwardCloseResponse
 } = require('./cip/connection-manager');
 const { IdentityObject } = require('./cip/objects/identity');
 const { AssemblyObject } = require('./cip/objects/assembly');
+const { TcpIpInterfaceObject } = require('./cip/objects/tcp-ip');
+const { EthernetLinkObject } = require('./cip/objects/ethernet-link');
 const { ConnectionHandler } = require('./adapter/connection-handler');
+const { encodeMultipleServiceResponseData } = require('./cip/multiple-service');
 const { EncapsulationCommands, CipGeneralStatus, CipCommonServices, CipClassCodes, EIP_ENCAPSULATION_PORT, EIP_IO_UDP_PORT } = require('./constants');
 
-function firstNonInternalIPv4() {
-    for (const entries of Object.values(os.networkInterfaces())) {
+function getLocalInterfaceDetails(targetAddress) {
+    const interfaces = os.networkInterfaces();
+    for (const [name, entries] of Object.entries(interfaces)) {
         for (const entry of entries || []) {
-            if (!entry.internal && entry.family === 'IPv4') return entry.address;
+            if (entry.family === 'IPv4') {
+                if (targetAddress && entry.address === targetAddress) {
+                    return { name, address: entry.address, netmask: entry.netmask, mac: entry.mac };
+                }
+            }
         }
     }
-    return '127.0.0.1';
+    for (const [name, entries] of Object.entries(interfaces)) {
+        for (const entry of entries || []) {
+            if (!entry.internal && entry.family === 'IPv4') {
+                return { name, address: entry.address, netmask: entry.netmask, mac: entry.mac };
+            }
+        }
+    }
+    return { name: 'eth0', address: '127.0.0.1', netmask: '255.255.255.0', mac: '00:00:00:00:00:00' };
 }
 
 class EIPAdapter {
-    constructor({ port = EIP_ENCAPSULATION_PORT, ioPort = EIP_IO_UDP_PORT, address, identity } = {}) {
+    constructor({ port = EIP_ENCAPSULATION_PORT, ioPort = EIP_IO_UDP_PORT, address, identity, tcpIp, ethernetLink } = {}) {
         this.port = port;
         this.ioPort = ioPort;
-        this.address = address || firstNonInternalIPv4();
+        const iface = getLocalInterfaceDetails(address);
+        this.address = address || iface.address;
         this.identity = new IdentityObject(identity);
         this.assembly = new AssemblyObject();
+        this.ethernetLink = new EthernetLinkObject({
+            macAddress: (ethernetLink && ethernetLink.macAddress) || iface.mac,
+            interfaceLabel: (ethernetLink && ethernetLink.interfaceLabel) || iface.name,
+            ...ethernetLink
+        });
+        this.tcpIp = new TcpIpInterfaceObject({
+            ip: this.address,
+            netmask: iface.netmask,
+            hostName: os.hostname(),
+            ...tcpIp
+        });
 
         this.objects = new Map();
         this.objects.set(CipClassCodes.Identity, this.identity);
         this.objects.set(CipClassCodes.Assembly, this.assembly);
+        this.objects.set(CipClassCodes.TcpIpInterface, this.tcpIp);
+        this.objects.set(CipClassCodes.EthernetLink, this.ethernetLink);
 
         this.connectionHandler = new ConnectionHandler({
             assemblyObject: this.assembly,
@@ -155,10 +186,15 @@ class EIPAdapter {
 
     _handleUdpListen(msg, rinfo) {
         const decoded = decodeMessage(msg);
-        if (!decoded || decoded.header.command !== EncapsulationCommands.ListIdentity) return;
-        const cpf = encodeCpf([{ typeId: CpfItemType.ListIdentityResponse, data: this._buildIdentityItemBuffer() }]);
-        const response = encodeMessage({ command: EncapsulationCommands.ListIdentity, senderContext: decoded.header.senderContext }, cpf);
-        this._udpListen.send(response, rinfo.port, rinfo.address);
+        if (!decoded) return;
+        if (decoded.header.command === EncapsulationCommands.ListIdentity) {
+            const cpf = encodeCpf([{ typeId: CpfItemType.ListIdentityResponse, data: this._buildIdentityItemBuffer() }]);
+            const response = encodeMessage({ command: EncapsulationCommands.ListIdentity, senderContext: decoded.header.senderContext }, cpf);
+            this._udpListen.send(response, rinfo.port, rinfo.address);
+        } else if (decoded.header.command === EncapsulationCommands.ListServices) {
+            const response = buildListServicesResponse({ senderContext: decoded.header.senderContext });
+            this._udpListen.send(response, rinfo.port, rinfo.address);
+        }
     }
 
     _handleTcpConnection(socket) {
@@ -193,6 +229,10 @@ class EIPAdapter {
         const { header, data } = msg;
 
         switch (header.command) {
+            case EncapsulationCommands.ListServices: {
+                socket.write(buildListServicesResponse({ senderContext: header.senderContext }));
+                return {};
+            }
             case EncapsulationCommands.ListIdentity: {
                 const cpf = encodeCpf([{ typeId: CpfItemType.ListIdentityResponse, data: this._buildIdentityItemBuffer() }]);
                 socket.write(encodeMessage({ command: EncapsulationCommands.ListIdentity, senderContext: header.senderContext }, cpf));
@@ -218,9 +258,25 @@ class EIPAdapter {
                 socket.write(buildSendRRData(header.sessionHandle, cipResponseBytes, { senderContext: header.senderContext }));
                 return {};
             }
-            default:
-                // ListServices/ListInterfaces/SendUnitData not yet implemented — silently ignored.
+            case EncapsulationCommands.NOP: {
+                socket.write(buildNopResponse({
+                    sessionHandle: header.sessionHandle,
+                    senderContext: header.senderContext,
+                    data
+                }));
                 return {};
+            }
+            default: {
+                // ODVA spec: respond with InvalidCommand (0x0001) for unsupported encapsulation commands
+                const errorResponse = encodeMessage({
+                    command: header.command,
+                    sessionHandle: header.sessionHandle,
+                    status: EncapsulationStatus.InvalidCommand,
+                    senderContext: header.senderContext
+                });
+                socket.write(errorResponse);
+                return {};
+            }
         }
     }
 
@@ -243,6 +299,10 @@ class EIPAdapter {
             return this._dispatchConnectionManager(request, context);
         }
 
+        if (request.service === CipCommonServices.MultipleServicePacket) {
+            return this._dispatchMultipleService(request, context);
+        }
+
         const handler = this.objects.get(path.classId);
         if (!handler) {
             return buildResponse({ service: request.service, generalStatus: CipGeneralStatus.PathDestinationUnknown });
@@ -253,6 +313,8 @@ class EIPAdapter {
             result = handler.getAttributeSingle(path.instance, path.attribute);
         } else if (request.service === CipCommonServices.SetAttributeSingle) {
             result = handler.setAttributeSingle(path.instance, path.attribute, request.data);
+        } else if (request.service === CipCommonServices.GetAttributeAll && typeof handler.getAttributesAll === 'function') {
+            result = handler.getAttributesAll(path.instance);
         } else {
             result = { generalStatus: CipGeneralStatus.ServiceNotSupported, data: Buffer.alloc(0) };
         }
@@ -266,8 +328,10 @@ class EIPAdapter {
     }
 
     _dispatchConnectionManager(request, context) {
-        if (request.service === ConnectionManagerServices.ForwardOpen) {
-            const parsed = parseForwardOpenRequest(request.data);
+        if (request.service === ConnectionManagerServices.ForwardOpen || request.service === ConnectionManagerServices.LargeForwardOpen) {
+            const parsed = request.service === ConnectionManagerServices.LargeForwardOpen
+                ? parseLargeForwardOpenRequest(request.data)
+                : parseForwardOpenRequest(request.data);
             const result = this.connectionHandler.openConnection(parsed, context);
             if (!result.ok) {
                 return buildResponse({ service: request.service, generalStatus: result.generalStatus, additionalStatus: [result.extendedStatus] });
@@ -283,6 +347,37 @@ class EIPAdapter {
             return buildResponse({ service: request.service, generalStatus: CipGeneralStatus.Success, data: buildForwardCloseResponse(result.response) });
         }
         return buildResponse({ service: request.service, generalStatus: CipGeneralStatus.ServiceNotSupported });
+    }
+
+    _dispatchMultipleService(request, context) {
+        const data = request.data;
+        if (!Buffer.isBuffer(data) || data.length < 2) {
+            return buildResponse({ service: request.service, generalStatus: CipGeneralStatus.NotEnoughData });
+        }
+        const count = data.readUInt16LE(0);
+        if (data.length < 2 + count * 2) {
+            return buildResponse({ service: request.service, generalStatus: CipGeneralStatus.NotEnoughData });
+        }
+        const offsets = [];
+        for (let i = 0; i < count; i++) {
+            offsets.push(data.readUInt16LE(2 + i * 2));
+        }
+
+        const subResponses = [];
+        for (let i = 0; i < count; i++) {
+            const start = offsets[i];
+            const end = (i + 1 < count) ? offsets[i + 1] : data.length;
+            const subReqBytes = data.subarray(start, end);
+            const subRespBytes = this._dispatchCipRequest(subReqBytes, context);
+            subResponses.push(subRespBytes);
+        }
+
+        const responsePayload = encodeMultipleServiceResponseData(subResponses);
+        return buildResponse({
+            service: request.service,
+            generalStatus: CipGeneralStatus.Success,
+            data: responsePayload
+        });
     }
 }
 

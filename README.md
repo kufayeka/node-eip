@@ -1,943 +1,815 @@
 # @kufayeka/ethernet-ip
 
-An ODVA EtherNet/IP (CIP) protocol driver for Node.js, built directly from the
-CIP Networks Library (Vol 1 Common Industrial Protocol, Vol 2 EtherNet/IP
-Adaptation of CIP) rather than reverse-engineered from existing clients.
-
-Full source bibliography used to build this: [docs/REFERENCES.md](docs/REFERENCES.md).
-
-## Why a new implementation
-
-Existing Node.js EtherNet/IP libraries (`node-ethernet-ip` / `st-ethernet-ip`,
-`ethernet-ip-cip`) are scoped narrowly to Rockwell tag read/write over Class 3
-explicit messaging, and at least two independent codebases have the same
-buffer-corruption bug in fragmented-response handling
-([ST-node-ethernet-ip#83](https://github.com/SerafinTech/ST-node-ethernet-ip/issues/83),
-[node-red-contrib-cip-suite#15](https://github.com/blanpa/node-red-contrib-cip-suite/issues/15)).
-Goal here is a spec-driven stack that also covers the generic CIP object model
-and implicit (I/O) messaging in both scanner and adapter roles, not just the
-Logix tag-access subset.
-
-## Compliance principle: vendor-neutral by design
-
-**Rockwell/Logix support is mandatory, but it is not the whole target.** This
-driver must talk to *any* device that implements EtherNet/IP per the ODVA
-spec — Omron, Schneider/Modicon, Siemens (where EIP-capable), Turck, Banner,
-Balluff, Hilscher/anybus adapters, third-party I/O blocks, and any adapter
-this library itself builds (Phase 3) — not only ControlLogix/CompactLogix.
-
-Concretely, that means:
-
-- The **core path** (encapsulation, message router, generic CIP object
-  model — Identity/Assembly/Connection Manager/TCP-IP Interface/Ethernet
-  Link, generic `Get_Attribute_Single`/`Set_Attribute_Single`/explicit
-  messaging, Forward Open/Close, implicit I/O) must work against any
-  ODVA-conformant device using only the base CIP Vol 1/2 spec — no
-  vendor-specific service codes required.
-- **Vendor-specific extensions** — Rockwell/Logix (symbolic tag paths, Read/Write
-  Tag services 0x4C/0x4D/0x52/0x53, abbreviated UDT structure handles, isolated
-  in `src/logix/`) and Delta AH/AS-series (vendor-specific Register Objects
-  0x350-0x359 for direct D/X/Y/M/etc. access, isolated in `src/delta/`) — are
-  **additive compatibility layers** on top of that core, used only when
-  talking to that specific vendor's controller. Both reuse the exact same
-  generic `encodeEPath`/`buildRequest`/explicit-messaging code as the core —
-  neither required any new wire-protocol primitives, only vendor-documented
-  addressing conventions layered on top. They must never be a prerequisite
-  for the generic scanner/adapter path to function.
-- Phase 1 discovery/scan and Phase 3 adapter must be validated (or at least
-  designed against the spec text) without assuming a Rockwell target/originator
-  on the other end.
-
-## Roadmap
-
-Ordered by what's needed first. Each phase only starts once the previous
-phase's checklist items it depends on are done — see the per-domain checklist
-below for exact spec references and status.
-
-| Phase | Goal | Status |
-|---|---|---|
-| 0 | Encapsulation header framing | ✅ Done |
-| 1 | **Discovery & handshake** — scan a network for EIP devices, parse Identity, open/close a session | ✅ Done — validated live against a real, non-Rockwell device (Delta AS/SX-3 PLC, `192.168.68.250`) over UDP broadcast, UDP unicast, and TCP |
-| 2 | **EIP Scanner** (originator) — vendor-neutral explicit messaging client (any CIP device) + implicit I/O scanning, with Rockwell tag services layered on top for Logix targets | 🔄 In progress — explicit messaging, Forward_Open/Forward_Close, live cyclic Class 1 I/O data, AND a public `Scanner` API wrapping all of it are done & validated live. Left: more common services (Multiple Service Packet), Rockwell/Logix tag services. |
-| 3 | **EIP Adapter** (target/device/server) — accept sessions, serve CIP objects, produce/consume I/O; must interoperate with any conformant originator, not only a Rockwell PLC | 🔄 Core done & validated live (loopback, own Scanner as client) — ListIdentity, sessions, Identity/Assembly explicit messaging, Forward_Open/Forward_Close. Real UDP cyclic I/O to another host not yet cross-device tested. |
-| 4 | **EDS file** — generate the device description file an adapter built with this library needs so Studio5000/RSLogix (or any EIP engineering tool) can import and configure it | ⬜ Planned |
-| 5 | CIP Security (Vol 8), full conformance-test pass, advanced objects (QoS, Port, CIP Safety) | ⬜ Future |
-
-Phase 1 deliverable is concretely: `scan(interfaceOrSubnet)` → list of
-`{ address, vendorId, deviceType, productCode, revision, status, serialNumber,
-productName }` for every device that answers `ListIdentity`, plus the ability
-to `RegisterSession` / `UnRegisterSession` against any one of them (proves the
-TCP handshake works before building anything on top of it).
-
-**Live validation (2026-09):** confirmed against a real **Delta Electronics
-AS/SX-3 series PLC** (`DVP-SX3`, vendor ID 799, device type 14 = PLC) at
-`192.168.68.250` on the LAN — deliberately a non-Rockwell device, to prove the
-vendor-neutral core immediately rather than only against a Logix controller:
-- `examples/scan-network.js` — UDP broadcast `ListIdentity` found it and
-  correctly decoded every Identity field including the big-endian embedded
-  Socket Address.
-- `scanUdpUnicast()` — UDP unicast `ListIdentity` direct to its IP, same result.
-- `examples/probe-device.js` — TCP `ListIdentity` (no session) and then a full
-  `RegisterSession` → `UnRegisterSession` handshake both completed cleanly.
-- **Second real device found "for free" by the same broadcast scan
-  (2026-09):** a `DVP32ES2-E` (`192.168.68.111`, product code 771 — a
-  different, older DVP-family PLC, not AS/AH-series) showed up alongside the
-  SX3 with zero extra code. Generic explicit messaging and Assembly discovery
-  worked identically against it; see Domain J below for what did *not* carry
-  over (Delta's vendor-specific Register Objects are AS/AH-series-only).
-
-Two real bugs caught and fixed during this:
-
-1. `EIP_UDP_PORT` was originally defined as `2222` (that's actually the
-   separate UDP port used only for cyclic Class 0/1 I/O data) and used as
-   the default port for `ListIdentity` UDP calls — which silently broke
-   both UDP broadcast and unicast discovery against the real device (TCP
-   still worked, since it used a different constant). Fixed by introducing
-   `EIP_ENCAPSULATION_PORT = 44818`, the port actually shared by TCP *and*
-   UDP for all encapsulation commands (`RegisterSession`, `ListIdentity`,
-   `SendRRData`, `SendUnitData`, ...), and keeping `2222`
-   (`EIP_IO_UDP_PORT`) reserved for its real, narrower purpose. See
-   `src/constants.js` for the corrected, documented distinction.
-2. `scanUdp()` defaulted to sending to the global limited-broadcast address
-   `255.255.255.255`, which turned out to be unreliable on a host with more
-   than one active network interface (this dev machine has two virtual
-   adapters, e.g. VMware/Hyper-V, alongside the real LAN NIC) — Windows
-   can't unambiguously resolve which interface to emit it from, so the
-   packet never reached the device even though the socket call reported no
-   error. Fixed by auto-detecting every active, non-internal IPv4
-   interface (`ipv4DirectedBroadcasts()` in `src/encapsulation/discovery.js`)
-   and sending a subnet-directed broadcast (e.g. `192.168.68.255` for a
-   `/24`) on each one — the same approach real EIP scanner tools use.
-   `examples/scan-network.js` now finds the Delta SX-3 with zero arguments.
-
-Note on terminology: ODVA's device-description file is called an **EDS**
-(Electronic Data Sheet), not ESI — ESI is EtherCAT's equivalent. EDS is what
-Studio5000/RSLogix/other EIP engineering tools import to recognize a device
-and its parameters/assemblies. Phase 4 targets generating a valid EDS for
-devices built with this library's adapter mode.
-
-## Compliance checklist by domain
-
-Status legend: ✅ done · 🔄 in progress · ⬜ planned · ❓ needs research (spec
-section not yet confirmed).
-
-### A. Encapsulation Protocol — CIP Vol 2, Ch 2
-
-| Item | Status | Notes |
-|---|---|---|
-| 24-byte header encode/decode | ✅ | [src/encapsulation/header.js](src/encapsulation/header.js) |
-| Common Packet Format (CPF) item parsing | ✅ | [src/encapsulation/cpf.js](src/encapsulation/cpf.js) — generic item list encode/decode |
-| ListIdentity (UDP broadcast :44818 + UDP unicast + TCP unicast) | ✅ | [src/encapsulation/discovery.js](src/encapsulation/discovery.js) — validated live against a Delta SX-3 PLC |
-| RegisterSession / UnRegisterSession | ✅ | [src/encapsulation/session.js](src/encapsulation/session.js), [src/client.js](src/client.js) — validated live |
-| SendRRData (unconnected explicit request) | ✅ | [src/encapsulation/rrdata.js](src/encapsulation/rrdata.js) — validated live against a Delta SX-3 (Get_Attribute_Single) |
-| NOP | ⬜ | low priority, rarely used in practice |
-| ListServices | ⬜ | phase 2 — reports supported encapsulation services/capability flags |
-| ListInterfaces | ⬜ | phase 2 |
-| SendUnitData (connected explicit/implicit request) | ⬜ | phase 2/3 — needed once Forward Open exists |
-
-Reference code: [Wireshark `packet-enip.c`](https://fossies.org/linux/wireshark/epan/dissectors/packet-enip.c) for exact field layout; [OpENer](https://github.com/EIPStackGroup/OpENer) `source/src/cip/` for a working adapter-side encapsulation loop; [scala-ethernet-ip](https://github.com/kevinherron/scala-ethernet-ip) for a minimal, readable command-class layout.
-
-### B. CIP Message Router, Path Segments, Common Services — CIP Vol 1, Ch 2 & Appx A/C
-
-| Item | Status | Notes |
-|---|---|---|
-| Request/response message framing (service, path, data) | ✅ | [src/cip/message-router.js](src/cip/message-router.js) — validated live |
-| Logical path segments (Class/Instance/Attribute/Member, 8/16/32-bit, padded EPATH) | ✅ | [src/cip/path.js](src/cip/path.js) |
-| Port segments, Data segments, ANSI extended symbol segment | ⬜ | not Rockwell-exclusive as originally assumed — Delta SX-3's own EDS defines a `SYMBOL_ANSI` "Tag Connection" (Connection17), so this is a genuinely vendor-neutral CIP feature some non-Logix devices use too |
-| Common services — Get_Attribute_Single (0x0E) | ✅ | used by the live validation below |
-| Common services — Set_Attribute_Single (0x10) | ✅ | framing implemented, shares buildRequest()/parseResponse() with Get — [examples/set-attribute.js](examples/set-attribute.js), **validated live against the Delta SX-3** (see below) |
-| Common services — Get/Set Attribute All/List, Reset, Create, Delete, ... | ⬜ | same framing, just more service codes to wire up |
-| Multiple Service Packet (0x0A) | ⬜ | |
-| CIP general status code table | ✅ | [src/constants.js](src/constants.js) `CipGeneralStatus` |
-
-Reference code: [cpppo](https://github.com/pjkundert/cpppo) (arbitrary CIP service requests, clear parser design); [scapy-cip-enip](https://github.com/scy-phy/scapy-cip-enip) status/error code table.
-
-**Investigation note (2026-09, resolved — not a safety concern):** attempted
-`Set_Attribute_Single` on Assembly (Class 0x04) Instance 100 Attribute 3
-(Data), writing back the exact same 200 zero bytes previously read via
-`Get_Attribute_Single` — non-destructive by design. The device rejected it
-(general status 0x15, "TooMuchData"), which on its own is an unremarkable,
-correctly-decoded CIP error (the request/response framing itself is
-validated — same code path as the already-proven Get). Separately, Attribute
-4 (Size) on the same instance — previously stable at **200 bytes** across
-every prior read — started reading **194 bytes** consistently afterward.
-Paused live device-modifying tests at the time pending confirmation this
-wasn't a production device; **confirmed by the device owner this is a
-bench/test unit, not production** — the size drift is most likely this
-PLC's own live ladder program (it was already observed producing a
-live-incrementing counter in its T->O data, so it is not an idle/isolated
-bench device either — just not a production line).
-
-**Root cause of the original 0x15 rejection, confirmed:** the Assembly
-Object's Attribute 3 (Data) write length must match its *current* Attribute
-4 (Size) value exactly — 200 bytes was correct when first observed, but by
-the time the write was attempted, Size had already drifted to 194 (per the
-paragraph above), so the 200-byte write was rejected as `TooMuchData`. Retried
-with a 194-byte all-zero write matching the live Size value — **accepted**,
-and reading Attribute 3 back afterward confirmed 194 bytes, all zero,
-unchanged. This is a real, useful CIP compliance finding, not a driver bug:
-**always read Attribute 4 immediately before a Set_Attribute_Single on
-Attribute 3**, don't assume a previously-observed size still holds.
-
-### C. CIP Data Types — CIP Vol 1, Appx C
-
-| Item | Status | Notes |
-|---|---|---|
-| Elementary types: BOOL, SINT/INT/DINT/LINT (+ unsigned), REAL/LREAL | ⬜ | vendor-neutral, CIP Vol 1 base |
-| STRING / STRING2 / SHORT_STRING | ⬜ | vendor-neutral, CIP Vol 1 base |
-| Arrays (fixed-size, BOOL-packed arrays) | ⬜ | vendor-neutral, CIP Vol 1 base |
-| STRUCT / UDT encoding + Rockwell abbreviated structure handle (CRC) | ⬜ | **Logix-specific extension** (`src/logix/`) — see Rockwell "Type Encoding of Logix Structures" doc; generic CIP STRUCT (Vol 1 Appx C) is a separate, vendor-neutral concern |
-
-Reference code: [Rockwell Type Encoding of Logix Structures (PDF)](https://www.rockwellautomation.com/content/dam/rockwell-automation/sites/downloads/pdf/TypeEncode_CIPRW.pdf); [pycomm3](https://github.com/ottowayi/pycomm3) type encoding source; [libplctag](https://github.com/libplctag/libplctag) UDT handling.
-
-### D. CIP Object Model — required objects, CIP Vol 1 Ch 5 & Vol 2 Ch 5
-
-| Object | Class | Status | Notes |
-|---|---|---|---|
-| Identity | 0x01 | ✅ | read (Scanner) + serve (Adapter) both validated live |
-| Message Router | 0x02 | ✅ | request/response framing both directions validated live |
-| Assembly | 0x04 | ✅ | carries I/O data — read/write (Scanner) + serve (Adapter) both validated live, incl. the size-mismatch compliance behavior |
-| Connection Manager | 0x06 | ✅ | Forward Open/Close both as originator and as target, validated live |
-| TCP/IP Interface | 0xF5 | ⬜ | not started |
-| Ethernet Link | 0xF6 | ⬜ | not started |
-| QoS | 0x48 | ⬜ | future |
-| Port | 0xF4 | ⬜ | future |
-
-Reference code: [OpENer](https://github.com/EIPStackGroup/OpENer) `cipidentity.c`, `cipassembly.c`, `cipconnectionmanager.c` — the canonical adapter-side object implementations, ODVA-conformance-tested.
-
-### E. Connection Manager & Connections — CIP Vol 1, Ch 3
-
-| Item | Status | Notes |
-|---|---|---|
-| Forward Open (classic, ≤511 bytes/direction) | ✅ | [src/cip/connection-manager.js](src/cip/connection-manager.js) — **validated live against the Delta SX-3**, see below |
-| Forward Close | ✅ | same file — validated live |
-| RPI negotiation | ✅ | requested 20,000 µs, device granted exactly that (O->T API = T->O API = 20,000 µs) |
-| Class 1 I/O connections — point-to-point, full cyclic data (both O->T and T->O) | ✅ | [src/cip/io-connection.js](src/cip/io-connection.js) — **validated live against the Delta SX-3**, see below; "Modeless" real-time format only (no Run/Idle header) |
-| Unconnected Send (Vol 1, 2-6) | ⬜ | needed once messages must be routed across a backplane/bridge, not required for a single-hop device like the Delta |
-| Large Forward Open | ⬜ | not needed yet — every connection tested so far fits under 511 bytes |
-| Class 1 I/O connections — multicast | ⬜ | phase 3+ |
-| Class 3 explicit connections | ⬜ | phase 2 |
-| Connection timeout multiplier | ✅ | encoded, default value 3 (×32) — not yet exercised by an actual timeout scenario |
-
-Reference code: [PLCTalk: EtherNet/IP Forward Open thread](https://www.plctalk.net/forums/threads/ethernet-ip-forward-open.121936/) (real Wireshark-trace walkthrough); [rtautomation.com DeviceNet CIP Connections](https://www.rtautomation.com/rtas-blog/devicenet-cip-connections/) (shared Connection Manager model); [idc-online.com multicast paper](https://www.idc-online.com/technical_references/pdfs/data_communications/Ethernet_IP_Multicasting_Explained.pdf).
-
-**Real Forward-Open target found on the Delta SX-3 (2026-09):** swept its
-Assembly Object (Class 0x04) instances 1–254 via `Get_Attribute_Single`
-Attribute 4 (Size) — [examples/discover-assemblies.js](examples/discover-assemblies.js), read-only, no writes.
-Found instances **100–115**, each reporting **200 bytes** (Attribute 3/Data
-confirmed as 200 zero bytes right now — device presumably idle/no live I/O
-mapped), plus instance **199** at **0 bytes**.
-
-**Confirmed against Delta's own EDS file** (`eds/031F000E0F0600010001.eds`,
-ODVA/EZ-EDS format, `[File]`/`[Device]` fields match our live ListIdentity
-exactly: VendCode 799, ProdCode 3846, Rev 1.1, "DVP-SX3"). Its
-`[Connection Manager]` section defines 17 named connections with the exact
-byte-level EPATH ODVA expects, e.g. Connection1:
-
-```
-Path = 20 04 24 80 2C 64 2C 65
-       Class 0x04(Assembly) / Instance 0x80(128, Config) /
-       ConnPoint 0x64(100, O->T) / ConnPoint 0x65(101, T->O)
-```
-
-Connections 1–8 follow the same pattern incrementing by one Config/O-T/T-O
-triple each time (129/102/103, 130/104/105, ... 135/114/115) — exactly the
-100–115 range the live probe found, now with a name and a role for each.
-Connections 9–16 repeat the same 8 Config/T->O pairs but substitute
-**instance 199 (0x C7) as O->T** — confirming 199 is indeed the "NULL"
-placeholder used for listen-only/input-only connections (no data
-originator→target). **Connection17 ("Tag Connection")** uses the literal
-path token `SYMBOL_ANSI` instead of numeric segments — i.e. Delta *also*
-implements the ANSI Extended Symbol Segment (Domain B) for tag-style
-addressing, so that segment type is **not Rockwell/Logix-exclusive** as
-initially assumed; worth re-checking Domain B's note once implemented.
-
-Also pinned down the two connection parameters that were otherwise going to
-require live trial-and-error:
-- **RPI** (`Param1`): min 5,000 µs, max 1,000,000 µs, default **20,000 µs (20 ms)**.
-- **I/O data size** (`Param18`): min 0, max 500, default **200 bytes** — this
-  is exactly the 200 bytes the live probe measured, so the device is
-  currently running its EDS-declared default configuration.
-
-`[Capacity]`: `MaxIOConnections = 16` (matches Connections 1–16),
-`MaxMsgConnections = 8`.
-
-**Live validation (2026-09):** [examples/forward-open.js](examples/forward-open.js)
-ran Forward_Open against the Delta SX-3 using exactly Connection1's path
-(`20 04 24 80 2C 64 2C 65`) with RPI 20,000 µs and O->T/T->O size 200 bytes —
-**succeeded on the first attempt**, no trial-and-error needed thanks to the
-EDS ground truth above. The device granted the requested RPI exactly
-(otApiUs = toApiUs = 20,000) and returned its own O->T Network Connection ID
-(target-assigned, as expected) while echoing back our randomly-generated
-T->O Network Connection ID unchanged (also as expected — that field is
-authoritative from the originator, not the target). Forward_Close then
-tore the connection down cleanly using the same connection
-serial/vendor/originator-serial triple. This validates the full
-Forward_Open/Forward_Close request/response framing end-to-end against a
-real, non-Rockwell device.
-
-**Cyclic I/O data — live validation (2026-09):**
-[examples/io-listen.js](examples/io-listen.js) opened Connection1, bound a
-UDP socket on port 2222 (`EIP_IO_UDP_PORT` — distinct from the TCP
-encapsulation port used everywhere else so far), and:
-- **Received real T->O data from the Target**: 219 datagrams in 5 seconds
-  at the negotiated 20 ms RPI (≈250 expected; some loss is normal for
-  best-effort UDP plus this being a first-pass, non-realtime-tuned Node.js
-  timer loop). Every payload was distinct — the first 2 bytes are a live
-  incrementing counter that matches the datagram's own CIP sequence number,
-  almost certainly the device's demo/example ladder program mapping a scan
-  counter into the first I/O word specifically so integrators can visually
-  confirm a working connection.
-- **Sent our own O->T data to the Target** at the same RPI, all-zero bytes
-  (matching the value already observed via explicit messaging earlier, so
-  this changed nothing on the device) — this is also what kept the
-  connection from timing out for the full 5-second window, since a normal
-  (non-listen-only) connection expects both directions to be produced.
-- Filtered incoming datagrams by matching the T->O Network Connection ID
-  the Target echoed back in the Forward_Open response, exactly as the spec
-  intends — proven necessary in practice since the port is shared by any
-  concurrent connection.
-
-This is, concretely, the exact vendor-neutral CIP mechanism underneath what
-Rockwell markets as "Produced/Consumed Tags" — proven end-to-end against a
-non-Rockwell device via the device's generic Assembly Object rather than a
-Logix Symbol path.
-
-### F. Discovery & Scanning — practical feature layer (Phase 1 priority)
-
-| Item | Status | Notes |
-|---|---|---|
-| UDP broadcast `ListIdentity` across a subnet/interface | ✅ | `scanUdp()` — [examples/scan-network.js](examples/scan-network.js), confirmed against a real Delta SX-3 |
-| Parse Identity reply fields (vendor ID, device type, product code, revision, status word, serial number, product name, state) | ✅ | [src/encapsulation/identity.js](src/encapsulation/identity.js), incl. the big-endian embedded Socket Address quirk |
-| Per-IP UDP unicast `ListIdentity` | ✅ | `scanUdpUnicast()` |
-| Per-IP TCP unicast `ListIdentity` | ✅ | `probeTcp()` — [examples/probe-device.js](examples/probe-device.js) |
-| `ListServices` follow-up (capability flags) | ⬜ | phase 2 |
-| `RegisterSession` → `UnRegisterSession` round trip per discovered device | ✅ | `EIPSession` — confirmed against a real device |
-| Device inventory API (`scanUdp()` returning a structured list) | ✅ | |
-
-Reference code: [OpENer](https://github.com/EIPStackGroup/OpENer) (adapter-side ListIdentity response, useful to know exactly what fields a real device fills in); [scapy-cip-enip](https://github.com/scy-phy/scapy-cip-enip) for crafting/parsing discovery packets in isolation for testing.
-
-### G. EIP Scanner (Originator / Client)
-
-| Item | Status | Notes |
-|---|---|---|
-| Explicit messaging client (arbitrary CIP service to any class/instance/attribute) | ✅ | `EIPSession.sendUnconnected()` — **validated live against a real, non-Rockwell device** (Delta SX-3: read Identity Vendor ID=799 and Product Name="DVP-SX3" via Get_Attribute_Single, cross-checked against the Phase 1 ListIdentity values) |
-| Generic Producer/Consumer (Class 0/1) I/O connections — Assembly-object based, vendor-neutral | ✅ | see Domain E — this is what any two conformant devices (not only Logix) use for cyclic data exchange |
-| Implicit I/O scanning (Forward Open + cyclic produce/consume) | ✅ | vendor-neutral, Assembly-object based — validated live, both directions, against the Delta SX-3 (`examples/io-listen.js`) |
-| *— Rockwell/Logix compatibility layer (additive, not required for the above) —* | | |
-| Rockwell tag read/write (0x4C / 0x4D) | ⬜ | Logix-only convenience layer, lives in `src/logix/` |
-| Fragmented tag read/write (0x52 / 0x53) | ⬜ | must not repeat the [448-byte boundary bug](https://github.com/SerafinTech/ST-node-ethernet-ip/issues/83) other Node libs hit |
-| Rockwell "Produced Tag" / "Consumed Tag" (Symbol Object as the Forward Open connection point instead of an Assembly instance) | ⬜ | Logix-specific naming/application of the same generic Producer/Consumer connection mechanism above — `src/logix/`, not required for vendor-neutral I/O |
-
-Reference code: [EIPScanner](https://github.com/nimbuscontrols/EIPScanner) (dedicated scanner/originator implementation); [pycomm3](https://github.com/ottowayi/pycomm3) / [libplctag](https://github.com/libplctag/libplctag) (mature tag clients); [cpppo](https://github.com/pjkundert/cpppo).
-
-### H. EIP Adapter (Target / Device / Server)
-
-| Item | Status | Notes |
-|---|---|---|
-| TCP + UDP encapsulation server (listen, accept, session table) | ✅ | [src/adapter.js](src/adapter.js) — **validated live (loopback)** |
-| Session management (handle allocation, per-session state, timeout) | ✅ | handle allocation + cleanup on disconnect/UnRegisterSession; no idle-session timeout yet |
-| CIP message router server-side dispatch to object instances | ✅ | class registry (`objects: Map<classId, handler>`), `getAttributeSingle`/`setAttributeSingle` |
-| Configurable Identity object (vendor ID, product code, etc. supplied by the device author) | ✅ | [src/cip/objects/identity.js](src/cip/objects/identity.js) — validated live, incl. answering both TCP and UDP `ListIdentity` |
-| Assembly object (Input/Output/Config assemblies backed by user data) | ✅ | [src/cip/objects/assembly.js](src/cip/objects/assembly.js) — validated live, including replicating the exact size-mismatch → `TooMuchData` behavior this driver found on real Delta hardware (Domain B) |
-| Accept Forward Open as target, produce/consume cyclic I/O data | 🔄 | Forward_Open/Forward_Close request/response validated live over TCP; the resulting UDP cyclic data *production/consumption logic* is unit-tested ([test/connection-handler_spec.js](test/connection-handler_spec.js)) but not yet proven against a real second device — see note below |
-| TCP/IP Interface Object, Ethernet Link Object | ⬜ | not started — lower priority, mostly matters for other engineering tools' diagnostics, not required for a scanner to do explicit/implicit messaging |
-
-Must be built and tested against the generic CIP model only — an adapter
-built here should be connectable from a Rockwell ControlLogix/CompactLogix,
-an Omron NJ/NX, a Schneider M580, or any other conformant scanner without any
-vendor-specific accommodation on the adapter side. Vendor interop quirks (if
-any surface) get isolated per-vendor, not baked into the core object
-implementations.
-
-**Live validation (2026-09):** [examples/adapter-demo.js](examples/adapter-demo.js)
-starts a real `EIPAdapter` and drives it with this driver's own client-side
-code (`scanUdpUnicast`, `probeTcp`, `EIPSession`) over real TCP/UDP sockets
-on localhost — every one of these passed: UDP unicast `ListIdentity`, TCP
-`ListIdentity` (no session), `RegisterSession`, `Get_Attribute_Single`
-(Identity Vendor ID), `Set_Attribute_Single` on an Assembly instance (with
-the adapter's own in-memory buffer verified to actually change), a
-deliberate wrong-size write correctly rejected with `0x15 TooMuchData`
-(exactly mirroring the real Delta hardware behavior this driver discovered
-independently in Phase 2), and a full `Forward_Open` → `Forward_Close`
-round trip with the requested RPI granted as-is.
-
-**Known test gap, and why:** this demo does not prove real UDP cyclic I/O
-delivery end-to-end. EtherNet/IP I/O always uses the same fixed port (2222)
-on both sides — on separate physical devices that's fine, but a Scanner and
-an Adapter can't both bind port 2222 on the *same* machine to test the full
-data path against each other locally (that's a fundamental protocol/OS
-constraint, not an implementation gap). The cyclic-I/O logic itself
-(producing the right bytes at the right RPI, consuming into the right
-buffer, matching by connection ID) is fully covered by
-`test/connection-handler_spec.js` with a mocked send function, and reuses
-the exact `cip/io-connection.js` datagram format already proven live
-against real Delta hardware in Phase 2 — but proving the *adapter* side of
-that specific wire exchange needs a second real host, which wasn't
-available for this pass.
-
-Reference code: [OpENer](https://github.com/EIPStackGroup/OpENer) — THE reference adapter implementation (ODVA-authored, conformance-tested); [CIPster](https://github.com/liftoff-sr/CIPster) for a C++ read of the same logic; [EthernetIpSharp](https://github.com/CristianMori/EthernetIpSharp) (rare OSS example that does both adapter and scanner roles).
-
-### I. EDS (Electronic Data Sheet) file generation
-
-| Item | Status | Notes |
-|---|---|---|
-| Confirm authoritative EDS file-format spec source | ❓ | still not pinned to an ODVA doc/section number — but see below, we now have a real, working example to reverse-engineer the practical structure from in the meantime |
-| Sample/reference `.eds` files from real devices for cross-checking output | ✅ | [eds/031F000E0F0600010001.eds](eds/031F000E0F0600010001.eds) — Delta SX-3's actual vendor-issued EDS (EZ-EDS format), fields cross-checked against our own live ListIdentity/explicit-messaging reads and matched exactly |
-| EDS generator from an adapter's Identity + Assembly + Parameter definitions | ⬜ | phase 4 — now has a concrete real-world template (`[File]`/`[Device]`/`[Params]`/`[Assembly]`/`[Connection Manager]`/`[Capacity]`/`[TCP/IP Interface Class]`/`[Ethernet Link Class]` sections) to model output on |
-| EDS parser (read 3rd-party `.eds`, for scanner-side device awareness) | ⬜ | future, not required for phase 4's "export our own device" goal |
-
-Still flagging the authoritative spec citation honestly as unresolved — but
-having a real vendor EDS in-repo means Phase 4 no longer starts from zero.
-Key structural finding already worth recording: the `[Connection Manager]`
-section's `ConnectionN` entries are the same ground truth used for the
-Forward Open work above (Domain E) — an EDS is effectively a machine-readable
-version of exactly the information a Forward Open path/RPI/size needs, for
-every connection a device advertises support for.
-
-### J. Delta AH/AS-Series Vendor-Specific Registers (additive, Delta-only)
-
-**See [src/delta/README.md](src/delta/README.md) for the Delta-focused
-"what can I do today" summary** — device-type support table, quick start,
-architecture, and open items in one place. The rest of this section is the
-detailed compliance narrative; the two are kept in sync.
-
-Not ODVA CIP — Delta's own Vendor-Specific Objects, documented in Delta's
-"EtherNet/IP Operation Manual" ([docs/DELTA_IA-PLC_EtherNet-IP_OP_EN_20251021.pdf](docs/DELTA_IA-PLC_EtherNet-IP_OP_EN_20251021.pdf),
-Ch. 8.12) — confirmed applicable to the SX3 (AS300 CPU) by the device owner
-("AS300 and AH are EIP scanner/adapter [implementations], so it should be
-the same"). This is what delivers the **Modbus-like `readD(session, 100)`
-direct-register experience** the driver was missing — the addressing
-convention turned out to be dramatically simpler than the two options
-originally proposed (byte-offset config, or unconfirmed symbolic tags):
-**the CIP Attribute ID *is* the register number directly.** No tag database,
-no per-device configuration needed — this works the same on any AH/AS-series
-device.
-
-**⚠️ Model-specific, and the details vary more than expected (2026-09,
-corrected):** a network scan turned up a second real device on the same
-LAN, a **DVP32ES2-E** (`192.168.68.111`, product code 771 — a different,
-older DVP PLC family, not AS/AH-series). The vendor-neutral core worked
-identically against it, but `readD()` (word-mode, Instance 2) failed with
-`PathDestinationUnknown` — the original conclusion drawn from that was
-**"this device doesn't implement the Register Objects at all."** That was
-wrong, and worth recording exactly how: a full class-ID sweep later found
-Classes `0x350`-`0x356` (X/Y/D/M/S/T/C) all present and answering — just
-only their **bit-mode instance (Instance 1)**, not word-mode (Instance 2).
-Live cross-validation (writing known patterns via WPLSoft/ISPSoft, reading
-back over CIP, and separately writing over CIP and watching the physical
-device's own monitor react) confirmed bit-mode read/write is real for
-X/Y/M/S/T/C — **except D**, whose bit-mode instance turned out to be a
-real but *completely disconnected* scratch store, not the actual D-table
-(full story and the corrected per-method table in
-[src/delta/README.md](src/delta/README.md)'s `'es2'` section). The
-practical lesson: a `PathDestinationUnknown` on one Instance number is not
-proof a Class doesn't exist — check the other Instance before concluding
-that. A driver caller still should not assume any given register-access
-strategy works against every Delta device without checking — that's why
-this driver requires an explicit device-type choice (`DeltaDevice(host,
-'sx3'|'es2')`) rather than auto-detecting; see "Explicit device-type
-profiles" below.
-
-| Register | Class | Instance | Access | Word type | Status |
-|---|---|---|---|---|---|
-| X (input) | 0x350 | 1=bit, 2=word | **read-only** | INT | ✅ live-validated |
-| Y (output) | 0x351 | 1=bit, 2=word | read/write | INT | ✅ live-validated (word) |
-| D (data register) | 0x352 | 1=bit, 2=word | read/write | INT | ✅ live-validated (word read+write round-trip, and bit) |
-| M (marker/coil) | 0x353 | 1=bit only | read/write | BOOL | ✅ live-validated (read+write round-trip) |
-| S (step) | 0x354 | 1=bit only | read/write | BOOL | ✅ live-validated (read+write round-trip) |
-| T (timer) | 0x355 | 1=bit(contact), 2=word(value) | read/write | INT | ✅ live-validated (word read) |
-| C (counter) | 0x356 | 1=bit(contact), 2=word(value) | read/write | INT | ✅ live-validated (word read) |
-| HC (high-speed counter) | 0x357 | 1=bit(contact), 2=word(value) | read/write | DINT | ✅ live-validated (word read) |
-| SM (system marker) | 0x358 | 1=bit only | **read-only** | BOOL | ✅ live-validated |
-| SR (system register) | 0x359 | **1**=word (its only instance) | **read-only** | INT | ✅ live-validated |
-
-Implementation: [src/delta/registers.js](src/delta/registers.js) — reuses
-the already-validated generic `encodeEPath`/`buildRequest`/`sendUnconnected`
-path entirely; no new wire-protocol code was needed, only this addressing
-convention. Live example: [examples/delta-registers.js](examples/delta-registers.js).
-
-Bit-mode addressing (e.g. `D0.0`, `D0.1`) is this driver's own
-interpretation of the manual's enumeration pattern — `attribute = wordIndex
-* 16 + bitIndex` — spot-checked live (`D0` bit 0 read back `false`,
-consistent with `D0`'s word value being `0`) but not exhaustively verified
-across the full range; treat as provisional until checked against a
-register with known nonzero bits.
-
-One real bug caught during live testing: `readWord`/`writeWord` initially
-hardcoded Instance 2 for word-mode access on every register type, which is
-correct for the dual-mode types (D/X/Y/T/C/HC, which also have a bit mode
-at Instance 1) but wrong for **SR**, whose manual entry documents its
-*only* instance as Instance **1** (word-type) since it has no separate bit
-mode to share numbering with. Fixed via a `wordInstance(classId)` helper
-that special-cases word-only register types.
-
-#### Fallback for devices without the Register Objects: Assembly-window (2026-09)
-
-For the DVP32ES2-E (Domain J's "not universal" finding above), a
-known-pattern technique found a *device-specific* (not Delta-wide) way to
-still read registers directly, entirely through the generic Assembly
-Object every CIP device already has:
-
-1. The device owner wrote a distinguishing pattern into the PLC's own
-   D-table via ISPSoft/WPLSoft (`D0=10, D1=0, D2=20, D3=0, D4=30, ...`).
-2. [examples/discover-assemblies.js](examples/discover-assemblies.js)-style
-   full-instance dump + byte-pattern search found an **exact match at
-   Assembly Instance 101, byte offset 0** — Instance 101's Data attribute
-   (the "Input"/T->O direction one) is a live, read-only mirror of `D0`
-   onward, 2 bytes per register, matching Delta's own INT16-LE register
-   width.
-3. Write side tested and **not yet resolved**: `Set_Attribute_Single` on
-   Instance 101 is rejected (general status `0x08 ServiceNotSupported` —
-   expected, it's the read/produced direction). Instance 100 ("Output"/O->T)
-   *does* accept `Set_Attribute_Single` (status `0x00 Success`), but a
-   written marker pattern (`1000..1019` at word offsets 0-19) was **not**
-   observed reflected back through the Instance 101 D-mirror — so Instance
-   100 is writable at the CIP level, but what (if anything) it's actually
-   wired to in the PLC's own register table is unconfirmed. Left in place
-   for the device owner to cross-check against their own register monitor.
-
-**Correction (2026-09):** the original version of this note suggested
-checking ISPSoft's "I/O mapping table" to resolve the write-side and map
-X/Y/M/S/C/T the same way — that assumed every Delta EIP device has one.
-Per Delta's own product table (Ch.9 of the manual — see the profile system
-below), that tool ("EIP Builder") configures the **Scanner** role, and the
-DVP-ES2-E family is **Adapter-capable but NOT Scanner-capable** — so the
-tool correctly doesn't exist for it in ISPSoft. That's not a dead end for
-Adapter-side reading, though: it's exactly the role this driver already
-uses the device in, and Instance 101's D-mirror above is real, working
-Adapter-side data — just not something Delta exposes a GUI to configure or
-document per-model (Ch.8.5 Assembly Object only documents the AH-series/
-AHRTU families, not small PLCs), hence reverse-engineering it live was the
-only path either way.
-
-Implementation: [src/delta/assembly-window.js](src/delta/assembly-window.js)
-(generic `readAssemblyData`/`writeAssemblyData`/`makeWordWindow` — reuses
-the same `encodeEPath`/`buildRequest` core, nothing new at the wire level),
-used directly inside [src/delta/device-types/es2.js](src/delta/device-types/es2.js)
-(this one confirmed device's mapping specifically — **not** a general
-DVP-ES2 convention, must be reconfirmed per device). Live example:
-[examples/delta-es2.js](examples/delta-es2.js).
-
-**⚠️ Superseded, kept for the investigation trail (2026-09):** everything
-above this point in Domain J was written before the class-ID sweep found
-X/Y/D/M/S/T/C's bit-mode instances actually work on the ES2 (see the
-correction earlier in this section). The Assembly-window `readD` above is
-still the right, live-validated way to read D — that part held up. What's
-now known additionally: X/Y/M/S/T/C are readable **and writable** for real
-via `registers.js`'s bit-mode functions (`readXBit`, `readYBit`/`writeYBit`,
-`readM`/`writeM`, `readS`/`writeS`, and `readBit`/`writeBit` for T/C),
-confirmed by watching the physical device react to a driver-issued write.
-D write is the one confirmed dead end — its bit-mode Class `0x352` exists
-and works, but writes to it don't reach the real D-table by any path tried
-(explicit Assembly write, Assembly write during an active connection, or
-the Class `0x352` bit-mode write itself). Full corrected picture, with a
-per-method table, is in [src/delta/README.md](src/delta/README.md) — that
-file is now authoritative for the `'es2'` profile.
-
-#### Explicit device-type profiles: `DeltaDevice` (2026-09)
-
-Given real capability turned out to vary per specific model rather than
-along a clean tier boundary — confirmed via Delta's own product table
-([docs/DELTA_IA-PLC_EtherNet-IP_OP_EN_20251021.pdf](docs/DELTA_IA-PLC_EtherNet-IP_OP_EN_20251021.pdf)
-Ch.9, "9.1 Adapter Supported" vs "9.3 Scanner Supported"): the DVP-ES2-E/
-DVP26SE/DVP12SE family is listed as Adapter-capable but *not*
-Scanner-capable, while DVP-SV3/SX3 and DVP-ES3/EX3 are listed as both — a
-device answering a generic CIP request successfully doesn't reliably tell
-you which register-access strategy to use (the ES2 even accepts
-`Set_Attribute_Single` on some Assembly instances, so "did this request
-succeed" alone isn't a safe signal either).
-
-So instead of auto-detecting, the caller states the device type explicitly:
-
-```js
-const { DeltaDevice } = require('./src/delta/device');
-
-const sx3 = new DeltaDevice('192.168.68.250', 'sx3'); // vendor Register Objects (Class 0x350-0x359)
-const es2 = new DeltaDevice('192.168.68.111', 'es2'); // Assembly-window fallback (Instance 101)
-```
-
-- [src/delta/device-types/index.js](src/delta/device-types/index.js) — a
-  small registry (`register(key, profile)` / `get(key)` / `list()`); adding
-  a new PLC type means adding one file here and registering it, nothing
-  else changes.
-- [src/delta/device-types/sx3.js](src/delta/device-types/sx3.js) — thin
-  passthrough to `registers.js` (Delta manual-documented, vendor-wide for
-  this family).
-- [src/delta/device-types/es2.js](src/delta/device-types/es2.js) — bit-mode
-  read/write for X/Y/M/S/T/C (via `registers.js`), `readD` via the
-  Assembly-window fallback; `writeD`/`readHC`/`writeHC`/`readSM`/`readSR`
-  throw a clear "not supported for device type 'es2'" error with the
-  specific reason (either "no working write path found" for D, or "this
-  Class doesn't exist on this device" for HC/SM/SR) rather than silently
-  doing the wrong thing or being omitted — every profile has the same
-  method shape to code against regardless of what it can actually do.
-- [src/delta/device.js](src/delta/device.js) — `DeltaDevice`, wraps a
-  `Scanner` + a chosen profile behind one object.
-
-**Live-validated (2026-09):** the full `'es2'` read/write surface through
-`DeltaDevice` itself (not just the lower-level functions) — `readX`/`readY`/
-`readM`/`readD` all match values written via WPLSoft/ISPSoft; `writeM`/
-`writeY`/`writeS`/`writeT`/`writeC` round trip cleanly (write true, read
-back true, write back the original value, read back confirms restored) and
-were independently confirmed by watching the physical device's own live
-monitor react. `writeD` fails clearly instead of silently writing nowhere.
-Also: `DeltaDevice(es2Host, 'sx3').readD(0)` — deliberately mismatched
-type — fails with the expected `0x05 PathDestinationUnknown` from
-`registers.js`'s Class 0x352 word-mode, rather than silently returning
-garbage. This is the explicit failure mode the design was chosen for.
-
-**Profile-authoring assist (not auto-generation):**
-[src/delta/eds-inspect.js](src/delta/eds-inspect.js) parses an EDS file's
-`[Assembly]` and `[Connection Manager]` sections into a quick list of
-candidate instance numbers/sizes/paths — a starting point for defining a
-new profile, not a finished one, since EDS files don't document which byte
-offset means which named register (the SX3 EDS's own Param names are
-generic "Input_data0".."Input_dataN", not "D0".."D99" — see the earlier
-D-mirror discovery, which needed live testing regardless of having the EDS
-in hand). Try it: `node examples/inspect-eds.js eds/031F000E0F0600010001.eds`.
-
-#### ES2 D-mirror expanded from one window to eight (2026-09)
-
-The Instance-101 mirror above was assumed to cover the entire readable D
-range (it doesn't — it's just D0-D99). This was found by acting on a real
-write the device owner performed: they configured a real SX3 (as
-EtherNet/IP Scanner, via EIP Builder's exchange table on the SX3 itself)
-to write its own D100 into this ES2's D100, and confirmed via WPLSoft that
-the ES2's D100 really did become `1111`. Sweeping every Assembly instance
-afterward for that value found it not at Instance 101, but at **Instance
-103, offset 0** — proving each Connection's T->O instance (101, 103, 105,
-107, 109, 111, 113, 115) mirrors a separate, sequential 100-word D block:
-D0-99, D100-199, D200-299, ..., D700-799. Two of the previously-untested
-windows (D400-499, D500-599) turned out to already contain non-zero live
-PLC data consistent with the same pattern (e.g. `D408=1800`, `D500=21`),
-confirming them without needing an additional written marker.
-
-[src/delta/device-types/es2.js](src/delta/device-types/es2.js) was
-rewritten to implement all 8 windows; `readD(n)` now accepts `n` in
-`0`-`799` and throws a `RangeError` outside that range instead of silently
-reading the wrong window. Live-validated via `DeltaDevice`: `readD(100)` →
-`1111`, `readD(500)` → `21`, `readD(502)` → `62`, `readD(408)` → `1800`,
-`readD(800)` → throws.
-
-**Write still unresolved.** Knowing D100 lives behind Instance 103 (paired
-with O->T Instance 102 on Connection2) opened two new things to try:
-an explicit `Set_Attribute_Single` write to Instance 102, and a full
-`Forward_Open` using Connection2's exact path (`Config=129`, `O2T=102`,
-`T2O=103`) with cyclic UDP O->T data, with and without a 32-bit Run/Idle
-header and a Connection Configuration Data segment. Both failed the same
-way as every earlier attempt on Instance 100/Connection1 — D100 never
-moved from `1111`. A real, working mechanism is confirmed to exist (EIP
-Builder's Scanner-side exchange table), so this looks solvable, just not
-yet reproduced at the CIP wire level — packet capture of the real
-SX3-to-ES2 exchange (`pktmon` on Windows, admin-required) remains the most
-concrete unexplored next step. Full details in
-[src/delta/README.md](src/delta/README.md).
-
-#### `'sx3'`/`'es3'` — full read/write coverage, real device ranges, octal I/O labels (2026-09)
-
-Closed out the `'sx3'` profile's remaining open items in one pass, driven
-by the real AS300 device-range table the owner provided (saved at
-[docs/dvp-plc-device-ranges.md](docs/dvp-plc-device-ranges.md#as-series--sx3-as300-cpu)):
-`X`/`Y` 0-377 octal (256 points), `M` 0-8191, `SM` 0-2047, `S` 0-2047, `T`
-0-511, `C` 0-511, `HC` 0-255, `D` 0-29999, `SR` 0-2047.
-
-- **Full read/write mirroring test suite** — a new fake CIP session
-  ([test/helpers/mirror-session.js](test/helpers/mirror-session.js)) that
-  actually stores and returns whatever's written to a given CIP path (not
-  just asserting on encoded request bytes) drives
-  [test/sx3-full-roundtrip_spec.js](test/sx3-full-roundtrip_spec.js): every
-  register type, word and bit mode, 16-bit and 32-bit, each tested at a
-  normal value AND at the top of its real range (`M8191`, `S2047`, `T511`,
-  `C511`, `HC255`, `D29999`, `SM2047`, `SR2047`, `X377`).
-- **Live-validated against the real SX3** end to end
-  ([examples/delta-sx3-full-roundtrip.js](examples/delta-sx3-full-roundtrip.js)):
-  every write/read/restore round trip passed — Y, D, M, S, T, C, HC word
-  mode; YBit bit mode; D32 and C32 (HC alias) 32-bit — closing every
-  previously "not yet round-trip tested" item for this profile (`writeYBit`,
-  `writeT`/`writeC`/`writeHC`, `writeC32`).
-- **Octal X/Y label conversion, finally implemented** — the labels
-  WPLSoft/ISPSoft display (`X10`, `Y377`, ...) are literal base-8 digits;
-  `octalLabelToIndex()`/`indexToOctalLabel()`
-  ([src/delta/registers.js](src/delta/registers.js)) do exactly
-  `parseInt(label, 8)`/`index.toString(8)`, wrapped by
-  `readXBitLabel`/`readYBitLabel`/`writeYBitLabel` on both `'sx3'` and
-  `'es2'` profiles. Live-confirmed: `writeYBitLabel('Y62', true)` round
-  trips identically to `writeYBit(50, true)` (Y62 octal = decimal 50).
-- **`'es3'` registered as its own explicit device type**
-  ([src/delta/device-types/es3.js](src/delta/device-types/es3.js)) — same
-  implementation as `'sx3'` (they're the same manual family and ES3's EDS
-  was already confirmed structurally identical), just addressable as
-  `new DeltaDevice(host, 'es3')` instead of the less-obvious `'sx3'`. Still
-  unconfirmed against real ES3 hardware.
-- **`W`, `FR`, `E` — no CIP mapping found.** These exist as ladder device
-  types on the AS300 (`W0`-`W29999`, `FR0`-`FR65535`, `E0`-`E14`) but the
-  manual's Ch. 8.12 documents no CIP class for any of them, and a live
-  sweep of classes `0x35A`-`0x360` (right after `SR`) on the real SX3 came
-  back `PathDestinationUnknown` on every one. Left as an open item — see
-  [src/delta/README.md](src/delta/README.md).
-
-### K. Future — CIP Security & advanced conformance
-
-| Item | Status | Notes |
-|---|---|---|
-| CIP Security (Vol 8) — TLS/DTLS secure sessions | ⬜ | future |
-| Full ODVA Conformance Test (CT) pass | ⬜ | future — [CT spec mirror](https://archive.org/details/ovda_cip_docs) |
-| CIP Safety objects | ⬜ | future |
-
-## Source layout
-
-```
-src/
-  constants.js                — encapsulation commands/status, CIP general
-                                 status codes, common services, class codes  ✅
-  encapsulation/
-    header.js                 — 24-byte header encode/decode                ✅
-    cpf.js                     — Common Packet Format item parsing          ✅
-    identity.js                 — Identity item / Socket Address decode     ✅
-    session.js                   — RegisterSession / UnRegisterSession      ✅
-    discovery.js                  — ListIdentity (UDP broadcast/unicast +
-                                     TCP), the network-scan entry point     ✅
-    rrdata.js                       — SendRRData (unconnected explicit
-                                       messaging) wrap/unwrap               ✅
-  cip/
-    path.js                    — padded EPATH / logical segment encoding,
-                                  incl. encodeAssemblyConnectionPath()      ✅
-    message-router.js           — request/response framing                ✅
-    connection-manager.js         — Forward Open/Forward Close             ✅
-    io-connection.js               — cyclic UDP I/O datagram (Sequenced
-                                      Address + Connected Data items)       ✅
-    objects/
-      identity.js                    — server-side Identity Object          ✅
-      assembly.js                     — server-side Assembly Object         ✅
-      (TCP/IP Interface, Ethernet Link — not started)                       ⬜
-    types.js                        — CIP data type encode/decode          ⬜ phase 2
-  logix/
-    tag-service.js               — Rockwell Read/Write Tag (0x4C/0x4D/0x52/0x53) ⬜ phase 2
-  delta/
-    registers.js                  — Delta vendor-specific Register Objects
-                                     (X/Y/D/M/S/T/C/HC/SM/SR)                ✅
-    assembly-window.js             — generic word-window into an Assembly
-                                      instance, for devices without
-                                      registers.js's Register Objects        ✅
-    device-types/
-      index.js                       — profile registry (register/get/list) ✅
-      sx3.js                          — profile: vendor Register Objects,
-                                          bit- and word-mode              ✅
-      es3.js                           — profile: identical to sx3.js,
-                                           registered separately, unconfirmed
-                                           on real hardware                 ✅
-      es2.js                           — profile: bit-mode Register Objects
-                                           for X/Y/M/S/T/C; D read is
-                                           one confirmed real device's
-                                           assembly-window.js mapping,
-                                           D0-D799 across 8 windows
-                                           (Instances 101-115), read-only  ✅
-    device.js                          — DeltaDevice: Scanner + explicit
-                                          device-type profile in one
-                                          object; also readD32/writeD32,
-                                          readC32/writeC32                 ✅
-    dword.js                            — 32-bit (DINT) register-pairing
-                                           helpers (D32) + combine/split   ✅
-    eds-inspect.js                      — parses an EDS's [Assembly]/
-                                           [Connection Manager] sections, a
-                                           profile-authoring assist tool     ✅
-  eds/
-    generator.js                  — EDS file generation for adapter devices ⬜ phase 4
-  scanner.js                       — public Scanner API (discover, connect,
-                                      getAttribute/setAttribute, Forward
-                                      Open/Close, Delta register methods)    ✅
-  adapter.js                        — public EIPAdapter (TCP+UDP server,
-                                       session mgmt, object dispatch,
-                                       Forward Open/Close acceptance)        ✅
-  adapter/
-    connection-handler.js             — Adapter-side Forward_Open/Close +
-                                         cyclic UDP produce/consume          ✅
-  client.js                          — low-level session/handshake client,
-                                        generic explicit messaging,
-                                        Forward Open/Close                  ✅
-examples/
-  scan-network.js                     — CLI: UDP broadcast device scan      ✅
-  probe-device.js                      — CLI: TCP ListIdentity + handshake  ✅
-  get-attribute.js                      — CLI: Get_Attribute_Single via
-                                           SendRRData                       ✅
-  set-attribute.js                       — CLI: Set_Attribute_Single via
-                                            SendRRData                      ✅
-  discover-assemblies.js                  — CLI: sweep Assembly Object
-                                             instances on a real device      ✅
-  forward-open.js                          — CLI: Forward_Open/Forward_Close
-                                              against a real device          ✅
-  io-listen.js                              — CLI: open a connection, exchange
-                                               live cyclic I/O data           ✅
-  delta-registers.js                         — CLI: readD/readX/readY/readM/
-                                                readSR against a real device  ✅
-  scanner-demo.js                             — CLI: end-to-end demo of the
-                                                 public Scanner API           ✅
-  delta-es2.js                                  — CLI: full 'es2' profile
-                                                   demo, incl. D via the
-                                                   Assembly-window mirrors   ✅
-  delta-sx3-full-roundtrip.js                    — CLI: full 'sx3' profile
-                                                   read/write coverage,
-                                                   every register type/width ✅
-  discover-cip-classes.js                         — CLI: sweep a class-ID
-                                                    range, report which CIP
-                                                    objects a device has     ✅
-  inspect-eds.js                                — CLI: profile-authoring
-                                                   assist, dumps an EDS's
-                                                   Assembly/Connection info   ✅
-  adapter-demo.js                                — CLI: full Phase 3
-                                                   loopback self-test         ✅
-eds/
-  031F000E0F0600010001.eds                 — Delta SX-3's vendor-issued EDS,
-                                              used as ground truth above     ✅
-docs/
-  DELTA_IA-PLC_EtherNet-IP_OP_EN_20251021.pdf — Delta's own EtherNet/IP
-                                                 manual, source for Domain J  ✅
-  dvp-plc-device-ranges.md                     — DVP-PLC Application Manual
-                                                  device-range tables (X/Y/M/
-                                                  T/C/S/D, 16- vs 32-bit)     ✅
-```
-
-## Status
-
-Phase 0 and Phase 1 complete. Phase 2's core risk — can this stack actually
-do real-time producer/consumer I/O against a non-Rockwell device, not just
-one-shot reads — is now cleared end-to-end, all validated live against the
-real Delta SX-3 PLC:
-- **Explicit messaging**: path encoding, CIP message router framing, and
-  SendRRData — `Get_Attribute_Single` read back Identity Vendor ID (799) and
-  Product Name ("DVP-SX3"), cross-checked against Phase 1's ListIdentity values.
-- **Forward_Open / Forward_Close**: using ground truth pulled from Delta's
-  own EDS file (`eds/031F000E0F0600010001.eds`) — succeeded on the first
-  attempt, RPI granted exactly as requested (20 ms), connection torn down
-  cleanly.
-- **Live cyclic I/O data, both directions**: 219 real T->O datagrams
-  received in a 5-second window (20 ms RPI) with distinct, changing
-  payloads, while simultaneously producing our own O->T datagrams to keep
-  the connection alive — see `examples/io-listen.js`.
-- **Set_Attribute_Single** (write): validated live — a write was rejected
-  (`0x15 TooMuchData`) until the root cause was found (Assembly data-write
-  length must match the *current* Size attribute, which had drifted since
-  it was last read), then succeeded with the correct length and was
-  confirmed unchanged on readback.
-- **Delta vendor-specific direct register access** (`src/delta/registers.js`,
-  Domain J): all 10 register types (X/Y/D/M/S/T/C/HC/SM/SR) validated live
-  against the SX3 — this is the Modbus-like "read D100 by name" capability
-  the driver was originally missing, sourced from Delta's own EtherNet/IP
-  manual rather than guessed at. Also discovered, via an ordinary network
-  scan, that this layer is AS/AH-series-specific: a second real device (a
-  DVP32ES2-E) answers generic CIP fine but doesn't implement these register
-  classes at all — a genuinely useful finding about the limits of this
-  vendor layer, not a driver bug.
-- **Public `Scanner` API** (`src/scanner.js`): wraps everything above
-  (discovery, `getAttribute`/`setAttribute`, Forward Open/Close, and all
-  the Delta register methods bound to one session) into one object —
-  live end-to-end smoke test in `examples/scanner-demo.js` (discover →
-  connect → generic Vendor ID read → `readD(0)` → disconnect) passed
-  against the real SX3.
-- **Assembly-window fallback** (`src/delta/assembly-window.js`, used from
-  `src/delta/device-types/es2.js`, Domain J): confirmed a device-specific way to
-  read D-registers on the DVP32ES2-E even without the vendor Register
-  Objects — via a known-value pattern written into the D-table externally,
-  then found by scanning every Assembly instance's Data attribute for a
-  byte-for-byte match (Instance 101, offset 0). Write side is validated at
-  the wire level (Instance 100 accepts `Set_Attribute_Single`) but its
-  real-world target is unconfirmed pending the device owner cross-checking
-  their own register monitor — open item.
-- **Explicit device-type profiles** (`src/delta/device.js` +
-  `device-types/`): `DeltaDevice(host, 'sx3'|'es2')` picks the right
-  register-access strategy up front rather than auto-detecting — confirmed
-  live against both real devices, and a deliberately mismatched type
-  (`DeltaDevice(es2Host, 'sx3')`) fails clearly instead of returning wrong
-  data. Extensible: a new PLC type is one new file plus a registry entry.
-  Includes a profile-authoring assist tool (`eds-inspect.js`) that reads an
-  EDS's Assembly/Connection sections as a starting point.
-- **`'es2'` profile completed — full read/write for X/Y/M/S/T/C, corrected
-  understanding of D (2026-09):** a full CIP class-ID sweep found the ES2
-  actually does implement Delta's Register Objects, just bit-mode only
-  (Instance 1) — the earlier "doesn't implement them at all" conclusion was
-  based on testing only word-mode (Instance 2). Read for X/Y/M and write
-  for Y/M/S/T/C all confirmed live: read values matched a pattern written
-  through WPLSoft/ISPSoft, and writes were independently confirmed by
-  watching the physical device's own monitor react. D turned out to be the
-  one exception — its bit-mode object is real but writes to it don't reach
-  the actual D-table by any path tried, so `readD` stays on the
-  Assembly-mirror fallback and `writeD` fails clearly rather than silently
-  doing nothing. See [src/delta/README.md](src/delta/README.md) for the
-  full per-method breakdown — it's now the authoritative source for the
-  `'es2'` profile, ahead of the narrative in Domain J below.
-- **D write on ES2 confirmed exhaustively dead-ended, 32-bit access added
-  (2026-09):** every remaining plausible write path was tried — all 8
-  O->T Assembly instances this device has (100/102/104/106/108/110/112/114),
-  each with a unique marker, scanned across all 8 T->O instances and the
-  D-mirror — nothing propagated. Treating this as a genuine firmware
-  limitation rather than a missing technique. Separately, added
-  `readD32`/`writeD32` (`src/delta/dword.js`, register-pairing `Dn`+`Dn+1`)
-  and `readC32`/`writeC32` (aliases for `readHC`/`writeHC`) to `DeltaDevice`
-  — full round-trip validated live on the SX3 (`writeD32(200, 0x12345678)`
-  → `D200=0x5678, D201=0x1234`, byte order matching the manual's own
-  example exactly). Cross-referencing Delta's separate *DVP-PLC Application
-  Manual* device-range tables ([docs/dvp-plc-device-ranges.md](docs/dvp-plc-device-ranges.md))
-  confirmed **C has real 16-bit/32-bit sub-ranges within the same letter**
-  (e.g. `C0`-`C127` vs. `C235`-`C254` on one CPU family, `C0`-`C199` vs.
-  `C200`-`C254` on another — the exact boundary is model-dependent, hence
-  no auto-detection), while **T has no 32-bit range at all** — resolving
-  what was an open question.
-
-**Development reference:** [docs/delta-cip-object-reference.md](docs/delta-cip-object-reference.md)
-transcribes both Delta manuals' full CIP object tables (Class/Instance/
-Attribute/Access/Data Type, per PLC family) verbatim, with a live-validation
-status column per row — the source of truth this driver's `'sx3'`/`'es3'`
-and `'es2'` profiles are implemented against.
-
-Phase 2 is now essentially feature-complete for its core scope. **Phase 3
-(EIP Adapter) is underway and its core is done**, validated live via full
-loopback (`examples/adapter-demo.js`, this driver's own client code against
-its own new `EIPAdapter`):
-- TCP+UDP encapsulation server, session management, `ListIdentity` (both
-  TCP and UDP unicast) all working.
-- Server-side Identity Object and Assembly Object, dispatched through a
-  generic class registry — `Get_Attribute_Single`/`Set_Attribute_Single`
-  both validated, including the Assembly size-mismatch → `TooMuchData`
-  behavior exactly matching what this driver found on **real Delta
-  hardware** in Phase 2 (not assumed — replicated from an actual discovery).
-- Server-side `Forward_Open`/`Forward_Close`: full request/response round
-  trip validated live over TCP, RPI granted as requested.
-- The resulting cyclic UDP I/O *logic* (production/consumption, connection
-  ID matching) is unit-tested (`test/connection-handler_spec.js`) but not
-  yet proven end-to-end against a second real host — same-machine loopback
-  can't fully exercise it since both sides of EtherNet/IP I/O always use
-  the fixed port 2222 (a protocol/OS constraint, not an implementation gap;
-  see Domain H for the full explanation).
-
-`npm test` (153 tests) covers the same logic with synthetic buffers for
-regression safety. Still ahead: Multiple Service Packet and Rockwell/Logix
-tag services (Phase 2 loose ends), TCP/IP Interface + Ethernet Link Objects
-and real cross-device I/O validation (Phase 3 loose ends).
+A vendor-neutral ODVA EtherNet/IP (CIP) driver for Node.js, built directly
+from the CIP Networks Library (Vol 1 Common Industrial Protocol, Vol 2
+EtherNet/IP Adaptation of CIP) — not reverse-engineered from a single
+vendor's tool.
+
+**Current focus: Delta EtherNet/IP devices** (`src/delta/` — see
+[src/delta/README.md](src/delta/README.md) and
+[docs/delta-cip-object-reference.md](docs/delta-cip-object-reference.md)).
+Rockwell/Logix-specific extensions (Read/Write Tag, Symbol Object, Template
+Object, UDT decoding) are **explicitly deferred** — they're a separate,
+additive layer on top of the generic CIP core (see §22/24/26/27/32/54
+below), not a prerequisite for anything this project needs right now.
+
+This README tracks compliance against a full ODVA EtherNet/IP + CIP
+checklist (`README_GOAL.md`), not just "can it read/write a Delta PLC" —
+that project-specific status lives in `src/delta/README.md`. Status
+markers below: ✅ done and live-validated, 🔶 implemented but not fully
+validated/complete, ⬜ not started, ⏸ deferred (Rockwell-specific, out of
+scope for now).
+
+For the detailed, dated history of every live-hardware finding, bug, and
+dead end behind these statuses, see
+[docs/PROJECT_LOG.md](docs/PROJECT_LOG.md) (this file's predecessor,
+preserved in full).
 
 ## Quick start
 
 ```js
-const { Scanner } = require('@kufayeka/ethernet-ip/src');
-
-const devices = await Scanner.discover(); // UDP broadcast ListIdentity
-
-const scanner = new Scanner('192.168.68.250');
+const { Scanner } = require('./src/scanner');
+const scanner = new Scanner('192.168.1.10');
 await scanner.connect();
-
 const vendorId = await scanner.getAttribute({ classId: 0x01, instance: 1, attribute: 1 });
-await scanner.readD(100);          // Delta: read D100
-await scanner.writeD(100, 1234);   // Delta: write D100
-const conn = await scanner.openConnection({ connectionPath, rpiUs: 20000, otSize: 200, toSize: 200 });
-await scanner.closeConnection(conn);
-
 await scanner.disconnect();
 ```
 
-See `examples/` for complete, runnable scripts covering every piece above.
+```js
+// Delta vendor layer — explicit device-type profile (see src/delta/README.md)
+const { DeltaDevice } = require('./src/delta/device');
+const plc = new DeltaDevice('192.168.68.250', 'sx3');
+await plc.connect();
+const d100 = await plc.readD(100);
+await plc.writeD(100, 1234);
+await plc.disconnect();
+```
 
 ## Test
 
 ```
 npm test
 ```
+
+229 tests (`test/*_spec.js`) — encoding/round-trip tests against synthetic
+buffers, real Delta hardware captures, and loopback EIPAdapter.
+Live-hardware validation is separate — see the `Live?` notes throughout
+this checklist and [`examples/README.md`](examples/README.md) for runnable scripts
+against a real device (all defaulting to `192.168.68.250`).
+
+---
+
+## 1. EtherNet/IP Encapsulation Layer
+
+### 1.1 Encapsulation Header — ✅
+
+24-byte header encode/decode: [src/encapsulation/header.js](src/encapsulation/header.js).
+`decodeMessage()` validates length and returns `null` on an incomplete
+buffer (correct TCP-stream framing, see §39) rather than throwing or
+guessing. Sender Context (8 bytes) is actively generated as a 64-bit
+monotonic sequence counter and used for **request/response correlation**
+via an internal `Map` in `EIPSession` (see §40 — ✅ completed and live-validated).
+Zero-length payload, malformed/truncated buffers, and unexpected session handles
+are handled without crashing (`decodeHeader`/`decodeMessage` throw
+`RangeError`/return `null` predictably).
+
+### 1.2 Encapsulation Commands
+
+| Command | Code | Status |
+|---|---|---|
+| `NOP` | 0x0000 | ⬜ constant only, never sent/handled |
+| `ListServices` | 0x0004 | ✅ live — queries encapsulation services (`src/encapsulation/services.js`, `Scanner.listServices()`, `EIPAdapter`) |
+| `ListIdentity` | 0x0063 | ✅ live — UDP broadcast, UDP unicast, TCP (`src/encapsulation/discovery.js`) |
+| `ListInterfaces` | 0x0064 | ⬜ constant only |
+| `RegisterSession` | 0x0065 | ✅ live (`src/encapsulation/session.js`, `src/client.js`) |
+| `UnregisterSession` | 0x0066 | ✅ live |
+| `SendRRData` | 0x006F | ✅ live — unconnected explicit messaging (`src/encapsulation/rrdata.js`) |
+| `SendUnitData` | 0x0070 | ⬜ constant only — connected (Class 3) explicit messaging is not implemented on either client or server side |
+
+Unknown/unsupported commands: the Adapter (`src/adapter.js`) answers
+`ListServices` (0x0004) with capability flags and service name, and returns
+`EncapsulationStatus.InvalidCommand` (0x0001) for unhandled commands (such as
+`ListInterfaces` or `SendUnitData`) per ODVA specification.
+
+---
+
+## 2. Session Management
+
+### 2.1 Register Session — ✅
+
+`EIPSession.connect()` sends `RegisterSession`, parses the returned
+session handle, stores it, and rejects on a nonzero response status
+(`src/client.js`). Protocol version/options are fixed (version 1, options
+0) — not configurable, but that's the only value any real device accepts
+per spec.
+
+### 2.2 Session Lifecycle — ✅ **live-validated**
+
+Full session lifecycle state machine (`DISCONNECTED` ➔ `CONNECTING` ➔ `REGISTERED` ➔ `ACTIVE` ➔ `DESTROYED`)
+in `src/client.js` and `src/scanner.js`. Includes:
+- **Encapsulation NOP (0x0000) & Identity Keepalive**: periodic heartbeat timer (`heartbeatIntervalMs`)
+  detecting silent network link dropouts. Supported in `src/encapsulation/services.js` and echoed by `src/adapter.js`.
+- **Liveness probe**: fast 2ms Identity probe via `scanner.ping()`.
+- **Auto-Reconnect Engine**: configurable exponential backoff (`reconnectDelayMs`, `maxReconnectAttempts`)
+  when remote PLC disconnects, drops the socket, or reboots. Automatically re-registers the session and
+  safely drains pending queues.
+- Tested in `test/session-robustness_spec.js` and live against Delta SX3 in `examples/session-robustness.js`.
+
+### 2.3 Thread Safety — N/A / ⬜ (see §40)
+
+Node.js is single-threaded, so classic multi-thread races don't apply —
+but the *concurrent request* version of this problem (§40) is a real,
+confirmed gap: `EIPSession` has no per-request correlation at all.
+
+---
+
+## 3. SendRRData / Unconnected Explicit Messaging — ✅
+
+`src/encapsulation/rrdata.js` builds/parses the full stack (Encapsulation
+→ SendRRData → CPF → CIP Message). CPF parsing (§5) handles Null Address
+Item + Unconnected Data Item; Connected Address/unknown items would
+decode generically (CPF is type-agnostic) but aren't exercised on this
+path since SendRRData is always unconnected. Live-validated extensively
+against a real Delta SX3 (explicit reads/writes of hundreds of registers,
+Forward_Open/Close, etc. — see `docs/PROJECT_LOG.md`).
+
+## 4. SendUnitData / Connected Messaging — ⬜
+
+Not implemented on either the client (`EIPSession`) or the server
+(`EIPAdapter`) side — `grep SendUnitData src/` finds only the constant and
+an explicit "not yet implemented" comment in `src/adapter.js`. This means
+**Class 3 connected explicit messaging doesn't exist in this driver at
+all** — every explicit request goes over unconnected `SendRRData`
+instead, which works for everything tested so far but isn't spec-complete.
+
+## 5. Common Packet Format (CPF) — ✅
+
+Generic encoder/decoder: [src/encapsulation/cpf.js](src/encapsulation/cpf.js).
+Item shape is `{ typeId, data }`, decoded generically — unknown item types
+pass through without special-casing (nothing to reject), matching the
+spec's "ignore what you don't recognize" intent. Validates item count and
+truncated headers/data (`RangeError`, no buffer over-read). Supports Null
+Address, Connected Address, Unconnected Data, Connected Data, and
+Sequenced Address item type IDs (`CpfItemType`).
+
+## 6. CIP Message Layer — ✅
+
+`src/cip/message-router.js`: `buildRequest`/`parseResponse` (client) and
+`parseRequest`/`buildResponse` (server, Phase 3) are exact inverses.
+Response parsing structurally separates `generalStatus` from
+`additionalStatus` (an array, not discarded — see §36) and `data`.
+"Partial Success" isn't a distinct case in the general-status decode logic
+(0x06 `PartialTransfer` is just another status value, not specially
+branched), which is spec-accurate — CIP doesn't have a third
+success/partial/error tier beyond checking `generalStatus === 0`.
+
+## 7. CIP Service Framework — ✅
+
+Not hardcoded — `buildRequest({ service, path, data })` accepts any
+service code as a plain number, used identically for `Get_Attribute_Single`
+(0x0E), `Set_Attribute_Single` (0x10), `Forward_Open` (0x54, via
+`connection-manager.js`), and every Delta vendor service. `Scanner.getAttribute()`/`setAttribute()`
+are the ergonomic wrapper (`src/scanner.js`), but the raw
+`sendUnconnected(buildRequest(...))` path is always available for any
+service/class/instance/attribute combination — including ones this driver
+has no named wrapper for yet.
+
+`Get_Attributes_All` (0x01): ✅ live — `scanner.getAttributesAll({ classId, instance })`
+implements Get_Attribute_All and automatically decodes Identity Object (0x01).
+The `EIPAdapter` server dispatches `GetAttributeAll` across Identity, TCP/IP, and
+Ethernet Link objects. Live-validated against Delta SX3 PLC.
+
+`Set_Attribute_All` (0x02), `Reset` (0x05), `Create` (0x08), `Delete` (0x09): ⬜ no
+dedicated helper, though the generic `buildRequest` framework supports issuing
+any of these manually today.
+
+`Multiple_Service_Packet` (0x0A): ⬜ not implemented — no request-batching
+support at all.
+
+## 8. CIP Object Model — 🔶
+
+Generic path builder: `encodeEPath({ classId, instance, attribute,
+connectionPoint, member })` in [src/cip/path.js](src/cip/path.js), covering
+Logical Segments only (see §21). No fluent builder API
+(`CIPPath.class(x).instance(y)`) — it's a plain options object, functionally
+equivalent but not the exact shape README_GOAL sketches.
+
+## 9. Standard CIP Objects
+
+### Identity Object (0x01) — ✅
+
+Client-side read confirmed live (Vendor ID, Product Name, cross-checked
+against ListIdentity — `docs/PROJECT_LOG.md`). Server-side implementation:
+[src/cip/objects/identity.js](src/cip/objects/identity.js) (Phase 3, loopback-validated).
+`Reset` service: ⬜ not implemented.
+
+### Message Router (0x02) — 🔶
+
+Framing (§6) is complete and this **is** the message router in the sense
+that every CIP request in this driver is dispatched through it — but there
+is no explicit "Message Router Object" with its own queryable attributes
+(Number Available/Number Active) on either client or server side.
+
+### Connection Manager (0x06) — 🔶 (see §12 for detail)
+
+### TCP/IP Interface Object (0xF5) / Ethernet Link Object (0xF6) — ✅
+
+Fully implemented and live-validated (see §10 and §11 below). Served by `EIPAdapter`
+and queryable via `Scanner.getTcpIpConfig()` and `Scanner.getEthernetLinkInfo()`.
+
+---
+
+## 10. TCP/IP Interface Object (0xF5) — ✅ **live-validated**
+
+Implemented in [src/cip/objects/tcp-ip.js](src/cip/objects/tcp-ip.js):
+- **Server side (`EIPAdapter`)**: Serves Instance 1 with Status (Attr 1, DWORD),
+  Configuration Capability (Attr 2, DWORD), Configuration Control (Attr 3, DWORD),
+  Physical Link Object EPATH pointing to Class 0xF6 (Attr 4, STRUCT), Interface
+  Configuration (Attr 5, STRUCT with IP, Netmask, Gateway, Primary/Secondary DNS,
+  Domain Name), Host Name (Attr 6, STRING), and Inactivity Timeout (Attr 13, UINT).
+  Supports `setAttributeSingle` for settable attributes (3, 5, 13).
+- **Client side (`Scanner.getTcpIpConfig()`)**: Reads and decodes raw attribute
+  buffers into friendly JavaScript objects.
+- **Live-validated** against real Delta SX3 hardware (`examples/read-network-objects.js`),
+  successfully decoding IP `192.168.68.250`, Netmask `255.255.255.0`, and Host Name `"DVP-SX3"`.
+
+## 11. Ethernet Link Object (0xF6) — ✅ **live-validated**
+
+Implemented in [src/cip/objects/ethernet-link.js](src/cip/objects/ethernet-link.js):
+- **Server side (`EIPAdapter`)**: Serves Instance 1 with Interface Speed (Attr 1, UDINT,
+  e.g. 100 Mbps), Interface Flags (Attr 2, DWORD with Link Active bit 0 and Full Duplex bit 1),
+  Physical MAC Address (Attr 3, USINT[6]), Interface Label (Attr 10, SHORT_STRING),
+  and Interface Capability struct (Attr 11).
+- **Client side (`Scanner.getEthernetLinkInfo()`)**: Formats MAC addresses into
+  standard `XX:XX:XX:XX:XX:XX` strings and decodes duplex/link status flags.
+- **Live-validated** against real Delta SX3 hardware (`examples/read-network-objects.js`),
+  successfully reading Speed `100 Mbps`, Duplex `Full Duplex`, Link `Active`, and
+  MAC Address `00:18:23:E4:61:2E`.
+
+---
+
+## 12. Connection Manager — ✅ **live-validated**
+
+**Forward_Open (0x54):** ✅ full classic Forward_Open (≤511 bytes) build/parse on
+both client (`src/cip/connection-manager.js` + `src/client.js`) and
+server (`src/adapter/connection-handler.js`) — live-validated against real Delta SX3.
+
+**Large_Forward_Open (0x5B):** ✅ **live-validated** per CIP Vol 1 Section 3-5.5.3.
+Supports 32-bit Network Connection Parameters (Table 3-5.17) allowing connection sizes
+up to 65,535 bytes. Includes `buildLargeForwardOpenRequest()`, `parseLargeForwardOpenRequest()`,
+adapter handling in `src/adapter.js`, and transparent fallback to standard Forward_Open if
+a legacy target rejects 0x5B. Empirically confirmed supported natively on real Delta DVP-SX3
+hardware (`isLarge: true` in `examples/large-forward-open.js`).
+
+**Forward_Close (0x4E):** ✅ same completeness/validation as Forward_Open.
+
+**Extended status decoding:** 🔶 `ForwardOpenExtendedStatus` in
+`connection-manager.js` covers ~25 common codes for debugging, explicitly
+documented as non-exhaustive.
+
+---
+
+## 13. CIP Connection Lifecycle — ⬜
+
+No explicit state machine (`NEW → OPENING → ESTABLISHED → RUNNING →
+TIMED_OUT → CLOSING → CLOSED`) — a connection is just the plain object
+`openConnection()` returns; its liveness is implicit (did the last I/O
+packet arrive recently?), not tracked as formal state. Ownership conflict
+and connection-not-found are detectable via the extended status table
+above, but not raised as distinct, typed errors.
+
+## 14. Real-Time I/O — UDP/2222 — ✅ (as Originator)
+
+`src/cip/io-connection.js` builds/parses the Sequenced Address Item +
+Connected Data Item datagram. Full path (Forward_Open → UDP I/O → parse)
+live-validated against the real SX3 (`examples/io-listen.js`). Only the
+"Modeless" real-time format (no 32-bit Run/Idle header) is implemented —
+documented explicitly as a known gap for O→T data that requires one.
+
+## 15. I/O Connection Types — 🔶
+
+Point-to-point ✅ (the only type tested). Unicast ✅. Multicast ⬜ not
+implemented (no `IP_ADD_MEMBERSHIP`/multicast socket handling anywhere).
+Cyclic ✅ (the only trigger type used — `transportTypeTrigger = 0x01`
+default). Change-of-State / Application-triggered: ⬜ not implemented
+(the trigger byte is a raw parameter you *could* set manually, but nothing
+in this driver builds the different data-exchange behavior COS/App
+triggering implies).
+
+## 16. RPI — 🔶
+
+Treated as a real connection parameter (`rpiUs`/`otApiUs`/`toApiUs` are
+distinct requested-vs-actual values returned by the device, not a local
+`setInterval` guess) — see `examples/io-listen.js`, which derives its send
+interval from the negotiated `otApiUs`. RPI rejection/renegotiation
+handling: ⬜ not specially detected (a rejected RPI just surfaces as a
+Forward_Open failure via the extended status table, not a
+"renegotiate and retry" flow).
+
+## 17. Sequence Number — 🔶
+
+`io-connection.js` encodes/parses the 32-bit sequence number on every I/O
+datagram, and increments it correctly when producing. **Not implemented:**
+gap/loss/reorder/duplicate detection on the *consuming* side — an
+out-of-order or dropped packet is not currently flagged, just processed
+(or not) as it arrives.
+
+## 18. Multicast Handling — ⬜
+
+Not implemented at all — no multicast IP handling, no `IGMP`, no
+`IP_ADD_MEMBERSHIP`/`IP_MULTICAST_IF`. Every I/O connection tested so far
+is point-to-point unicast.
+
+## 19. CIP Routing — ✅
+
+Full multi-hop routing support via Port Segments in `src/cip/path.js`.
+`encodeRoutePath(hops, target)` and `encodeEPath({ portSegments, ... })` enable
+multi-hop routing (e.g. Ethernet Port 2 → remote IP → Backplane Port 1 → Slot 0
+processor → target CIP object). Fully round-trips through `decodeEPath()`.
+
+## 20. Port Segment — ✅
+
+Implemented in `src/cip/path.js` (`encodePortSegment` / `decodePortSegment`).
+Supports standard ports (0-14) and extended ports (>= 15), numeric link addresses
+(e.g. backplane slot), and extended link addresses (string IP or node addresses)
+with strict 16-bit word padding per CIP Vol 1 Appendix C (C-1.3). Validated in
+`test/port-segment_spec.js` and `examples/routing-and-types.js`.
+
+## 21. Logical Segments — 🔶
+
+`src/cip/path.js`'s `encodeLogicalSegment`/`decodeLogicalSegment` support
+Class, Instance, Attribute, Connection Point, and Member logical types,
+correctly switching between 8-bit/16-bit/32-bit padded encoding based on
+value size (`test/path_spec.js` covers all three widths). **Extended
+Logical** (Logical Type values 5-7: Special, Service ID, reserved) is not
+implemented — not needed by anything targeted so far.
+
+---
+
+## 22. Symbolic Segment — ⏸ deferred (Rockwell/Logix-specific)
+
+Not implemented. This is Logix tag-name addressing (`0x91`-prefixed ASCII
+paths) — out of scope while this project focuses on Delta, which uses
+Logical Segments exclusively (Class/Instance/Attribute, no symbolic tags).
+
+## 23. Array Indexing — ⏸ deferred (depends on §22/§24, Rockwell-specific)
+
+Not applicable without Symbolic Segment support / Logix tag services.
+
+## 24. Logix Tag Services (Read/Write Tag 0x4C/0x4D, Fragmented 0x52/0x53) — ⏸ deferred
+
+Explicitly out of scope — `src/logix/tag-service.js` is a placeholder
+(⬜, "phase 2" in the source layout) with nothing implemented. Delta
+devices don't use these services at all (confirmed via a full CIP class
+sweep on real hardware — see `docs/delta-cip-object-reference.md`).
+
+## 25. Multiple Service Packet (0x0A) — ✅ **live-validated**
+
+Implemented in `src/cip/multiple-service.js` per CIP Vol 1 Section 3-5.5.
+Packages multiple CIP requests into a single Message Router request (`0x02/1, 0x0A`)
+with offset tables and sub-response extraction. Includes automatic transparent fallback
+to individual pipelined requests if a target device returns `0x08 ServiceNotSupported`.
+Supported natively on real Delta DVP-SX3 hardware (resolves 5+ batched requests
+in <10 ms). Tested in `test/multiple-service_spec.js` and `examples/multiple-service.js`.
+
+## 26. Logix Symbol Object (0x6B) — ⏸ deferred (Rockwell-specific)
+
+Not implemented, not needed for Delta.
+
+## 27. Template Object (0x6C) — ⏸ deferred (Rockwell-specific, depends on §26)
+
+Not implemented, not needed for Delta.
+
+---
+
+## 28. Data Type System — ✅
+
+Implemented in `src/cip/types.js`. Contains centralized metadata and codecs
+(`CIP_DATA_TYPES`, `encodeType`, `decodeType`) for all ODVA elementary data types:
+`BOOL`, `SINT`, `INT`, `DINT`, `LINT`, `USINT`, `UINT`, `UDINT`, `ULINT`, `REAL`,
+`LREAL`, `BYTE`, `WORD`, `DWORD`, `LWORD`, `SHORT_STRING`, `STRING`.
+Fully tested with boundary and truncation assertions in `test/types_spec.js`.
+
+## 29. Endianness — ✅
+
+Every multi-byte field in this codebase is read/written explicitly
+little-endian (`readUInt16LE`, `writeInt32LE`, etc.) — `grep -rn
+"readUInt\|writeUInt\|readInt\|writeInt" src/` shows zero native-endian
+(`readUInt16`/`writeUInt16` without the `LE`/`BE` suffix) calls. No
+native-CPU-endian dependency anywhere.
+
+## 30. BOOL / Bit-Level Access — ✅
+
+Implemented in `src/cip/types.js` (`readBit`, `writeBit`, `resolveBitMember`).
+Supports bit indexing (0-7), bit setting/clearing, and packed boolean member
+resolution by mask or byte/bit offset inside any structured attribute buffer.
+Complementary to Delta's per-bit CIP instances in `src/delta/registers.js`.
+
+## 31. String Handling — ✅
+
+Implemented in `src/cip/types.js` (`encodeShortString`, `decodeShortString`,
+`encodeCipString`, `decodeCipString`). Supports ODVA standard `SHORT_STRING`
+(UINT8 length + ASCII characters) and `STRING` (UINT16 length + ASCII characters).
+
+## 32. UDT Decoder — ⏸ deferred (Rockwell/Logix-specific, depends on §27)
+
+Not implemented, not needed for Delta (no UDTs involved in anything
+targeted so far).
+
+## 33. Fragmentation — ⬜
+
+No generic fragmentation engine. Every explicit request/response in this
+driver is assumed to fit in one unconnected message — untested against
+any payload large enough to require `Service Fragmentation` (general
+status 0x06 `PartialTransfer`/0x17
+`ServiceFragmentationSequenceNotInProgress` are defined in
+`CipGeneralStatus` but never specifically handled with a re-request loop).
+
+## 34. CIP Error Handling — ✅
+
+`parseResponse()` (`src/cip/message-router.js`) always returns a
+structured `{ service, generalStatus, additionalStatus, data }` — never
+just a boolean/thrown string. Callers (`Scanner.getAttribute`, Delta's
+`registers.js`, etc.) build a descriptive `Error` from the *whole*
+structure (general status name + hex additional status words), not a bare
+`if (status !== 0) throw`.
+
+## 35. General Status Codes — ✅ (exceeds the checklist)
+
+`CipGeneralStatus` in [src/constants.js](src/constants.js) covers the
+full CIP Vol 1 Appendix B table through `0x2E`
+(`ServiceNotSupportedForSpecifiedPath`) — every code README_GOAL lists
+plus ~15 more (Routing Failure variants, Embedded Service Error,
+Vendor Specific Error, Member/Attribute-list errors, etc.).
+
+## 36. Additional Status — ✅
+
+Never discarded — `parseResponse()` returns it as a plain array of
+16-bit words on every response, and every error path in this driver
+(`assertGetSuccess` in `registers.js`, `_forwardOpenError` in
+`client.js`) includes it in the thrown error's message. `Forward_Open`
+specifically decodes the first additional status word against a
+~25-entry lookup table for a human-readable reason.
+
+---
+
+## 37. Timeout Management — 🔶
+
+One `timeoutMs` (default 5000ms) per `EIPSession`, applied to *both* the
+initial TCP connect and every subsequent request/response transaction —
+not the differentiated set README_GOAL wants (separate TCP connect /
+session / CIP request / Forward Open / I/O connection / fragment
+timeouts). Works fine for this driver's current sequential-request usage
+pattern, but is a single global knob, not per-operation-type.
+
+## 38. Retry Policy — ⬜
+
+No retry logic anywhere in this codebase. A failed/timed-out request
+simply rejects its promise; the caller decides whether to retry.
+Retryable-vs-non-retryable classification (TCP reset vs. Invalid
+Attribute) doesn't exist.
+
+## 39. TCP Stream Handling — ✅
+
+`EIPSession._onData()` (`src/client.js`) buffers incoming chunks
+(`Buffer.concat`) and loops `decodeMessage()` until it returns `null`
+(incomplete message, keep buffering) — correctly handles both a single
+TCP read containing multiple encapsulation messages back-to-back, and one
+message split across multiple reads. This is exactly the framing
+README_GOAL calls "one of the most important parts for robustness," and
+it's implemented correctly.
+
+## 40. Concurrency — ✅ **live-validated**
+
+`EIPSession` implements request/response correlation using the 8-byte
+**Sender Context** field specified by ODVA CIP Vol 2 §2-3.1. Each outgoing
+encapsulation request is tagged with a unique 64-bit monotonic sequence number
+stored in a `Map<string, Entry>`. When an encapsulation response arrives off the
+wire, `_onData()` matches `msg.header.senderContext` against the active transactions:
+- Responses that arrive out-of-order are matched to their exact original promise
+  without cross-talk.
+- Timed-out requests are purged cleanly; if the server later sends a delayed
+  response, it is safely dropped without desynchronizing subsequent requests.
+- Live-tested on a real Delta SX3 (`examples/test-concurrency-live.js`), resolving
+  7 simultaneous `Promise.all` reads in ~41ms without error.
+
+## 41. Request Queue / Backpressure — ✅ **live-validated**
+
+Embedded industrial PLCs often have shallow TCP socket buffers and drop
+or stall incoming bursts if multiple encapsulation packets are written in the
+same millisecond. `EIPSession` features an internal request queue with a
+configurable `maxInFlight` setting (default `1` for maximum device compatibility,
+can be set higher for capable gateways or PC-based targets). When callers issue
+bursts like `Promise.all([read(1), read(2), ...])`, `EIPSession` queues and
+pipelines them cleanly across the single TCP session.
+
+## 42. Connection Pooling — 🔶
+
+One `EIPSession` = one persistent TCP session, reused across multiple
+`read`/`write` calls without re-registering per call (`connect()` once,
+then any number of `sendUnconnected()`/`openConnection()` calls, then
+`close()`) — matches the "connect → persistent session → read/write →
+disconnect" pattern README_GOAL wants. What's missing: any explicit
+tracking of *multiple simultaneous* Class 1/Class 3 connections per
+session as a managed pool (each `openConnection()` call is independent;
+nothing enumerates or manages "all connections currently open on this
+session" as a collection).
+
+---
+
+## 43. Discovery — ✅
+
+`ListIdentity` via UDP broadcast (auto-detecting every active local IPv4
+interface and sending a subnet-directed broadcast on each —
+`ipv4DirectedBroadcasts()`), UDP unicast, and TCP — all three
+live-validated against two real, different Delta PLCs found on the same
+LAN with zero device-specific code (`src/encapsulation/discovery.js`,
+`examples/scan-network.js`). Output shape matches README_GOAL's ideal
+exactly: `{ address, vendorId, deviceType, productCode, revision, status,
+serialNumber, productName }`.
+
+## 44. Device Identity Cache — ⬜
+
+Discovery results aren't cached anywhere — each `scan()` call re-queries
+the network fresh. No persistent device/capability cache exists.
+
+## 45. Device Capability Detection — ⬜
+
+This driver deliberately does the *opposite* of auto-detection for the
+Delta layer — see `src/delta/README.md`'s "Why two strategies?": a device
+answering generic CIP successfully doesn't reliably indicate which
+register-access strategy it supports, so the caller states the device
+type explicitly (`new DeltaDevice(host, 'sx3')`) rather than the driver
+probing capabilities at connect time. Generic capability flags (Supports
+Class 1/Class 3/Large Forward Open/Multiple Service Packet/Fragmentation/
+Symbolic Addressing/Unconnected Send) aren't tracked at all.
+
+## 46. Generic CIP Path Builder — 🔶
+
+`encodeEPath({ classId, instance, attribute, connectionPoint, member })`
+in `src/cip/path.js` is generic and reusable (used identically by the
+core CIP layer and every Delta vendor register) — but it's a plain
+options object, not the fluent builder class (`new CIPPath().class(x)...`)
+README_GOAL sketches. Functionally equivalent; API shape differs.
+
+## 47. Generic Binary Codec — ⬜ (informal, not a real subsystem)
+
+There is no `ByteReader`/`ByteWriter` abstraction — every module reads
+Node's `Buffer` methods directly at the call site (`buf.readUInt16LE(0)`,
+etc.). This has worked without incident so far because every payload this
+driver handles is small and fixed-shape, but it means byte-parsing logic
+is inline everywhere rather than centralized, which is exactly what
+README_GOAL warns produces protocol bugs at scale (e.g. Data Type System,
+§28, would need this as a foundation).
+
+## 48. Packet Validation — 🔶
+
+Each layer validates its own framing and throws a clear, typed error on
+malformation rather than crashing or reading out of bounds: encapsulation
+header length (`header.js`), CPF item/length bounds (`cpf.js`), CIP
+request/response minimum length (`message-router.js`), EPATH segment
+type/length (`path.js`). **Not verified:** no fuzz-testing has been done
+to prove there's no buffer-over-read edge case anywhere; this is "looks
+correct on inspection and passes 157 targeted unit tests," not "proven
+safe against adversarial input."
+
+## 49. Security / Robustness — 🔶
+
+Malformed-packet handling per §48 above. **Not implemented:** any
+explicit protection against oversized packets, integer overflow on
+attacker-controlled length fields beyond what `Buffer`'s own bounds
+checking provides, resource exhaustion from a flood of
+connections/requests, or rate limiting. This driver has never been
+adversarially tested — treat it as "correct against well-formed and
+moderately malformed input from real devices," not "hardened against a
+malicious peer."
+
+## 50. Logging & Diagnostics — ⬜
+
+No logging subsystem at all — no log levels (ERROR/WARN/INFO/DEBUG/
+TRACE/PACKET), no built-in TX/RX packet tracing. Diagnostic output during
+development has been ad-hoc `console.log` in one-off scripts
+(`examples/*.js`), never a reusable logger.
+
+## 51. Wireshark Compatibility — 🔶 (informally verified, not tooled)
+
+Every byte-level format in this driver has been manually cross-checked
+against real hardware behavior (request sent → expected response
+received, correct values read back matching independently-known ground
+truth) extensively throughout `docs/PROJECT_LOG.md` — but this was done
+by direct protocol testing against real PLCs, not by capturing traffic in
+Wireshark and diff'ing byte-for-byte against a reference implementation.
+No Wireshark-based verification workflow exists in this repo.
+
+## 52. Protocol Test Suite — 🔶
+
+`npm test` — 157 tests covering encapsulation, CPF, CIP framing, path
+encoding, connection manager, Delta register objects (full read/write
+matrix, every type, 16-bit and 32-bit, boundary values), and device-type
+profiles. **Missing categories** README_GOAL calls for: malformed-input
+fuzz tests, concurrency tests (would currently fail — see §40), reconnect
+tests, and fragmentation tests (nothing to test, §33 isn't implemented).
+
+## 53. Interoperability Testing — 🔶 (two real devices, one vendor)
+
+Live-tested against two genuinely different real PLCs (a DVP-SX3 and a
+DVP32ES2-E — different CPU families, different CIP object models) on the
+same LAN, which is more than "one Rockwell PLC," but both are Delta.
+Zero testing against Schneider/Omron/Mitsubishi/Keyence/other vendors —
+the vendor-neutral core (encapsulation, CPF, CIP framing, Forward_Open)
+has no Delta-specific assumptions baked in, but that claim is
+"structurally true by code inspection," not "verified against a second
+vendor's hardware."
+
+---
+
+## 54. Rockwell-Specific Compatibility Layer — ⏸ deferred
+
+Not built. The architectural intent (`src/logix/` as an additive layer
+above the generic CIP core, mirroring `src/delta/`) is already reflected
+in the source layout, but nothing inside it is implemented yet
+(`src/logix/tag-service.js` is a placeholder). Revisit once Delta work
+reaches a stable point — not a priority per current project direction.
+
+## 55. Conformance-Oriented Final Checklist
+
+```text
+[x] TCP 44818
+[x] UDP 44818
+[ ] UDP 2222 (produced I/O only, not general-purpose bind/consume beyond examples)
+
+[x] Encapsulation Header
+[x] RegisterSession
+[x] UnregisterSession
+[x] SendRRData
+[ ] SendUnitData
+[x] ListIdentity
+[ ] ListInterfaces
+[x] ListServices
+[ ] NOP
+
+[x] CPF
+[x] CIP Request
+[x] CIP Response
+[x] General Status
+[x] Additional Status
+
+[~] Object Model              (generic path builder yes, no dedicated Message Router object attributes)
+[x] Identity Object           (client read + server serve, live-validated)
+[~] Message Router            (framing complete; no Number Available/Active attributes)
+[~] Connection Manager        (Forward_Open/Close yes; Large_Forward_Open no)
+[x] TCP/IP Interface          (Class 0xF5, client decode + adapter serve, live-validated)
+[x] Ethernet Link             (Class 0xF6, client decode + adapter serve, live-validated)
+
+[x] GetAttributesAll
+[x] GetAttributeSingle
+[ ] SetAttributesAll
+[x] SetAttributeSingle
+[ ] Reset
+[x] Multiple Service Packet
+
+[x] ForwardOpen
+[ ] LargeForwardOpen
+[x] ForwardClose
+
+[x] Connection IDs
+[x] Connection Serial
+[x] Originator Vendor ID
+[x] Originator Serial
+[x] RPI
+[x] Timeout Multiplier
+[x] Connection Path
+
+[ ] Class 1                   -- see note: implemented as raw UDP I/O, not via SendUnitData/Class 3
+[x] Class 1 (raw UDP produce/consume, Originator role, live-validated)
+[ ] Class 3 (SendUnitData-based connected explicit messaging)
+[x] Unicast
+[ ] Multicast
+[x] Cyclic
+[ ] CoS
+[~] Sequence Counter          (encode/parse yes, gap/reorder detection no)
+[~] I/O Timeout                (single global timeoutMs, not I/O-connection-specific)
+[ ] IGMP
+
+[x] Port Segment
+[x] Logical Segment
+[ ] Symbolic Segment           (deferred, Rockwell-specific)
+[ ] Data Segment                (used once, ad hoc, not a formal path.js primitive)
+[ ] Extended Segment
+[x] Multi-hop Routing          (encodeRoutePath with port hops, live round-trip)
+
+[x] BOOL                       (generic bit indexing & packed-bit mask resolver, src/cip/types.js)
+[x] SINT / INT / DINT / LINT / USINT / UINT / UDINT / ULINT / REAL / LREAL
+       (centralized Data Type System, src/cip/types.js)
+[x] STRING                     (SHORT_STRING & CIP STRING, src/cip/types.js)
+[ ] ARRAY
+[ ] STRUCT
+
+[ ] Fragmentation
+[ ] Partial Transfer
+[ ] Large Data
+
+[x] TCP stream reassembly
+[x] Concurrent requests        -- live-validated, see §40
+[x] Request correlation        -- 8-byte Sender Context Map
+[~] Timeout                    (single global knob, see §37)
+[ ] Retry
+[ ] Reconnect
+[x] Backpressure               -- maxInFlight pipeline queue, see §41
+[ ] Resource limits
+
+[x] Malformed packet handling   (per-layer, not fuzz-proven)
+[x] Invalid path handling
+[x] Invalid service handling
+[x] Invalid length handling
+[x] Additional status handling
+
+[ ] Packet logging
+[ ] Wireshark verification      (informal manual verification only)
+[x] Automated conformance tests (211 unit tests across 13 suites)
+[~] Interoperability tests      (2 real devices, 1 vendor)
+[ ] Long-running stability tests
+
+--- Rockwell Extension (deferred, not a current priority) ---
+
+[ ] Read Tag 0x4C
+[ ] Write Tag 0x4D
+[ ] Read Tag Fragmented 0x52
+[ ] Write Tag Fragmented 0x53
+[ ] Symbol Object 0x6B
+[ ] Template Object 0x6C
+[ ] UDT decoding
+[ ] Symbol browsing
+[ ] Program-scoped tags
+[ ] Controller-scoped tags
+[ ] Array indexing
+[ ] Structure member addressing
+```
+
+### What this means in practice
+
+The vendor-neutral **core is solid for its current scope**: encapsulation,
+discovery, unconnected explicit messaging, Forward_Open/Close, and Class 1
+UDP I/O are all real, live-validated against genuinely different hardware.
+Sender Context correlation (§40) and request queueing with `maxInFlight`
+backpressure (§41) are fully implemented and live-verified on real hardware.
+
+The primary structural features remaining for full ODVA compliance are:
+1. **§7/§25/§33 (Get_Attributes_All 0x01, Multiple Service Packet 0x0A, Fragmentation 0x06)** —
+   request batching and standard multi-attribute querying.
+2. **§4 (SendUnitData 0x0070)** — connected explicit messaging (Class 3).
+3. **§19/§20 (Port Segment & Multi-hop Routing)** — routing across backplanes and bridges.
+
+Everything Rockwell-specific (§22/24/26/27/32/54, and the Rockwell
+Extension block above) is intentionally untouched — not a gap in the
+current plan, a deliberate scope boundary while Delta work is the
+priority.
+
+## Source layout
+
+```
+src/
+  constants.js                — encapsulation commands/status, CIP general
+                                 status codes (full Vol 1 Appx B table),
+                                 common services, class codes            ✅
+  encapsulation/
+    header.js                 — 24-byte header encode/decode, TCP-safe
+                                 framing (decodeMessage returns null on
+                                 an incomplete buffer)                   ✅
+    cpf.js                     — Common Packet Format, generic item list ✅
+    identity.js                 — Identity item / Socket Address decode  ✅
+    session.js                   — RegisterSession / UnRegisterSession   ✅
+    discovery.js                  — ListIdentity (UDP broadcast/unicast
+                                     + TCP)                              ✅
+    rrdata.js                       — SendRRData wrap/unwrap             ✅
+  cip/
+    path.js                    — padded EPATH / Logical Segments only
+                                  (no Port/Data/Symbolic segments)      🔶
+    message-router.js           — request/response framing              ✅
+    connection-manager.js         — Forward_Open/Forward_Close (classic
+                                     only, no Large_Forward_Open)        🔶
+    io-connection.js               — cyclic UDP I/O datagram             ✅
+    objects/
+      identity.js                    — server-side Identity Object       ✅
+      assembly.js                     — server-side Assembly Object      ✅
+      tcp-ip.js                       — TCP/IP Interface Object (0xF5)   ✅
+      ethernet-link.js                — Ethernet Link Object (0xF6)      ✅
+      (Message Router attributes, Reset service — not started)           ⬜
+    types.js                        — does not exist (Data Type System) ⬜
+  logix/
+    tag-service.js               — placeholder, nothing implemented    ⏸
+  delta/                        — see src/delta/README.md              ✅ (current focus)
+adapter.js, adapter/            — Phase 3 EIP Adapter (server side):
+                                   sessions, CIP dispatch, Forward_Open
+                                   acceptance — loopback-validated       ✅
+```
+
+## Compliance principle: vendor-neutral by design
+
+The core (encapsulation, message router, generic CIP object model,
+Forward Open/Close, implicit I/O) is built to work with **any**
+ODVA-conformant device, verified against two genuinely different real
+PLCs, not assumed from one vendor's behavior. Rockwell/Logix extensions
+belong in `src/logix/` as an additive layer, never a prerequisite for the
+generic path — Delta's own vendor layer (`src/delta/`) proves this split
+already works in practice for a non-Rockwell vendor.

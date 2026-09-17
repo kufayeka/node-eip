@@ -12,13 +12,8 @@ const { probeTcp } = require('../src/encapsulation/discovery');
 const { EIPSession } = require('../src/client');
 
 async function main() {
-    const host = process.argv[2];
+    const host = process.argv[2] || '192.168.68.250';
     const port = process.argv[3] ? Number(process.argv[3]) : undefined;
-
-    if (!host) {
-        console.error('Usage: node examples/probe-device.js <host> [port]');
-        process.exit(1);
-    }
 
     console.log(`--- ListIdentity probe: ${host} ---`);
     const identity = await probeTcp(host, port ? { port } : undefined);

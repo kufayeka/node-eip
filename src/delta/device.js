@@ -15,6 +15,7 @@
 const { Scanner } = require('../scanner');
 const deviceTypes = require('./device-types');
 const { readDword, writeDword } = require('./dword');
+const { DeltaBatchBuilder } = require('./batch');
 
 class DeltaDevice {
     constructor(host, deviceType, opts) {
@@ -86,6 +87,41 @@ class DeltaDevice {
      */
     readC32(n) { return this.profile.readC32(this.session, n); }
     writeC32(n, value) { return this.profile.writeC32(this.session, n, value); }
+
+    /**
+     * Executes multiple register operations in a single ODVA CIP Multiple Service Packet (0x0A)
+     * over the network, resolving in one round-trip.
+     *
+     * Example:
+     *   await plc.batch(b => {
+     *       b.writeYBit(0, false);
+     *       b.writeYBit(1, true);
+     *       b.writeD(0, 100);
+     *   });
+     */
+    async batch(builderFn) {
+        if (typeof builderFn !== 'function') {
+            throw new TypeError('batch: builderFn must be a function');
+        }
+        const builder = new DeltaBatchBuilder();
+        builderFn(builder);
+        if (builder.operations.length === 0) return [];
+
+        const requests = builder.operations.map(op => ({
+            service: op.service,
+            path: op.path,
+            data: op.data
+        }));
+
+        const responses = await this.scanner.sendMultipleRequests(requests);
+        return responses.map((res, i) => {
+            const op = builder.operations[i];
+            if (res.generalStatus !== 0) {
+                throw new Error(`${op.label}: batch request failed with CIP status 0x${res.generalStatus.toString(16)}`);
+            }
+            return op.parse(res.data);
+        });
+    }
 }
 
 module.exports = { DeltaDevice };

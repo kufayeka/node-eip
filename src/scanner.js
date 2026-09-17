@@ -11,11 +11,18 @@
  * not because this class is Delta-specific.
  */
 
+const net = require('net');
 const { EIPSession } = require('./client');
 const { encodeEPath } = require('./cip/path');
 const { buildRequest } = require('./cip/message-router');
+const { decodeMessage } = require('./encapsulation/header');
 const { scanUdp, scanUdpUnicast, probeTcp } = require('./encapsulation/discovery');
-const { CipCommonServices, CipGeneralStatus } = require('./constants');
+const { buildListServicesRequest, parseListServicesResponse } = require('./encapsulation/services');
+const { buildMultipleServiceRequest, parseMultipleServiceResponse } = require('./cip/multiple-service');
+const { CipCommonServices, CipGeneralStatus, CipClassCodes, EIP_ENCAPSULATION_PORT } = require('./constants');
+const { decodeIdentityAttributesAll } = require('./cip/objects/identity');
+const { decodeInterfaceConfiguration, decodeCipString } = require('./cip/objects/tcp-ip');
+const { formatMacAddress, decodeInterfaceFlags } = require('./cip/objects/ethernet-link');
 const deltaRegisters = require('./delta/registers');
 
 function formatCipError(label, response) {
@@ -24,9 +31,18 @@ function formatCipError(label, response) {
 }
 
 class Scanner {
-    constructor(host, opts) {
+    constructor(hostOrOpts, opts) {
+        let host;
+        let options;
+        if (typeof hostOrOpts === 'object' && hostOrOpts !== null) {
+            host = hostOrOpts.host;
+            options = hostOrOpts;
+        } else {
+            host = hostOrOpts;
+            options = opts;
+        }
         this.host = host;
-        this.session = new EIPSession(host, opts);
+        this.session = new EIPSession(host, options);
     }
 
     /** Discovers EIP devices on the local network(s) via UDP broadcast ListIdentity. */
@@ -42,6 +58,44 @@ class Scanner {
     /** ListIdentity via TCP (no session needed) to a known host. */
     static probe(host, opts) {
         return probeTcp(host, opts);
+    }
+
+    /**
+     * Queries supported encapsulation services via ListServices (0x0004) over TCP without establishing a session.
+     */
+    static async listServices(host, { port = EIP_ENCAPSULATION_PORT, timeoutMs = 3000 } = {}) {
+        return new Promise((resolve, reject) => {
+            const socket = new net.Socket();
+            let buffer = Buffer.alloc(0);
+            const timer = setTimeout(() => {
+                socket.destroy();
+                reject(new Error(`Scanner.listServices: timed out connecting to ${host}:${port}`));
+            }, timeoutMs);
+
+            socket.on('error', (err) => {
+                clearTimeout(timer);
+                reject(err);
+            });
+
+            socket.connect(port, host, () => {
+                const req = buildListServicesRequest();
+                socket.write(req);
+            });
+
+            socket.on('data', (chunk) => {
+                buffer = Buffer.concat([buffer, chunk]);
+                const msg = decodeMessage(buffer);
+                if (!msg) return;
+                clearTimeout(timer);
+                socket.destroy();
+                try {
+                    const parsed = parseListServicesResponse(msg);
+                    resolve(parsed);
+                } catch (err) {
+                    reject(err);
+                }
+            });
+        });
     }
 
     async connect() {
@@ -68,6 +122,27 @@ class Scanner {
     }
 
     /**
+     * Generic explicit-messaging read for all attributes of an object instance (Get_Attribute_All, 0x01).
+     * If reading Identity Object (Class 0x01), returns both the raw buffer and a decoded object.
+     * @returns {{ data: Buffer, decoded?: object }}
+     */
+    async getAttributesAll({ classId, instance = 1 }) {
+        const path = encodeEPath({ classId, instance });
+        const request = buildRequest({ service: CipCommonServices.GetAttributeAll, path });
+        const response = await this.session.sendUnconnected(request);
+        if (response.generalStatus !== CipGeneralStatus.Success) {
+            throw formatCipError(`getAttributesAll(0x${classId.toString(16)}/${instance})`, response);
+        }
+        let decoded = null;
+        if (classId === CipClassCodes.Identity) {
+            try {
+                decoded = decodeIdentityAttributesAll(response.data);
+            } catch {}
+        }
+        return { data: response.data, decoded };
+    }
+
+    /**
      * Generic explicit-messaging write (Set_Attribute_Single). Remember:
      * for Assembly Object Data attributes, `data.length` must match the
      * object's *current* Size attribute exactly (see README Domain B) — a
@@ -82,14 +157,187 @@ class Scanner {
         }
     }
 
+    /**
+     * Sends multiple CIP requests in a single round-trip using Multiple Service Packet (0x0A) (§25).
+     * If the remote device rejects service 0x0A with ServiceNotSupported (0x08), and fallbackToIndividual
+     * is enabled (default), automatically executes each request individually via the session queue.
+     *
+     * @param {Array<Buffer|{service?: number, path?: Buffer, data?: Buffer, classId?: number, instance?: number, attribute?: number}>} requests
+     * @param {object} [opts]
+     * @param {boolean} [opts.fallbackToIndividual=true]
+     * @returns {Promise<Array<{service: number, generalStatus: number, additionalStatus: number[], data: Buffer}>>}
+     */
+    async sendMultipleRequests(requests, { fallbackToIndividual = true } = {}) {
+        if (!Array.isArray(requests) || requests.length === 0) {
+            throw new TypeError('sendMultipleRequests: requests must be a non-empty array');
+        }
+
+        const normalizedRequests = requests.map((req) => {
+            if (Buffer.isBuffer(req)) return req;
+            let path = req.path;
+            if (path && !Buffer.isBuffer(path)) {
+                path = encodeEPath(path);
+            } else if (!path && (req.classId !== undefined || req.instance !== undefined)) {
+                path = encodeEPath({
+                    classId: req.classId,
+                    instance: req.instance,
+                    attribute: req.attribute
+                });
+            }
+            return buildRequest({
+                service: req.service || CipCommonServices.GetAttributeSingle,
+                path: path || Buffer.alloc(0),
+                data: req.data || Buffer.alloc(0)
+            });
+        });
+
+        const multiRequest = buildMultipleServiceRequest(normalizedRequests);
+        const response = await this.session.sendUnconnected(multiRequest);
+
+        if (response.generalStatus === CipGeneralStatus.Success) {
+            return parseMultipleServiceResponse(response.data);
+        }
+
+        // Check if device does not support Multiple Service Packet (0x0A)
+        if (fallbackToIndividual && response.generalStatus === CipGeneralStatus.ServiceNotSupported) {
+            return Promise.all(
+                normalizedRequests.map(async (reqBuf) => {
+                    const resp = await this.session.sendUnconnected(reqBuf);
+                    return {
+                        service: resp.service,
+                        generalStatus: resp.generalStatus,
+                        additionalStatus: resp.additionalStatus,
+                        data: resp.data
+                    };
+                })
+            );
+        }
+
+        throw formatCipError('sendMultipleRequests', response);
+    }
+
+    /**
+     * Batch-reads multiple attributes in a single round-trip via Multiple Service Packet (0x0A).
+     *
+     * @param {Array<{classId: number, instance?: number, attribute?: number}>} targets
+     * @param {object} [opts]
+     * @returns {Promise<Array<{classId: number, instance: number, attribute: number, generalStatus: number, data: Buffer, error?: Error}>>}
+     */
+    async getAttributesMultiple(targets, opts) {
+        const requests = targets.map((t) => ({
+            service: CipCommonServices.GetAttributeSingle,
+            classId: t.classId,
+            instance: t.instance !== undefined ? t.instance : 1,
+            attribute: t.attribute !== undefined ? t.attribute : 1
+        }));
+        const responses = await this.sendMultipleRequests(requests, opts);
+        return responses.map((resp, i) => {
+            const ok = resp.generalStatus === CipGeneralStatus.Success;
+            return {
+                classId: targets[i].classId,
+                instance: targets[i].instance !== undefined ? targets[i].instance : 1,
+                attribute: targets[i].attribute !== undefined ? targets[i].attribute : 1,
+                generalStatus: resp.generalStatus,
+                data: resp.data,
+                error: ok ? null : formatCipError(`getAttribute(${targets[i].classId}/${targets[i].instance}/${targets[i].attribute})`, resp)
+            };
+        });
+    }
+
     /** Forward_Open — see cip/connection-manager.js's buildForwardOpenRequest() for the full option list. */
-    async openConnection(forwardOpenParams) {
-        return this.session.openConnection(forwardOpenParams);
+    async openConnection(forwardOpenParams, opts) {
+        return this.session.openConnection(forwardOpenParams, opts);
+    }
+
+    /** Large_Forward_Open (0x5B) with 32-bit connection parameters for sizes up to 65535 bytes. */
+    async openLargeConnection(forwardOpenParams) {
+        return this.session.openLargeConnection(forwardOpenParams);
     }
 
     /** Forward_Close a connection previously returned by openConnection(). */
     async closeConnection(connection) {
         return this.session.closeConnection(connection);
+    }
+
+    /** Current session state (e.g. 'DISCONNECTED', 'CONNECTING', 'REGISTERED'). */
+    get state() {
+        return this.session.state;
+    }
+
+    /** True if session is currently registered and ready for commands. */
+    get connected() {
+        return this.session.state === 'REGISTERED' || this.session.state === 'ACTIVE';
+    }
+
+    /** Sends Encapsulation NOP (0x0000) heartbeat / ping message. */
+    async sendNop(opts) {
+        return this.session.sendNop(opts);
+    }
+
+    /**
+     * Convenience ping — tests connection liveness.
+     * By default uses lightweight Identity Object attribute read (universally supported, e.g. Delta SX3).
+     * If useNop is true, sends Encapsulation NOP (0x0000).
+     */
+    async ping(optionsOrData) {
+        const useNop = typeof optionsOrData === 'object' && optionsOrData !== null && optionsOrData.useNop;
+        const data = Buffer.isBuffer(optionsOrData) ? optionsOrData : (optionsOrData && optionsOrData.data);
+        if (useNop) {
+            const res = await this.session.sendNop({ data });
+            return res.ok;
+        }
+        try {
+            const val = await this.getAttribute({ classId: 0x01, instance: 1, attribute: 1 });
+            return Boolean(val && val.length >= 2);
+        } catch {
+            return false;
+        }
+    }
+
+    /**
+     * Reads and decodes TCP/IP Interface Object (Class 0xF5) configuration from the remote device.
+     */
+    async getTcpIpConfig({ instance = 1 } = {}) {
+        const [statusBuf, configBuf, hostBuf] = await Promise.all([
+            this.getAttribute({ classId: CipClassCodes.TcpIpInterface, instance, attribute: 1 }).catch(() => null),
+            this.getAttribute({ classId: CipClassCodes.TcpIpInterface, instance, attribute: 5 }).catch(() => null),
+            this.getAttribute({ classId: CipClassCodes.TcpIpInterface, instance, attribute: 6 }).catch(() => null)
+        ]);
+
+        const status = statusBuf && statusBuf.length >= 4 ? statusBuf.readUInt32LE(0) : undefined;
+        const config = configBuf ? decodeInterfaceConfiguration(configBuf) : null;
+        const hostName = hostBuf ? decodeCipString(hostBuf, 0) : '';
+
+        return {
+            status,
+            ...config,
+            hostName
+        };
+    }
+
+    /**
+     * Reads and decodes Ethernet Link Object (Class 0xF6) information from the remote device.
+     */
+    async getEthernetLinkInfo({ instance = 1 } = {}) {
+        const [speedBuf, flagsBuf, macBuf, labelBuf] = await Promise.all([
+            this.getAttribute({ classId: CipClassCodes.EthernetLink, instance, attribute: 1 }).catch(() => null),
+            this.getAttribute({ classId: CipClassCodes.EthernetLink, instance, attribute: 2 }).catch(() => null),
+            this.getAttribute({ classId: CipClassCodes.EthernetLink, instance, attribute: 3 }).catch(() => null),
+            this.getAttribute({ classId: CipClassCodes.EthernetLink, instance, attribute: 10 }).catch(() => null)
+        ]);
+
+        const speedMbps = speedBuf && speedBuf.length >= 4 ? speedBuf.readUInt32LE(0) : undefined;
+        const flagsDword = flagsBuf && flagsBuf.length >= 4 ? flagsBuf.readUInt32LE(0) : undefined;
+        const flags = flagsDword !== undefined ? decodeInterfaceFlags(flagsDword) : null;
+        const macAddress = macBuf ? formatMacAddress(macBuf) : '';
+        const interfaceLabel = labelBuf && labelBuf.length > 1 ? labelBuf.subarray(1, 1 + labelBuf[0]).toString('ascii') : '';
+
+        return {
+            speedMbps,
+            macAddress,
+            interfaceLabel,
+            flags
+        };
     }
 
     // Delta AH/AS-series vendor-specific register convenience (README Domain J).
