@@ -263,6 +263,17 @@ class Subscription extends EventEmitter {
             throw new Error(`Subscription: invalid mode "${this.mode}". Expected "polling" or "udp"`);
         }
 
+        if (!this._sigintHandler) {
+            this._sigintHandler = async () => {
+                try {
+                    await this.stop();
+                } catch {}
+                process.exit(0);
+            };
+            process.once('SIGINT', this._sigintHandler);
+            process.once('SIGTERM', this._sigintHandler);
+        }
+
         this.emit('start');
         return this;
     }
@@ -280,13 +291,20 @@ class Subscription extends EventEmitter {
             this._pollTimer = null;
         }
 
+        if (this._sigintHandler) {
+            process.removeListener('SIGINT', this._sigintHandler);
+            process.removeListener('SIGTERM', this._sigintHandler);
+            this._sigintHandler = null;
+        }
+
         if (this._ioConnection) {
             this._ioConnection.removeListener('data', this._onUdpData);
             if (this._ownsIoConnection) {
                 await this._ioConnection.stop();
-                if (this._connectionHandle && this.target.scanner) {
+                const scanner = this.target.scanner || this.target;
+                if (this._connectionHandle && scanner && typeof scanner.closeConnection === 'function') {
                     try {
-                        await this.target.scanner.closeConnection(this._connectionHandle);
+                        await scanner.closeConnection(this._connectionHandle);
                     } catch {}
                     this._connectionHandle = null;
                 }

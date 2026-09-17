@@ -19,10 +19,15 @@ const { DeltaBatchBuilder } = require('./batch');
 const { Subscription } = require('../subscription');
 
 class DeltaDevice {
-    constructor(host, deviceType, opts) {
+    constructor(host, deviceType, opts = {}) {
         this.deviceType = deviceType;
         this.profile = deviceTypes.get(deviceType); // throws immediately on an unknown type
-        this.scanner = new Scanner(host, opts);
+        const scannerOpts = {
+            autoReconnect: true,
+            reconnectDelayMs: 200,
+            ...opts
+        };
+        this.scanner = new Scanner(host, scannerOpts);
     }
 
     static listDeviceTypes() {
