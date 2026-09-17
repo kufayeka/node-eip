@@ -79,6 +79,12 @@ vendor-neutral core immediately rather than only against a Logix controller:
 - `scanUdpUnicast()` — UDP unicast `ListIdentity` direct to its IP, same result.
 - `examples/probe-device.js` — TCP `ListIdentity` (no session) and then a full
   `RegisterSession` → `UnRegisterSession` handshake both completed cleanly.
+- **Second real device found "for free" by the same broadcast scan
+  (2026-09):** a `DVP32ES2-E` (`192.168.68.111`, product code 771 — a
+  different, older DVP-family PLC, not AS/AH-series) showed up alongside the
+  SX3 with zero extra code. Generic explicit messaging and Assembly discovery
+  worked identically against it; see Domain J below for what did *not* carry
+  over (Delta's vendor-specific Register Objects are AS/AH-series-only).
 
 Two real bugs caught and fixed during this:
 
@@ -376,17 +382,37 @@ originally proposed (byte-offset config, or unconfirmed symbolic tags):
 no per-device configuration needed — this works the same on any AH/AS-series
 device.
 
+**⚠️ Model-specific, not universal across all Delta PLCs (2026-09 finding):**
+a network scan turned up a second real device on the same LAN, a
+**DVP32ES2-E** (`192.168.68.111`, product code 771 — a different, older DVP
+PLC family, not AS/AH-series). The vendor-neutral core worked identically
+against it (Identity read confirmed `"DVP32ES2-E"`; Assembly sweep found the
+*exact same* 17 instances at the *exact same* sizes as the SX3 — 100-115 at
+200 bytes, 199 at 0 bytes), but **`readD()` failed** with general status
+`0x05` (`PathDestinationUnknown`) — Class `0x352` simply isn't implemented on
+this device. Its EDS (obtained separately, Delta's DVPES2E EIP package) has
+no vendor-specific-object hints either way; EDS files don't declare vendor
+classes regardless of whether they're supported, so this had to be confirmed
+live. **Conclusion: the Register Objects in this domain are an AS/AH-series
+feature, not a Delta-wide one** — exactly why this layer lives in `src/delta/`
+as an *additive* concern on top of the vendor-neutral core rather than being
+assumed universal. A driver caller should not assume `readD()` etc. works
+against every Delta device without checking (e.g. read Vendor ID first
+via generic `Get_Attribute_Single`, cross-reference the Product Code against
+known AS/AH models, or simply try/catch the vendor-specific read and fall
+back to generic Assembly I/O).
+
 | Register | Class | Instance | Access | Word type | Status |
 |---|---|---|---|---|---|
 | X (input) | 0x350 | 1=bit, 2=word | **read-only** | INT | ✅ live-validated |
 | Y (output) | 0x351 | 1=bit, 2=word | read/write | INT | ✅ live-validated (word) |
 | D (data register) | 0x352 | 1=bit, 2=word | read/write | INT | ✅ live-validated (word read+write round-trip, and bit) |
 | M (marker/coil) | 0x353 | 1=bit only | read/write | BOOL | ✅ live-validated (read+write round-trip) |
-| S (step) | 0x354 | 1=bit only | read/write | BOOL | ⬜ implemented, not yet live-tested |
-| T (timer) | 0x355 | 1=bit(contact), 2=word(value) | read/write | INT | ⬜ implemented, not yet live-tested |
-| C (counter) | 0x356 | 1=bit(contact), 2=word(value) | read/write | INT | ⬜ implemented, not yet live-tested |
-| HC (high-speed counter) | 0x357 | 1=bit(contact), 2=word(value) | read/write | DINT | ⬜ implemented, not yet live-tested |
-| SM (system marker) | 0x358 | 1=bit only | **read-only** | BOOL | ⬜ implemented, not yet live-tested |
+| S (step) | 0x354 | 1=bit only | read/write | BOOL | ✅ live-validated (read+write round-trip) |
+| T (timer) | 0x355 | 1=bit(contact), 2=word(value) | read/write | INT | ✅ live-validated (word read) |
+| C (counter) | 0x356 | 1=bit(contact), 2=word(value) | read/write | INT | ✅ live-validated (word read) |
+| HC (high-speed counter) | 0x357 | 1=bit(contact), 2=word(value) | read/write | DINT | ✅ live-validated (word read) |
+| SM (system marker) | 0x358 | 1=bit only | **read-only** | BOOL | ✅ live-validated |
 | SR (system register) | 0x359 | **1**=word (its only instance) | **read-only** | INT | ✅ live-validated |
 
 Implementation: [src/delta/registers.js](src/delta/registers.js) — reuses
@@ -499,14 +525,17 @@ real Delta SX-3 PLC:
   it was last read), then succeeded with the correct length and was
   confirmed unchanged on readback.
 - **Delta vendor-specific direct register access** (`src/delta/registers.js`,
-  Domain J): `readD`/`writeD`/`readX`/`readY`/`writeY`/`readM`/`writeM`/`readSR`
-  all validated live — this is the Modbus-like "read D100 by name" capability
+  Domain J): all 10 register types (X/Y/D/M/S/T/C/HC/SM/SR) validated live
+  against the SX3 — this is the Modbus-like "read D100 by name" capability
   the driver was originally missing, sourced from Delta's own EtherNet/IP
-  manual rather than guessed at.
+  manual rather than guessed at. Also discovered, via an ordinary network
+  scan, that this layer is AS/AH-series-specific: a second real device (a
+  DVP32ES2-E) answers generic CIP fine but doesn't implement these register
+  classes at all — a genuinely useful finding about the limits of this
+  vendor layer, not a driver bug.
 
 `npm test` (44 tests) covers the same logic with synthetic buffers for
-regression safety. Still ahead in Phase 2: Multiple Service Packet, live
-validation of the remaining Delta register types (S/T/C/HC/SM), then
+regression safety. Still ahead in Phase 2: Multiple Service Packet, then
 wrapping all of the above into a proper public `scanner.js` API (currently
 only exercised via low-level `EIPSession` calls in the `examples/` scripts).
 
