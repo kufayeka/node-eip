@@ -1,0 +1,20 @@
+{
+  "name": "@kufayeka/ethernet-ip",
+  "version": "0.1.0",
+  "description": "ODVA EtherNet/IP (CIP) protocol stack for Node.js — spec-compliant driver, built from the CIP Networks Library (Vol 1 & 2).",
+  "main": "src/index.js",
+  "scripts": {
+    "test": "mocha \"test/**/*_spec.js\""
+  },
+  "keywords": [
+    "ethernet-ip",
+    "cip",
+    "odva",
+    "industrial",
+    "scada",
+    "allen-bradley",
+    "kufayeka"
+  ],
+  "author": "kufayeka",
+  "private": true
+}
