@@ -4,7 +4,7 @@
   "description": "ODVA EtherNet/IP (CIP) protocol stack for Node.js — spec-compliant driver, built from the CIP Networks Library (Vol 1 & 2).",
   "main": "src/index.js",
   "scripts": {
-    "test": "mocha \"test/**/*_spec.js\""
+    "test": "mocha --exit \"test/**/*_spec.js\""
   },
   "keywords": [
     "ethernet-ip",

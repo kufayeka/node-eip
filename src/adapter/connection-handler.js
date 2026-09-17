@@ -62,7 +62,10 @@ class ConnectionHandler {
             o2tInstance,
             t2oInstance,
             remoteAddress,
+            remotePort: null,
             sequenceNumber: 0,
+            useRunIdleHeader: Boolean(request.useRunIdleHeader),
+            runIdle: true,
             timer: null
         };
 
@@ -72,9 +75,11 @@ class ConnectionHandler {
             const datagram = buildIoDatagram({
                 connectionId: state.toNetworkConnectionId,
                 sequenceNumber: state.sequenceNumber,
-                data: this.assemblyObject.getData(t2oInstance)
+                data: this.assemblyObject.getData(t2oInstance),
+                useRunIdleHeader: state.useRunIdleHeader,
+                runIdle: true
             });
-            this.sendDatagram(datagram, remoteAddress);
+            this.sendDatagram(datagram, state.remoteAddress, state.remotePort);
         }, rpiMs);
 
         this.connections.set(otNetworkConnectionId, state);
@@ -117,7 +122,7 @@ class ConnectionHandler {
     }
 
     /** Feed every datagram received on the I/O UDP socket (port 2222) here. */
-    handleIncomingDatagram(buf) {
+    handleIncomingDatagram(buf, rinfo) {
         let parsed;
         try {
             parsed = parseIoDatagram(buf);
@@ -126,9 +131,19 @@ class ConnectionHandler {
         }
         for (const state of this.connections.values()) {
             if (state.otNetworkConnectionId !== parsed.connectionId) continue;
+            if (rinfo && rinfo.port) {
+                state.remotePort = rinfo.port;
+                state.remoteAddress = rinfo.address;
+            }
             const outputBuf = this.assemblyObject.getData(state.o2tInstance);
-            if (parsed.data.length === outputBuf.length) {
-                this.assemblyObject.setData(state.o2tInstance, parsed.data);
+            let payload = parsed.data;
+            if (payload.length === outputBuf.length + 4) {
+                // 32-bit Run/Idle header present
+                state.runIdle = Boolean(payload.readUInt32LE(0) & 0x01);
+                payload = payload.slice(4);
+            }
+            if (payload.length === outputBuf.length) {
+                this.assemblyObject.setData(state.o2tInstance, payload);
             }
             return;
         }

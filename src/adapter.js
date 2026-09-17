@@ -92,7 +92,11 @@ class EIPAdapter {
 
         this.connectionHandler = new ConnectionHandler({
             assemblyObject: this.assembly,
-            sendDatagram: (buf, remoteAddress) => this._udpIo && this._udpIo.send(buf, this.ioPort, remoteAddress)
+            sendDatagram: (buf, remoteAddress, remotePort) => {
+                if (!this._udpIo) return;
+                const port = remotePort || this.ioPort;
+                this._udpIo.send(buf, port, remoteAddress);
+            }
         });
 
         this._sessions = new Map(); // sessionHandle -> socket
@@ -161,7 +165,7 @@ class EIPAdapter {
         return new Promise((resolve, reject) => {
             this._udpIo = dgram.createSocket('udp4');
             this._udpIo.once('error', reject);
-            this._udpIo.on('message', (msg) => this.connectionHandler.handleIncomingDatagram(msg));
+            this._udpIo.on('message', (msg, rinfo) => this.connectionHandler.handleIncomingDatagram(msg, rinfo));
             this._udpIo.bind(this.ioPort, () => {
                 this._udpIo.removeAllListeners('error');
                 this._udpIo.on('error', () => {});

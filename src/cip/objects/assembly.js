@@ -53,6 +53,15 @@ class AssemblyObject {
             throw new RangeError(`AssemblyObject.setData: instance ${instance} is ${current.length} bytes, got ${buf.length}`);
         }
         buf.copy(current);
+        return this;
+    }
+
+    /** Convenience helper: defines instance if absent and sets its data. */
+    set(instance, buf) {
+        if (!this.instances.has(instance) || this.instances.get(instance).length !== buf.length) {
+            this.define(instance, buf.length);
+        }
+        return this.setData(instance, buf);
     }
 
     getAttributeSingle(instance, attribute) {

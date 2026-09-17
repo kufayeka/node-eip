@@ -21,6 +21,7 @@ const { EIPSession } = require('./client');
 const { Scanner } = require('./scanner');
 const { DeltaDevice } = require('./delta/device');
 const { EIPAdapter } = require('./adapter');
+const { IOConnection, SequenceTracker } = require('./cip/io-connection');
 
 module.exports = {
     constants,
@@ -51,5 +52,7 @@ module.exports = {
     EIPSession,
     Scanner,
     DeltaDevice,
-    EIPAdapter
+    EIPAdapter,
+    IOConnection,
+    SequenceTracker
 };

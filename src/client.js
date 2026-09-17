@@ -19,6 +19,7 @@ const {
     ForwardOpenExtendedStatus
 } = require('./cip/connection-manager');
 const { EIP_ENCAPSULATION_PORT, CipGeneralStatus } = require('./constants');
+const { IOConnection } = require('./cip/io-connection');
 
 /**
  * Formal EtherNet/IP session lifecycle states per ODVA specifications.
@@ -344,6 +345,28 @@ class EIPSession extends EventEmitter {
             throw this._forwardOpenError(response, 'Forward_Close');
         }
         return parseForwardCloseResponse(response.data);
+    }
+
+    /**
+     * Creates and configures a Class 1 Real-Time IOConnection (§14, §15, §16, §17)
+     * bound to a connection handle previously returned by openConnection() or openLargeConnection().
+     *
+     * @param {object} connection - Return value of openConnection() / openLargeConnection()
+     * @param {object} [options] - Additional IOConnection options (useRunIdleHeader, initialOutputData, etc.)
+     * @returns {IOConnection}
+     */
+    createIoConnection(connection, options = {}) {
+        if (!connection || connection.otNetworkConnectionId === undefined || connection.toNetworkConnectionId === undefined) {
+            throw new Error('createIoConnection: requires a valid connection object returned by openConnection()');
+        }
+        const rpiMs = options.rpiMs || (connection.toApiUs ? Math.max(1, Math.round(connection.toApiUs / 1000)) : 20);
+        return new IOConnection({
+            host: this.host,
+            otConnectionId: connection.otNetworkConnectionId,
+            toConnectionId: connection.toNetworkConnectionId,
+            rpiMs,
+            ...options
+        });
     }
 
     _forwardOpenError(response, label = 'Forward_Open') {

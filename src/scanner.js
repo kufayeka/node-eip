@@ -259,6 +259,16 @@ class Scanner {
         return this.session.closeConnection(connection);
     }
 
+    /**
+     * Creates and returns a Class 1 Real-Time IOConnection (§14, §15, §16, §17).
+     * @param {object} connection - Return value of openConnection() / openLargeConnection()
+     * @param {object} [opts] - Additional IOConnection options
+     * @returns {IOConnection}
+     */
+    createIoConnection(connection, opts) {
+        return this.session.createIoConnection(connection, opts);
+    }
+
     /** Current session state (e.g. 'DISCONNECTED', 'CONNECTING', 'REGISTERED'). */
     get state() {
         return this.session.state;

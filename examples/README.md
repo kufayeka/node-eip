@@ -21,6 +21,7 @@ This directory contains runnable, standalone examples demonstrating compliance w
 | [`session-robustness.js`](./session-robustness.js) | **Vol 2 §2.2, §38** Lifecycle & Reconnect | Demonstrates Session State Machine, fast liveness ping, NOP keepalive, and auto-reconnect resilience. |
 | [`concurrency-demo.js`](./concurrency-demo.js) | **Vol 2 §40, §41** Concurrency & Backpressure | Issues concurrent explicit messages via `Promise.all()`, tracking responses via 64-bit Sender Context without head-of-line collision. |
 | [`forward-open.js`](./forward-open.js) | **Vol 1 §12, §13** Connection Manager | Connects and executes `Forward_Open` (0x54) and `Forward_Close` (0x4E) for Class 1 I/O connections. |
+| [`class1-cyclic-io.js`](./class1-cyclic-io.js) | **Vol 1 §14–§17** Real-Time Cyclic I/O | Full-duplex Class 1 cyclic engine with 32-bit Run/Idle header, sequence tracking, watchdog, and stats. |
 | [`io-listen.js`](./io-listen.js) | **Vol 2 §14** Real-Time Cyclic I/O (UDP 2222) | Establishes a Class 1 I/O connection and consumes real-time T->O cyclic UDP datagrams at the negotiated RPI (e.g., 20ms). |
 | [`adapter-demo.js`](./adapter-demo.js) | **Vol 2 EIP Adapter** Full Loopback Server | Hosts a local EtherNet/IP Adapter server with Identity, Assembly, TCP/IP, and Ethernet Link objects, and validates client interaction. |
 | [`scanner-demo.js`](./scanner-demo.js) | **Scanner Public API** | High-level ergonomic API wrapper showing discovery, explicit messaging, and device reading in minimal code. |
