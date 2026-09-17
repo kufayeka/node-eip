@@ -256,6 +256,51 @@ enumeration with a hard ceiling at `C255`, and the `D`-style
 `wordIndex*16+bitIndex` scheme doesn't respond at all for `C`. No hidden
 32-bit access exists on this device via any addressing scheme tried.
 
+**New lead found in the EDS itself (2026-09), not yet reproduced:** each
+Connection's "config #2" Assembly (e.g. `Assem8`/"Conn2_Configuration
+data", 16 bytes, referenced from the Forward_Open connection path's
+Config Instance — `129`/`0x81` for Connection2) turns out to be a
+structured record, not padding — decoded from its `Param` definitions:
+
+| Offset | Field | Connection2 default |
+|---|---|---|
+| 0 (u16) | Input (T->O) DeviceType | `0` ("D") |
+| 2 (u16) | Input (T->O) Reserved | `200` |
+| 4 (u32) | **Input (T->O) DeviceIndex** | **`100`** |
+| 8 (u16) | Output (O->T) DeviceType | `0` ("D") |
+| 10 (u16) | Output (O->T) Reserved | `200` |
+| 12 (u32) | **Output (O->T) DeviceIndex** | **`3100`** |
+
+The **read side defaults to D100** (matches Instance 103's confirmed
+D100-D199 mirror exactly) but the **write side defaults to D3100**, a
+completely different, currently-unreadable D number (outside every window
+this driver's `readD` covers). This is a strong candidate explanation for
+why every write attempt landed nowhere visible: they may well have been
+*succeeding*, just at D3100, not D100, where nothing was checking.
+
+The Configuration Instance itself (`129`) does **not** answer a plain
+`Get_Attribute_Single` (`PathDestinationUnknown`) — it's not an
+independently-queryable object, only referenced from inside a Forward_Open
+request. Tried overriding it: opened Connection2 with a `Forward_Open`
+whose connection path appended a Simple Data Segment (`0x80`, CIP Vol 1
+C-1.4) carrying this exact 16-byte structure with Output DeviceIndex
+changed to `100`. The Forward_Open **succeeded** (no rejection of the
+extra segment), then sent 3 seconds of genuinely cyclic O->T data
+(distinct pattern `9999`, correct RPI, incrementing sequence numbers, not
+a one-shot packet) — D100 via the Instance 103 mirror never changed. So
+either this data segment isn't the right mechanism/encoding for
+overriding it (Delta may silently ignore an unrecognized trailing
+segment rather than reject it), or — more likely, given the device is
+Adapter-only and has no live "EIP Builder"-equivalent for configuring its
+own side — this DeviceIndex is **baked into the ES2's own project at
+ISPSoft-download time**, not something a remote Scanner can set via
+Forward_Open at all, in which case the real fix has to happen in the
+ES2's own ISPSoft/HWCONFIG project (outside this driver's reach) rather
+than at the CIP wire level. Not resolved either way without ground truth
+— this sharpens exactly what to look for if a packet capture of the real
+SX3-to-ES2 Forward_Open ever happens (specifically: does SX3's request
+carry a config data segment at all, and if so, what's in it).
+
 **Word-level access:** X/Y/M/S/T/C are only accessible bit-by-bit on this
 device (its word-mode instance doesn't exist) — `readX(0)`/`readY(3)`/etc.
 return booleans, matching how these types are actually addressed in
@@ -402,13 +447,23 @@ eds-inspect.js              Profile-authoring assist: parses an EDS file's
   104, 106, 108, 110, 112, 114); a full `Forward_Open` + cyclic UDP write
   on Connection1 and specifically on Connection2 (whose T->O side,
   Instance 103, is proven to mirror D100-D199), with and without a 32-bit
-  Run/Idle header and a Connection Configuration Data segment; and Class
-  `0x352` bit-mode write (works, but writes to an isolated scratch store,
-  not the real D-table). A real working mechanism is known to exist — EIP
-  Builder's Scanner-side exchange table (configured on a real SX3) — so
-  this is very likely solvable, just not yet reproduced at the CIP wire
-  level by this driver. Packet capture of that real exchange (`pktmon` on
-  Windows, run as Administrator) is the most concrete next step.
+  Run/Idle header and a Connection Configuration Data segment; a
+  bit-mode write directly at D100 (Class `0x352`, re-checked specifically
+  against Instance 103 after it was discovered — still isolated, works
+  but writes to an isolated scratch store, not the real D-table); and a
+  `Forward_Open` with a custom Configuration Instance data segment
+  attempting to override Connection2's `Output (O->T) DeviceIndex` from
+  its EDS default (`3100`) to `100` (see the "New lead found in the EDS
+  itself" note above — the override was accepted without error but had
+  no visible effect, inconclusive). A real working mechanism is known to
+  exist — EIP Builder's Scanner-side exchange table (configured on a real
+  SX3) — so this is very likely solvable, just not yet reproduced at the
+  CIP wire level by this driver. Packet capture of that real exchange
+  (`pktmon` on Windows, run as Administrator) is the most concrete next
+  step, and now has a specific, sharper target: check whether SX3's own
+  Forward_Open to Connection2 carries a Configuration Instance data
+  segment at all, and if so, decode it against the field layout in the
+  "New lead" note above.
 - **`W`/`FR`/`E` (AS300/SX3) have no known CIP mapping** — they exist as
   ladder-programming device types (`W0`-`W29999`, `FR0`-`FR65535`,
   `E0`-`E14`) but no CIP class is documented for any of them in Ch. 8.12,
