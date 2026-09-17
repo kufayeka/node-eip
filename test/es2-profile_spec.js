@@ -1,14 +1,14 @@
 'use strict';
 
 const assert = require('assert');
-const { readD, D_WINDOWS } = require('../src/delta/es2-fallback-profile');
-const { CipCommonServices, CipGeneralStatus, CipClassCodes } = require('../src/constants');
+const { readD, D_WINDOWS } = require('../src/delta/device-types/es2');
+const { CipCommonServices, CipGeneralStatus } = require('../src/constants');
 
 function stubSession(handler) {
     return { sendUnconnected: handler };
 }
 
-describe('ES2 fallback profile — multi-window D read', function () {
+describe('es2 profile — multi-window D read', function () {
     it('exposes 8 windows of 100 words each, covering D0-D799', function () {
         assert.strictEqual(D_WINDOWS.length, 8);
         assert.deepStrictEqual(D_WINDOWS.map((w) => w.base), [0, 100, 200, 300, 400, 500, 600, 700]);

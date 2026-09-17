@@ -358,15 +358,10 @@ registers.js            Vendor-Specific Register Objects (Class 0x350-0x359).
                          Delta manual-documented, works the same on any
                          device that implements them (so far: SX3 only).
 
-assembly-window.js       Generic fallback primitive: read/write a plain
-                          word inside a generic Assembly instance's Data
-                          attribute. Not Delta-specific in itself — reusable
-                          for any device without Register Objects.
-
-es2-fallback-profile.js   One confirmed device's assembly-window mapping:
-                           D0-D799 read-only, across 8 windows (Instances
-                           101/103/.../115, 100 words each). NOT a general
-                           DVP-ES2 convention — re-confirm per device.
+assembly-window.js       Generic primitive: read/write a plain word inside
+                          a generic Assembly instance's Data attribute. Not
+                          Delta-specific in itself — reusable for any device
+                          without Register Objects.
 
 device-types/
   index.js                 Profile registry: register(key, profile) /
@@ -382,9 +377,14 @@ device-types/
                                X/Y/M/S/T/C (registers.js's readXBit/readYBit/
                                writeYBit/readM/writeM/readS/writeS/readBit/
                                writeBit — word-mode isn't supported on this
-                               device), D read via the assembly-window
-                               fallback, D write and HC/SM/SR unsupported
-                               (documented why in the file itself).
+                               device); D read is this ONE confirmed device's
+                               own assembly-window.js mapping (D0-D799
+                               across 8 windows, Instances 101/103/.../115 —
+                               NOT a general DVP-ES2 convention, re-confirm
+                               per device), built directly into this file
+                               since it's ES2-specific; D write and
+                               HC/SM/SR unsupported (documented why in the
+                               file itself).
 
 device.js                  DeltaDevice — wraps a Scanner (session + generic
                             CIP) with a chosen device-type profile. The

@@ -513,11 +513,11 @@ only path either way.
 
 Implementation: [src/delta/assembly-window.js](src/delta/assembly-window.js)
 (generic `readAssemblyData`/`writeAssemblyData`/`makeWordWindow` — reuses
-the same `encodeEPath`/`buildRequest` core, nothing new at the wire level)
-+ [src/delta/es2-fallback-profile.js](src/delta/es2-fallback-profile.js)
+the same `encodeEPath`/`buildRequest` core, nothing new at the wire level),
+used directly inside [src/delta/device-types/es2.js](src/delta/device-types/es2.js)
 (this one confirmed device's mapping specifically — **not** a general
 DVP-ES2 convention, must be reconfirmed per device). Live example:
-[examples/delta-es2-fallback.js](examples/delta-es2-fallback.js).
+[examples/delta-es2.js](examples/delta-es2.js).
 
 **⚠️ Superseded, kept for the investigation trail (2026-09):** everything
 above this point in Domain J was written before the class-ID sweep found
@@ -613,7 +613,7 @@ windows (D400-499, D500-599) turned out to already contain non-zero live
 PLC data consistent with the same pattern (e.g. `D408=1800`, `D500=21`),
 confirming them without needing an additional written marker.
 
-[src/delta/es2-fallback-profile.js](src/delta/es2-fallback-profile.js) was
+[src/delta/device-types/es2.js](src/delta/device-types/es2.js) was
 rewritten to implement all 8 windows; `readD(n)` now accepts `n` in
 `0`-`799` and throws a `RangeError` outside that range instead of silently
 reading the wrong window. Live-validated via `DeltaDevice`: `readD(100)` →
@@ -717,12 +717,9 @@ src/
   delta/
     registers.js                  — Delta vendor-specific Register Objects
                                      (X/Y/D/M/S/T/C/HC/SM/SR)                ✅
-    assembly-window.js             — fallback: generic word-window into an
-                                      Assembly instance, for devices without
+    assembly-window.js             — generic word-window into an Assembly
+                                      instance, for devices without
                                       registers.js's Register Objects        ✅
-    es2-fallback-profile.js         — one confirmed real device's mapping:
-                                       D0-D799 read-only, across 8 Assembly
-                                       windows (Instances 101-115)           ✅
     device-types/
       index.js                       — profile registry (register/get/list) ✅
       sx3.js                          — profile: vendor Register Objects,
@@ -731,8 +728,11 @@ src/
                                            registered separately, unconfirmed
                                            on real hardware                 ✅
       es2.js                           — profile: bit-mode Register Objects
-                                           for X/Y/M/S/T/C, Assembly-window
-                                           fallback for D (read-only)      ✅
+                                           for X/Y/M/S/T/C; D read is
+                                           one confirmed real device's
+                                           assembly-window.js mapping,
+                                           D0-D799 across 8 windows
+                                           (Instances 101-115), read-only  ✅
     device.js                          — DeltaDevice: Scanner + explicit
                                           device-type profile in one
                                           object; also readD32/writeD32,
@@ -773,8 +773,15 @@ examples/
                                                 readSR against a real device  ✅
   scanner-demo.js                             — CLI: end-to-end demo of the
                                                  public Scanner API           ✅
-  delta-es2-fallback.js                        — CLI: readD via the Assembly-
-                                                  window fallback (ES2)       ✅
+  delta-es2.js                                  — CLI: full 'es2' profile
+                                                   demo, incl. D via the
+                                                   Assembly-window mirrors   ✅
+  delta-sx3-full-roundtrip.js                    — CLI: full 'sx3' profile
+                                                   read/write coverage,
+                                                   every register type/width ✅
+  discover-cip-classes.js                         — CLI: sweep a class-ID
+                                                    range, report which CIP
+                                                    objects a device has     ✅
   inspect-eds.js                                — CLI: profile-authoring
                                                    assist, dumps an EDS's
                                                    Assembly/Connection info   ✅
@@ -828,8 +835,8 @@ real Delta SX-3 PLC:
   live end-to-end smoke test in `examples/scanner-demo.js` (discover →
   connect → generic Vendor ID read → `readD(0)` → disconnect) passed
   against the real SX3.
-- **Assembly-window fallback** (`src/delta/assembly-window.js` +
-  `es2-fallback-profile.js`, Domain J): confirmed a device-specific way to
+- **Assembly-window fallback** (`src/delta/assembly-window.js`, used from
+  `src/delta/device-types/es2.js`, Domain J): confirmed a device-specific way to
   read D-registers on the DVP32ES2-E even without the vendor Register
   Objects — via a known-value pattern written into the D-table externally,
   then found by scanning every Assembly instance's Data attribute for a

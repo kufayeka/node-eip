@@ -10,13 +10,13 @@
  *   - D: read-only, via 8 Assembly-window mirrors (Instances 101, 103, 105,
  *     107, 109, 111, 113, 115), each covering 100 consecutive D words —
  *     together spanning the confirmed readable range D0-D799
- *     (src/delta/es2-fallback-profile.js). Writing D is not currently
+ *     (src/delta/device-types/es2.js). Writing D is not currently
  *     possible via CIP on this device — see the "writeD" demo below.
  *
  * This example writes to M/Y/S/T/C and restores them afterward — safe to
  * run against a non-production device.
  *
- * Usage: node examples/delta-es2-fallback.js <host>
+ * Usage: node examples/delta-es2.js <host>
  */
 
 const { DeltaDevice } = require('../src/delta/device');
@@ -24,7 +24,7 @@ const { DeltaDevice } = require('../src/delta/device');
 async function main() {
     const host = process.argv[2];
     if (!host) {
-        console.error('Usage: node examples/delta-es2-fallback.js <host>');
+        console.error('Usage: node examples/delta-es2.js <host>');
         process.exit(1);
     }
 
