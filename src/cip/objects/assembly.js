@@ -25,8 +25,9 @@ function ok(data) {
 }
 
 class AssemblyObject {
-    constructor() {
+    constructor({ maxFragmentSize = 0 } = {}) {
         this.instances = new Map(); // instance number -> Buffer
+        this.maxFragmentSize = maxFragmentSize;
     }
 
     /** Defines (or resets) an instance with a given byte size, initially all-zero. */
@@ -64,13 +65,23 @@ class AssemblyObject {
         return this.setData(instance, buf);
     }
 
-    getAttributeSingle(instance, attribute) {
+    getAttributeSingle(instance, attribute, requestData) {
         const data = this.instances.get(instance);
         if (!data) {
             return { generalStatus: CipGeneralStatus.PathDestinationUnknown, data: Buffer.alloc(0) };
         }
         if (attribute === 3) {
-            return ok(data);
+            let offset = 0;
+            if (requestData && requestData.length >= 4) {
+                offset = requestData.readUInt32LE(0);
+            }
+            const maxChunk = this.maxFragmentSize || 0;
+            if (maxChunk > 0 && (data.length - offset) > maxChunk) {
+                const slice = data.subarray(offset, offset + maxChunk);
+                return { generalStatus: CipGeneralStatus.PartialTransfer, data: slice };
+            }
+            const slice = offset > 0 ? data.subarray(offset) : data;
+            return ok(slice);
         }
         if (attribute === 4) {
             const b = Buffer.alloc(2);
@@ -87,6 +98,19 @@ class AssemblyObject {
         }
         if (attribute !== 3) {
             return { generalStatus: CipGeneralStatus.AttributeNotSettable, data: Buffer.alloc(0) };
+        }
+        // Support chunked writes with 4-byte offset header
+        if (newData.length > 4 && this.maxFragmentSize && newData.length < current.length) {
+            const offset = newData.readUInt32LE(0);
+            const chunk = newData.subarray(4);
+            if (offset + chunk.length <= current.length) {
+                chunk.copy(current, offset);
+                const isFinal = (offset + chunk.length) === current.length;
+                return {
+                    generalStatus: isFinal ? CipGeneralStatus.Success : CipGeneralStatus.PartialTransfer,
+                    data: Buffer.alloc(0)
+                };
+            }
         }
         if (newData.length !== current.length) {
             return { generalStatus: CipGeneralStatus.TooMuchData, data: Buffer.alloc(0) };

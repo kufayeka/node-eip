@@ -314,7 +314,7 @@ class EIPAdapter {
 
         let result;
         if (request.service === CipCommonServices.GetAttributeSingle) {
-            result = handler.getAttributeSingle(path.instance, path.attribute);
+            result = handler.getAttributeSingle(path.instance, path.attribute, request.data);
         } else if (request.service === CipCommonServices.SetAttributeSingle) {
             result = handler.setAttributeSingle(path.instance, path.attribute, request.data);
         } else if (request.service === CipCommonServices.GetAttributeAll && typeof handler.getAttributesAll === 'function') {

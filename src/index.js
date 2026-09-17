@@ -24,6 +24,8 @@ const { EIPAdapter } = require('./adapter');
 const { IOConnection, SequenceTracker } = require('./cip/io-connection');
 const eds = require('./cip/eds');
 const { EdsFile } = eds;
+const fragmentation = require('./cip/fragmentation');
+const { FragmentReader, FragmentWriter, readLargeData, writeLargeData } = fragmentation;
 
 module.exports = {
     constants,
@@ -41,6 +43,7 @@ module.exports = {
         ...connectionManager,
         ...ioConnection,
         eds,
+        fragmentation,
         objects: {
             ...identityObject,
             ...assemblyObject
@@ -58,5 +61,9 @@ module.exports = {
     EIPAdapter,
     IOConnection,
     SequenceTracker,
-    EdsFile
+    EdsFile,
+    FragmentReader,
+    FragmentWriter,
+    readLargeData,
+    writeLargeData
 };

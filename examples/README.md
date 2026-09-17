@@ -72,8 +72,12 @@ node examples/forward-open.js 192.168.68.250
 node examples/io-listen.js 192.168.68.250 3
 ```
 
-### 5. Local Server Loopback
+### 5. Local Server Loopback & Advanced Transfer
 ```bash
 # Start a local EIP Adapter and test all ODVA commands against it
 node examples/adapter-demo.js
+
+# Test CIP Fragmentation & Large Data Transfer engine (§33, §34)
+node examples/fragmentation-demo.js 192.168.68.250
 ```
+

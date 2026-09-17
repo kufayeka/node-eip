@@ -23,6 +23,7 @@ const { CipCommonServices, CipGeneralStatus, CipClassCodes, EIP_ENCAPSULATION_PO
 const { decodeIdentityAttributesAll } = require('./cip/objects/identity');
 const { decodeInterfaceConfiguration, decodeCipString } = require('./cip/objects/tcp-ip');
 const { formatMacAddress, decodeInterfaceFlags } = require('./cip/objects/ethernet-link');
+const { readLargeData, writeLargeData } = require('./cip/fragmentation');
 const deltaRegisters = require('./delta/registers');
 
 function formatCipError(label, response) {
@@ -165,6 +166,47 @@ class Scanner {
         if (response.generalStatus !== CipGeneralStatus.Success) {
             throw formatCipError(`setAttribute(0x${classId.toString(16)}/${instance}/${attribute})`, response);
         }
+    }
+
+    /**
+     * Reads a large CIP attribute using progressive fragmentation (§33, §34).
+     * Automatically handles CIP status 0x06 (Partial Transfer) until completion.
+     *
+     * @param {object} options
+     * @param {number} options.classId
+     * @param {number} [options.instance=1]
+     * @param {number} [options.attribute=3]
+     * @param {number} [options.chunkSize=480]
+     * @param {number} [options.maxTotalBytes=10485760]
+     * @returns {Promise<{ data: Buffer, fragmentsCount: number, totalBytes: number }>}
+     */
+    async readLargeAttribute({ classId, instance = 1, attribute = 3, chunkSize = 480, maxTotalBytes } = {}) {
+        const path = encodeEPath({ classId, instance, attribute });
+        return readLargeData(this.session, {
+            path,
+            chunkSize,
+            maxTotalBytes
+        });
+    }
+
+    /**
+     * Writes a large CIP attribute using progressive chunking with 32-bit offsets (§33, §34).
+     *
+     * @param {object} options
+     * @param {number} options.classId
+     * @param {number} [options.instance=1]
+     * @param {number} [options.attribute=3]
+     * @param {Buffer} options.data
+     * @param {number} [options.chunkSize=480]
+     * @returns {Promise<{ ok: true, bytesWritten: number, fragmentsCount: number }>}
+     */
+    async writeLargeAttribute({ classId, instance = 1, attribute = 3, data, chunkSize = 480 } = {}) {
+        const path = encodeEPath({ classId, instance, attribute });
+        return writeLargeData(this.session, {
+            path,
+            data,
+            chunkSize
+        });
     }
 
     /**
