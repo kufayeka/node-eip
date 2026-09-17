@@ -34,11 +34,16 @@ Concretely, that means:
   messaging, Forward Open/Close, implicit I/O) must work against any
   ODVA-conformant device using only the base CIP Vol 1/2 spec — no
   vendor-specific service codes required.
-- **Rockwell/Logix extensions** (symbolic tag paths, Read/Write Tag services
-  0x4C/0x4D/0x52/0x53, abbreviated UDT structure handles) are an **additive
-  compatibility layer** on top of that core, isolated in `src/logix/`, used
-  only when talking to a Logix5000 controller. They must never be a
-  prerequisite for the generic scanner/adapter path to function.
+- **Vendor-specific extensions** — Rockwell/Logix (symbolic tag paths, Read/Write
+  Tag services 0x4C/0x4D/0x52/0x53, abbreviated UDT structure handles, isolated
+  in `src/logix/`) and Delta AH/AS-series (vendor-specific Register Objects
+  0x350-0x359 for direct D/X/Y/M/etc. access, isolated in `src/delta/`) — are
+  **additive compatibility layers** on top of that core, used only when
+  talking to that specific vendor's controller. Both reuse the exact same
+  generic `encodeEPath`/`buildRequest`/explicit-messaging code as the core —
+  neither required any new wire-protocol primitives, only vendor-documented
+  addressing conventions layered on top. They must never be a prerequisite
+  for the generic scanner/adapter path to function.
 - Phase 1 discovery/scan and Phase 3 adapter must be validated (or at least
   designed against the spec text) without assuming a Rockwell target/originator
   on the other end.
@@ -357,7 +362,54 @@ Forward Open work above (Domain E) — an EDS is effectively a machine-readable
 version of exactly the information a Forward Open path/RPI/size needs, for
 every connection a device advertises support for.
 
-### J. Future — CIP Security & advanced conformance
+### J. Delta AH/AS-Series Vendor-Specific Registers (additive, Delta-only)
+
+Not ODVA CIP — Delta's own Vendor-Specific Objects, documented in Delta's
+"EtherNet/IP Operation Manual" ([docs/DELTA_IA-PLC_EtherNet-IP_OP_EN_20251021.pdf](docs/DELTA_IA-PLC_EtherNet-IP_OP_EN_20251021.pdf),
+Ch. 8.12) — confirmed applicable to the SX3 (AS300 CPU) by the device owner
+("AS300 and AH are EIP scanner/adapter [implementations], so it should be
+the same"). This is what delivers the **Modbus-like `readD(session, 100)`
+direct-register experience** the driver was missing — the addressing
+convention turned out to be dramatically simpler than the two options
+originally proposed (byte-offset config, or unconfirmed symbolic tags):
+**the CIP Attribute ID *is* the register number directly.** No tag database,
+no per-device configuration needed — this works the same on any AH/AS-series
+device.
+
+| Register | Class | Instance | Access | Word type | Status |
+|---|---|---|---|---|---|
+| X (input) | 0x350 | 1=bit, 2=word | **read-only** | INT | ✅ live-validated |
+| Y (output) | 0x351 | 1=bit, 2=word | read/write | INT | ✅ live-validated (word) |
+| D (data register) | 0x352 | 1=bit, 2=word | read/write | INT | ✅ live-validated (word read+write round-trip, and bit) |
+| M (marker/coil) | 0x353 | 1=bit only | read/write | BOOL | ✅ live-validated (read+write round-trip) |
+| S (step) | 0x354 | 1=bit only | read/write | BOOL | ⬜ implemented, not yet live-tested |
+| T (timer) | 0x355 | 1=bit(contact), 2=word(value) | read/write | INT | ⬜ implemented, not yet live-tested |
+| C (counter) | 0x356 | 1=bit(contact), 2=word(value) | read/write | INT | ⬜ implemented, not yet live-tested |
+| HC (high-speed counter) | 0x357 | 1=bit(contact), 2=word(value) | read/write | DINT | ⬜ implemented, not yet live-tested |
+| SM (system marker) | 0x358 | 1=bit only | **read-only** | BOOL | ⬜ implemented, not yet live-tested |
+| SR (system register) | 0x359 | **1**=word (its only instance) | **read-only** | INT | ✅ live-validated |
+
+Implementation: [src/delta/registers.js](src/delta/registers.js) — reuses
+the already-validated generic `encodeEPath`/`buildRequest`/`sendUnconnected`
+path entirely; no new wire-protocol code was needed, only this addressing
+convention. Live example: [examples/delta-registers.js](examples/delta-registers.js).
+
+Bit-mode addressing (e.g. `D0.0`, `D0.1`) is this driver's own
+interpretation of the manual's enumeration pattern — `attribute = wordIndex
+* 16 + bitIndex` — spot-checked live (`D0` bit 0 read back `false`,
+consistent with `D0`'s word value being `0`) but not exhaustively verified
+across the full range; treat as provisional until checked against a
+register with known nonzero bits.
+
+One real bug caught during live testing: `readWord`/`writeWord` initially
+hardcoded Instance 2 for word-mode access on every register type, which is
+correct for the dual-mode types (D/X/Y/T/C/HC, which also have a bit mode
+at Instance 1) but wrong for **SR**, whose manual entry documents its
+*only* instance as Instance **1** (word-type) since it has no separate bit
+mode to share numbering with. Fixed via a `wordInstance(classId)` helper
+that special-cases word-only register types.
+
+### K. Future — CIP Security & advanced conformance
 
 | Item | Status | Notes |
 |---|---|---|
@@ -391,6 +443,9 @@ src/
     types.js                        — CIP data type encode/decode          ⬜ phase 2
   logix/
     tag-service.js               — Rockwell Read/Write Tag (0x4C/0x4D/0x52/0x53) ⬜ phase 2
+  delta/
+    registers.js                  — Delta vendor-specific Register Objects
+                                     (X/Y/D/M/S/T/C/HC/SM/SR)                ✅
   eds/
     generator.js                  — EDS file generation for adapter devices ⬜ phase 4
   scanner.js                       — public EIP Scanner API                 ⬜ phase 2
@@ -403,15 +458,22 @@ examples/
   probe-device.js                      — CLI: TCP ListIdentity + handshake  ✅
   get-attribute.js                      — CLI: Get_Attribute_Single via
                                            SendRRData                       ✅
-  discover-assemblies.js                 — CLI: sweep Assembly Object
-                                            instances on a real device      ✅
-  forward-open.js                         — CLI: Forward_Open/Forward_Close
-                                             against a real device          ✅
-  io-listen.js                             — CLI: open a connection, exchange
-                                              live cyclic I/O data           ✅
+  set-attribute.js                       — CLI: Set_Attribute_Single via
+                                            SendRRData                      ✅
+  discover-assemblies.js                  — CLI: sweep Assembly Object
+                                             instances on a real device      ✅
+  forward-open.js                          — CLI: Forward_Open/Forward_Close
+                                              against a real device          ✅
+  io-listen.js                              — CLI: open a connection, exchange
+                                               live cyclic I/O data           ✅
+  delta-registers.js                         — CLI: readD/readX/readY/readM/
+                                                readSR against a real device  ✅
 eds/
   031F000E0F0600010001.eds                 — Delta SX-3's vendor-issued EDS,
                                               used as ground truth above     ✅
+docs/
+  DELTA_IA-PLC_EtherNet-IP_OP_EN_20251021.pdf — Delta's own EtherNet/IP
+                                                 manual, source for Domain J  ✅
 ```
 
 ## Status
@@ -431,12 +493,22 @@ real Delta SX-3 PLC:
   received in a 5-second window (20 ms RPI) with distinct, changing
   payloads, while simultaneously producing our own O->T datagrams to keep
   the connection alive — see `examples/io-listen.js`.
+- **Set_Attribute_Single** (write): validated live — a write was rejected
+  (`0x15 TooMuchData`) until the root cause was found (Assembly data-write
+  length must match the *current* Size attribute, which had drifted since
+  it was last read), then succeeded with the correct length and was
+  confirmed unchanged on readback.
+- **Delta vendor-specific direct register access** (`src/delta/registers.js`,
+  Domain J): `readD`/`writeD`/`readX`/`readY`/`writeY`/`readM`/`writeM`/`readSR`
+  all validated live — this is the Modbus-like "read D100 by name" capability
+  the driver was originally missing, sourced from Delta's own EtherNet/IP
+  manual rather than guessed at.
 
-`npm test` (40 tests) covers the same logic with synthetic buffers for
-regression safety. Still ahead in Phase 2: more common services
-(Set_Attribute_Single, Multiple Service Packet), then wrapping all of the
-above into a proper public `scanner.js` API (currently only exercised via
-low-level `EIPSession` calls in the `examples/` scripts).
+`npm test` (44 tests) covers the same logic with synthetic buffers for
+regression safety. Still ahead in Phase 2: Multiple Service Packet, live
+validation of the remaining Delta register types (S/T/C/HC/SM), then
+wrapping all of the above into a proper public `scanner.js` API (currently
+only exercised via low-level `EIPSession` calls in the `examples/` scripts).
 
 ## Test
 
