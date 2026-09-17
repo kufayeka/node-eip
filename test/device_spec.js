@@ -27,11 +27,11 @@ describe('DeltaDevice (explicit device-type wrapper)', function () {
         assert.deepStrictEqual(capturedRequest.subarray(2, 10), Buffer.from([0x21, 0x00, 0x52, 0x03, 0x24, 0x02, 0x30, 0x64]));
     });
 
-    it('readD() on an "es2" device delegates to the Assembly-window fallback (Instance 101)', async function () {
+    it('readD() on an "es2" device uses Class 0x352 Instance 1, flat Attribute = D number (manual Appendix B.5.2, 2026-09 correction)', async function () {
         const device = new DeltaDevice('127.0.0.1', 'es2');
         let capturedRequest;
-        const data = Buffer.alloc(200);
-        data.writeInt16LE(4321, 6); // register 3 -> byte offset 6
+        const data = Buffer.alloc(2);
+        data.writeInt16LE(4321, 0);
         device.scanner.session = {
             sendUnconnected: async (cipRequest) => {
                 capturedRequest = cipRequest;
@@ -42,8 +42,8 @@ describe('DeltaDevice (explicit device-type wrapper)', function () {
         const value = await device.readD(3);
 
         assert.strictEqual(value, 4321);
-        // Class 0x04 (Assembly, 8-bit), Instance 101 (8-bit, fits in 0xFF), Attribute 3 (Data)
-        assert.deepStrictEqual(capturedRequest.subarray(2, 8), Buffer.from([0x20, 0x04, 0x24, 0x65, 0x30, 0x03]));
+        // Class 0x352 (D Register, 16-bit segment), Instance 1 (not 2!), Attribute 3
+        assert.deepStrictEqual(capturedRequest.subarray(2, 10), Buffer.from([0x21, 0x00, 0x52, 0x03, 0x24, 0x01, 0x30, 0x03]));
     });
 
     it('readX() on an "es2" device reads bit-mode via Class 0x350 (confirmed live against real hardware)', async function () {
@@ -63,10 +63,21 @@ describe('DeltaDevice (explicit device-type wrapper)', function () {
         assert.deepStrictEqual(capturedRequest.subarray(2, 10), Buffer.from([0x21, 0x00, 0x50, 0x03, 0x24, 0x01, 0x30, 0x02]));
     });
 
-    it('writeD() on an "es2" device rejects clearly (no confirmed write path)', async function () {
+    it('writeD() on an "es2" device uses Class 0x352 Instance 1, flat Attribute = D number, 16-bit INT payload (2026-09 correction, pending live re-confirmation)', async function () {
         const device = new DeltaDevice('127.0.0.1', 'es2');
-        device.scanner.session = { sendUnconnected: async () => { throw new Error('should not be called'); } };
-        await assert.rejects(() => device.writeD(0, 1), /not supported for device type "es2"/);
+        let capturedRequest;
+        device.scanner.session = {
+            sendUnconnected: async (cipRequest) => {
+                capturedRequest = cipRequest;
+                return { generalStatus: CipGeneralStatus.Success, additionalStatus: [], data: Buffer.alloc(0) };
+            }
+        };
+
+        await device.writeD(0, 1234);
+
+        assert.strictEqual(capturedRequest.readUInt8(0), CipCommonServices.SetAttributeSingle);
+        assert.deepStrictEqual(capturedRequest.subarray(2, 10), Buffer.from([0x21, 0x00, 0x52, 0x03, 0x24, 0x01, 0x30, 0x00]));
+        assert.deepStrictEqual(capturedRequest.subarray(-2), Buffer.from([0xd2, 0x04])); // 1234 LE
     });
 
     it('writeM() on an "es2" device writes bit-mode via Class 0x353 (confirmed live turning on a real relay)', async function () {

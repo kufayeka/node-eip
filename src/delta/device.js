@@ -58,8 +58,12 @@ class DeltaDevice {
     writeS(n, v) { return this.profile.writeS(this.session, n, v); }
     readT(n) { return this.profile.readT(this.session, n); }
     writeT(n, v) { return this.profile.writeT(this.session, n, v); }
+    readTBit(n) { return this.profile.readTBit(this.session, n); }
+    writeTBit(n, v) { return this.profile.writeTBit(this.session, n, v); }
     readC(n) { return this.profile.readC(this.session, n); }
     writeC(n, v) { return this.profile.writeC(this.session, n, v); }
+    readCBit(n) { return this.profile.readCBit(this.session, n); }
+    writeCBit(n, v) { return this.profile.writeCBit(this.session, n, v); }
     readHC(n) { return this.profile.readHC(this.session, n); }
     writeHC(n, v) { return this.profile.writeHC(this.session, n, v); }
     readSM(n) { return this.profile.readSM(this.session, n); }
@@ -69,21 +73,19 @@ class DeltaDevice {
      * 32-bit D access via register pairing (Dn = low word, Dn+1 = high
      * word) — see dword.js. Rides on whatever readD/writeD already does
      * for the active profile, so it inherits the same capabilities and
-     * limitations (e.g. writeD32 fails on 'es2' for the same reason
-     * writeD does — see README Domain J).
+     * limitations for the active profile.
      */
     readD32(n) { return readDword(this.readD.bind(this), n); }
     writeD32(n, value) { return writeDword(this.writeD.bind(this), n, value); }
 
     /**
-     * 32-bit counter access — an alias for readHC/writeHC. Not the same
-     * mechanism as readD32/writeD32: Delta gives counters their own
-     * dedicated 32-bit CIP object (HC, Class 0x357) rather than pairing
-     * two 16-bit C registers, so this just forwards to it under the
-     * naming convention requested (16-bit "C" vs 32-bit "C32").
+     * 32-bit counter access — delegated to the profile, since the
+     * underlying mechanism genuinely differs per device family: a
+     * separate HC class (0x357) on 'sx3', vs. C's own Instance 2 at high
+     * attribute numbers on 'es2' (no HC class exists there at all).
      */
-    readC32(n) { return this.readHC(n); }
-    writeC32(n, value) { return this.writeHC(n, value); }
+    readC32(n) { return this.profile.readC32(this.session, n); }
+    writeC32(n, value) { return this.profile.writeC32(this.session, n, value); }
 }
 
 module.exports = { DeltaDevice };

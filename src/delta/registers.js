@@ -188,6 +188,42 @@ async function writeBit(session, classId, registerNumberOrWord, bitIndexOrValue,
 }
 
 /**
+ * Low-level word read/write with an EXPLICIT instance number and byte
+ * width, for device families whose word-level register access doesn't
+ * follow the AS/AH-series manual's fixed "Instance 2, register number is
+ * the Attribute" convention that readWord()/writeWord() assume. Needed for
+ * the DVP-SE/ES2-E/DVP26SE family (manual Appendix B.5.2), which instead
+ * documents:
+ *   - D Register (0x352): Instance 1 (not 2), Attribute = D number
+ *     directly (flat, NOT the wordIndex*16+bitIndex bit-enumeration
+ *     formula readBit()/writeBit() use for D's *bit*-mode access on the
+ *     AS/AH-series manual's own Instance 1) — a completely different,
+ *     word-level-only convention specific to this device family.
+ *   - T/C Register numeric value (0x355/0x356): Instance 2, Attribute = T/C
+ *     number directly — same Instance number as the AS-series convention,
+ *     but worth naming explicitly since this device family's T/C Instance 2
+ *     was, for a long time, assumed entirely absent (based on limited
+ *     early testing) before the manual was found.
+ * See README Domain J for the live-validation status of any given call.
+ */
+async function readWordAtInstance(session, classId, instance, attribute, width = 2) {
+    const path = registerPath(classId, instance, attribute);
+    const request = buildRequest({ service: CipCommonServices.GetAttributeSingle, path });
+    const response = await session.sendUnconnected(request);
+    assertGetSuccess(response, `readWordAtInstance(0x${classId.toString(16)}, instance=${instance}, attr=${attribute})`);
+    return width === 4 ? response.data.readInt32LE(0) : response.data.readInt16LE(0);
+}
+
+async function writeWordAtInstance(session, classId, instance, attribute, value, width = 2) {
+    const data = Buffer.alloc(width);
+    if (width === 4) data.writeInt32LE(value, 0); else data.writeInt16LE(value, 0);
+    const path = registerPath(classId, instance, attribute);
+    const request = buildRequest({ service: CipCommonServices.SetAttributeSingle, path, data });
+    const response = await session.sendUnconnected(request);
+    assertGetSuccess(response, `writeWordAtInstance(0x${classId.toString(16)}, instance=${instance}, attr=${attribute})`);
+}
+
+/**
  * Composes a full-word write from 16 sequential single-bit writes — for
  * device families that implement only the bit-mode instance (Instance 1)
  * and reject the word-mode instance (Instance 2) outright (confirmed on a
@@ -242,6 +278,8 @@ module.exports = {
     wordInstance,
     readWord,
     writeWord,
+    readWordAtInstance,
+    writeWordAtInstance,
     readBit,
     writeBit,
     writeWordViaBits,

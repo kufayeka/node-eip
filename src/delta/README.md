@@ -152,182 +152,72 @@ for the full writeup and Open items below.
 
 ### `'es2'` — DVP-ES2-E (confirmed on a real DVP32ES2-E)
 
-Earlier revisions of this doc said this family didn't implement the vendor
-Register Objects at all — that was wrong. It tested only the **word-mode**
-instance (Instance 2), which this device genuinely doesn't support. The
-**bit-mode** instance (Instance 1) works, for every register type it has —
-fully reverse-engineered live (2026-09) by writing distinguishing patterns
-into the PLC's own X/D/M/Y tables via WPLSoft/ISPSoft and reading them back
-over CIP, and separately by writing over CIP and watching the physical
-device's own live monitor confirm the change.
+**2026-09 correction — the D/T/C addressing was wrong, now fixed pending
+live re-confirmation.** Everything below Domain J previously described was
+based on the AS/AH-series manual's addressing convention (Ch 8.12), which
+turned out to be the **wrong manual** for this device family. A second
+Delta manual — the DVP-SE/ES2-E/DVP26SE Operation Manual's own Appendix
+B.5.2 — documents a genuinely different Instance/Attribute scheme for the
+same Class IDs. Full side-by-side transcription:
+[docs/delta-cip-object-reference.md](../../docs/delta-cip-object-reference.md).
 
-| Method | Register | Access | Confirmation |
+The short version: `D` (Class `0x352`) has **no Instance 2 at all** — its
+one and only instance (**Instance 1**) already carries the numeric 16-bit
+value directly, at a **flat Attribute = D number** (D0=attribute 0,
+D9999=attribute 9999). The old implementation treated Instance 1 as a
+*bit*-enumeration view (`wordIndex*16+bitIndex`, the convention D actually
+uses on `'sx3'`) and used a separate Assembly-window mirror just to read D
+at all, having concluded write was an unsolved mystery. That formula was
+simply the wrong addressing for this family: `bitAttribute(100, 0)` = 1600
+targets **D1600** under this device's real scheme — a genuine, valid,
+writable register, just not the one being aimed at. It never showed up in
+the Assembly mirror (which only covers D0-D799) because D1600 is outside
+that range, not because it's an isolated scratch store. Separately, the
+manual's own 8-connection Assembly table explains why writes through the
+Assembly O->T instances went nowhere visible either: Connection2's
+Output/O->T side defaults to **D3100-D3199**, not D100-D199 — a
+completely different range than what this driver was reading back to
+check. Full detail on both findings, plus the still-unresolved Forward_Open
+config-override attempt, is preserved in git history (see
+`docs/delta-cip-object-reference.md`'s "Key takeaway" section for the
+short version).
+
+Also corrected: `T`/`C`'s **numeric current value** lives at **Instance
+2** (Attribute = T/C number directly) — previously assumed absent
+entirely, based on limited early testing done before this manual was
+found. `C`'s 32-bit range (`C200`-`C255` on this device) lives **inside
+that same Instance 2**, just as a 4-byte DINT instead of a 2-byte INT —
+not a separate `HC` class (`HC`/`0x357` is confirmed absent via a full
+class sweep, unchanged from before).
+
+To keep naming consistent with the `'sx3'` profile (where `readT`/`readC`
+have always meant the numeric value), the old contact-bit-only
+`readT`/`writeT`/`readC`/`writeC` are now `readTBit`/`writeTBit`/
+`readCBit`/`writeCBit`.
+
+| Method | Register | Access | Status |
 |---|---|---|---|
-| `readX(n)` | X (input) | read-only | ✅ live, byte-for-byte match against a WPLSoft-written pattern |
-| `readY(n)` / `writeY(n, v)` | Y (output) | read/write | ✅ live — write confirmed by watching the physical output's state change in WPLSoft |
-| `readM(n)` / `writeM(n, v)` | M (marker/coil) | read/write | ✅ live, same confirmation as Y |
-| `readS(n)` / `writeS(n, v)` | S (step) | read/write | ✅ live, same confirmation as Y |
-| `readT(n)` / `writeT(n, v)` | T (timer) | read/write, **contact/bit state only** | ✅ live (write); no numeric current-value access on this device (see below) |
-| `readC(n)` / `writeC(n, v)` | C (counter) | read/write, **contact/bit state only** | ✅ live (write); no numeric current-value access on this device |
-| `readD(n)` | D (data register), `n` = 0-799 | **read-only** | ✅ live — via 8 Assembly-window mirrors (Instances 101/103/105/.../115), NOT the vendor Register Object — see below |
-| `writeD(n, v)` | D | — | ❌ **no working path found**, exhaustively tried — see below |
-| `readD32(n)` | D, 32-bit (Dn+Dn+1) | read-only | ✅ live, via two `readD` mirror reads |
-| `writeD32(n, v)` | D, 32-bit | — | ❌ same dead end as `writeD` (it's built on top of it) |
-| `readHC` / `writeHC` / `readSM` / `readSR` | HC/SM/SR | — | not implemented — these classes don't exist on this device at all |
+| `readX(n)` | X (input) | read-only | ✅ live |
+| `readY(n)` / `writeY(n, v)` | Y (output) | read/write | ✅ live |
+| `readM(n)` / `writeM(n, v)` | M (marker/coil) | read/write | ✅ live |
+| `readS(n)` / `writeS(n, v)` | S (step) | read/write | ✅ live |
+| `readTBit(n)` / `writeTBit(n, v)` | T contact | read/write | ✅ live (was `readT`/`writeT`) |
+| `readCBit(n)` / `writeCBit(n, v)` | C contact | read/write | ✅ live (was `readC`/`writeC`) |
+| `readD(n)` / `writeD(n, v)` | D, `n` = 0-9999 | read/write | 🔶 **corrected 2026-09, per manual, not yet live-re-tested** (device offline) |
+| `readD32(n)` / `writeD32(n, v)` | D, 32-bit (Dn+Dn+1) | read/write | 🔶 rides on `readD`/`writeD`, same status |
+| `readT(n)` / `writeT(n, v)` | T numeric value | read/write | 🔶 **new, per manual, not yet live-tested** |
+| `readC(n)` / `writeC(n, v)` | C numeric value (DINT at `n>=200`) | read/write | 🔶 **new, per manual, not yet live-tested** |
+| `readC32(n)` / `writeC32(n, v)` | alias for `readC`/`writeC` | read/write | 🔶 same status — no separate HC class on this device |
+| `readHC` / `writeHC` / `readSM` / `readSR` | HC/SM/SR | — | not implemented — these classes don't exist on this device at all (confirmed via a full class sweep) |
 
-**The D exception, explained:** Class `0x352`'s bit-mode instance is a
-real, working read/write store on this device — but a completely
-**separate one** from the PLC's actual D-table. Writes made through it
-never show up in the Assembly-instance mirrors below (which *are* proven
-connected to the real D-table), even with a delay, or with an active
-Forward_Open connection kept alive throughout.
+**Next step:** run `node examples/delta-es2.js <host>` (and a dedicated
+D/T/C round-trip check) against the real ES2E once it's back on the
+network, and update this table's 🔶 rows to ✅ or document what actually
+happened if it doesn't match the manual.
 
-**D read range, and how it was found (2026-09):** Instance 101 was
-originally assumed to be the *only* window and to cover the full readable
-range — that assumption was wrong. The device owner separately configured
-a real SX3 (as EtherNet/IP Scanner, via EIP Builder's exchange table) to
-write its own D100 into this ES2's D100, and that write landed for real
-(confirmed live in WPLSoft: ES2 D100 became `1111`). Searching every
-Assembly instance afterward for the value `1111` found it not at Instance
-101, but at **Instance 103, offset 0** — proving Instance 101 only covers
-D0-D99 (its size, 200 bytes, is exactly 100 words), and D100 onward lives
-in *separate* windows on the other Connections' T->O instances. Checking
-the remaining instances on the same pattern confirmed all 8:
-
-| D range | Assembly instance (T->O) |
-|---|---|
-| D0-D99 | 101 |
-| D100-D199 | 103 |
-| D200-D299 | 105 |
-| D300-D399 | 107 |
-| D400-D499 | 109 |
-| D500-D599 | 111 |
-| D600-D699 | 113 |
-| D700-D799 | 115 |
-
-D0-D99 and D100-D199 are confirmed via a written marker each (`10` and
-`1111` respectively); D200-D299/D300-D399/D600-D699/D700-D799 read
-all-zero on this device (nothing distinguishing to match yet, but follow
-the identical per-Connection pattern); D400-D499 and D500-D599 are
-confirmed by virtue of already containing genuine non-zero live PLC data
-consistent with the same pattern (e.g. `D408=1800`, `D500=21`, `D502=62`),
-without needing an additional written test marker. `readD(n)` for `n`
-outside `0`-`799` throws a `RangeError` immediately rather than guessing.
-This 8-window mapping is specific to **this one device's current I/O
-configuration** — re-confirm with the known-pattern technique before
-assuming it on another ES2.
-
-Given this new instance mapping, two more write mechanisms were tried
-specifically targeting D100/Instance 103's O->T counterpart (Instance
-102, part of Connection2): an explicit `Set_Attribute_Single` write to
-Instance 102 offset 0, and a full `Forward_Open` using Connection2's exact
-path (`Config=129`, `O2T=102`, `T2O=103`) with cyclic UDP O->T data. Both
-failed the same way as every earlier attempt — the target D100 stayed at
-`1111` throughout. Combined with the earlier sweep (writing a distinct
-marker to every O->T Assembly instance 100, 102, 104, 106, 108, 110, 112,
-114 individually and scanning all 8 T->O instances plus the D-mirror for
-it), no CIP-level technique tried so far reproduces what EIP Builder's
-Scanner-side exchange table achieves. So: `readD` uses the Assembly
-mirrors (word-level, efficient, real), and `writeD`/`writeD32` currently
-just fail clearly rather than silently writing to nowhere. This looks
-like it needs either a mechanism this driver hasn't tried yet (packet
-capture of the real SX3-to-ES2 exchange would settle it definitively) or
-is a genuine firmware/configuration limitation — see Open items.
-
-**Re-checked specifically at D100 after the Instance 103 discovery
-(2026-09):** the original "isolated scratch store" conclusion about
-Class `0x352`'s bit-mode instance was reached before Instance 103 was
-known to exist, so it had only ever been cross-checked against D0-D99
-(Instance 101). Wrote a distinct 16-bit pattern (`0b0101010101010101`) to
-D100 via 16 individual bit-mode writes (`bitAttribute(100, 0..15)`),
-confirmed it landed correctly by reading the same bit-mode store back
-(exact match), then re-read D100 through Instance 103 — unchanged. So the
-isolation is confirmed at D100 too, not just D0-D99: genuinely two
-separate stores, not a stale conclusion from checking the wrong window.
-(Incidentally, D100 via Instance 103 read `3` during this test, not the
-`1111` from the original write — the real SX3-to-ES2 exchange is still
-cyclically live and D100's value keeps changing with whatever the SX3's
-own D100 currently is.)
-
-**Also checked: does the 32-bit counter range hide behind a similar
-trick?** See the `'sx3'`/T-C-limitation discussion above (T/C limitation
-paragraph) — no, `C`'s bit-mode is a flat one-bit-per-counter contact
-enumeration with a hard ceiling at `C255`, and the `D`-style
-`wordIndex*16+bitIndex` scheme doesn't respond at all for `C`. No hidden
-32-bit access exists on this device via any addressing scheme tried.
-
-**New lead found in the EDS itself (2026-09), not yet reproduced:** each
-Connection's "config #2" Assembly (e.g. `Assem8`/"Conn2_Configuration
-data", 16 bytes, referenced from the Forward_Open connection path's
-Config Instance — `129`/`0x81` for Connection2) turns out to be a
-structured record, not padding — decoded from its `Param` definitions:
-
-| Offset | Field | Connection2 default |
-|---|---|---|
-| 0 (u16) | Input (T->O) DeviceType | `0` ("D") |
-| 2 (u16) | Input (T->O) Reserved | `200` |
-| 4 (u32) | **Input (T->O) DeviceIndex** | **`100`** |
-| 8 (u16) | Output (O->T) DeviceType | `0` ("D") |
-| 10 (u16) | Output (O->T) Reserved | `200` |
-| 12 (u32) | **Output (O->T) DeviceIndex** | **`3100`** |
-
-The **read side defaults to D100** (matches Instance 103's confirmed
-D100-D199 mirror exactly) but the **write side defaults to D3100**, a
-completely different, currently-unreadable D number (outside every window
-this driver's `readD` covers). This is a strong candidate explanation for
-why every write attempt landed nowhere visible: they may well have been
-*succeeding*, just at D3100, not D100, where nothing was checking.
-
-The Configuration Instance itself (`129`) does **not** answer a plain
-`Get_Attribute_Single` (`PathDestinationUnknown`) — it's not an
-independently-queryable object, only referenced from inside a Forward_Open
-request. Tried overriding it: opened Connection2 with a `Forward_Open`
-whose connection path appended a Simple Data Segment (`0x80`, CIP Vol 1
-C-1.4) carrying this exact 16-byte structure with Output DeviceIndex
-changed to `100`. The Forward_Open **succeeded** (no rejection of the
-extra segment), then sent 3 seconds of genuinely cyclic O->T data
-(distinct pattern `9999`, correct RPI, incrementing sequence numbers, not
-a one-shot packet) — D100 via the Instance 103 mirror never changed. So
-either this data segment isn't the right mechanism/encoding for
-overriding it (Delta may silently ignore an unrecognized trailing
-segment rather than reject it), or — more likely, given the device is
-Adapter-only and has no live "EIP Builder"-equivalent for configuring its
-own side — this DeviceIndex is **baked into the ES2's own project at
-ISPSoft-download time**, not something a remote Scanner can set via
-Forward_Open at all, in which case the real fix has to happen in the
-ES2's own ISPSoft/HWCONFIG project (outside this driver's reach) rather
-than at the CIP wire level. Not resolved either way without ground truth
-— this sharpens exactly what to look for if a packet capture of the real
-SX3-to-ES2 Forward_Open ever happens (specifically: does SX3's request
-carry a config data segment at all, and if so, what's in it).
-
-**Word-level access:** X/Y/M/S/T/C are only accessible bit-by-bit on this
-device (its word-mode instance doesn't exist) — `readX(0)`/`readY(3)`/etc.
-return booleans, matching how these types are actually addressed in
-practice (`X0`, `Y3`, one point at a time). D is the exception in the other
-direction: it's only accessible as a full 16-bit word via the mirror, not
-bit-by-bit through a working path (the bit-mode Class `0x352` exists and
-works, but doesn't connect anywhere real, as above).
-
-**T/C limitation:** this device's Register Objects only expose the
-timer/counter's *contact* (on/off) state, not a numeric elapsed-time or
-count value — there's no word-mode instance to carry that number, unlike
-the `'sx3'` profile where `readT`/`readC` return the real current value.
-This includes the 32-bit counter range (`C235`-`C254` on this CPU family,
-docs/dvp-plc-device-ranges.md's ES/EX/EC table) — investigated 2026-09 on
-the theory that since `HC` (Class `0x357`) doesn't exist on this device at
-all, maybe the 32-bit *value* was still reachable through `C`'s own class
-(`0x356`, which does exist) at those higher counter numbers. Live-tested
-two ways: (1) the contact bit for `C230`-`C260` — all answer normally
-(one flat bit per counter number, `C254` happened to read `true`, nothing
-distinguishes the "32-bit" numbers from any other), and this device's real
-`C` range hard-stops at `C255` (`C256`+ is `PathDestinationUnknown`); (2)
-the `wordIndex*16+bitIndex` bit-enumeration scheme (the same one `D` uses)
-applied to `C235` — every attribute in that range also came back
-`PathDestinationUnknown`. So there's no hidden word-level access lurking
-behind a different addressing scheme: the 32-bit counter *value* is simply
-not reachable via CIP on this device, full stop — same underlying
-limitation as `T`/`C`'s 16-bit current value, not a separate gap.
+**Octal addressing (X/Y only):** unchanged from before — `readXBitLabel`/
+`readYBitLabel`/`writeYBitLabel` accept a label like `'X10'` directly. See
+the `'sx3'` section above for the conversion details.
 
 **Octal addressing (X/Y only), resolved 2026-09:** Delta's own convention
 for X and Y labels is octal, not decimal — `X0`-`X7`, then `X10`-`X17`
@@ -374,17 +264,15 @@ device-types/
                                DVP-ES3/EX3 share sx3's manual entry and EDS
                                structure but are unconfirmed on real hardware.
   es2.js                      Profile: bit-mode Register Objects for
-                               X/Y/M/S/T/C (registers.js's readXBit/readYBit/
-                               writeYBit/readM/writeM/readS/writeS/readBit/
-                               writeBit — word-mode isn't supported on this
-                               device); D read is this ONE confirmed device's
-                               own assembly-window.js mapping (D0-D799
-                               across 8 windows, Instances 101/103/.../115 —
-                               NOT a general DVP-ES2 convention, re-confirm
-                               per device), built directly into this file
-                               since it's ES2-specific; D write and
-                               HC/SM/SR unsupported (documented why in the
-                               file itself).
+                               X/Y/M/S (Instance 1, flat attribute) plus
+                               T/C contact bit (readTBit/readCBit); D/T/C
+                               numeric value per manual Appendix B.5.2 —
+                               D at Instance 1 (flat attribute = D number),
+                               T/C numeric at Instance 2 (see
+                               docs/delta-cip-object-reference.md).
+                               Corrected 2026-09, pending live
+                               re-confirmation. HC/SM/SR unsupported
+                               (class doesn't exist on this device).
 
 device.js                  DeltaDevice — wraps a Scanner (session + generic
                             CIP) with a chosen device-type profile. The
@@ -442,28 +330,24 @@ eds-inspect.js              Profile-authoring assist: parses an EDS file's
 
 ## Open items
 
-- **ES2 D write** — no working path found. Tried: explicit
-  `Set_Attribute_Single` write to every O->T Assembly instance (100, 102,
-  104, 106, 108, 110, 112, 114); a full `Forward_Open` + cyclic UDP write
-  on Connection1 and specifically on Connection2 (whose T->O side,
-  Instance 103, is proven to mirror D100-D199), with and without a 32-bit
-  Run/Idle header and a Connection Configuration Data segment; a
-  bit-mode write directly at D100 (Class `0x352`, re-checked specifically
-  against Instance 103 after it was discovered — still isolated, works
-  but writes to an isolated scratch store, not the real D-table); and a
-  `Forward_Open` with a custom Configuration Instance data segment
-  attempting to override Connection2's `Output (O->T) DeviceIndex` from
-  its EDS default (`3100`) to `100` (see the "New lead found in the EDS
-  itself" note above — the override was accepted without error but had
-  no visible effect, inconclusive). A real working mechanism is known to
-  exist — EIP Builder's Scanner-side exchange table (configured on a real
-  SX3) — so this is very likely solvable, just not yet reproduced at the
-  CIP wire level by this driver. Packet capture of that real exchange
-  (`pktmon` on Windows, run as Administrator) is the most concrete next
-  step, and now has a specific, sharper target: check whether SX3's own
-  Forward_Open to Connection2 carries a Configuration Instance data
-  segment at all, and if so, decode it against the field layout in the
-  "New lead" note above.
+- **ES2 D/T/C — live re-confirmation needed.** 2026-09: found a second
+  Delta manual (Appendix B.5.2, see
+  [docs/delta-cip-object-reference.md](../../docs/delta-cip-object-reference.md))
+  documenting a different, and much simpler, addressing scheme than what
+  this profile originally implemented: D is Instance 1 (not 2) with a flat
+  Attribute = D number (explaining why every previous write attempt landed
+  nowhere checkable — see the reference doc's "Key takeaway"), and T/C's
+  numeric value is at Instance 2 (previously assumed absent). `es2.js` has
+  been rewritten to match the manual, but the real ES2E was offline when
+  this was done — **nothing in the corrected `readD`/`writeD`/`readT`/
+  `writeT`/`readC`/`writeC` has been live-tested yet.** Run
+  `examples/delta-es2.js` (and a D/T/C round-trip) against the real device
+  next and update src/delta/README.md's `'es2'` table accordingly. If the
+  manual turns out not to match this exact device after all, the old
+  Assembly-window D-mirror approach and the Forward_Open
+  Configuration-Instance investigation are both preserved in git history
+  (`git log -- src/delta/device-types/es2.js`) as a fallback starting
+  point.
 - **`W`/`FR`/`E` (AS300/SX3) have no known CIP mapping** — they exist as
   ladder-programming device types (`W0`-`W29999`, `FR0`-`FR65535`,
   `E0`-`E14`) but no CIP class is documented for any of them in Ch. 8.12,

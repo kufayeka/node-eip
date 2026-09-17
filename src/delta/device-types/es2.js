@@ -2,103 +2,65 @@
 
 /**
  * Device-type profile: DVP-ES2-E Series (specifically confirmed against a
- * real DVP32ES2-E). Per Delta's product table (docs/DELTA_IA-PLC_EtherNet-IP_OP_EN_20251021.pdf
- * Ch.9), this family is Adapter-capable but NOT Scanner-capable — that's
- * why ISPSoft has no "EIP Builder" I/O-mapping tool for it (that tool
- * configures the Scanner role, which this family doesn't have); it does
- * NOT mean the device can't be read from/written to as an Adapter, which
- * is exactly the role this driver uses it in.
+ * real DVP32ES2-E). Also covers DVP-SE/DVP-SE2/DVP26SE — Delta's own
+ * manual (DVP-ES2/EX2/EC5/SS2/SA2/SX2/SE&TP Operation Manual - Programming,
+ * Appendix B.5, "DVP-SE / ES2-E Series PLCs") groups them under one shared
+ * object list (Class 0x350-0x356, 0xF5, 0xF6) — see
+ * docs/delta-cip-object-reference.md for the full table transcribed from
+ * that manual. DVP12SE is a separate, older device using entirely
+ * different Class IDs (0x64-0x69) — not implemented here (no profile
+ * registered for it yet — see that reference doc if one is ever needed).
  *
- * ⚠️ Only DVP32ES2-E (product code 771) is empirically confirmed. DVP26SE
- * and DVP12SE share this table row in the manual but have not been tested
- * — re-confirm with the known-pattern technique (README Domain J) before
- * trusting this profile against them.
+ * ⚠️ Only DVP32ES2-E (product code 771) is empirically confirmed for the
+ * methods marked as such below. DVP-SE/DVP-SE2/DVP26SE share the same
+ * manual object list but have not been individually tested.
  *
- * Strategy, fully reverse-engineered live (2026-09) against real hardware,
- * cross-validated by writing distinguishing patterns into the PLC's own
- * X/D/M/Y tables via WPLSoft/ISPSoft, then reading them back over CIP —
- * and separately, writing over CIP and confirming the physical device's
- * own live monitor showed the change:
+ * === 2026-09 correction: this device's real addressing scheme ===
  *
- * - This device DOES implement Delta's vendor-specific Register Objects
- *   (Class 0x350-0x356: X/Y/D/M/S/T/C) — the earlier conclusion that they
- *   didn't exist was wrong; it tested only the WORD-mode instance
- *   (Instance 2), which this device genuinely doesn't support. The
- *   BIT-mode instance (Instance 1) works for all of them.
- * - Classes 0x357-0x359 (HC/SM/SR) do not exist on this device at all
- *   (confirmed via a full 0x001-0x3FF class sweep).
- * - **Read** via bit-mode is real and live for X, Y, M, S, T, C — cross-
- *   validated exactly against values written through WPLSoft/ISPSoft.
- * - **Write** via bit-mode is real and live for Y, M, S, T, C — confirmed
- *   by writing through this driver and visually observing the change in
- *   WPLSoft/ISPSoft's own live monitor. X is correctly rejected (general
- *   status 0x0E AttributeNotSettable) — it's a physical input, read-only.
- * - **D is the one exception.** Its bit-mode instance is a real, working
- *   read/write store — but a completely SEPARATE one from the PLC's actual
- *   D-table: writes made through Class 0x352 never show up in the
- *   Assembly-window mirrors below (which ARE proven connected to the real
- *   D-table, via the same known-pattern technique), even with a delay or
- *   an active Forward_Open connection kept alive throughout. Exhaustively
- *   tried every O->T Assembly instance this device has (100, 102, 104,
- *   106, 108, 110, 112, 114 — one per Connection1-8), writing a unique
- *   marker to each and scanning all 8 T->O instances plus the D-mirror for
- *   it — none propagated anywhere. So: read D through the Assembly-window
- *   mirrors as normal, but there is currently NO confirmed way to write D
- *   on this device via CIP — see README Domain J for the full
- *   investigation trail (including the Connection2 configuration-assembly
- *   lead, still unresolved).
- * - D's bit-mode instance also has an undocumented quirk if you use it
- *   directly: it expects a 2-byte payload per bit (not the standard 1-byte
- *   BOOL every other type here uses) — registers.js's writeBit() already
- *   handles this.
- * - T and C here only expose their bit-mode "contact" (on/off) state, not
- *   a numeric current value — this device's word-mode instance (which is
- *   what carries the numeric elapsed-time/count on the 'sx3' profile)
- *   isn't supported at all.
+ * Everything below was re-derived from Appendix B.5.2's own Instance/
+ * Attribute tables (not the AS/AH-series manual's Ch 8.12, which is what
+ * this profile was originally, incorrectly modeled on). The two manuals
+ * document DIFFERENT conventions for the SAME class IDs:
  *
- * D read range (D0-D799, in 8 windows of 100): each Connection's T->O
- * Assembly instance (101, 103, 105, 107, 109, 111, 113, 115) mirrors a
- * separate, sequential 100-word D block — D0-99, D100-199, ..., D700-799
- * respectively. This mapping is specific to THIS ONE device's current
- * ISPSoft I/O configuration, not a general DVP-ES2-series convention —
- * re-confirm with the known-pattern technique before reusing it against
- * another ES2. D0-D99 and D100-D199 were confirmed via a written marker
- * each (`10` and `1111`); D200-D299/D300-D399/D600-D699/D700-D799 read
- * all-zero on this device (nothing distinguishing to match yet, but follow
- * the identical per-Connection pattern); D400-D499 and D500-D599 are
- * confirmed by virtue of already containing genuine non-zero live PLC data
- * consistent with the same pattern.
+ * - **X (0x350) / Y (0x351) / M (0x353) / S (0x354):** Instance 1, flat
+ *   Attribute = point number directly (X0=attr 0, X377=attr 255, etc).
+ *   This matches what this driver already did — no change needed.
+ * - **D (0x352):** Instance 1 (not 2!), flat Attribute = D register number
+ *   directly (D0=attr 0, D9999=attr 9999 on ES2-E; up to attr 11999 on
+ *   DVP26SE), Data Type INT (16-bit), Access **Set** (writable!). This is
+ *   the corrected understanding — the previous implementation treated
+ *   Instance 1 as a *bit*-enumeration view (wordIndex*16+bitIndex, the
+ *   AS/AH-series manual's OWN convention for D) and used a completely
+ *   separate Assembly-window read mechanism for D, having concluded D
+ *   write was an unsolved mystery. That bit-enumeration formula was simply
+ *   the wrong addressing for this device family: attribute 1600 (from
+ *   bitAttribute(100, 0)) is really **D1600** under this device's actual
+ *   scheme, not "bit 0 of D100" — a real, valid, writable register, just
+ *   not the one being targeted. It never showed up in the Assembly-window
+ *   mirror (which only covers D0-D799) because D1600 is outside that
+ *   range, not because it was an isolated scratch store. **NOT YET
+ *   LIVE-TESTED against the real device as of this writing** (device was
+ *   offline) — this is the corrected implementation, pending confirmation.
+ * - **T (0x355) / C (0x356) numeric register value:** Instance 2 (this
+ *   device's Instance 2 was, for a long time, assumed to not exist at all
+ *   — that conclusion was based on limited early testing, not this
+ *   manual). Attribute = T/C number directly, Data Type INT — except C's
+ *   Attribute 200-255, which the manual documents as DINT (32-bit): the
+ *   32-bit counter range lives at high attribute numbers *within this same
+ *   Instance 2*, not a separate HC class (HC/0x357 is confirmed absent via
+ *   a full class sweep). **NOT YET LIVE-TESTED.**
+ * - **Classes 0x357-0x359 (HC/SM/SR) do not exist on this device at all**
+ *   (confirmed via a full 0x001-0x3FF class sweep) — unrelated to the
+ *   above, still correct.
+ *
+ * Renamed for clarity now that T/C have two genuinely different meanings:
+ * `readT`/`writeT`/`readC`/`writeC` are now the NUMERIC current value
+ * (Instance 2, matching what these names mean on the 'sx3' profile, for
+ * consistency across profiles) — previously these names meant the
+ * *contact* bit, which is now `readTBit`/`writeTBit`/`readCBit`/`writeCBit`.
  */
 
-const { makeWordWindow } = require('../assembly-window');
-const { RegisterClass, readXBit, readXBitLabel, readYBit, writeYBit, readYBitLabel, writeYBitLabel, readM, writeM, readS, writeS, readBit, writeBit } = require('../registers');
-
-const D_WINDOWS = [
-    { instance: 101, base: 0 },
-    { instance: 103, base: 100 },
-    { instance: 105, base: 200 },
-    { instance: 107, base: 300 },
-    { instance: 109, base: 400 },
-    { instance: 111, base: 500 },
-    { instance: 113, base: 600 },
-    { instance: 115, base: 700 }
-];
-
-const D_WINDOW_CACHE = new Map(
-    D_WINDOWS.map((w) => [w.base, makeWordWindow({ instance: w.instance, base: w.base, writable: false })])
-);
-
-function windowFor(n) {
-    const w = D_WINDOWS.find((w) => n >= w.base && n < w.base + 100);
-    if (!w) {
-        throw new RangeError(`readD: D${n} is outside the confirmed readable range for this device (D0-D799, in 8 windows of 100)`);
-    }
-    return D_WINDOW_CACHE.get(w.base);
-}
-
-async function readD(session, n) {
-    return windowFor(n).read(session, n);
-}
+const { RegisterClass, readXBit, readXBitLabel, readYBit, writeYBit, readYBitLabel, writeYBitLabel, readM, writeM, readS, writeS, readBit, writeBit, readWordAtInstance, writeWordAtInstance } = require('../registers');
 
 function unsupported(name, reason) {
     return async () => {
@@ -106,9 +68,23 @@ function unsupported(name, reason) {
     };
 }
 
+// D Register (0x352): Instance 1, flat Attribute = D number. See the file
+// header for why this replaces the old Assembly-window-based mechanism.
+const readD = (session, n) => readWordAtInstance(session, RegisterClass.D, 1, n);
+const writeD = (session, n, value) => writeWordAtInstance(session, RegisterClass.D, 1, n, value);
+
+// T/C numeric register value: Instance 2, flat Attribute = T/C number.
+// C's Attribute 200+ is DINT (32-bit) instead of INT (16-bit) — the
+// 32-bit counter range, confirmed by the manual to live inside this same
+// Instance/Attribute space rather than a separate HC class.
+const readT = (session, n) => readWordAtInstance(session, RegisterClass.T, 2, n);
+const writeT = (session, n, value) => writeWordAtInstance(session, RegisterClass.T, 2, n, value);
+const readC = (session, n) => readWordAtInstance(session, RegisterClass.C, 2, n, n >= 200 ? 4 : 2);
+const writeC = (session, n, value) => writeWordAtInstance(session, RegisterClass.C, 2, n, value, n >= 200 ? 4 : 2);
+
 module.exports = {
     deviceType: 'es2',
-    description: 'DVP-ES2-E (confirmed on DVP32ES2-E) — vendor Register Objects, bit-mode only (Class 0x350-0x356); D read is Assembly-window (Instances 101-115, D0-D799), D write unresolved',
+    description: 'DVP-ES2-E (confirmed on DVP32ES2-E), also DVP-SE/DVP-SE2/DVP26SE (unconfirmed) — vendor Register Objects per manual Appendix B.5.2; D/T/C corrected 2026-09, pending live re-confirmation',
 
     readX: readXBit,
     readXBit,
@@ -121,21 +97,29 @@ module.exports = {
     writeYBitLabel,
 
     readD,
-    D_WINDOWS,
-    writeD: unsupported('writeD', 'no working write path found after exhausting every avenue tried: Class 0x352 bit-mode write, explicit Set_Attribute_Single on all 8 O->T Assembly instances (100/102/104/106/108/110/112/114), Assembly writes during an active Forward_Open connection, and a Forward_Open with a custom Connection2 configuration data segment — none propagate to the PLC\'s actual D-table. See README Domain J.'),
+    writeD,
 
     readM,
     writeM,
     readS,
     writeS,
 
-    readT: (session, n) => readBit(session, RegisterClass.T, n),
-    writeT: (session, n, value) => writeBit(session, RegisterClass.T, n, value),
-    readC: (session, n) => readBit(session, RegisterClass.C, n),
-    writeC: (session, n, value) => writeBit(session, RegisterClass.C, n, value),
+    readT,
+    writeT,
+    readTBit: (session, n) => readBit(session, RegisterClass.T, n),
+    writeTBit: (session, n, value) => writeBit(session, RegisterClass.T, n, value),
+    readC,
+    writeC,
+    readCBit: (session, n) => readBit(session, RegisterClass.C, n),
+    writeCBit: (session, n, value) => writeBit(session, RegisterClass.C, n, value),
+    // No separate HC class on this device — the 32-bit counter range is
+    // just C's own Instance 2 at Attribute 200+ (DINT instead of INT),
+    // which readC/writeC already select automatically. See the file header.
+    readC32: readC,
+    writeC32: writeC,
 
     readHC: unsupported('readHC', 'Class 0x357 does not exist on this device (confirmed via a full class-ID sweep)'),
-    writeHC: unsupported('writeHC', 'Class 0x357 does not exist on this device (confirmed via a full class-ID sweep)'),
+    writeHC: unsupported('writeHC', 'Class 0x357 does not exist on this device (confirmed via a full class-ID sweep) — the 32-bit counter range lives inside the C Register\'s own Instance 2, Attribute 200+, see readC/writeC'),
     readSM: unsupported('readSM', 'Class 0x358 does not exist on this device (confirmed via a full class-ID sweep)'),
     readSR: unsupported('readSR', 'Class 0x359 does not exist on this device (confirmed via a full class-ID sweep)')
 };

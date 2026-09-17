@@ -884,6 +884,12 @@ real Delta SX-3 PLC:
   no auto-detection), while **T has no 32-bit range at all** — resolving
   what was an open question.
 
+**Development reference:** [docs/delta-cip-object-reference.md](docs/delta-cip-object-reference.md)
+transcribes both Delta manuals' full CIP object tables (Class/Instance/
+Attribute/Access/Data Type, per PLC family) verbatim, with a live-validation
+status column per row — the source of truth this driver's `'sx3'`/`'es3'`
+and `'es2'` profiles are implemented against.
+
 Phase 2 is now essentially feature-complete for its core scope. **Phase 3
 (EIP Adapter) is underway and its core is done**, validated live via full
 loopback (`examples/adapter-demo.js`, this driver's own client code against

@@ -39,10 +39,19 @@ module.exports = {
     writeS: registers.writeS,
     readT: registers.readT,
     writeT: registers.writeT,
+    readTBit: (session, n) => registers.readBit(session, registers.RegisterClass.T, n),
+    writeTBit: (session, n, value) => registers.writeBit(session, registers.RegisterClass.T, n, value),
     readC: registers.readC,
     writeC: registers.writeC,
+    readCBit: (session, n) => registers.readBit(session, registers.RegisterClass.C, n),
+    writeCBit: (session, n, value) => registers.writeBit(session, registers.RegisterClass.C, n, value),
     readHC: registers.readHC,
     writeHC: registers.writeHC,
+    // 32-bit counter access is a separate CIP class (HC) on this device
+    // family, unlike 'es2' where it lives inside C's own Instance 2 at
+    // high attribute numbers — see device-types/es2.js.
+    readC32: registers.readHC,
+    writeC32: registers.writeHC,
     readSM: registers.readSM,
     readSR: registers.readSR
 };

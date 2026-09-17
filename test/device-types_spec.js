@@ -25,9 +25,8 @@ describe('Delta device-type registry', function () {
         }
     });
 
-    it('es2 profile: writeD (unresolved) and readHC/readSM/readSR (class does not exist) still reject clearly', async function () {
+    it('es2 profile: readHC/readSM/readSR (class does not exist on this device) reject clearly', async function () {
         const profile = deviceTypes.get('es2');
-        await assert.rejects(() => profile.writeD(/* session */ {}, 0, 1), /not supported for device type "es2"/);
         await assert.rejects(() => profile.readHC(/* session */ {}, 0), /not supported for device type "es2"/);
         await assert.rejects(() => profile.readSM(/* session */ {}, 0), /not supported for device type "es2"/);
         await assert.rejects(() => profile.readSR(/* session */ {}, 0), /not supported for device type "es2"/);
