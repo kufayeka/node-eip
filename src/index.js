@@ -15,9 +15,12 @@ const deltaRegisters = require('./delta/registers');
 const deltaAssemblyWindow = require('./delta/assembly-window');
 const deltaDeviceTypes = require('./delta/device-types');
 const deltaEdsInspect = require('./delta/eds-inspect');
+const identityObject = require('./cip/objects/identity');
+const assemblyObject = require('./cip/objects/assembly');
 const { EIPSession } = require('./client');
 const { Scanner } = require('./scanner');
 const { DeltaDevice } = require('./delta/device');
+const { EIPAdapter } = require('./adapter');
 
 module.exports = {
     constants,
@@ -33,7 +36,11 @@ module.exports = {
         ...path,
         ...messageRouter,
         ...connectionManager,
-        ...ioConnection
+        ...ioConnection,
+        objects: {
+            ...identityObject,
+            ...assemblyObject
+        }
     },
     delta: {
         ...deltaRegisters,
@@ -43,5 +50,6 @@ module.exports = {
     },
     EIPSession,
     Scanner,
-    DeltaDevice
+    DeltaDevice,
+    EIPAdapter
 };

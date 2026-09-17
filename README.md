@@ -59,7 +59,7 @@ below for exact spec references and status.
 | 0 | Encapsulation header framing | ✅ Done |
 | 1 | **Discovery & handshake** — scan a network for EIP devices, parse Identity, open/close a session | ✅ Done — validated live against a real, non-Rockwell device (Delta AS/SX-3 PLC, `192.168.68.250`) over UDP broadcast, UDP unicast, and TCP |
 | 2 | **EIP Scanner** (originator) — vendor-neutral explicit messaging client (any CIP device) + implicit I/O scanning, with Rockwell tag services layered on top for Logix targets | 🔄 In progress — explicit messaging, Forward_Open/Forward_Close, live cyclic Class 1 I/O data, AND a public `Scanner` API wrapping all of it are done & validated live. Left: more common services (Multiple Service Packet), Rockwell/Logix tag services. |
-| 3 | **EIP Adapter** (target/device/server) — accept sessions, serve CIP objects, produce/consume I/O; must interoperate with any conformant originator, not only a Rockwell PLC | ⬜ Planned |
+| 3 | **EIP Adapter** (target/device/server) — accept sessions, serve CIP objects, produce/consume I/O; must interoperate with any conformant originator, not only a Rockwell PLC | 🔄 Core done & validated live (loopback, own Scanner as client) — ListIdentity, sessions, Identity/Assembly explicit messaging, Forward_Open/Forward_Close. Real UDP cyclic I/O to another host not yet cross-device tested. |
 | 4 | **EDS file** — generate the device description file an adapter built with this library needs so Studio5000/RSLogix (or any EIP engineering tool) can import and configure it | ⬜ Planned |
 | 5 | CIP Security (Vol 8), full conformance-test pass, advanced objects (QoS, Port, CIP Safety) | ⬜ Future |
 
@@ -335,12 +335,13 @@ Reference code: [EIPScanner](https://github.com/nimbuscontrols/EIPScanner) (dedi
 
 | Item | Status | Notes |
 |---|---|---|
-| TCP + UDP encapsulation server (listen, accept, session table) | ⬜ | phase 3 |
-| Session management (handle allocation, per-session state, timeout) | ⬜ | |
-| CIP message router server-side dispatch to object instances | ⬜ | |
-| Configurable Identity object (vendor ID, product code, etc. supplied by the device author) | ⬜ | |
-| Assembly object (Input/Output/Config assemblies backed by user data) | ⬜ | |
-| Accept Forward Open as target, produce/consume cyclic I/O data | ⬜ | |
+| TCP + UDP encapsulation server (listen, accept, session table) | ✅ | [src/adapter.js](src/adapter.js) — **validated live (loopback)** |
+| Session management (handle allocation, per-session state, timeout) | ✅ | handle allocation + cleanup on disconnect/UnRegisterSession; no idle-session timeout yet |
+| CIP message router server-side dispatch to object instances | ✅ | class registry (`objects: Map<classId, handler>`), `getAttributeSingle`/`setAttributeSingle` |
+| Configurable Identity object (vendor ID, product code, etc. supplied by the device author) | ✅ | [src/cip/objects/identity.js](src/cip/objects/identity.js) — validated live, incl. answering both TCP and UDP `ListIdentity` |
+| Assembly object (Input/Output/Config assemblies backed by user data) | ✅ | [src/cip/objects/assembly.js](src/cip/objects/assembly.js) — validated live, including replicating the exact size-mismatch → `TooMuchData` behavior this driver found on real Delta hardware (Domain B) |
+| Accept Forward Open as target, produce/consume cyclic I/O data | 🔄 | Forward_Open/Forward_Close request/response validated live over TCP; the resulting UDP cyclic data *production/consumption logic* is unit-tested ([test/connection-handler_spec.js](test/connection-handler_spec.js)) but not yet proven against a real second device — see note below |
+| TCP/IP Interface Object, Ethernet Link Object | ⬜ | not started — lower priority, mostly matters for other engineering tools' diagnostics, not required for a scanner to do explicit/implicit messaging |
 
 Must be built and tested against the generic CIP model only — an adapter
 built here should be connectable from a Rockwell ControlLogix/CompactLogix,
@@ -348,6 +349,32 @@ an Omron NJ/NX, a Schneider M580, or any other conformant scanner without any
 vendor-specific accommodation on the adapter side. Vendor interop quirks (if
 any surface) get isolated per-vendor, not baked into the core object
 implementations.
+
+**Live validation (2026-09):** [examples/adapter-demo.js](examples/adapter-demo.js)
+starts a real `EIPAdapter` and drives it with this driver's own client-side
+code (`scanUdpUnicast`, `probeTcp`, `EIPSession`) over real TCP/UDP sockets
+on localhost — every one of these passed: UDP unicast `ListIdentity`, TCP
+`ListIdentity` (no session), `RegisterSession`, `Get_Attribute_Single`
+(Identity Vendor ID), `Set_Attribute_Single` on an Assembly instance (with
+the adapter's own in-memory buffer verified to actually change), a
+deliberate wrong-size write correctly rejected with `0x15 TooMuchData`
+(exactly mirroring the real Delta hardware behavior this driver discovered
+independently in Phase 2), and a full `Forward_Open` → `Forward_Close`
+round trip with the requested RPI granted as-is.
+
+**Known test gap, and why:** this demo does not prove real UDP cyclic I/O
+delivery end-to-end. EtherNet/IP I/O always uses the same fixed port (2222)
+on both sides — on separate physical devices that's fine, but a Scanner and
+an Adapter can't both bind port 2222 on the *same* machine to test the full
+data path against each other locally (that's a fundamental protocol/OS
+constraint, not an implementation gap). The cyclic-I/O logic itself
+(producing the right bytes at the right RPI, consuming into the right
+buffer, matching by connection ID) is fully covered by
+`test/connection-handler_spec.js` with a mocked send function, and reuses
+the exact `cip/io-connection.js` datagram format already proven live
+against real Delta hardware in Phase 2 — but proving the *adapter* side of
+that specific wire exchange needs a second real host, which wasn't
+available for this pass.
 
 Reference code: [OpENer](https://github.com/EIPStackGroup/OpENer) — THE reference adapter implementation (ODVA-authored, conformance-tested); [CIPster](https://github.com/liftoff-sr/CIPster) for a C++ read of the same logic; [EthernetIpSharp](https://github.com/CristianMori/EthernetIpSharp) (rare OSS example that does both adapter and scanner roles).
 
@@ -566,7 +593,10 @@ src/
     connection-manager.js         — Forward Open/Forward Close             ✅
     io-connection.js               — cyclic UDP I/O datagram (Sequenced
                                       Address + Connected Data items)       ✅
-    objects/                        — Identity, Assembly, TCP/IP, Ethernet Link ⬜ phase 3
+    objects/
+      identity.js                    — server-side Identity Object          ✅
+      assembly.js                     — server-side Assembly Object         ✅
+      (TCP/IP Interface, Ethernet Link — not started)                       ⬜
     types.js                        — CIP data type encode/decode          ⬜ phase 2
   logix/
     tag-service.js               — Rockwell Read/Write Tag (0x4C/0x4D/0x52/0x53) ⬜ phase 2
@@ -592,7 +622,12 @@ src/
   scanner.js                       — public Scanner API (discover, connect,
                                       getAttribute/setAttribute, Forward
                                       Open/Close, Delta register methods)    ✅
-  adapter.js                        — public EIP Adapter API                ⬜ phase 3
+  adapter.js                        — public EIPAdapter (TCP+UDP server,
+                                       session mgmt, object dispatch,
+                                       Forward Open/Close acceptance)        ✅
+  adapter/
+    connection-handler.js             — Adapter-side Forward_Open/Close +
+                                         cyclic UDP produce/consume          ✅
   client.js                          — low-level session/handshake client,
                                         generic explicit messaging,
                                         Forward Open/Close                  ✅
@@ -618,6 +653,8 @@ examples/
   inspect-eds.js                                — CLI: profile-authoring
                                                    assist, dumps an EDS's
                                                    Assembly/Connection info   ✅
+  adapter-demo.js                                — CLI: full Phase 3
+                                                   loopback self-test         ✅
 eds/
   031F000E0F0600010001.eds                 — Delta SX-3's vendor-issued EDS,
                                               used as ground truth above     ✅
@@ -681,10 +718,30 @@ real Delta SX-3 PLC:
   Includes a profile-authoring assist tool (`eds-inspect.js`) that reads an
   EDS's Assembly/Connection sections as a starting point.
 
-`npm test` (62 tests) covers the same logic with synthetic buffers for
-regression safety. Still ahead in Phase 2: Multiple Service Packet, then
-Rockwell/Logix tag services (`src/logix/`) as the additive compatibility
-layer.
+Phase 2 is now essentially feature-complete for its core scope. **Phase 3
+(EIP Adapter) is underway and its core is done**, validated live via full
+loopback (`examples/adapter-demo.js`, this driver's own client code against
+its own new `EIPAdapter`):
+- TCP+UDP encapsulation server, session management, `ListIdentity` (both
+  TCP and UDP unicast) all working.
+- Server-side Identity Object and Assembly Object, dispatched through a
+  generic class registry — `Get_Attribute_Single`/`Set_Attribute_Single`
+  both validated, including the Assembly size-mismatch → `TooMuchData`
+  behavior exactly matching what this driver found on **real Delta
+  hardware** in Phase 2 (not assumed — replicated from an actual discovery).
+- Server-side `Forward_Open`/`Forward_Close`: full request/response round
+  trip validated live over TCP, RPI granted as requested.
+- The resulting cyclic UDP I/O *logic* (production/consumption, connection
+  ID matching) is unit-tested (`test/connection-handler_spec.js`) but not
+  yet proven end-to-end against a second real host — same-machine loopback
+  can't fully exercise it since both sides of EtherNet/IP I/O always use
+  the fixed port 2222 (a protocol/OS constraint, not an implementation gap;
+  see Domain H for the full explanation).
+
+`npm test` (97 tests) covers the same logic with synthetic buffers for
+regression safety. Still ahead: Multiple Service Packet and Rockwell/Logix
+tag services (Phase 2 loose ends), TCP/IP Interface + Ethernet Link Objects
+and real cross-device I/O validation (Phase 3 loose ends).
 
 ## Quick start
 

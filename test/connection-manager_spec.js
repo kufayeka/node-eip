@@ -9,8 +9,12 @@ const {
     connectionManagerPath,
     buildForwardOpenRequest,
     parseForwardOpenResponse,
+    parseForwardOpenRequest,
+    buildForwardOpenResponse,
     buildForwardCloseRequest,
-    parseForwardCloseResponse
+    parseForwardCloseResponse,
+    parseForwardCloseRequest,
+    buildForwardCloseResponse
 } = require('../src/cip/connection-manager');
 const { encodeAssemblyConnectionPath } = require('../src/cip/path');
 
@@ -123,6 +127,82 @@ describe('Forward_Close request/response', function () {
         responseData.writeUInt16LE(0xaaaa, 2);
         responseData.writeUInt32LE(0x11223344, 4);
         responseData.writeUInt8(0, 8);
+
+        const parsed = parseForwardCloseResponse(responseData);
+        assert.strictEqual(parsed.connectionSerialNumber, 0x1234);
+        assert.strictEqual(parsed.originatorVendorId, 0xaaaa);
+        assert.strictEqual(parsed.originatorSerialNumber, 0x11223344);
+    });
+});
+
+describe('Forward_Open / Forward_Close — server-side (Phase 3, Adapter)', function () {
+    const connectionPath = encodeAssemblyConnectionPath({ configInstance: 0x80, o2tInstance: 0x64, t2oInstance: 0x65 });
+
+    it('parseForwardOpenRequest() is the exact inverse of buildForwardOpenRequest()', function () {
+        const { data } = buildForwardOpenRequest({
+            connectionPath,
+            rpiUs: 20000,
+            otSize: 200,
+            toSize: 150,
+            connectionSerialNumber: 0x1234,
+            originatorVendorId: 0xaaaa,
+            originatorSerialNumber: 0x11223344,
+            otNetworkConnectionId: 0,
+            toNetworkConnectionId: 0xdeadbeef
+        });
+
+        const parsed = parseForwardOpenRequest(data);
+        assert.strictEqual(parsed.toNetworkConnectionId, 0xdeadbeef);
+        assert.strictEqual(parsed.connectionSerialNumber, 0x1234);
+        assert.strictEqual(parsed.originatorVendorId, 0xaaaa);
+        assert.strictEqual(parsed.originatorSerialNumber, 0x11223344);
+        assert.strictEqual(parsed.otRpiUs, 20000);
+        assert.strictEqual(parsed.toRpiUs, 20000);
+        assert.strictEqual(parsed.otSize, 200);
+        assert.strictEqual(parsed.toSize, 150);
+        assert.strictEqual(parsed.transportTypeTrigger, 0x01);
+        assert.deepStrictEqual(parsed.connectionPath, connectionPath);
+    });
+
+    it('buildForwardOpenResponse() -> client parseForwardOpenResponse() round-trips', function () {
+        const responseData = buildForwardOpenResponse({
+            otNetworkConnectionId: 0x1,
+            toNetworkConnectionId: 0xdeadbeef,
+            connectionSerialNumber: 0x1234,
+            originatorVendorId: 0xaaaa,
+            originatorSerialNumber: 0x11223344,
+            otApiUs: 20000,
+            toApiUs: 20000
+        });
+
+        const parsed = parseForwardOpenResponse(responseData);
+        assert.strictEqual(parsed.otNetworkConnectionId, 0x1);
+        assert.strictEqual(parsed.toNetworkConnectionId, 0xdeadbeef);
+        assert.strictEqual(parsed.otApiUs, 20000);
+        assert.strictEqual(parsed.toApiUs, 20000);
+    });
+
+    it('parseForwardCloseRequest() is the exact inverse of buildForwardCloseRequest()', function () {
+        const data = buildForwardCloseRequest({
+            connectionPath,
+            connectionSerialNumber: 0x1234,
+            originatorVendorId: 0xaaaa,
+            originatorSerialNumber: 0x11223344
+        });
+
+        const parsed = parseForwardCloseRequest(data);
+        assert.strictEqual(parsed.connectionSerialNumber, 0x1234);
+        assert.strictEqual(parsed.originatorVendorId, 0xaaaa);
+        assert.strictEqual(parsed.originatorSerialNumber, 0x11223344);
+        assert.deepStrictEqual(parsed.connectionPath, connectionPath);
+    });
+
+    it('buildForwardCloseResponse() -> client parseForwardCloseResponse() round-trips', function () {
+        const responseData = buildForwardCloseResponse({
+            connectionSerialNumber: 0x1234,
+            originatorVendorId: 0xaaaa,
+            originatorSerialNumber: 0x11223344
+        });
 
         const parsed = parseForwardCloseResponse(responseData);
         assert.strictEqual(parsed.connectionSerialNumber, 0x1234);

@@ -88,9 +88,67 @@ function encodeAssemblyConnectionPath({ configInstance, o2tInstance, t2oInstance
     ]);
 }
 
+/**
+ * Decodes one padded Logical Segment starting at `offset`. Needed by the
+ * Adapter (Phase 3) to parse incoming request paths — the Scanner side
+ * only ever needed to encode paths it built itself.
+ */
+function decodeLogicalSegment(buf, offset) {
+    const head = buf[offset];
+    if ((head & 0xe0) !== 0x20) {
+        throw new Error(`decodeLogicalSegment: byte 0x${head.toString(16)} at offset ${offset} is not a padded Logical Segment`);
+    }
+    const logicalType = (head >> 2) & 0x07;
+    const format = head & 0x03;
+
+    if (format === 0x00) {
+        return { logicalType, value: buf.readUInt8(offset + 1), bytesConsumed: 2 };
+    }
+    if (format === 0x01) {
+        if (offset + 4 > buf.length) throw new RangeError('decodeLogicalSegment: truncated 16-bit segment');
+        return { logicalType, value: buf.readUInt16LE(offset + 2), bytesConsumed: 4 };
+    }
+    if (format === 0x02) {
+        if (offset + 6 > buf.length) throw new RangeError('decodeLogicalSegment: truncated 32-bit segment');
+        return { logicalType, value: buf.readUInt32LE(offset + 2), bytesConsumed: 6 };
+    }
+    throw new Error(`decodeLogicalSegment: unsupported Logical Format 0x${format.toString(16)} (reserved)`);
+}
+
+/**
+ * Decodes a full padded EPATH into { classId, instance, attribute, member,
+ * connectionPoints } — the inverse of encodeEPath()/encodeAssemblyConnectionPath().
+ * Multiple Connection Point segments (as encodeAssemblyConnectionPath()
+ * produces) collect into the `connectionPoints` array, in path order.
+ */
+function decodeEPath(buf) {
+    const result = {};
+    let offset = 0;
+    while (offset < buf.length) {
+        const segment = decodeLogicalSegment(buf, offset);
+        switch (segment.logicalType) {
+            case LogicalType.ClassId: result.classId = segment.value; break;
+            case LogicalType.InstanceId: result.instance = segment.value; break;
+            case LogicalType.AttributeId: result.attribute = segment.value; break;
+            case LogicalType.MemberId: result.member = segment.value; break;
+            case LogicalType.ConnectionPoint:
+                (result.connectionPoints = result.connectionPoints || []).push(segment.value);
+                break;
+            default:
+                // Special/ServiceId segments: preserved positionally but not
+                // specially interpreted — no adapter feature needs them yet.
+                break;
+        }
+        offset += segment.bytesConsumed;
+    }
+    return result;
+}
+
 module.exports = {
     LogicalType,
     encodeLogicalSegment,
+    decodeLogicalSegment,
     encodeEPath,
+    decodeEPath,
     encodeAssemblyConnectionPath
 };

@@ -252,6 +252,105 @@ function parseForwardCloseResponse(data) {
 }
 
 /**
+ * Parses an incoming Forward_Open request body — the inverse of
+ * buildForwardOpenRequest(), needed on the Adapter (Phase 3) side to see
+ * what a Scanner is asking to connect to. Field layout is the exact mirror
+ * of buildForwardOpenRequest() above; see that function's comments for
+ * what each field means.
+ */
+function parseForwardOpenRequest(data) {
+    if (data.length < 36) {
+        throw new RangeError('parseForwardOpenRequest: request too short');
+    }
+    const otParams = decodeNetworkConnectionParams(data.readUInt16LE(26));
+    const toParams = decodeNetworkConnectionParams(data.readUInt16LE(32));
+    const pathSizeWords = data.readUInt8(35);
+    const connectionPath = data.subarray(36, 36 + pathSizeWords * 2);
+
+    return {
+        timeTick: data.readUInt8(0),
+        timeoutTicks: data.readUInt8(1),
+        otNetworkConnectionId: data.readUInt32LE(2),
+        toNetworkConnectionId: data.readUInt32LE(6),
+        connectionSerialNumber: data.readUInt16LE(10),
+        originatorVendorId: data.readUInt16LE(12),
+        originatorSerialNumber: data.readUInt32LE(14),
+        connectionTimeoutMultiplier: data.readUInt8(18),
+        otRpiUs: data.readUInt32LE(22),
+        otSize: otParams.size,
+        otConnectionType: otParams.connectionType,
+        otVariableSize: otParams.variableSize,
+        toRpiUs: data.readUInt32LE(28),
+        toSize: toParams.size,
+        toConnectionType: toParams.connectionType,
+        toVariableSize: toParams.variableSize,
+        transportTypeTrigger: data.readUInt8(34),
+        connectionPath
+    };
+}
+
+/**
+ * Builds a Forward_Open response body — the inverse of
+ * parseForwardOpenResponse(), used by an Adapter to accept a connection.
+ * `otNetworkConnectionId` here is the Adapter's OWN authoritative value
+ * (the Scanner's proposed one in the request may simply be ignored/replaced);
+ * `toNetworkConnectionId`/`connectionSerialNumber`/`originatorVendorId`/
+ * `originatorSerialNumber` must be echoed back exactly as the Scanner sent
+ * them (see parseForwardOpenRequest()'s output).
+ */
+function buildForwardOpenResponse({
+    otNetworkConnectionId,
+    toNetworkConnectionId,
+    connectionSerialNumber,
+    originatorVendorId,
+    originatorSerialNumber,
+    otApiUs,
+    toApiUs,
+    applicationReply = Buffer.alloc(0)
+}) {
+    const buf = Buffer.alloc(26 + applicationReply.length);
+    buf.writeUInt32LE(otNetworkConnectionId, 0);
+    buf.writeUInt32LE(toNetworkConnectionId, 4);
+    buf.writeUInt16LE(connectionSerialNumber, 8);
+    buf.writeUInt16LE(originatorVendorId, 10);
+    buf.writeUInt32LE(originatorSerialNumber, 12);
+    buf.writeUInt32LE(otApiUs, 16);
+    buf.writeUInt32LE(toApiUs, 20);
+    buf.writeUInt8(applicationReply.length / 2, 24);
+    buf.writeUInt8(0, 25);
+    applicationReply.copy(buf, 26);
+    return buf;
+}
+
+/** Parses an incoming Forward_Close request body — the inverse of buildForwardCloseRequest(). */
+function parseForwardCloseRequest(data) {
+    if (data.length < 12) {
+        throw new RangeError('parseForwardCloseRequest: request too short');
+    }
+    const pathSizeWords = data.readUInt8(10);
+    return {
+        timeTick: data.readUInt8(0),
+        timeoutTicks: data.readUInt8(1),
+        connectionSerialNumber: data.readUInt16LE(2),
+        originatorVendorId: data.readUInt16LE(4),
+        originatorSerialNumber: data.readUInt32LE(6),
+        connectionPath: data.subarray(12, 12 + pathSizeWords * 2)
+    };
+}
+
+/** Builds a Forward_Close response body — the inverse of parseForwardCloseResponse(). */
+function buildForwardCloseResponse({ connectionSerialNumber, originatorVendorId, originatorSerialNumber, applicationReply = Buffer.alloc(0) }) {
+    const buf = Buffer.alloc(10 + applicationReply.length);
+    buf.writeUInt16LE(connectionSerialNumber, 0);
+    buf.writeUInt16LE(originatorVendorId, 2);
+    buf.writeUInt32LE(originatorSerialNumber, 4);
+    buf.writeUInt8(applicationReply.length / 2, 8);
+    buf.writeUInt8(0, 9);
+    applicationReply.copy(buf, 10);
+    return buf;
+}
+
+/**
  * A small, deliberately non-exhaustive lookup of common Connection Manager
  * extended status codes (CIP Vol 1, Table B-2) for Forward_Open/Forward_Close
  * failures — for debugging only. Consult the CIP spec or Wireshark's
@@ -293,8 +392,12 @@ module.exports = {
     decodeNetworkConnectionParams,
     buildForwardOpenRequest,
     parseForwardOpenResponse,
+    parseForwardOpenRequest,
+    buildForwardOpenResponse,
     buildForwardCloseRequest,
     parseForwardCloseResponse,
+    parseForwardCloseRequest,
+    buildForwardCloseResponse,
     nextConnectionSerialNumber,
     ForwardOpenExtendedStatus
 };

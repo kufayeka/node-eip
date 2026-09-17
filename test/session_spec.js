@@ -5,8 +5,11 @@ const { encodeMessage } = require('../src/encapsulation/header');
 const {
     buildRegisterSessionRequest,
     parseRegisterSessionResponse,
-    buildUnRegisterSessionRequest
+    buildUnRegisterSessionRequest,
+    readRegisterSessionRequest,
+    buildRegisterSessionResponse
 } = require('../src/encapsulation/session');
+const { decodeMessage } = require('../src/encapsulation/header');
 const { EncapsulationCommands, EncapsulationStatus } = require('../src/constants');
 
 describe('RegisterSession / UnRegisterSession', function () {
@@ -48,5 +51,20 @@ describe('RegisterSession / UnRegisterSession', function () {
         assert.strictEqual(req.length, 24);
         assert.strictEqual(req.readUInt16LE(0), EncapsulationCommands.UnRegisterSession);
         assert.strictEqual(req.readUInt32LE(4), 0xdeadbeef);
+    });
+
+    it('readRegisterSessionRequest() is the exact inverse of buildRegisterSessionRequest() (Adapter side, Phase 3)', function () {
+        const req = buildRegisterSessionRequest();
+        const msg = decodeMessage(req);
+        const parsed = readRegisterSessionRequest(msg);
+        assert.strictEqual(parsed.protocolVersion, 1);
+        assert.strictEqual(parsed.optionsFlags, 0);
+    });
+
+    it('buildRegisterSessionResponse() -> client parseRegisterSessionResponse() round-trips', function () {
+        const resp = buildRegisterSessionResponse({ sessionHandle: 0xcafef00d });
+        const parsed = parseRegisterSessionResponse(resp);
+        assert.strictEqual(parsed.sessionHandle, 0xcafef00d);
+        assert.strictEqual(parsed.protocolVersion, 1);
     });
 });

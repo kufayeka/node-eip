@@ -87,7 +87,60 @@ function decodeIdentityItem(buf) {
     };
 }
 
+/** Encodes the 16-byte Socket Address structure — see the byte-order note above. */
+function encodeSocketAddress({ address, port, family = 2 }) {
+    const buf = Buffer.alloc(16);
+    buf.writeUInt16BE(family, 0);
+    buf.writeUInt16BE(port, 2);
+    const octets = address.split('.').map(Number);
+    if (octets.length !== 4 || octets.some((o) => Number.isNaN(o))) {
+        throw new RangeError(`encodeSocketAddress: "${address}" is not a valid dotted-quad IPv4 address`);
+    }
+    octets.forEach((o, i) => { buf[4 + i] = o; });
+    return buf;
+}
+
+/**
+ * Encodes an Identity Item payload — the inverse of decodeIdentityItem(),
+ * used by an Adapter (Phase 3) to answer ListIdentity. `serialNumber` is
+ * a plain UDINT number here (decodeIdentityItem returns it as a hex
+ * string for display; encode takes the numeric form since that's what an
+ * adapter author configures).
+ */
+function encodeIdentityItem({
+    encapsulationProtocolVersion = 1,
+    socketAddress,
+    vendorId,
+    deviceType,
+    productCode,
+    revision,
+    status = 0,
+    serialNumber,
+    productName,
+    state = 0xff
+}) {
+    const nameBuf = Buffer.from(productName, 'ascii');
+    const buf = Buffer.alloc(2 + 16 + 2 + 2 + 2 + 2 + 2 + 4 + 1 + nameBuf.length + 1);
+    let offset = 0;
+
+    buf.writeUInt16LE(encapsulationProtocolVersion, offset); offset += 2;
+    encodeSocketAddress(socketAddress).copy(buf, offset); offset += 16;
+    buf.writeUInt16LE(vendorId, offset); offset += 2;
+    buf.writeUInt16LE(deviceType, offset); offset += 2;
+    buf.writeUInt16LE(productCode, offset); offset += 2;
+    buf.writeUInt8(revision.major, offset); buf.writeUInt8(revision.minor, offset + 1); offset += 2;
+    buf.writeUInt16LE(status, offset); offset += 2;
+    buf.writeUInt32LE(serialNumber, offset); offset += 4;
+    buf.writeUInt8(nameBuf.length, offset); offset += 1;
+    nameBuf.copy(buf, offset); offset += nameBuf.length;
+    buf.writeUInt8(state, offset);
+
+    return buf;
+}
+
 module.exports = {
     decodeSocketAddress,
-    decodeIdentityItem
+    decodeIdentityItem,
+    encodeSocketAddress,
+    encodeIdentityItem
 };

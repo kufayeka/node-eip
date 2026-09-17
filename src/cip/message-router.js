@@ -62,7 +62,55 @@ function parseResponse(buf) {
     };
 }
 
+/**
+ * Parses an incoming CIP request (the inverse of buildRequest()) — needed
+ * on the Adapter (Phase 3) side to see what a Scanner is asking for.
+ * `path` is returned raw (still needs cip/path.js's decodeEPath() to
+ * interpret it); this function only knows the request's own framing.
+ */
+function parseRequest(buf) {
+    if (!Buffer.isBuffer(buf) || buf.length < 2) {
+        throw new RangeError('parseRequest: buffer too short for a CIP request header');
+    }
+
+    const service = buf.readUInt8(0);
+    const pathSizeWords = buf.readUInt8(1);
+    const pathEnd = 2 + pathSizeWords * 2;
+    if (buf.length < pathEnd) {
+        throw new RangeError('parseRequest: buffer shorter than declared path size');
+    }
+
+    return {
+        service,
+        path: buf.subarray(2, pathEnd),
+        data: buf.subarray(pathEnd)
+    };
+}
+
+/**
+ * Builds an outgoing CIP response (the inverse of parseResponse()) —
+ * needed on the Adapter side to answer a Scanner's request.
+ */
+function buildResponse({ service, generalStatus, additionalStatus = [], data = Buffer.alloc(0) }) {
+    if (typeof service !== 'number' || typeof generalStatus !== 'number') {
+        throw new TypeError('buildResponse: service and generalStatus are required');
+    }
+
+    const header = Buffer.alloc(4);
+    header.writeUInt8(service | 0x80, 0);
+    header.writeUInt8(0, 1); // reserved
+    header.writeUInt8(generalStatus, 2);
+    header.writeUInt8(additionalStatus.length, 3);
+
+    const extStatus = Buffer.alloc(additionalStatus.length * 2);
+    additionalStatus.forEach((word, i) => extStatus.writeUInt16LE(word, i * 2));
+
+    return Buffer.concat([header, extStatus, data]);
+}
+
 module.exports = {
     buildRequest,
-    parseResponse
+    parseResponse,
+    parseRequest,
+    buildResponse
 };

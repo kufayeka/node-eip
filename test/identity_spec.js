@@ -1,7 +1,7 @@
 'use strict';
 
 const assert = require('assert');
-const { decodeSocketAddress, decodeIdentityItem } = require('../src/encapsulation/identity');
+const { decodeSocketAddress, decodeIdentityItem, encodeSocketAddress, encodeIdentityItem } = require('../src/encapsulation/identity');
 
 function buildIdentityBuffer({ productName = 'TestPLC' } = {}) {
     const nameBuf = Buffer.from(productName, 'ascii');
@@ -75,5 +75,34 @@ describe('Identity item decoding', function () {
         assert.strictEqual(identity.productName, 'AS300-A');
         assert.strictEqual(identity.state, 0x03);
         assert.strictEqual(identity.bytesConsumed, buf.length);
+    });
+
+    it('encodeSocketAddress() round-trips through decodeSocketAddress()', function () {
+        const encoded = encodeSocketAddress({ address: '10.0.0.5', port: 44818 });
+        const decoded = decodeSocketAddress(encoded);
+        assert.strictEqual(decoded.address, '10.0.0.5');
+        assert.strictEqual(decoded.port, 44818);
+        assert.strictEqual(decoded.family, 2);
+    });
+
+    it('encodeIdentityItem() round-trips through decodeIdentityItem() (Adapter side, Phase 3)', function () {
+        const encoded = encodeIdentityItem({
+            socketAddress: { address: '192.168.1.10', port: 44818 },
+            vendorId: 0xffff,
+            deviceType: 14,
+            productCode: 1,
+            revision: { major: 1, minor: 0 },
+            serialNumber: 0x12345678,
+            productName: 'node-eip-adapter'
+        });
+
+        const decoded = decodeIdentityItem(encoded);
+        assert.strictEqual(decoded.socketAddress.address, '192.168.1.10');
+        assert.strictEqual(decoded.vendorId, 0xffff);
+        assert.strictEqual(decoded.productCode, 1);
+        assert.deepStrictEqual(decoded.revision, { major: 1, minor: 0 });
+        assert.strictEqual(decoded.serialNumber, '12345678');
+        assert.strictEqual(decoded.productName, 'node-eip-adapter');
+        assert.strictEqual(decoded.bytesConsumed, encoded.length);
     });
 });

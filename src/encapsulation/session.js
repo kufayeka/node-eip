@@ -64,9 +64,37 @@ function buildUnRegisterSessionRequest(sessionHandle, { senderContext = Buffer.a
     return encodeMessage({ command: EncapsulationCommands.UnRegisterSession, sessionHandle, senderContext }, Buffer.alloc(0));
 }
 
+/**
+ * Reads an incoming RegisterSession request's command-specific data —
+ * needed on the Adapter (Phase 3) side. The request's own header.sessionHandle
+ * is always 0 (not yet assigned); the Adapter allocates the real one itself.
+ */
+function readRegisterSessionRequest({ data }) {
+    if (data.length < 4) {
+        throw new RangeError('readRegisterSessionRequest: command-specific data shorter than 4 bytes');
+    }
+    return {
+        protocolVersion: data.readUInt16LE(0),
+        optionsFlags: data.readUInt16LE(2)
+    };
+}
+
+/**
+ * Builds a RegisterSession response — the inverse of readRegisterSessionResponse().
+ * `sessionHandle` here is the Adapter's newly allocated handle for this session.
+ */
+function buildRegisterSessionResponse({ sessionHandle, protocolVersion = PROTOCOL_VERSION, optionsFlags = 0, senderContext = Buffer.alloc(8) } = {}) {
+    const data = Buffer.alloc(4);
+    data.writeUInt16LE(protocolVersion, 0);
+    data.writeUInt16LE(optionsFlags, 2);
+    return encodeMessage({ command: EncapsulationCommands.RegisterSession, sessionHandle, status: EncapsulationStatus.Success, senderContext }, data);
+}
+
 module.exports = {
     buildRegisterSessionRequest,
     readRegisterSessionResponse,
     parseRegisterSessionResponse,
-    buildUnRegisterSessionRequest
+    buildUnRegisterSessionRequest,
+    readRegisterSessionRequest,
+    buildRegisterSessionResponse
 };
