@@ -194,12 +194,12 @@ Reference code: [Rockwell Type Encoding of Logix Structures (PDF)](https://www.r
 
 | Object | Class | Status | Notes |
 |---|---|---|---|
-| Identity | 0x01 | ⬜ | phase 1 (read), phase 3 (serve) |
-| Message Router | 0x02 | ⬜ | phase 2/3 |
-| Assembly | 0x04 | ⬜ | phase 3 — carries I/O data |
-| Connection Manager | 0x06 | ⬜ | phase 2/3 — Forward Open/Close |
-| TCP/IP Interface | 0xF5 | ⬜ | phase 3 |
-| Ethernet Link | 0xF6 | ⬜ | phase 3 |
+| Identity | 0x01 | ✅ | read (Scanner) + serve (Adapter) both validated live |
+| Message Router | 0x02 | ✅ | request/response framing both directions validated live |
+| Assembly | 0x04 | ✅ | carries I/O data — read/write (Scanner) + serve (Adapter) both validated live, incl. the size-mismatch compliance behavior |
+| Connection Manager | 0x06 | ✅ | Forward Open/Close both as originator and as target, validated live |
+| TCP/IP Interface | 0xF5 | ⬜ | not started |
+| Ethernet Link | 0xF6 | ⬜ | not started |
 | QoS | 0x48 | ⬜ | future |
 | Port | 0xF4 | ⬜ | future |
 
@@ -322,8 +322,8 @@ Reference code: [OpENer](https://github.com/EIPStackGroup/OpENer) (adapter-side 
 | Item | Status | Notes |
 |---|---|---|
 | Explicit messaging client (arbitrary CIP service to any class/instance/attribute) | ✅ | `EIPSession.sendUnconnected()` — **validated live against a real, non-Rockwell device** (Delta SX-3: read Identity Vendor ID=799 and Product Name="DVP-SX3" via Get_Attribute_Single, cross-checked against the Phase 1 ListIdentity values) |
-| Generic Producer/Consumer (Class 0/1) I/O connections — Assembly-object based, vendor-neutral | ⬜ | phase 2/3 — see Domain E (Forward Open); this is what any two conformant devices (not only Logix) use for cyclic data exchange |
-| Implicit I/O scanning (Forward Open + cyclic produce/consume) | ⬜ | phase 2 — vendor-neutral, Assembly-object based |
+| Generic Producer/Consumer (Class 0/1) I/O connections — Assembly-object based, vendor-neutral | ✅ | see Domain E — this is what any two conformant devices (not only Logix) use for cyclic data exchange |
+| Implicit I/O scanning (Forward Open + cyclic produce/consume) | ✅ | vendor-neutral, Assembly-object based — validated live, both directions, against the Delta SX-3 (`examples/io-listen.js`) |
 | *— Rockwell/Logix compatibility layer (additive, not required for the above) —* | | |
 | Rockwell tag read/write (0x4C / 0x4D) | ⬜ | Logix-only convenience layer, lives in `src/logix/` |
 | Fragmented tag read/write (0x52 / 0x53) | ⬜ | must not repeat the [448-byte boundary bug](https://github.com/SerafinTech/ST-node-ethernet-ip/issues/83) other Node libs hit |
