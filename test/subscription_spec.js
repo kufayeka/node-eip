@@ -205,14 +205,16 @@ describe('Real-Time Tag Subscription & Watcher Subsystem', function () {
             await sub.start();
 
             // Simulate incoming 200-byte Assembly 101 buffer:
-            // D0 (offset 0): INT 1234
-            // D1 (offset 2): INT -500
-            // D2:REAL (offset 4): Float 3.1415
-            // Y0 (offset 0, bit 0): 0 or 1
+            // Byte 0..1: 16-bit CIP Transport Sequence Count
+            // D0 (offset 0): byte 2 INT 1234
+            // D1 (offset 2): byte 4 INT -500
+            // D2:REAL (offset 4): byte 6 Float 3.1415
+            // Y0 (offset 0, bit 0): byte 2 bit 0
             const buf1 = Buffer.alloc(200);
-            buf1.writeInt16LE(1234, 0);
-            buf1.writeInt16LE(-500, 2);
-            buf1.writeFloatLE(3.1415, 4);
+            buf1.writeUInt16LE(1, 0); // sequence count
+            buf1.writeInt16LE(1234, 2);
+            buf1.writeInt16LE(-500, 4);
+            buf1.writeFloatLE(3.1415, 6);
 
             mockIo.emit('data', buf1);
 
@@ -225,15 +227,18 @@ describe('Real-Time Tag Subscription & Watcher Subsystem', function () {
             assert.strictEqual(d2FloatChanges.length, 1);
             assert.strictEqual(cyclicFrames.length, 1);
 
-            // Send packet with no changes — cyclic must fire, change must NOT fire
-            mockIo.emit('data', buf1);
+            // Send packet with incremented seq count but identical data — cyclic must fire, change must NOT fire
+            const buf1_tick2 = Buffer.from(buf1);
+            buf1_tick2.writeUInt16LE(2, 0); // sequence count advance
+            mockIo.emit('data', buf1_tick2);
             assert.strictEqual(changes.length, 4, 'Change events must not fire when values are identical');
             assert.strictEqual(cyclicFrames.length, 2, 'Cyclic events must fire on every incoming UDP datagram');
 
-            // Send packet where D0 changes to 9999 and Y0 becomes true (set bit 0 of byte 0)
+            // Send packet where D0 changes to 9999 and Y0 becomes true (set bit 0 of byte 2)
             const buf2 = Buffer.from(buf1);
-            buf2.writeInt16LE(9999, 0);
-            buf2[0] |= 0x01; // set bit 0 for Y0
+            buf2.writeUInt16LE(3, 0);
+            buf2.writeInt16LE(9999, 2);
+            buf2[2] |= 0x01; // set bit 0 for Y0
 
             mockIo.emit('data', buf2);
 
@@ -258,6 +263,7 @@ describe('Real-Time Tag Subscription & Watcher Subsystem', function () {
             const mockIo = new MockIoConnection();
             const sub = new Subscription({ scanner: {} }, {
                 mode: 'udp',
+                dataOffset: 0,
                 ioConnection: mockIo,
                 tags: [{ name: 'Sensor', offset: 0, type: 'REAL', deadband: 0.5 }]
             });

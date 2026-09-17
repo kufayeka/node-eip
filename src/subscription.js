@@ -142,6 +142,13 @@ class Subscription extends EventEmitter {
         this.rpiMs = Math.max(1, Number(options.rpiMs || 20));
         this.deadband = Number(options.deadband || 0);
 
+        // In ODVA CIP Class 1 (Transport Class 1), Connected Transport Data prepends a
+        // 16-bit Sequence Count (2 bytes LE) before the application assembly data.
+        // For 'udp' mode, dataOffset defaults to 2; for 'polling', it is 0.
+        this.dataOffset = options.dataOffset !== undefined
+            ? Number(options.dataOffset)
+            : (this.mode === 'udp' ? 2 : 0);
+
         this.assemblyInstance = options.assemblyInstance || 0x65;
         this.assemblySize = options.assemblySize || 200;
 
@@ -346,19 +353,20 @@ class Subscription extends EventEmitter {
 
         for (const tag of this._tags.values()) {
             let val;
+            const effectiveOffset = this.dataOffset + tag.offset;
             try {
                 if (tag.bit !== null) {
                     // Bit-level access (e.g. Y0..Y15 in word, or M0..M15)
-                    if (tag.offset >= buffer.length) continue;
+                    if (effectiveOffset >= buffer.length) continue;
                     if (tag.bit < 8) {
-                        val = ((buffer[tag.offset] >> tag.bit) & 0x01) === 1;
+                        val = ((buffer[effectiveOffset] >> tag.bit) & 0x01) === 1;
                     } else {
                         // High byte of word
-                        val = ((buffer[tag.offset + 1] >> (tag.bit - 8)) & 0x01) === 1;
+                        val = ((buffer[effectiveOffset + 1] >> (tag.bit - 8)) & 0x01) === 1;
                     }
                 } else {
                     // Word / DWord / Float decoded according to type
-                    const decoded = decodeType(tag.type, buffer, tag.offset);
+                    const decoded = decodeType(tag.type, buffer, effectiveOffset);
                     val = decoded.value;
                 }
             } catch {
