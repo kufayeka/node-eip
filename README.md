@@ -812,19 +812,19 @@ src/
                                      + TCP)                              ✅
     rrdata.js                       — SendRRData wrap/unwrap             ✅
   cip/
-    path.js                    — padded EPATH / Logical Segments only
-                                  (no Port/Data/Symbolic segments)      🔶
+    path.js                    — padded EPATH, Logical Segments & Port Segments (multi-hop) ✅
     message-router.js           — request/response framing              ✅
-    connection-manager.js         — Forward_Open/Forward_Close (classic
-                                     only, no Large_Forward_Open)        🔶
-    io-connection.js               — cyclic UDP I/O datagram             ✅
+    connection-manager.js         — Forward_Open, Large_Forward_Open (0x5B), Forward_Close ✅
+    io-connection.js               — full-duplex cyclic UDP 2222 engine, 32-bit Run/Idle, SequenceTracker ✅
+    multiple-service.js             — Multiple Service Packet (0x0A) batching codec ✅
+    types.js                        — centralized CIP data types, packed bits & strings ✅
+    eds.js                          — ODVA standard EDS file parser & device capability matcher ✅
+    fragmentation.js                — CIP fragmentation engine, FragmentReader/Writer (0x06) ✅
     objects/
       identity.js                    — server-side Identity Object       ✅
-      assembly.js                     — server-side Assembly Object      ✅
+      assembly.js                     — server-side Assembly Object with chunked transfer ✅
       tcp-ip.js                       — TCP/IP Interface Object (0xF5)   ✅
       ethernet-link.js                — Ethernet Link Object (0xF6)      ✅
-      (Message Router attributes, Reset service — not started)           ⬜
-    types.js                        — does not exist (Data Type System) ⬜
   logix/
     tag-service.js               — placeholder, nothing implemented    ⏸
   delta/                        — see src/delta/README.md              ✅ (current focus)
