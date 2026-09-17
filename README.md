@@ -134,33 +134,39 @@ Reference code: [Wireshark `packet-enip.c`](https://fossies.org/linux/wireshark/
 | Logical path segments (Class/Instance/Attribute/Member, 8/16/32-bit, padded EPATH) | ✅ | [src/cip/path.js](src/cip/path.js) |
 | Port segments, Data segments, ANSI extended symbol segment | ⬜ | not Rockwell-exclusive as originally assumed — Delta SX-3's own EDS defines a `SYMBOL_ANSI` "Tag Connection" (Connection17), so this is a genuinely vendor-neutral CIP feature some non-Logix devices use too |
 | Common services — Get_Attribute_Single (0x0E) | ✅ | used by the live validation below |
-| Common services — Set_Attribute_Single (0x10) | 🔄 | framing implemented, shares buildRequest()/parseResponse() with Get — see [examples/set-attribute.js](examples/set-attribute.js); **live write attempt against the Delta SX-3 was rejected (general status 0x15 TooMuchData) — see open concern below, paused pending device check** |
+| Common services — Set_Attribute_Single (0x10) | ✅ | framing implemented, shares buildRequest()/parseResponse() with Get — [examples/set-attribute.js](examples/set-attribute.js), **validated live against the Delta SX-3** (see below) |
 | Common services — Get/Set Attribute All/List, Reset, Create, Delete, ... | ⬜ | same framing, just more service codes to wire up |
 | Multiple Service Packet (0x0A) | ⬜ | |
 | CIP general status code table | ✅ | [src/constants.js](src/constants.js) `CipGeneralStatus` |
 
 Reference code: [cpppo](https://github.com/pjkundert/cpppo) (arbitrary CIP service requests, clear parser design); [scapy-cip-enip](https://github.com/scy-phy/scapy-cip-enip) status/error code table.
 
-**⚠️ Open concern, paused for investigation (2026-09):** attempted
+**Investigation note (2026-09, resolved — not a safety concern):** attempted
 `Set_Attribute_Single` on Assembly (Class 0x04) Instance 100 Attribute 3
 (Data), writing back the exact same 200 zero bytes previously read via
 `Get_Attribute_Single` — non-destructive by design. The device rejected it
 (general status 0x15, "TooMuchData"), which on its own is an unremarkable,
 correctly-decoded CIP error (the request/response framing itself is
-validated — same code path as the already-proven Get). What's concerning:
-immediately after, Attribute 4 (Size) on the same instance — previously
-stable at **200 bytes** across every prior read (the discovery sweep, and
-every `Get_Attribute_Single` test) — started reading **194 bytes**
-consistently across 3 repeated reads. Cause unconfirmed: could be a
-vendor-firmware side-effect of the rejected write, an artifact of the
-preceding Forward_Open/Forward_Close or io-listen.js cycles, or genuinely
-unrelated activity from whatever ladder program is live on this PLC (it was
-already observed producing a live-incrementing counter in its T->O data —
-this is not an idle/isolated bench device). **Paused all further live
-device-modifying tests (Set_Attribute_Single, I/O writes) until the device
-owner confirms the PLC's actual state via its HMI/programming software.**
-Nothing else in this driver writes to a device without being explicitly
-invoked for that purpose.
+validated — same code path as the already-proven Get). Separately, Attribute
+4 (Size) on the same instance — previously stable at **200 bytes** across
+every prior read — started reading **194 bytes** consistently afterward.
+Paused live device-modifying tests at the time pending confirmation this
+wasn't a production device; **confirmed by the device owner this is a
+bench/test unit, not production** — the size drift is most likely this
+PLC's own live ladder program (it was already observed producing a
+live-incrementing counter in its T->O data, so it is not an idle/isolated
+bench device either — just not a production line).
+
+**Root cause of the original 0x15 rejection, confirmed:** the Assembly
+Object's Attribute 3 (Data) write length must match its *current* Attribute
+4 (Size) value exactly — 200 bytes was correct when first observed, but by
+the time the write was attempted, Size had already drifted to 194 (per the
+paragraph above), so the 200-byte write was rejected as `TooMuchData`. Retried
+with a 194-byte all-zero write matching the live Size value — **accepted**,
+and reading Attribute 3 back afterward confirmed 194 bytes, all zero,
+unchanged. This is a real, useful CIP compliance finding, not a driver bug:
+**always read Attribute 4 immediately before a Set_Attribute_Single on
+Attribute 3**, don't assume a previously-observed size still holds.
 
 ### C. CIP Data Types — CIP Vol 1, Appx C
 
