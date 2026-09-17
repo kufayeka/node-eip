@@ -435,6 +435,42 @@ at Instance 1) but wrong for **SR**, whose manual entry documents its
 mode to share numbering with. Fixed via a `wordInstance(classId)` helper
 that special-cases word-only register types.
 
+#### Fallback for devices without the Register Objects: Assembly-window (2026-09)
+
+For the DVP32ES2-E (Domain J's "not universal" finding above), a
+known-pattern technique found a *device-specific* (not Delta-wide) way to
+still read registers directly, entirely through the generic Assembly
+Object every CIP device already has:
+
+1. The device owner wrote a distinguishing pattern into the PLC's own
+   D-table via ISPSoft/WPLSoft (`D0=10, D1=0, D2=20, D3=0, D4=30, ...`).
+2. [examples/discover-assemblies.js](examples/discover-assemblies.js)-style
+   full-instance dump + byte-pattern search found an **exact match at
+   Assembly Instance 101, byte offset 0** — Instance 101's Data attribute
+   (the "Input"/T->O direction one) is a live, read-only mirror of `D0`
+   onward, 2 bytes per register, matching Delta's own INT16-LE register
+   width.
+3. Write side tested and **not yet resolved**: `Set_Attribute_Single` on
+   Instance 101 is rejected (general status `0x08 ServiceNotSupported` —
+   expected, it's the read/produced direction). Instance 100 ("Output"/O->T)
+   *does* accept `Set_Attribute_Single` (status `0x00 Success`), but a
+   written marker pattern (`1000..1019` at word offsets 0-19) was **not**
+   observed reflected back through the Instance 101 D-mirror — so Instance
+   100 is writable at the CIP level, but what (if anything) it's actually
+   wired to in the PLC's own register table is unconfirmed. Left in place
+   for the device owner to cross-check against their own register monitor
+   in ISPSoft; **checking the project's EtherNet/IP I/O mapping table
+   directly in ISPSoft is the reliable way to resolve this and to map
+   X/Y/M/S/C/T the same way**, rather than more marker-pattern guessing.
+
+Implementation: [src/delta/assembly-window.js](src/delta/assembly-window.js)
+(generic `readAssemblyData`/`writeAssemblyData`/`makeWordWindow` — reuses
+the same `encodeEPath`/`buildRequest` core, nothing new at the wire level)
++ [src/delta/es2-fallback-profile.js](src/delta/es2-fallback-profile.js)
+(this one confirmed device's mapping specifically — **not** a general
+DVP-ES2 convention, must be reconfirmed per device). Live example:
+[examples/delta-es2-fallback.js](examples/delta-es2-fallback.js).
+
 ### K. Future — CIP Security & advanced conformance
 
 | Item | Status | Notes |
@@ -472,6 +508,11 @@ src/
   delta/
     registers.js                  — Delta vendor-specific Register Objects
                                      (X/Y/D/M/S/T/C/HC/SM/SR)                ✅
+    assembly-window.js             — fallback: generic word-window into an
+                                      Assembly instance, for devices without
+                                      registers.js's Register Objects        ✅
+    es2-fallback-profile.js         — one confirmed real device's mapping
+                                       (D read-only via Instance 101)        ✅
   eds/
     generator.js                  — EDS file generation for adapter devices ⬜ phase 4
   scanner.js                       — public Scanner API (discover, connect,
@@ -498,6 +539,8 @@ examples/
                                                 readSR against a real device  ✅
   scanner-demo.js                             — CLI: end-to-end demo of the
                                                  public Scanner API           ✅
+  delta-es2-fallback.js                        — CLI: readD via the Assembly-
+                                                  window fallback (ES2)       ✅
 eds/
   031F000E0F0600010001.eds                 — Delta SX-3's vendor-issued EDS,
                                               used as ground truth above     ✅
@@ -543,8 +586,17 @@ real Delta SX-3 PLC:
   live end-to-end smoke test in `examples/scanner-demo.js` (discover →
   connect → generic Vendor ID read → `readD(0)` → disconnect) passed
   against the real SX3.
+- **Assembly-window fallback** (`src/delta/assembly-window.js` +
+  `es2-fallback-profile.js`, Domain J): confirmed a device-specific way to
+  read D-registers on the DVP32ES2-E even without the vendor Register
+  Objects — via a known-value pattern written into the D-table externally,
+  then found by scanning every Assembly instance's Data attribute for a
+  byte-for-byte match (Instance 101, offset 0). Write side is validated at
+  the wire level (Instance 100 accepts `Set_Attribute_Single`) but its
+  real-world target is unconfirmed pending the device owner cross-checking
+  their own register monitor — open item.
 
-`npm test` (48 tests) covers the same logic with synthetic buffers for
+`npm test` (52 tests) covers the same logic with synthetic buffers for
 regression safety. Still ahead in Phase 2: Multiple Service Packet, then
 Rockwell/Logix tag services (`src/logix/`) as the additive compatibility
 layer.
