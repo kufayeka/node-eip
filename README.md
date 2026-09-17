@@ -134,11 +134,33 @@ Reference code: [Wireshark `packet-enip.c`](https://fossies.org/linux/wireshark/
 | Logical path segments (Class/Instance/Attribute/Member, 8/16/32-bit, padded EPATH) | ✅ | [src/cip/path.js](src/cip/path.js) |
 | Port segments, Data segments, ANSI extended symbol segment | ⬜ | not Rockwell-exclusive as originally assumed — Delta SX-3's own EDS defines a `SYMBOL_ANSI` "Tag Connection" (Connection17), so this is a genuinely vendor-neutral CIP feature some non-Logix devices use too |
 | Common services — Get_Attribute_Single (0x0E) | ✅ | used by the live validation below |
-| Common services — Set_Attribute_Single, Get/Set Attribute All/List, Reset, Create, Delete, ... | ⬜ | same framing, just more service codes to wire up |
+| Common services — Set_Attribute_Single (0x10) | 🔄 | framing implemented, shares buildRequest()/parseResponse() with Get — see [examples/set-attribute.js](examples/set-attribute.js); **live write attempt against the Delta SX-3 was rejected (general status 0x15 TooMuchData) — see open concern below, paused pending device check** |
+| Common services — Get/Set Attribute All/List, Reset, Create, Delete, ... | ⬜ | same framing, just more service codes to wire up |
 | Multiple Service Packet (0x0A) | ⬜ | |
 | CIP general status code table | ✅ | [src/constants.js](src/constants.js) `CipGeneralStatus` |
 
 Reference code: [cpppo](https://github.com/pjkundert/cpppo) (arbitrary CIP service requests, clear parser design); [scapy-cip-enip](https://github.com/scy-phy/scapy-cip-enip) status/error code table.
+
+**⚠️ Open concern, paused for investigation (2026-09):** attempted
+`Set_Attribute_Single` on Assembly (Class 0x04) Instance 100 Attribute 3
+(Data), writing back the exact same 200 zero bytes previously read via
+`Get_Attribute_Single` — non-destructive by design. The device rejected it
+(general status 0x15, "TooMuchData"), which on its own is an unremarkable,
+correctly-decoded CIP error (the request/response framing itself is
+validated — same code path as the already-proven Get). What's concerning:
+immediately after, Attribute 4 (Size) on the same instance — previously
+stable at **200 bytes** across every prior read (the discovery sweep, and
+every `Get_Attribute_Single` test) — started reading **194 bytes**
+consistently across 3 repeated reads. Cause unconfirmed: could be a
+vendor-firmware side-effect of the rejected write, an artifact of the
+preceding Forward_Open/Forward_Close or io-listen.js cycles, or genuinely
+unrelated activity from whatever ladder program is live on this PLC (it was
+already observed producing a live-incrementing counter in its T->O data —
+this is not an idle/isolated bench device). **Paused all further live
+device-modifying tests (Set_Attribute_Single, I/O writes) until the device
+owner confirms the PLC's actual state via its HMI/programming software.**
+Nothing else in this driver writes to a device without being explicitly
+invoked for that purpose.
 
 ### C. CIP Data Types — CIP Vol 1, Appx C
 
