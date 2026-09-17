@@ -11,7 +11,9 @@ const path = require('./cip/path');
 const messageRouter = require('./cip/message-router');
 const connectionManager = require('./cip/connection-manager');
 const ioConnection = require('./cip/io-connection');
+const deltaRegisters = require('./delta/registers');
 const { EIPSession } = require('./client');
+const { Scanner } = require('./scanner');
 
 module.exports = {
     constants,
@@ -29,5 +31,7 @@ module.exports = {
         ...connectionManager,
         ...ioConnection
     },
-    EIPSession
+    delta: deltaRegisters,
+    EIPSession,
+    Scanner
 };

@@ -58,7 +58,7 @@ below for exact spec references and status.
 |---|---|---|
 | 0 | Encapsulation header framing | ✅ Done |
 | 1 | **Discovery & handshake** — scan a network for EIP devices, parse Identity, open/close a session | ✅ Done — validated live against a real, non-Rockwell device (Delta AS/SX-3 PLC, `192.168.68.250`) over UDP broadcast, UDP unicast, and TCP |
-| 2 | **EIP Scanner** (originator) — vendor-neutral explicit messaging client (any CIP device) + implicit I/O scanning, with Rockwell tag services layered on top for Logix targets | 🔄 In progress — explicit messaging, Forward_Open/Forward_Close, AND live cyclic Class 1 I/O data (both directions) all done & validated live. Left: more common services, then the scanner-facing public API to wrap this. |
+| 2 | **EIP Scanner** (originator) — vendor-neutral explicit messaging client (any CIP device) + implicit I/O scanning, with Rockwell tag services layered on top for Logix targets | 🔄 In progress — explicit messaging, Forward_Open/Forward_Close, live cyclic Class 1 I/O data, AND a public `Scanner` API wrapping all of it are done & validated live. Left: more common services (Multiple Service Packet), Rockwell/Logix tag services. |
 | 3 | **EIP Adapter** (target/device/server) — accept sessions, serve CIP objects, produce/consume I/O; must interoperate with any conformant originator, not only a Rockwell PLC | ⬜ Planned |
 | 4 | **EDS file** — generate the device description file an adapter built with this library needs so Studio5000/RSLogix (or any EIP engineering tool) can import and configure it | ⬜ Planned |
 | 5 | CIP Security (Vol 8), full conformance-test pass, advanced objects (QoS, Port, CIP Safety) | ⬜ Future |
@@ -474,7 +474,9 @@ src/
                                      (X/Y/D/M/S/T/C/HC/SM/SR)                ✅
   eds/
     generator.js                  — EDS file generation for adapter devices ⬜ phase 4
-  scanner.js                       — public EIP Scanner API                 ⬜ phase 2
+  scanner.js                       — public Scanner API (discover, connect,
+                                      getAttribute/setAttribute, Forward
+                                      Open/Close, Delta register methods)    ✅
   adapter.js                        — public EIP Adapter API                ⬜ phase 3
   client.js                          — low-level session/handshake client,
                                         generic explicit messaging,
@@ -494,6 +496,8 @@ examples/
                                                live cyclic I/O data           ✅
   delta-registers.js                         — CLI: readD/readX/readY/readM/
                                                 readSR against a real device  ✅
+  scanner-demo.js                             — CLI: end-to-end demo of the
+                                                 public Scanner API           ✅
 eds/
   031F000E0F0600010001.eds                 — Delta SX-3's vendor-issued EDS,
                                               used as ground truth above     ✅
@@ -533,11 +537,38 @@ real Delta SX-3 PLC:
   DVP32ES2-E) answers generic CIP fine but doesn't implement these register
   classes at all — a genuinely useful finding about the limits of this
   vendor layer, not a driver bug.
+- **Public `Scanner` API** (`src/scanner.js`): wraps everything above
+  (discovery, `getAttribute`/`setAttribute`, Forward Open/Close, and all
+  the Delta register methods bound to one session) into one object —
+  live end-to-end smoke test in `examples/scanner-demo.js` (discover →
+  connect → generic Vendor ID read → `readD(0)` → disconnect) passed
+  against the real SX3.
 
-`npm test` (44 tests) covers the same logic with synthetic buffers for
+`npm test` (48 tests) covers the same logic with synthetic buffers for
 regression safety. Still ahead in Phase 2: Multiple Service Packet, then
-wrapping all of the above into a proper public `scanner.js` API (currently
-only exercised via low-level `EIPSession` calls in the `examples/` scripts).
+Rockwell/Logix tag services (`src/logix/`) as the additive compatibility
+layer.
+
+## Quick start
+
+```js
+const { Scanner } = require('@kufayeka/ethernet-ip/src');
+
+const devices = await Scanner.discover(); // UDP broadcast ListIdentity
+
+const scanner = new Scanner('192.168.68.250');
+await scanner.connect();
+
+const vendorId = await scanner.getAttribute({ classId: 0x01, instance: 1, attribute: 1 });
+await scanner.readD(100);          // Delta: read D100
+await scanner.writeD(100, 1234);   // Delta: write D100
+const conn = await scanner.openConnection({ connectionPath, rpiUs: 20000, otSize: 200, toSize: 200 });
+await scanner.closeConnection(conn);
+
+await scanner.disconnect();
+```
+
+See `examples/` for complete, runnable scripts covering every piece above.
 
 ## Test
 
