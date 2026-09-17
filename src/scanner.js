@@ -143,6 +143,16 @@ class Scanner {
     }
 
     /**
+     * Reads Identity Object (Class 0x01, Instance 1) attributes via Get_Attribute_All (§7, §9).
+     * @param {number} [instance=1]
+     * @returns {Promise<object>} Decoded identity object (vendorId, productCode, productName, revision, etc.)
+     */
+    async getIdentity(instance = 1) {
+        const res = await this.getAttributesAll({ classId: CipClassCodes.Identity, instance });
+        return res.decoded || { raw: res.data };
+    }
+
+    /**
      * Generic explicit-messaging write (Set_Attribute_Single). Remember:
      * for Assembly Object Data attributes, `data.length` must match the
      * object's *current* Size attribute exactly (see README Domain B) — a
@@ -257,6 +267,18 @@ class Scanner {
     /** Forward_Close a connection previously returned by openConnection(). */
     async closeConnection(connection) {
         return this.session.closeConnection(connection);
+    }
+
+    /**
+     * Opens a connection configured automatically from an ODVA EDS profile (§43, §44, §45).
+     * @param {import('./cip/eds').EdsFile} eds - Parsed EdsFile instance
+     * @param {number|string} [connectionNameOrId=1] - Connection profile (e.g. 1 or "Connection1")
+     * @param {object} [overrides] - Optional overrides for parameters
+     * @returns {Promise<object>} Connection handle
+     */
+    async openConnectionFromEds(eds, connectionNameOrId = 1, overrides = {}) {
+        const params = eds.buildForwardOpenParams(connectionNameOrId, overrides);
+        return this.openConnection(params, overrides);
     }
 
     /**

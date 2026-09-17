@@ -22,6 +22,8 @@ const { Scanner } = require('./scanner');
 const { DeltaDevice } = require('./delta/device');
 const { EIPAdapter } = require('./adapter');
 const { IOConnection, SequenceTracker } = require('./cip/io-connection');
+const eds = require('./cip/eds');
+const { EdsFile } = eds;
 
 module.exports = {
     constants,
@@ -38,6 +40,7 @@ module.exports = {
         ...messageRouter,
         ...connectionManager,
         ...ioConnection,
+        eds,
         objects: {
             ...identityObject,
             ...assemblyObject
@@ -54,5 +57,6 @@ module.exports = {
     DeltaDevice,
     EIPAdapter,
     IOConnection,
-    SequenceTracker
+    SequenceTracker,
+    EdsFile
 };
