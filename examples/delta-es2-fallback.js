@@ -7,10 +7,11 @@
  *   - X/Y/M/S/T/C: real bit-mode read/write via Delta's vendor Register
  *     Objects (Class 0x350-0x356) — write confirmed by watching the
  *     physical device's own live monitor turn the bit on.
- *   - D: read-only, via the Assembly-window mirror (Instance 101) — its
- *     vendor Register Object (Class 0x352) exists and answers requests,
- *     but is a separate, disconnected scratch store, not the real D-table.
- *     Writing D is not currently possible via CIP on this device.
+ *   - D: read-only, via 8 Assembly-window mirrors (Instances 101, 103, 105,
+ *     107, 109, 111, 113, 115), each covering 100 consecutive D words —
+ *     together spanning the confirmed readable range D0-D799
+ *     (src/delta/es2-fallback-profile.js). Writing D is not currently
+ *     possible via CIP on this device — see the "writeD" demo below.
  *
  * This example writes to M/Y/S/T/C and restores them afterward — safe to
  * run against a non-production device.
@@ -31,11 +32,14 @@ async function main() {
     await device.connect();
 
     try {
-        console.log('--- Read (X/Y/M read-only view, D via Assembly mirror) ---');
+        console.log('--- Read (X/Y/M read-only view, D via 8 Assembly-window mirrors) ---');
         for (let n = 0; n < 4; n++) console.log(`X${n} = ${await device.readX(n)}`);
         for (let n = 0; n < 4; n++) console.log(`Y${n} = ${await device.readY(n)}`);
         for (let n = 0; n < 4; n++) console.log(`M${n} = ${await device.readM(n)}`);
-        for (let n = 0; n < 4; n++) console.log(`D${n} = ${await device.readD(n)}`);
+        // One sample from each of the 8 confirmed D windows (D0-D799).
+        for (const n of [0, 100, 200, 300, 400, 500, 600, 700]) {
+            console.log(`D${n} = ${await device.readD(n)}`);
+        }
 
         console.log('\n--- Write round trip (M50, Y10, S10, T10, C10) ---');
         for (const [label, read, write, n] of [

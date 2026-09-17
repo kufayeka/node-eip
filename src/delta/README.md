@@ -49,9 +49,9 @@ Class `0x350`-`0x359`) — the CIP Attribute ID **is** the register number.
 | `readD(n)` / `writeD(n, v)` | D (data register) | read/write | ✅ incl. round-trip write |
 | `readM(n)` / `writeM(n, v)` | M (marker/coil) | read/write | ✅ incl. round-trip write |
 | `readS(n)` / `writeS(n, v)` | S (step) | read/write | ✅ incl. round-trip write |
-| `readT(n)` / `writeT(n, v)` | T (timer, current value) | read/write | read ✅, write not yet |
-| `readC(n)` / `writeC(n, v)` | C (counter, current value) | read/write | read ✅, write not yet |
-| `readHC(n)` / `writeHC(n, v)` | HC (high-speed counter, DINT) | read/write | read ✅, write not yet |
+| `readT(n)` / `writeT(n, v)` | T (timer, current value) | read/write | ✅ round-trip (write→read-back→restore) |
+| `readC(n)` / `writeC(n, v)` | C (counter, current value) | read/write | ✅ round-trip (write→read-back→restore) |
+| `readHC(n)` / `writeHC(n, v)` | HC (high-speed counter, DINT) | read/write | ✅ round-trip (write→read-back→restore) |
 | `readSM(n)` | SM (system marker) | read-only | ✅ |
 | `readSR(n)` | SR (system register) | read-only | ✅ |
 | `readD32(n)` / `writeD32(n, v)` | D, 32-bit (Dn+Dn+1 paired) | read/write | ✅ full round-trip (`writeD32(200, 0x12345678)` → `D200=0x5678, D201=0x1234`) |
@@ -123,7 +123,7 @@ device's own live monitor confirm the change.
 | `readS(n)` / `writeS(n, v)` | S (step) | read/write | ✅ live, same confirmation as Y |
 | `readT(n)` / `writeT(n, v)` | T (timer) | read/write, **contact/bit state only** | ✅ live (write); no numeric current-value access on this device (see below) |
 | `readC(n)` / `writeC(n, v)` | C (counter) | read/write, **contact/bit state only** | ✅ live (write); no numeric current-value access on this device |
-| `readD(n)` | D (data register) | **read-only** | ✅ live — via the Assembly-window mirror (Instance 101), NOT the vendor Register Object |
+| `readD(n)` | D (data register), `n` = 0-799 | **read-only** | ✅ live — via 8 Assembly-window mirrors (Instances 101/103/105/.../115), NOT the vendor Register Object — see below |
 | `writeD(n, v)` | D | — | ❌ **no working path found**, exhaustively tried — see below |
 | `readD32(n)` | D, 32-bit (Dn+Dn+1) | read-only | ✅ live, via two `readD` mirror reads |
 | `writeD32(n, v)` | D, 32-bit | — | ❌ same dead end as `writeD` (it's built on top of it) |
@@ -132,17 +132,61 @@ device's own live monitor confirm the change.
 **The D exception, explained:** Class `0x352`'s bit-mode instance is a
 real, working read/write store on this device — but a completely
 **separate one** from the PLC's actual D-table. Writes made through it
-never show up in the Assembly-instance-101 mirror (which *is* proven
+never show up in the Assembly-instance mirrors below (which *are* proven
 connected to the real D-table), even with a delay, or with an active
-Forward_Open connection kept alive throughout. Exhaustively tried every
-O->T Assembly instance this device exposes — 100, 102, 104, 106, 108,
-110, 112, 114 (one per Connection1-8) — writing a distinct marker to each
-and scanning all 8 T->O instances plus the D-mirror for it; none
-propagated anywhere. So: `readD` uses the Assembly mirror (word-level,
-efficient, real), and `writeD`/`writeD32` currently just fail clearly
-rather than silently writing to nowhere. This looks like a genuine
-firmware limitation on this device rather than a missing technique — see
-Open items if you have a new idea worth trying.
+Forward_Open connection kept alive throughout.
+
+**D read range, and how it was found (2026-09):** Instance 101 was
+originally assumed to be the *only* window and to cover the full readable
+range — that assumption was wrong. The device owner separately configured
+a real SX3 (as EtherNet/IP Scanner, via EIP Builder's exchange table) to
+write its own D100 into this ES2's D100, and that write landed for real
+(confirmed live in WPLSoft: ES2 D100 became `1111`). Searching every
+Assembly instance afterward for the value `1111` found it not at Instance
+101, but at **Instance 103, offset 0** — proving Instance 101 only covers
+D0-D99 (its size, 200 bytes, is exactly 100 words), and D100 onward lives
+in *separate* windows on the other Connections' T->O instances. Checking
+the remaining instances on the same pattern confirmed all 8:
+
+| D range | Assembly instance (T->O) |
+|---|---|
+| D0-D99 | 101 |
+| D100-D199 | 103 |
+| D200-D299 | 105 |
+| D300-D399 | 107 |
+| D400-D499 | 109 |
+| D500-D599 | 111 |
+| D600-D699 | 113 |
+| D700-D799 | 115 |
+
+D0-D99 and D100-D199 are confirmed via a written marker each (`10` and
+`1111` respectively); D200-D299/D300-D399/D600-D699/D700-D799 read
+all-zero on this device (nothing distinguishing to match yet, but follow
+the identical per-Connection pattern); D400-D499 and D500-D599 are
+confirmed by virtue of already containing genuine non-zero live PLC data
+consistent with the same pattern (e.g. `D408=1800`, `D500=21`, `D502=62`),
+without needing an additional written test marker. `readD(n)` for `n`
+outside `0`-`799` throws a `RangeError` immediately rather than guessing.
+This 8-window mapping is specific to **this one device's current I/O
+configuration** — re-confirm with the known-pattern technique before
+assuming it on another ES2.
+
+Given this new instance mapping, two more write mechanisms were tried
+specifically targeting D100/Instance 103's O->T counterpart (Instance
+102, part of Connection2): an explicit `Set_Attribute_Single` write to
+Instance 102 offset 0, and a full `Forward_Open` using Connection2's exact
+path (`Config=129`, `O2T=102`, `T2O=103`) with cyclic UDP O->T data. Both
+failed the same way as every earlier attempt — the target D100 stayed at
+`1111` throughout. Combined with the earlier sweep (writing a distinct
+marker to every O->T Assembly instance 100, 102, 104, 106, 108, 110, 112,
+114 individually and scanning all 8 T->O instances plus the D-mirror for
+it), no CIP-level technique tried so far reproduces what EIP Builder's
+Scanner-side exchange table achieves. So: `readD` uses the Assembly
+mirrors (word-level, efficient, real), and `writeD`/`writeD32` currently
+just fail clearly rather than silently writing to nowhere. This looks
+like it needs either a mechanism this driver hasn't tried yet (packet
+capture of the real SX3-to-ES2 exchange would settle it definitively) or
+is a genuine firmware/configuration limitation — see Open items.
 
 **Word-level access:** X/Y/M/S/T/C are only accessible bit-by-bit on this
 device (its word-mode instance doesn't exist) — `readX(0)`/`readY(3)`/etc.
@@ -194,8 +238,9 @@ assembly-window.js       Generic fallback primitive: read/write a plain
                           attribute. Not Delta-specific in itself — reusable
                           for any device without Register Objects.
 
-es2-fallback-profile.js   One confirmed device's assembly-window mapping
-                           (D read-only via Instance 101). NOT a general
+es2-fallback-profile.js   One confirmed device's assembly-window mapping:
+                           D0-D799 read-only, across 8 windows (Instances
+                           101/103/.../115, 100 words each). NOT a general
                            DVP-ES2 convention — re-confirm per device.
 
 device-types/
@@ -264,11 +309,18 @@ eds-inspect.js              Profile-authoring assist: parses an EDS file's
 
 ## Open items
 
-- **ES2 D write** — no working path found (Assembly Instance 100 explicit
-  write, Assembly Instance 100 during an active connection, and Class
-  `0x352` bit-mode write were all tried and don't reach the real D-table).
-  May be a genuine firmware limitation on this device rather than something
-  solvable from the CIP side; revisit if a new idea comes up.
+- **ES2 D write** — no working path found. Tried: explicit
+  `Set_Attribute_Single` write to every O->T Assembly instance (100, 102,
+  104, 106, 108, 110, 112, 114); a full `Forward_Open` + cyclic UDP write
+  on Connection1 and specifically on Connection2 (whose T->O side,
+  Instance 103, is proven to mirror D100-D199), with and without a 32-bit
+  Run/Idle header and a Connection Configuration Data segment; and Class
+  `0x352` bit-mode write (works, but writes to an isolated scratch store,
+  not the real D-table). A real working mechanism is known to exist — EIP
+  Builder's Scanner-side exchange table (configured on a real SX3) — so
+  this is very likely solvable, just not yet reproduced at the CIP wire
+  level by this driver. Packet capture of that real exchange (`pktmon` on
+  Windows, run as Administrator) is the most concrete next step.
 - **X/Y octal-label addressing** — `readX`/`readY`/etc. take the raw CIP
   attribute number, not the octal-style label (`X10`, `X17`, `X20`, ...)
   WPLSoft/ISPSoft display. No conversion helper exists yet; needed before

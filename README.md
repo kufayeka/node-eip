@@ -597,6 +597,43 @@ generic "Input_data0".."Input_dataN", not "D0".."D99" — see the earlier
 D-mirror discovery, which needed live testing regardless of having the EDS
 in hand). Try it: `node examples/inspect-eds.js eds/031F000E0F0600010001.eds`.
 
+#### ES2 D-mirror expanded from one window to eight (2026-09)
+
+The Instance-101 mirror above was assumed to cover the entire readable D
+range (it doesn't — it's just D0-D99). This was found by acting on a real
+write the device owner performed: they configured a real SX3 (as
+EtherNet/IP Scanner, via EIP Builder's exchange table on the SX3 itself)
+to write its own D100 into this ES2's D100, and confirmed via WPLSoft that
+the ES2's D100 really did become `1111`. Sweeping every Assembly instance
+afterward for that value found it not at Instance 101, but at **Instance
+103, offset 0** — proving each Connection's T->O instance (101, 103, 105,
+107, 109, 111, 113, 115) mirrors a separate, sequential 100-word D block:
+D0-99, D100-199, D200-299, ..., D700-799. Two of the previously-untested
+windows (D400-499, D500-599) turned out to already contain non-zero live
+PLC data consistent with the same pattern (e.g. `D408=1800`, `D500=21`),
+confirming them without needing an additional written marker.
+
+[src/delta/es2-fallback-profile.js](src/delta/es2-fallback-profile.js) was
+rewritten to implement all 8 windows; `readD(n)` now accepts `n` in
+`0`-`799` and throws a `RangeError` outside that range instead of silently
+reading the wrong window. Live-validated via `DeltaDevice`: `readD(100)` →
+`1111`, `readD(500)` → `21`, `readD(502)` → `62`, `readD(408)` → `1800`,
+`readD(800)` → throws.
+
+**Write still unresolved.** Knowing D100 lives behind Instance 103 (paired
+with O->T Instance 102 on Connection2) opened two new things to try:
+an explicit `Set_Attribute_Single` write to Instance 102, and a full
+`Forward_Open` using Connection2's exact path (`Config=129`, `O2T=102`,
+`T2O=103`) with cyclic UDP O->T data, with and without a 32-bit Run/Idle
+header and a Connection Configuration Data segment. Both failed the same
+way as every earlier attempt on Instance 100/Connection1 — D100 never
+moved from `1111`. A real, working mechanism is confirmed to exist (EIP
+Builder's Scanner-side exchange table), so this looks solvable, just not
+yet reproduced at the CIP wire level — packet capture of the real
+SX3-to-ES2 exchange (`pktmon` on Windows, admin-required) remains the most
+concrete unexplored next step. Full details in
+[src/delta/README.md](src/delta/README.md).
+
 ### K. Future — CIP Security & advanced conformance
 
 | Item | Status | Notes |
@@ -640,8 +677,9 @@ src/
     assembly-window.js             — fallback: generic word-window into an
                                       Assembly instance, for devices without
                                       registers.js's Register Objects        ✅
-    es2-fallback-profile.js         — one confirmed real device's mapping
-                                       (D read-only via Instance 101)        ✅
+    es2-fallback-profile.js         — one confirmed real device's mapping:
+                                       D0-D799 read-only, across 8 Assembly
+                                       windows (Instances 101-115)           ✅
     device-types/
       index.js                       — profile registry (register/get/list) ✅
       sx3.js                          — profile: vendor Register Objects,
@@ -813,7 +851,7 @@ its own new `EIPAdapter`):
   the fixed port 2222 (a protocol/OS constraint, not an implementation gap;
   see Domain H for the full explanation).
 
-`npm test` (106 tests) covers the same logic with synthetic buffers for
+`npm test` (111 tests) covers the same logic with synthetic buffers for
 regression safety. Still ahead: Multiple Service Packet and Rockwell/Logix
 tag services (Phase 2 loose ends), TCP/IP Interface + Ethernet Link Objects
 and real cross-device I/O validation (Phase 3 loose ends).
