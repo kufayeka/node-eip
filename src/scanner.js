@@ -26,6 +26,7 @@ const { formatMacAddress, decodeInterfaceFlags } = require('./cip/objects/ethern
 const { readLargeData, writeLargeData } = require('./cip/fragmentation');
 const { encodeType, decodeType } = require('./cip/types');
 const deltaRegisters = require('./delta/registers');
+const { Subscription } = require('./subscription');
 
 function formatCipError(label, response) {
     const extra = response.additionalStatus.map((w) => '0x' + w.toString(16)).join(', ');
@@ -495,6 +496,22 @@ class Scanner {
     writeHC(n, v) { return deltaRegisters.writeHC(this.session, n, v); }
     readSM(n) { return deltaRegisters.readSM(this.session, n); }
     readSR(n) { return deltaRegisters.readSR(this.session, n); }
+
+    /**
+     * Creates a real-time tag subscription / watcher.
+     * Supports both 'polling' (TCP 44818) and 'udp' (Class 1 I/O port 2222) modes.
+     *
+     * @param {object} [options]
+     * @param {'polling'|'udp'|'realtime'} [options.mode='polling'] - Subscription mode
+     * @param {number} [options.interval=100] - Polling interval in ms
+     * @param {number} [options.rpiMs=20] - UDP RPI in ms
+     * @param {Array<string|object>} [options.tags=[]] - Initial tags to subscribe
+     * @param {number} [options.deadband=0] - Deadband threshold
+     * @returns {Subscription}
+     */
+    createSubscription(options = {}) {
+        return new Subscription(this, options);
+    }
 }
 
 module.exports = { Scanner };

@@ -16,6 +16,7 @@ const { Scanner } = require('../scanner');
 const deviceTypes = require('./device-types');
 const { readDword, writeDword } = require('./dword');
 const { DeltaBatchBuilder } = require('./batch');
+const { Subscription } = require('../subscription');
 
 class DeltaDevice {
     constructor(host, deviceType, opts) {
@@ -121,6 +122,22 @@ class DeltaDevice {
             }
             return op.parse(res.data);
         });
+    }
+
+    /**
+     * Creates a real-time tag subscription / watcher for this device.
+     * Supports both 'polling' (TCP 44818 batch) and 'udp' (Class 1 I/O port 2222) modes.
+     *
+     * @param {object} [options]
+     * @param {'polling'|'udp'|'realtime'} [options.mode='polling'] - Subscription mode
+     * @param {number} [options.interval=100] - Polling interval in ms
+     * @param {number} [options.rpiMs=20] - UDP RPI in ms
+     * @param {Array<string|object>} [options.tags=[]] - Initial tags to subscribe
+     * @param {number} [options.deadband=0] - Deadband threshold
+     * @returns {Subscription}
+     */
+    createSubscription(options = {}) {
+        return new Subscription(this, options);
     }
 }
 

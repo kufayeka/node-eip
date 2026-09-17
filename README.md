@@ -83,13 +83,29 @@ await scanner.writeTag('Motor.Speed', 2500, { dataType: 'INT' });
 const tank = await scanner.readTag('Tanks[2].Level', { dataType: 'REAL' });
 ```
 
+```js
+// Real-Time Tag Watcher / Subscription (Dual Mode: Polling TCP 44818 & Real-Time UDP 2222)
+const sub = plc.createSubscription({
+    mode: 'udp', // or 'polling'
+    rpiMs: 20,   // 20ms cyclic stream
+    tags: ['D0', 'D1', 'D10', 'Y0']
+});
+
+// Event listeners: Change of State (by exception) & Cyclic (every tick)
+sub.on('change', (tag, newVal, oldVal) => console.log(`Tag ${tag} changed: ${oldVal} -> ${newVal}`));
+sub.on('change:D0', (newVal, oldVal) => console.log(`D0 updated: ${newVal}`));
+sub.on('cyclic', (snapshot) => console.log('Current PLC Values:', snapshot));
+
+await sub.start();
+```
+
 ## Test
 
 ```
 npm test
 ```
 
-273 tests (`test/*_spec.js`) — encoding/round-trip tests against synthetic
+281 tests (`test/*_spec.js`) — encoding/round-trip tests against synthetic
 buffers, real Delta hardware captures, and loopback EIPAdapter.
 Live-hardware validation is separate — see the `Live?` notes throughout
 this checklist and [`examples/README.md`](examples/README.md) for runnable scripts

@@ -26,6 +26,7 @@ const eds = require('./cip/eds');
 const { EdsFile } = eds;
 const fragmentation = require('./cip/fragmentation');
 const { FragmentReader, FragmentWriter, readLargeData, writeLargeData } = fragmentation;
+const { Subscription, normalizeTag } = require('./subscription');
 
 module.exports = {
     constants,
@@ -70,5 +71,7 @@ module.exports = {
     decodeSymbolicPath: path.decodeSymbolicPath,
     encodeAnsiSymbolSegment: path.encodeAnsiSymbolSegment,
     decodeAnsiSymbolSegment: path.decodeAnsiSymbolSegment,
-    encodeTagConnectionPath: path.encodeTagConnectionPath
+    encodeTagConnectionPath: path.encodeTagConnectionPath,
+    Subscription,
+    normalizeTag
 };
