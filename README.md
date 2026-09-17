@@ -397,6 +397,11 @@ every connection a device advertises support for.
 
 ### J. Delta AH/AS-Series Vendor-Specific Registers (additive, Delta-only)
 
+**See [src/delta/README.md](src/delta/README.md) for the Delta-focused
+"what can I do today" summary** — device-type support table, quick start,
+architecture, and open items in one place. The rest of this section is the
+detailed compliance narrative; the two are kept in sync.
+
 Not ODVA CIP — Delta's own Vendor-Specific Objects, documented in Delta's
 "EtherNet/IP Operation Manual" ([docs/DELTA_IA-PLC_EtherNet-IP_OP_EN_20251021.pdf](docs/DELTA_IA-PLC_EtherNet-IP_OP_EN_20251021.pdf),
 Ch. 8.12) — confirmed applicable to the SX3 (AS300 CPU) by the device owner
