@@ -76,13 +76,20 @@ const { data, fragmentsCount } = await scanner.readLargeAttribute({
 });
 ```
 
+```js
+// Symbolic Tag Addressing (§26, §27 — e.g. Logix, Omron, Delta SYMBOL_ANSI)
+const speed = await scanner.readTag('Motor.Speed', { dataType: 'INT' });
+await scanner.writeTag('Motor.Speed', 2500, { dataType: 'INT' });
+const tank = await scanner.readTag('Tanks[2].Level', { dataType: 'REAL' });
+```
+
 ## Test
 
 ```
 npm test
 ```
 
-256 tests (`test/*_spec.js`) — encoding/round-trip tests against synthetic
+273 tests (`test/*_spec.js`) — encoding/round-trip tests against synthetic
 buffers, real Delta hardware captures, and loopback EIPAdapter.
 Live-hardware validation is separate — see the `Live?` notes throughout
 this checklist and [`examples/README.md`](examples/README.md) for runnable scripts
@@ -371,15 +378,24 @@ implemented — not needed by anything targeted so far.
 
 ---
 
-## 22. Symbolic Segment — ⏸ deferred (Rockwell/Logix-specific)
+## 22. Symbolic Segment — ✅ **live-validated**
 
-Not implemented. This is Logix tag-name addressing (`0x91`-prefixed ASCII
-paths) — out of scope while this project focuses on Delta, which uses
-Logical Segments exclusively (Class/Instance/Attribute, no symbolic tags).
+Implemented in `src/cip/path.js` (`encodeAnsiSymbolSegment`, `decodeAnsiSymbolSegment`, `encodeSymbolicPath`, `decodeSymbolicPath`)
+per ODVA CIP Vol 1 Appendix C (C-1.4.3 Data Segments):
+- **0x91 Segment Format**: Encodes ASCII symbol string prefixed with `0x91` and 1-byte length, appending 1 pad byte (`0x00`)
+  when character length is odd to maintain strict 16-bit word alignment.
+- **Struct Navigation**: Chained dot notation (e.g. `Motor.Speed`) seamlessly encodes multiple 0x91 segments.
+- **Produced / Consumed Tag Connections**: `encodeTagConnectionPath({ configTag, o2tTag, t2oTag })` binds Class 1
+  implicit I/O connections directly to symbolic tag names.
+- **Scanner & Adapter Integration**: `scanner.readTag(name, { dataType })`, `scanner.writeTag(name, value, { dataType })`,
+  and `adapter.defineTag(name, type, value)`. Tested in `test/symbolic-tag_spec.js` and `examples/symbolic-tag-demo.js`.
 
-## 23. Array Indexing — ⏸ deferred (depends on §22/§24, Rockwell-specific)
+## 23. Array Indexing — ✅ **live-validated**
 
-Not applicable without Symbolic Segment support / Logix tag services.
+Implemented in `src/cip/path.js` (`encodeSymbolicPath` / `decodeSymbolicPath`):
+- Automatically resolves bracketed subscript indices (e.g. `Tanks[2]`, `Lines[0].Motors[1].Speed`).
+- Generates standard CIP Member Segments (`0x28` for 8-bit index, `0x29` for 16-bit index) following symbol segments.
+- Full roundtrip parsing and verification in `test/symbolic-tag_spec.js`.
 
 ## 24. Logix Tag Services (Read/Write Tag 0x4C/0x4D, Fragmented 0x52/0x53) — ⏸ deferred
 

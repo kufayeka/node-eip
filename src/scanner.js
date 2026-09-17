@@ -13,7 +13,7 @@
 
 const net = require('net');
 const { EIPSession } = require('./client');
-const { encodeEPath } = require('./cip/path');
+const { encodeEPath, encodeSymbolicPath } = require('./cip/path');
 const { buildRequest } = require('./cip/message-router');
 const { decodeMessage } = require('./encapsulation/header');
 const { scanUdp, scanUdpUnicast, probeTcp } = require('./encapsulation/discovery');
@@ -24,6 +24,7 @@ const { decodeIdentityAttributesAll } = require('./cip/objects/identity');
 const { decodeInterfaceConfiguration, decodeCipString } = require('./cip/objects/tcp-ip');
 const { formatMacAddress, decodeInterfaceFlags } = require('./cip/objects/ethernet-link');
 const { readLargeData, writeLargeData } = require('./cip/fragmentation');
+const { encodeType, decodeType } = require('./cip/types');
 const deltaRegisters = require('./delta/registers');
 
 function formatCipError(label, response) {
@@ -207,6 +208,64 @@ class Scanner {
             data,
             chunkSize
         });
+    }
+
+    /**
+     * Reads a symbolic tag per ANSI Extended Symbol Addressing (§26, §27).
+     *
+     * @param {string} tagPath e.g. "TotalCount", "Motor.Speed", "Tanks[3]"
+     * @param {object} [options]
+     * @param {number} [options.service=0x0E] CIP Service (default: Get_Attribute_Single 0x0E)
+     * @param {string} [options.dataType] Optional CIP data type name to auto-decode (e.g. "DINT", "REAL", "BOOL")
+     * @returns {Promise<{ data: Buffer, value?: any }>}
+     */
+    async readTag(tagPath, { service = CipCommonServices.GetAttributeSingle, dataType } = {}) {
+        const path = encodeSymbolicPath(tagPath);
+        const request = buildRequest({ service, path });
+        const response = await this.session.sendUnconnected(request);
+        if (response.generalStatus !== CipGeneralStatus.Success) {
+            throw formatCipError(`readTag("${tagPath}")`, response);
+        }
+        let value;
+        if (dataType) {
+            const decoded = decodeType(dataType, response.data);
+            value = decoded.value;
+        }
+        return { data: response.data, value };
+    }
+
+    /**
+     * Writes a symbolic tag per ANSI Extended Symbol Addressing (§26, §27).
+     *
+     * @param {string} tagPath e.g. "TotalCount", "Motor.Speed", "Tanks[3]"
+     * @param {any} value Value or Buffer to write
+     * @param {object} [options]
+     * @param {number} [options.service=0x10] CIP Service (default: Set_Attribute_Single 0x10)
+     * @param {string} [options.dataType] Optional CIP data type name if value is not a Buffer
+     * @returns {Promise<void>}
+     */
+    async writeTag(tagPath, value, { service = CipCommonServices.SetAttributeSingle, dataType } = {}) {
+        const path = encodeSymbolicPath(tagPath);
+        let payload;
+        if (Buffer.isBuffer(value)) {
+            payload = value;
+        } else if (dataType) {
+            payload = encodeType(dataType, value);
+        } else if (typeof value === 'number') {
+            payload = Number.isInteger(value) ? encodeType('DINT', value) : encodeType('REAL', value);
+        } else if (typeof value === 'boolean') {
+            payload = encodeType('BOOL', value);
+        } else if (typeof value === 'string') {
+            payload = encodeType('STRING', value);
+        } else {
+            throw new TypeError(`writeTag: could not infer payload format for value ${value}; specify dataType`);
+        }
+
+        const request = buildRequest({ service, path, data: payload });
+        const response = await this.session.sendUnconnected(request);
+        if (response.generalStatus !== CipGeneralStatus.Success) {
+            throw formatCipError(`writeTag("${tagPath}")`, response);
+        }
     }
 
     /**

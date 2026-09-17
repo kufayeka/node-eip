@@ -41,6 +41,7 @@ const { TcpIpInterfaceObject } = require('./cip/objects/tcp-ip');
 const { EthernetLinkObject } = require('./cip/objects/ethernet-link');
 const { ConnectionHandler } = require('./adapter/connection-handler');
 const { encodeMultipleServiceResponseData } = require('./cip/multiple-service');
+const { encodeType, decodeType } = require('./cip/types');
 const { EncapsulationCommands, CipGeneralStatus, CipCommonServices, CipClassCodes, EIP_ENCAPSULATION_PORT, EIP_IO_UDP_PORT } = require('./constants');
 
 function getLocalInterfaceDetails(targetAddress) {
@@ -104,11 +105,48 @@ class EIPAdapter {
         this._tcpServer = null;
         this._udpListen = null;
         this._udpIo = null;
+        this.tags = new Map(); // tagName -> { type, buffer, value }
     }
 
     /** Defines (or resets) an Assembly instance's data buffer — call before start(), or any time after. */
     defineAssembly(instance, sizeBytes) {
         this.assembly.define(instance, sizeBytes);
+        return this;
+    }
+
+    /**
+     * Defines a named symbolic tag on the adapter (§26, §27).
+     *
+     * @param {string} name Tag name (e.g. "TotalCount", "Motor.Speed")
+     * @param {string|object} [typeOrOpts='DINT'] Data type name or options object
+     * @param {any} [initialValue=0]
+     */
+    defineTag(name, typeOrOpts = 'DINT', initialValue = 0) {
+        let type = typeof typeOrOpts === 'string' ? typeOrOpts : (typeOrOpts.type || 'DINT');
+        let val = typeof typeOrOpts === 'object' && typeOrOpts.value !== undefined ? typeOrOpts.value : initialValue;
+        const buf = encodeType(type, val);
+        this.tags.set(name, { type, buffer: buf, value: val });
+        return this;
+    }
+
+    getTag(name) {
+        return this.tags.get(name);
+    }
+
+    setTag(name, value) {
+        const tag = this.tags.get(name);
+        if (!tag) {
+            throw new Error(`EIPAdapter: tag "${name}" is not defined`);
+        }
+        if (Buffer.isBuffer(value)) {
+            tag.buffer = Buffer.from(value);
+            try {
+                tag.value = decodeType(tag.type, tag.buffer).value;
+            } catch {}
+        } else {
+            tag.value = value;
+            tag.buffer = encodeType(tag.type, value);
+        }
         return this;
     }
 
@@ -305,6 +343,34 @@ class EIPAdapter {
 
         if (request.service === CipCommonServices.MultipleServicePacket) {
             return this._dispatchMultipleService(request, context);
+        }
+
+        // Handle Symbolic Tag Addressing (§26, §27)
+        if (path.tagPath || (path.symbols && path.symbols.length > 0)) {
+            const tagName = path.tagPath || path.symbols[0];
+            const tag = this.tags.get(tagName);
+            if (!tag) {
+                return buildResponse({ service: request.service, generalStatus: CipGeneralStatus.PathDestinationUnknown });
+            }
+            if (request.service === CipCommonServices.GetAttributeSingle || request.service === 0x4c) {
+                return buildResponse({
+                    service: request.service,
+                    generalStatus: CipGeneralStatus.Success,
+                    data: tag.buffer
+                });
+            }
+            if (request.service === CipCommonServices.SetAttributeSingle || request.service === 0x4d) {
+                tag.buffer = Buffer.from(request.data);
+                try {
+                    tag.value = decodeType(tag.type, tag.buffer).value;
+                } catch {}
+                return buildResponse({
+                    service: request.service,
+                    generalStatus: CipGeneralStatus.Success,
+                    data: Buffer.alloc(0)
+                });
+            }
+            return buildResponse({ service: request.service, generalStatus: CipGeneralStatus.ServiceNotSupported });
         }
 
         const handler = this.objects.get(path.classId);

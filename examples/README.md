@@ -79,5 +79,8 @@ node examples/adapter-demo.js
 
 # Test CIP Fragmentation & Large Data Transfer engine (§33, §34)
 node examples/fragmentation-demo.js 192.168.68.250
+
+# Test ANSI Extended Symbol Segment & Tag Addressing (§26, §27)
+node examples/symbolic-tag-demo.js 192.168.68.250
 ```
 

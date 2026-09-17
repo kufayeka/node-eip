@@ -65,5 +65,10 @@ module.exports = {
     FragmentReader,
     FragmentWriter,
     readLargeData,
-    writeLargeData
+    writeLargeData,
+    encodeSymbolicPath: path.encodeSymbolicPath,
+    decodeSymbolicPath: path.decodeSymbolicPath,
+    encodeAnsiSymbolSegment: path.encodeAnsiSymbolSegment,
+    decodeAnsiSymbolSegment: path.decodeAnsiSymbolSegment,
+    encodeTagConnectionPath: path.encodeTagConnectionPath
 };

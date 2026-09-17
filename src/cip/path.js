@@ -178,20 +178,156 @@ function decodePortSegment(buf, offset = 0) {
 }
 
 /**
- * Builds a padded EPATH from Port segments and/or Class/Instance/Attribute
- * (and Connection Point/Member) logical segments, in standard CIP order.
- * Port segments always precede the target logical segment.
+ * Encodes an ANSI Extended Symbol Segment — CIP Vol 1, Appendix C (C-1.4.3 Data Segments).
+ * Segment Type: 0x91 (0b10010001: Data Segment, subtype 17 = ANSI Extended Symbol).
+ * Followed by 1 byte length, ASCII characters, and 1 pad byte if length is odd.
+ *
+ * @param {string} symbol Tag or symbol name
+ * @returns {Buffer}
  */
-function encodeEPath({
-    port,
-    linkAddress,
-    portSegments,
-    classId,
-    instance,
-    connectionPoint,
-    member,
-    attribute
-} = {}) {
+function encodeAnsiSymbolSegment(symbol) {
+    if (typeof symbol !== 'string' || symbol.length === 0) {
+        throw new TypeError(`encodeAnsiSymbolSegment: symbol must be a non-empty string, got ${symbol}`);
+    }
+    const len = Buffer.byteLength(symbol, 'ascii');
+    if (len > 255) {
+        throw new RangeError(`encodeAnsiSymbolSegment: symbol length exceeds 255 bytes, got ${len}`);
+    }
+    const padNeeded = len % 2 !== 0;
+    const totalLen = 2 + len + (padNeeded ? 1 : 0);
+    const buf = Buffer.alloc(totalLen);
+    buf[0] = 0x91;
+    buf[1] = len;
+    buf.write(symbol, 2, 'ascii');
+    if (padNeeded) {
+        buf[totalLen - 1] = 0x00; // Pad byte to preserve 16-bit word alignment
+    }
+    return buf;
+}
+
+/**
+ * Decodes an ANSI Extended Symbol Segment starting at `offset`.
+ *
+ * @param {Buffer} buf
+ * @param {number} [offset=0]
+ * @returns {{ symbol: string, bytesConsumed: number }}
+ */
+function decodeAnsiSymbolSegment(buf, offset = 0) {
+    if (offset >= buf.length) {
+        throw new RangeError(`decodeAnsiSymbolSegment: offset ${offset} exceeds buffer length ${buf.length}`);
+    }
+    const head = buf[offset];
+    if (head !== 0x91) {
+        throw new Error(`decodeAnsiSymbolSegment: byte 0x${head.toString(16)} at offset ${offset} is not an ANSI Extended Symbol Segment (expected 0x91)`);
+    }
+    if (offset + 2 > buf.length) {
+        throw new RangeError('decodeAnsiSymbolSegment: truncated symbol segment header');
+    }
+    const len = buf[offset + 1];
+    const pad = len % 2 !== 0 ? 1 : 0;
+    const totalBytes = 2 + len + pad;
+    if (offset + totalBytes > buf.length) {
+        throw new RangeError(`decodeAnsiSymbolSegment: truncated symbol data (expected ${totalBytes} bytes, got ${buf.length - offset})`);
+    }
+    const symbol = buf.toString('ascii', offset + 2, offset + 2 + len);
+    return { symbol, bytesConsumed: totalBytes };
+}
+
+/**
+ * Encodes a complete symbolic tag path expression into EPATH segments (§26, §27).
+ * Supports simple tags, dot-separated struct members, and bracketed array subscripts.
+ * e.g. "TotalCount", "Motor.Speed", "Tanks[3]", "Lines[0].Motors[1].Current"
+ *
+ * @param {string} tagPath
+ * @returns {Buffer}
+ */
+function encodeSymbolicPath(tagPath) {
+    if (typeof tagPath !== 'string' || tagPath.trim().length === 0) {
+        throw new TypeError(`encodeSymbolicPath: tagPath must be a non-empty string, got ${tagPath}`);
+    }
+
+    const segments = [];
+    const parts = tagPath.trim().split('.');
+
+    for (const part of parts) {
+        if (!part) continue;
+        const match = part.match(/^([^\[]+)((\[\d+\])+)$/);
+        if (match) {
+            const baseName = match[1];
+            segments.push(encodeAnsiSymbolSegment(baseName));
+            const indices = match[2].match(/\[(\d+)\]/g);
+            for (const idxStr of indices) {
+                const idx = parseInt(idxStr.slice(1, -1), 10);
+                segments.push(encodeLogicalSegment(LogicalType.MemberId, idx));
+            }
+        } else {
+            segments.push(encodeAnsiSymbolSegment(part));
+        }
+    }
+
+    return Buffer.concat(segments);
+}
+
+/**
+ * Decodes a series of ANSI Extended Symbol and Member segments back into a string tag path.
+ *
+ * @param {Buffer} buf
+ * @param {number} [offset=0]
+ * @returns {{ tagPath: string, tokens: Array<{type: 'symbol'|'member', value: string|number}>, bytesConsumed: number }}
+ */
+function decodeSymbolicPath(buf, offset = 0) {
+    const tokens = [];
+    let cur = offset;
+
+    while (cur < buf.length) {
+        const head = buf[cur];
+        if (head === 0x91) {
+            const seg = decodeAnsiSymbolSegment(buf, cur);
+            tokens.push({ type: 'symbol', value: seg.symbol });
+            cur += seg.bytesConsumed;
+        } else if ((head & 0xe0) === 0x20 && ((head >> 2) & 0x07) === LogicalType.MemberId) {
+            const seg = decodeLogicalSegment(buf, cur);
+            tokens.push({ type: 'member', value: seg.value });
+            cur += seg.bytesConsumed;
+        } else {
+            break;
+        }
+    }
+
+    let tagPath = '';
+    for (const token of tokens) {
+        if (token.type === 'symbol') {
+            tagPath = tagPath ? `${tagPath}.${token.value}` : token.value;
+        } else if (token.type === 'member') {
+            tagPath = `${tagPath}[${token.value}]`;
+        }
+    }
+
+    return { tagPath, tokens, bytesConsumed: cur - offset };
+}
+
+/**
+ * Builds a padded EPATH from Port segments, ANSI Symbolic segments, and/or
+ * Class/Instance/Attribute logical segments in standard CIP order.
+ */
+function encodeEPath(params = {}) {
+    if (typeof params === 'string') {
+        return encodeSymbolicPath(params);
+    }
+    if (Buffer.isBuffer(params)) return params;
+
+    const {
+        port,
+        linkAddress,
+        portSegments,
+        classId,
+        instance,
+        connectionPoint,
+        member,
+        attribute,
+        tag,
+        symbol
+    } = params;
     const parts = [];
 
     // 1. Port Segments (for multi-hop routing)
@@ -203,7 +339,12 @@ function encodeEPath({
         parts.push(encodePortSegment({ port, linkAddress }));
     }
 
-    // 2. Logical Segments
+    // 2. Symbolic Segment (Tag Addressing)
+    if (tag || symbol) {
+        parts.push(encodeSymbolicPath(tag || symbol));
+    }
+
+    // 3. Logical Segments
     if (classId !== undefined) parts.push(encodeLogicalSegment(LogicalType.ClassId, classId));
     if (instance !== undefined) parts.push(encodeLogicalSegment(LogicalType.InstanceId, instance));
     if (connectionPoint !== undefined) parts.push(encodeLogicalSegment(LogicalType.ConnectionPoint, connectionPoint));
@@ -218,13 +359,37 @@ function encodeEPath({
  * followed by the target object's logical path.
  *
  * @param {Array<{port: number, linkAddress: number|string}>} hops Array of routing hops
- * @param {object|Buffer} target Target logical path object or Buffer
+ * @param {object|Buffer|string} target Target logical path object, string tag, or Buffer
  * @returns {Buffer}
  */
 function encodeRoutePath(hops, target) {
     const hopBuffers = (hops || []).map((h) => encodePortSegment(h));
     const targetBuf = Buffer.isBuffer(target) ? target : encodeEPath(target);
     return Buffer.concat([...hopBuffers, targetBuf]);
+}
+
+/**
+ * Encodes a Tag Connection Path for Produced/Consumed Tag I/O Connections (§26, §27).
+ * Allows binding Class 1 I/O connections directly to symbolic tag names.
+ *
+ * @param {object} params
+ * @param {string|Buffer} [params.configTag] Configuration tag name or buffer
+ * @param {string|Buffer} [params.o2tTag] Originator-to-Target (Consumed) tag
+ * @param {string|Buffer} [params.t2oTag] Target-to-Originator (Produced) tag
+ * @returns {Buffer}
+ */
+function encodeTagConnectionPath({ configTag, o2tTag, t2oTag }) {
+    const segments = [];
+    if (configTag) {
+        segments.push(Buffer.isBuffer(configTag) ? configTag : encodeSymbolicPath(configTag));
+    }
+    if (o2tTag) {
+        segments.push(Buffer.isBuffer(o2tTag) ? o2tTag : encodeSymbolicPath(o2tTag));
+    }
+    if (t2oTag) {
+        segments.push(Buffer.isBuffer(t2oTag) ? t2oTag : encodeSymbolicPath(t2oTag));
+    }
+    return Buffer.concat(segments);
 }
 
 function encodeAssemblyConnectionPath({ configInstance, o2tInstance, t2oInstance, outputInstance, inputInstance }) {
@@ -301,8 +466,14 @@ function decodeEPath(buf) {
                     break;
             }
             offset += segment.bytesConsumed;
+        } else if (segType === 4 && buf[offset] === 0x91) {
+            // Data Segment (Type 100xxx): ANSI Extended Symbol Segment (0x91)
+            const sym = decodeSymbolicPath(buf, offset);
+            result.tagPath = sym.tagPath;
+            result.symbols = sym.tokens.filter((t) => t.type === 'symbol').map((t) => t.value);
+            offset += sym.bytesConsumed;
         } else {
-            throw new Error(`decodeEPath: unsupported segment type 0x${segType.toString(16)} at offset ${offset}`);
+            throw new Error(`decodeEPath: unsupported segment type 0x${segType.toString(16)} (byte 0x${buf[offset].toString(16)}) at offset ${offset}`);
         }
     }
     return result;
@@ -314,6 +485,11 @@ module.exports = {
     decodeLogicalSegment,
     encodePortSegment,
     decodePortSegment,
+    encodeAnsiSymbolSegment,
+    decodeAnsiSymbolSegment,
+    encodeSymbolicPath,
+    decodeSymbolicPath,
+    encodeTagConnectionPath,
     encodeRoutePath,
     encodeEPath,
     decodeEPath,

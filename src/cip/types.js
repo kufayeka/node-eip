@@ -171,10 +171,21 @@ const CIP_DATA_TYPES = Object.freeze({
 
 // ==================== Encoded Type Helpers ====================
 
+function resolveTypeCode(type) {
+    if (typeof type === 'string') {
+        const upper = type.toUpperCase();
+        if (CipDataTypeCode[upper] !== undefined) {
+            return CipDataTypeCode[upper];
+        }
+    }
+    return type;
+}
+
 /**
  * Encodes a value into a newly allocated Buffer of the corresponding CIP type size.
  */
-function encodeType(typeCode, value) {
+function encodeType(type, value) {
+    const typeCode = resolveTypeCode(type);
     if (typeCode === CipDataTypeCode.SHORT_STRING) {
         return encodeShortString(String(value));
     }
@@ -183,7 +194,7 @@ function encodeType(typeCode, value) {
     }
     const meta = CIP_DATA_TYPES[typeCode];
     if (!meta) {
-        throw new TypeError(`encodeType: unsupported CIP type code 0x${typeCode.toString(16)}`);
+        throw new TypeError(`encodeType: unsupported CIP type code ${typeof type === 'number' ? '0x' + type.toString(16) : type}`);
     }
     const buf = Buffer.alloc(meta.size);
     meta.write(buf, value, 0);
@@ -194,7 +205,8 @@ function encodeType(typeCode, value) {
  * Decodes a value from buffer according to the given CIP type code.
  * @returns {{ value: any, bytesRead: number }}
  */
-function decodeType(typeCode, buf, offset = 0) {
+function decodeType(type, buf, offset = 0) {
+    const typeCode = resolveTypeCode(type);
     if (typeCode === CipDataTypeCode.SHORT_STRING) {
         return decodeShortString(buf, offset);
     }
@@ -203,7 +215,7 @@ function decodeType(typeCode, buf, offset = 0) {
     }
     const meta = CIP_DATA_TYPES[typeCode];
     if (!meta) {
-        throw new TypeError(`decodeType: unsupported CIP type code 0x${typeCode.toString(16)}`);
+        throw new TypeError(`decodeType: unsupported CIP type code ${typeof type === 'number' ? '0x' + type.toString(16) : type}`);
     }
     if (offset + meta.size > buf.length) {
         throw new RangeError(`decodeType: buffer truncated, need ${meta.size} bytes for ${meta.name} at offset ${offset}, have ${buf.length - offset}`);
