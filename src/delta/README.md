@@ -54,6 +54,8 @@ Class `0x350`-`0x359`) — the CIP Attribute ID **is** the register number.
 | `readHC(n)` / `writeHC(n, v)` | HC (high-speed counter, DINT) | read/write | read ✅, write not yet |
 | `readSM(n)` | SM (system marker) | read-only | ✅ |
 | `readSR(n)` | SR (system register) | read-only | ✅ |
+| `readD32(n)` / `writeD32(n, v)` | D, 32-bit (Dn+Dn+1 paired) | read/write | ✅ full round-trip (`writeD32(200, 0x12345678)` → `D200=0x5678, D201=0x1234`) |
+| `readC32(n)` / `writeC32(n, v)` | alias for `readHC`/`writeHC` | read/write | read ✅ |
 
 Only the specific device actually tested (product code 3846, a real SX3) is
 empirically confirmed. DVP-ES3/EX3/SV3 share the same manual table entry
@@ -65,6 +67,42 @@ of those exact models.
 interpretation of the manual's enumeration pattern
 (`attribute = wordIndex * 16 + bitIndex`) — spot-checked live but not
 exhaustively verified across the full range.
+
+**32-bit (DINT) access — two genuinely different mechanisms, confirmed
+against Delta's own DVP-PLC Application Manual device-range tables
+(ES/EX/EC series and EC3-8K series CPUs — full tables saved at
+[docs/dvp-plc-device-ranges.md](../../docs/dvp-plc-device-ranges.md)):**
+
+- **D** has no separate 32-bit device range at all — the manual lists it as
+  one flat range (e.g. `D0`-`D407` general purpose on ES/EX/EC). 32-bit D
+  access is purely a **ladder-programming convention**: pair `Dn` (low
+  word) with `Dn+1` (high word), the same registers, addressed twice.
+  `readD32`/`writeD32` (`src/delta/dword.js`) implement exactly this — two
+  ordinary 16-bit operations combined, not a separate CIP object. Available
+  on `DeltaDevice` directly (not per-profile), since it's just composed
+  from `readD`/`writeD` and inherits whatever those already support for
+  the active profile.
+- **C is different: the manual gives 16-bit and 32-bit counters *separate
+  number ranges within the same "C" letter*.** E.g. on ES/EX/EC:
+  `C0`-`C127` are 16-bit counters, while `C235`-`C254` are the "32-bit
+  counting up/down high-speed counter" range — a completely different
+  sub-range of the same device type, not a register pair. (The exact
+  boundary is CPU-model-dependent: EC3-8K instead splits it as `C0`-`C199`
+  16-bit vs. `C200`-`C254` 32-bit.) This is exactly what the CIP manual's
+  separate `HC` object (Class `0x357`) corresponds to — Delta's EtherNet/IP
+  module exposes the 32-bit C sub-range as its own CIP class because it
+  needs a different Instance/data width, even though from the ladder
+  programmer's perspective it's still just "C". `readC32`/`writeC32` are
+  plain aliases for `readHC`/`writeHC` reflecting this — **you must know
+  which range your specific counter number falls in** and call `readC` or
+  `readC32` accordingly; this driver doesn't auto-detect it (the boundary
+  isn't fixed across Delta CPU models, so guessing would risk being wrong
+  for a device other than the ones tested here).
+- **T (timer) 32-bit does not exist, confirmed** — the manual's own device
+  table lists timer present values as one flat range (e.g. `T0`-`T127` on
+  ES/EX/EC, `T0`-`T255` on EC3-8K) with no 16-bit/32-bit split anywhere,
+  unlike C. No `readT32`/`writeT32` is implemented, and none is planned
+  unless new evidence turns up.
 
 ### `'es2'` — DVP-ES2-E (confirmed on a real DVP32ES2-E)
 
@@ -86,7 +124,9 @@ device's own live monitor confirm the change.
 | `readT(n)` / `writeT(n, v)` | T (timer) | read/write, **contact/bit state only** | ✅ live (write); no numeric current-value access on this device (see below) |
 | `readC(n)` / `writeC(n, v)` | C (counter) | read/write, **contact/bit state only** | ✅ live (write); no numeric current-value access on this device |
 | `readD(n)` | D (data register) | **read-only** | ✅ live — via the Assembly-window mirror (Instance 101), NOT the vendor Register Object |
-| `writeD(n, v)` | D | — | ❌ **no working path found** — see below |
+| `writeD(n, v)` | D | — | ❌ **no working path found**, exhaustively tried — see below |
+| `readD32(n)` | D, 32-bit (Dn+Dn+1) | read-only | ✅ live, via two `readD` mirror reads |
+| `writeD32(n, v)` | D, 32-bit | — | ❌ same dead end as `writeD` (it's built on top of it) |
 | `readHC` / `writeHC` / `readSM` / `readSR` | HC/SM/SR | — | not implemented — these classes don't exist on this device at all |
 
 **The D exception, explained:** Class `0x352`'s bit-mode instance is a
@@ -94,11 +134,15 @@ real, working read/write store on this device — but a completely
 **separate one** from the PLC's actual D-table. Writes made through it
 never show up in the Assembly-instance-101 mirror (which *is* proven
 connected to the real D-table), even with a delay, or with an active
-Forward_Open connection kept alive throughout, or through Assembly
-Instance 100's explicit-write path. Every avenue tried came up empty — so
-`readD` uses the Assembly mirror (word-level, efficient, real), and
-`writeD` currently just fails clearly rather than silently writing to
-nowhere.
+Forward_Open connection kept alive throughout. Exhaustively tried every
+O->T Assembly instance this device exposes — 100, 102, 104, 106, 108,
+110, 112, 114 (one per Connection1-8) — writing a distinct marker to each
+and scanning all 8 T->O instances plus the D-mirror for it; none
+propagated anywhere. So: `readD` uses the Assembly mirror (word-level,
+efficient, real), and `writeD`/`writeD32` currently just fail clearly
+rather than silently writing to nowhere. This looks like a genuine
+firmware limitation on this device rather than a missing technique — see
+Open items if you have a new idea worth trying.
 
 **Word-level access:** X/Y/M/S/T/C are only accessible bit-by-bit on this
 device (its word-mode instance doesn't exist) — `readX(0)`/`readY(3)`/etc.
@@ -231,6 +275,14 @@ eds-inspect.js              Profile-authoring assist: parses an EDS file's
   this is safe to use with labels above `X7`/`Y7` in each group.
 - **`'sx3'` word-mode T/C/HC write** — read confirmed live, write not yet
   round-trip tested on that profile (unrelated to the ES2 findings above).
+- **C 16-bit/32-bit range boundary is not enforced or auto-detected** —
+  intentionally, since it differs by CPU model (confirmed `C235` on
+  ES/EX/EC vs. `C200` on EC3-8K — see
+  [docs/dvp-plc-device-ranges.md](../../docs/dvp-plc-device-ranges.md)).
+  Calling `readC`/`writeC` on a counter number that's actually in the
+  32-bit range for your specific PLC (or vice versa) will silently read/
+  write the wrong CIP object rather than erroring — know your device's
+  range before choosing `readC` vs. `readC32`.
 - **AH/AS mid-range family (AHCPU5xx-EN, AS200/AS100, etc.)** — per Delta's
   manual these share the same Vendor-Specific Register Objects and are
   likely `'sx3'`-compatible, but none has been tested; no profile registered

@@ -644,10 +644,17 @@ src/
                                        (D read-only via Instance 101)        ✅
     device-types/
       index.js                       — profile registry (register/get/list) ✅
-      sx3.js                          — profile: vendor Register Objects    ✅
-      es2.js                           — profile: Assembly-window fallback ✅
+      sx3.js                          — profile: vendor Register Objects,
+                                          bit- and word-mode              ✅
+      es2.js                           — profile: bit-mode Register Objects
+                                           for X/Y/M/S/T/C, Assembly-window
+                                           fallback for D (read-only)      ✅
     device.js                          — DeltaDevice: Scanner + explicit
-                                          device-type profile in one object ✅
+                                          device-type profile in one
+                                          object; also readD32/writeD32,
+                                          readC32/writeC32                 ✅
+    dword.js                            — 32-bit (DINT) register-pairing
+                                           helpers (D32) + combine/split   ✅
     eds-inspect.js                      — parses an EDS's [Assembly]/
                                            [Connection Manager] sections, a
                                            profile-authoring assist tool     ✅
@@ -695,6 +702,9 @@ eds/
 docs/
   DELTA_IA-PLC_EtherNet-IP_OP_EN_20251021.pdf — Delta's own EtherNet/IP
                                                  manual, source for Domain J  ✅
+  dvp-plc-device-ranges.md                     — DVP-PLC Application Manual
+                                                  device-range tables (X/Y/M/
+                                                  T/C/S/D, 16- vs 32-bit)     ✅
 ```
 
 ## Status
@@ -765,6 +775,23 @@ real Delta SX-3 PLC:
   doing nothing. See [src/delta/README.md](src/delta/README.md) for the
   full per-method breakdown — it's now the authoritative source for the
   `'es2'` profile, ahead of the narrative in Domain J below.
+- **D write on ES2 confirmed exhaustively dead-ended, 32-bit access added
+  (2026-09):** every remaining plausible write path was tried — all 8
+  O->T Assembly instances this device has (100/102/104/106/108/110/112/114),
+  each with a unique marker, scanned across all 8 T->O instances and the
+  D-mirror — nothing propagated. Treating this as a genuine firmware
+  limitation rather than a missing technique. Separately, added
+  `readD32`/`writeD32` (`src/delta/dword.js`, register-pairing `Dn`+`Dn+1`)
+  and `readC32`/`writeC32` (aliases for `readHC`/`writeHC`) to `DeltaDevice`
+  — full round-trip validated live on the SX3 (`writeD32(200, 0x12345678)`
+  → `D200=0x5678, D201=0x1234`, byte order matching the manual's own
+  example exactly). Cross-referencing Delta's separate *DVP-PLC Application
+  Manual* device-range tables ([docs/dvp-plc-device-ranges.md](docs/dvp-plc-device-ranges.md))
+  confirmed **C has real 16-bit/32-bit sub-ranges within the same letter**
+  (e.g. `C0`-`C127` vs. `C235`-`C254` on one CPU family, `C0`-`C199` vs.
+  `C200`-`C254` on another — the exact boundary is model-dependent, hence
+  no auto-detection), while **T has no 32-bit range at all** — resolving
+  what was an open question.
 
 Phase 2 is now essentially feature-complete for its core scope. **Phase 3
 (EIP Adapter) is underway and its core is done**, validated live via full
@@ -786,7 +813,7 @@ its own new `EIPAdapter`):
   the fixed port 2222 (a protocol/OS constraint, not an implementation gap;
   see Domain H for the full explanation).
 
-`npm test` (100 tests) covers the same logic with synthetic buffers for
+`npm test` (106 tests) covers the same logic with synthetic buffers for
 regression safety. Still ahead: Multiple Service Packet and Rockwell/Logix
 tag services (Phase 2 loose ends), TCP/IP Interface + Ethernet Link Objects
 and real cross-device I/O validation (Phase 3 loose ends).

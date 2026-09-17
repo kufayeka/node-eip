@@ -38,10 +38,11 @@
  *   D-table: writes made through Class 0x352 never show up in the
  *   Assembly-instance-101 mirror (which IS proven connected to the real
  *   D-table, via the same known-pattern technique), even with a delay or
- *   an active Forward_Open connection kept alive throughout. Every other
- *   avenue tried for writing D (Assembly Instance 100 explicit write,
- *   Assembly Instance 100 through a live Forward_Open connection) also
- *   showed no effect on the real D-table. So: read D through the
+ *   an active Forward_Open connection kept alive throughout. Exhaustively
+ *   tried every O->T Assembly instance this device has (100, 102, 104,
+ *   106, 108, 110, 112, 114 — one per Connection1-8), writing a unique
+ *   marker to each and scanning all 8 T->O instances plus the D-mirror for
+ *   it — none propagated anywhere. So: read D through the
  *   Assembly-mirror (es2-fallback-profile.js) as normal, but there is
  *   currently NO confirmed way to write D on this device via CIP.
  * - D's bit-mode instance also has an undocumented quirk if you use it
@@ -75,7 +76,7 @@ module.exports = {
     writeYBit,
 
     readD: readDViaMirror,
-    writeD: unsupported('writeD', 'Class 0x352 (D) bit-mode write is confirmed real internally but does NOT propagate to the PLC\'s actual D-table (tested with a delay, and with an active Forward_Open connection kept alive) — no working write path found yet. See README Domain J.'),
+    writeD: unsupported('writeD', 'no working write path found after exhausting every avenue tried: Class 0x352 bit-mode write, explicit Set_Attribute_Single on all 8 O->T Assembly instances (100/102/104/106/108/110/112/114), and Assembly writes during an active Forward_Open connection — none propagate to the PLC\'s actual D-table. See README Domain J.'),
 
     readM,
     writeM,
