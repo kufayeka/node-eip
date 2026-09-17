@@ -458,10 +458,21 @@ Object every CIP device already has:
    observed reflected back through the Instance 101 D-mirror — so Instance
    100 is writable at the CIP level, but what (if anything) it's actually
    wired to in the PLC's own register table is unconfirmed. Left in place
-   for the device owner to cross-check against their own register monitor
-   in ISPSoft; **checking the project's EtherNet/IP I/O mapping table
-   directly in ISPSoft is the reliable way to resolve this and to map
-   X/Y/M/S/C/T the same way**, rather than more marker-pattern guessing.
+   for the device owner to cross-check against their own register monitor.
+
+**Correction (2026-09):** the original version of this note suggested
+checking ISPSoft's "I/O mapping table" to resolve the write-side and map
+X/Y/M/S/C/T the same way — that assumed every Delta EIP device has one.
+Per Delta's own product table (Ch.9 of the manual — see the profile system
+below), that tool ("EIP Builder") configures the **Scanner** role, and the
+DVP-ES2-E family is **Adapter-capable but NOT Scanner-capable** — so the
+tool correctly doesn't exist for it in ISPSoft. That's not a dead end for
+Adapter-side reading, though: it's exactly the role this driver already
+uses the device in, and Instance 101's D-mirror above is real, working
+Adapter-side data — just not something Delta exposes a GUI to configure or
+document per-model (Ch.8.5 Assembly Object only documents the AH-series/
+AHRTU families, not small PLCs), hence reverse-engineering it live was the
+only path either way.
 
 Implementation: [src/delta/assembly-window.js](src/delta/assembly-window.js)
 (generic `readAssemblyData`/`writeAssemblyData`/`makeWordWindow` — reuses
@@ -470,6 +481,60 @@ the same `encodeEPath`/`buildRequest` core, nothing new at the wire level)
 (this one confirmed device's mapping specifically — **not** a general
 DVP-ES2 convention, must be reconfirmed per device). Live example:
 [examples/delta-es2-fallback.js](examples/delta-es2-fallback.js).
+
+#### Explicit device-type profiles: `DeltaDevice` (2026-09)
+
+Given real capability turned out to vary per specific model rather than
+along a clean tier boundary — confirmed via Delta's own product table
+([docs/DELTA_IA-PLC_EtherNet-IP_OP_EN_20251021.pdf](docs/DELTA_IA-PLC_EtherNet-IP_OP_EN_20251021.pdf)
+Ch.9, "9.1 Adapter Supported" vs "9.3 Scanner Supported"): the DVP-ES2-E/
+DVP26SE/DVP12SE family is listed as Adapter-capable but *not*
+Scanner-capable, while DVP-SV3/SX3 and DVP-ES3/EX3 are listed as both — a
+device answering a generic CIP request successfully doesn't reliably tell
+you which register-access strategy to use (the ES2 even accepts
+`Set_Attribute_Single` on some Assembly instances, so "did this request
+succeed" alone isn't a safe signal either).
+
+So instead of auto-detecting, the caller states the device type explicitly:
+
+```js
+const { DeltaDevice } = require('./src/delta/device');
+
+const sx3 = new DeltaDevice('192.168.68.250', 'sx3'); // vendor Register Objects (Class 0x350-0x359)
+const es2 = new DeltaDevice('192.168.68.111', 'es2'); // Assembly-window fallback (Instance 101)
+```
+
+- [src/delta/device-types/index.js](src/delta/device-types/index.js) — a
+  small registry (`register(key, profile)` / `get(key)` / `list()`); adding
+  a new PLC type means adding one file here and registering it, nothing
+  else changes.
+- [src/delta/device-types/sx3.js](src/delta/device-types/sx3.js) — thin
+  passthrough to `registers.js` (Delta manual-documented, vendor-wide for
+  this family).
+- [src/delta/device-types/es2.js](src/delta/device-types/es2.js) — `readD`
+  via the Assembly-window fallback; every other method throws a clear
+  "not supported for device type 'es2'" error rather than silently doing
+  the wrong thing or being omitted (so every profile has the same method
+  shape to code against).
+- [src/delta/device.js](src/delta/device.js) — `DeltaDevice`, wraps a
+  `Scanner` + a chosen profile behind one object.
+
+**Live-validated (2026-09):** `DeltaDevice(sx3Host, 'sx3').readD(0)` and
+`DeltaDevice(es2Host, 'es2').readD(0)` both work; `DeltaDevice(es2Host,
+'sx3').readD(0)` — deliberately mismatched type — fails with the expected
+`0x05 PathDestinationUnknown` from `registers.js`'s Class 0x352, rather than
+silently returning garbage. This is the explicit failure mode the design
+was chosen for.
+
+**Profile-authoring assist (not auto-generation):**
+[src/delta/eds-inspect.js](src/delta/eds-inspect.js) parses an EDS file's
+`[Assembly]` and `[Connection Manager]` sections into a quick list of
+candidate instance numbers/sizes/paths — a starting point for defining a
+new profile, not a finished one, since EDS files don't document which byte
+offset means which named register (the SX3 EDS's own Param names are
+generic "Input_data0".."Input_dataN", not "D0".."D99" — see the earlier
+D-mirror discovery, which needed live testing regardless of having the EDS
+in hand). Try it: `node examples/inspect-eds.js eds/031F000E0F0600010001.eds`.
 
 ### K. Future — CIP Security & advanced conformance
 
@@ -513,6 +578,15 @@ src/
                                       registers.js's Register Objects        ✅
     es2-fallback-profile.js         — one confirmed real device's mapping
                                        (D read-only via Instance 101)        ✅
+    device-types/
+      index.js                       — profile registry (register/get/list) ✅
+      sx3.js                          — profile: vendor Register Objects    ✅
+      es2.js                           — profile: Assembly-window fallback ✅
+    device.js                          — DeltaDevice: Scanner + explicit
+                                          device-type profile in one object ✅
+    eds-inspect.js                      — parses an EDS's [Assembly]/
+                                           [Connection Manager] sections, a
+                                           profile-authoring assist tool     ✅
   eds/
     generator.js                  — EDS file generation for adapter devices ⬜ phase 4
   scanner.js                       — public Scanner API (discover, connect,
@@ -541,6 +615,9 @@ examples/
                                                  public Scanner API           ✅
   delta-es2-fallback.js                        — CLI: readD via the Assembly-
                                                   window fallback (ES2)       ✅
+  inspect-eds.js                                — CLI: profile-authoring
+                                                   assist, dumps an EDS's
+                                                   Assembly/Connection info   ✅
 eds/
   031F000E0F0600010001.eds                 — Delta SX-3's vendor-issued EDS,
                                               used as ground truth above     ✅
@@ -595,8 +672,16 @@ real Delta SX-3 PLC:
   the wire level (Instance 100 accepts `Set_Attribute_Single`) but its
   real-world target is unconfirmed pending the device owner cross-checking
   their own register monitor — open item.
+- **Explicit device-type profiles** (`src/delta/device.js` +
+  `device-types/`): `DeltaDevice(host, 'sx3'|'es2')` picks the right
+  register-access strategy up front rather than auto-detecting — confirmed
+  live against both real devices, and a deliberately mismatched type
+  (`DeltaDevice(es2Host, 'sx3')`) fails clearly instead of returning wrong
+  data. Extensible: a new PLC type is one new file plus a registry entry.
+  Includes a profile-authoring assist tool (`eds-inspect.js`) that reads an
+  EDS's Assembly/Connection sections as a starting point.
 
-`npm test` (52 tests) covers the same logic with synthetic buffers for
+`npm test` (62 tests) covers the same logic with synthetic buffers for
 regression safety. Still ahead in Phase 2: Multiple Service Packet, then
 Rockwell/Logix tag services (`src/logix/`) as the additive compatibility
 layer.
