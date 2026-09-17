@@ -43,25 +43,29 @@ Class `0x350`-`0x359`) — the CIP Attribute ID **is** the register number.
 | Method | Register | Access | Live-validated? |
 |---|---|---|---|
 | `readX(n)` | X (input) | read-only | ✅ |
-| `readXBit(n)` | X bit | read-only | spot-checked |
+| `readXBit(n)` / `readXBitLabel(label)` | X bit | read-only | ✅ full round-trip incl. `'X377'` (top of range, 2026-09) |
 | `readY(n)` / `writeY(n, v)` | Y (output) | read/write | ✅ |
-| `readYBit(n)` / `writeYBit(n, v)` | Y bit | read/write | not yet |
-| `readD(n)` / `writeD(n, v)` | D (data register) | read/write | ✅ incl. round-trip write |
-| `readM(n)` / `writeM(n, v)` | M (marker/coil) | read/write | ✅ incl. round-trip write |
-| `readS(n)` / `writeS(n, v)` | S (step) | read/write | ✅ incl. round-trip write |
-| `readT(n)` / `writeT(n, v)` | T (timer, current value) | read/write | ✅ round-trip (write→read-back→restore) |
-| `readC(n)` / `writeC(n, v)` | C (counter, current value) | read/write | ✅ round-trip (write→read-back→restore) |
-| `readHC(n)` / `writeHC(n, v)` | HC (high-speed counter, DINT) | read/write | ✅ round-trip (write→read-back→restore) |
+| `readYBit(n)` / `writeYBit(n, v)` / `readYBitLabel(label)` / `writeYBitLabel(label, v)` | Y bit | read/write | ✅ full round-trip (2026-09) |
+| `readD(n)` / `writeD(n, v)` | D (data register) | read/write | ✅ incl. round-trip write, incl. `D29999` (top of range) |
+| `readM(n)` / `writeM(n, v)` | M (marker/coil) | read/write | ✅ incl. round-trip write, incl. `M8191` (top of range) |
+| `readS(n)` / `writeS(n, v)` | S (step) | read/write | ✅ incl. round-trip write, incl. `S2047` (top of range) |
+| `readT(n)` / `writeT(n, v)` | T (timer, current value) | read/write | ✅ round-trip (write→read-back→restore), incl. `T511` (top of range) |
+| `readC(n)` / `writeC(n, v)` | C (counter, current value) | read/write | ✅ round-trip (write→read-back→restore), incl. `C511` (top of range) |
+| `readHC(n)` / `writeHC(n, v)` | HC (high-speed counter, DINT) | read/write | ✅ round-trip (write→read-back→restore), incl. `HC255` (top of range) |
 | `readSM(n)` | SM (system marker) | read-only | ✅ |
 | `readSR(n)` | SR (system register) | read-only | ✅ |
 | `readD32(n)` / `writeD32(n, v)` | D, 32-bit (Dn+Dn+1 paired) | read/write | ✅ full round-trip (`writeD32(200, 0x12345678)` → `D200=0x5678, D201=0x1234`) |
-| `readC32(n)` / `writeC32(n, v)` | alias for `readHC`/`writeHC` | read/write | read ✅ |
+| `readC32(n)` / `writeC32(n, v)` | alias for `readHC`/`writeHC` | read/write | ✅ full round-trip (2026-09) |
 
 Only the specific device actually tested (product code 3846, a real SX3) is
 empirically confirmed. DVP-ES3/EX3/SV3 share the same manual table entry
-("DVP-SV3/SX3 Series") but haven't been individually tested — treat as
-"expected to work, not yet confirmed" until checked against real hardware
-of those exact models.
+("DVP-SV3/SX3 Series") and, as of 2026-09, are also registered as their own
+explicit `'es3'` device type ([src/delta/device-types/es3.js](device-types/es3.js),
+identical implementation, exists so callers can `new DeltaDevice(host, 'es3')`
+instead of the less-obvious `'sx3'`) — its own EDS file was independently
+confirmed structurally identical to the SX3's, but no physical ES3/EX3/SV3
+has been tested against this driver. Treat `'es3'` as "expected to work, not
+yet confirmed" until checked against real hardware of those exact models.
 
 **Bit addressing caveat:** `D0.0`, `D0.1`, etc. use this driver's own
 interpretation of the manual's enumeration pattern
@@ -103,6 +107,48 @@ against Delta's own DVP-PLC Application Manual device-range tables
   ES/EX/EC, `T0`-`T255` on EC3-8K) with no 16-bit/32-bit split anywhere,
   unlike C. No `readT32`/`writeT32` is implemented, and none is planned
   unless new evidence turns up.
+- **On the AS300/SX3 specifically, C and HC are fully separate ranges**
+  (`C0`-`C511` 16-bit, `HC0`-`HC255` 32-bit — see the range table below),
+  not a split *within* one number line the way ES/EX/EC's `C0`-`C127` vs.
+  `C235`-`C254` is. Same CIP-level mechanism either way (`HC` is always its
+  own class, `0x357`), just a reminder that the specific boundary numbers
+  above are DVP-family-specific, not universal.
+
+### Real device ranges (AS300/SX3) and octal I/O labels (2026-09)
+
+The real, official register ranges for the AS300 CPU (the SX3 test unit)
+are saved at
+[docs/dvp-plc-device-ranges.md](../../docs/dvp-plc-device-ranges.md#as-series--sx3-as300-cpu):
+`X`/`Y` 0-377 octal (256 points each), `M` 0-8191, `SM` 0-2047, `S`
+0-2047, `T` 0-511, `C` 0-511, `HC` 0-255, `D` 0-29999, `SR` 0-2047. Every
+type this driver implements was live round-trip tested at the top of its
+real range against the real SX3 (2026-09) — see
+[examples/delta-sx3-full-roundtrip.js](../../examples/delta-sx3-full-roundtrip.js),
+which passed cleanly end to end.
+
+**`X`/`Y` labels are literal octal digits**, confirmed against that same
+table (`X10` = octal `10` = decimal `8`, not decimal ten — digits `8`/`9`
+never appear because it's genuinely base-8 formatting). This resolves the
+long-standing "no octal conversion implemented" open item:
+`octalLabelToIndex(label)` / `indexToOctalLabel(index)`
+([src/delta/registers.js](registers.js)) do the conversion
+(`parseInt(label, 8)` / `index.toString(8)`, nothing more), and
+`readXBitLabel(label)` / `readYBitLabel(label)` / `writeYBitLabel(label, v)`
+wrap it so you can pass a label directly instead of converting by hand:
+
+```js
+await plc.readXBitLabel('X10');       // same point as plc.readXBit(8)
+await plc.writeYBitLabel('Y17', true); // Y17 octal = decimal 15
+```
+
+**`W` and `FR` (and the index register `E`) have no known CIP mapping.**
+They exist as ladder-programming device types on the AS-series
+(`W0`-`W29999`, `FR0`-`FR65535`, `E0`-`E14`) but Ch. 8.12 of the manual
+doesn't document a CIP class for any of them, and a live sweep of classes
+`0x35A`-`0x360` (right after `SR`'s `0x359`) on the real SX3 found nothing
+— every one answered `PathDestinationUnknown`. Not implemented; see
+[docs/dvp-plc-device-ranges.md](../../docs/dvp-plc-device-ranges.md#as-series--sx3-as300-cpu)
+for the full writeup and Open items below.
 
 ### `'es2'` — DVP-ES2-E (confirmed on a real DVP32ES2-E)
 
@@ -201,17 +247,14 @@ timer/counter's *contact* (on/off) state, not a numeric elapsed-time or
 count value — there's no word-mode instance to carry that number, unlike
 the `'sx3'` profile where `readT`/`readC` return the real current value.
 
-**Octal addressing reminder (X/Y only):** Delta's own convention for X and
-Y labels is octal, not decimal — `X0`-`X7`, then `X10`-`X17` (`X10` octal =
-8 decimal), `X20`-`X27`, and so on; digits 8 and 9 never appear. The
-attribute numbers this driver uses internally are plain sequential
-integers (`readX(8)` addresses the CIP attribute `8`) — for X/Y labels
-below 8 in each group these line up with the octal label directly (`X0`
-through `X7` = attribute `0`-`7`), but **no octal-label-to-attribute
-conversion is implemented yet** for the `X10`/`X20`/... groups. Passing a
-raw attribute number works for any value confirmed reachable; translating
-a WPLSoft-displayed octal label like `X10` to the correct attribute number
-is on you until this is added — see Open items.
+**Octal addressing (X/Y only), resolved 2026-09:** Delta's own convention
+for X and Y labels is octal, not decimal — `X0`-`X7`, then `X10`-`X17`
+(`X10` octal = 8 decimal), `X20`-`X27`, and so on; digits 8 and 9 never
+appear. `readXBitLabel(label)` / `readYBitLabel(label)` /
+`writeYBitLabel(label, v)` accept the label directly (`plc.readXBitLabel('X10')`
+is the same point as `plc.readXBit(8)`) — see the `'sx3'` section above for
+the conversion details, which apply identically here since both profiles
+share the same underlying bit-mode addressing.
 
 DVP26SE and DVP12SE share this table row in Delta's manual but haven't
 been tested — don't assume the same mapping applies without re-confirming
@@ -249,6 +292,10 @@ device-types/
                             adding one file here and registering it.
   sx3.js                     Profile: thin passthrough to registers.js
                                (word-mode Register Objects).
+  es3.js                      Profile: identical to sx3.js (spreads it),
+                               registered under its own name for clarity —
+                               DVP-ES3/EX3 share sx3's manual entry and EDS
+                               structure but are unconfirmed on real hardware.
   es2.js                      Profile: bit-mode Register Objects for
                                X/Y/M/S/T/C (registers.js's readXBit/readYBit/
                                writeYBit/readM/writeM/readS/writeS/readBit/
@@ -321,12 +368,14 @@ eds-inspect.js              Profile-authoring assist: parses an EDS file's
   this is very likely solvable, just not yet reproduced at the CIP wire
   level by this driver. Packet capture of that real exchange (`pktmon` on
   Windows, run as Administrator) is the most concrete next step.
-- **X/Y octal-label addressing** — `readX`/`readY`/etc. take the raw CIP
-  attribute number, not the octal-style label (`X10`, `X17`, `X20`, ...)
-  WPLSoft/ISPSoft display. No conversion helper exists yet; needed before
-  this is safe to use with labels above `X7`/`Y7` in each group.
-- **`'sx3'` word-mode T/C/HC write** — read confirmed live, write not yet
-  round-trip tested on that profile (unrelated to the ES2 findings above).
+- **`W`/`FR`/`E` (AS300/SX3) have no known CIP mapping** — they exist as
+  ladder-programming device types (`W0`-`W29999`, `FR0`-`FR65535`,
+  `E0`-`E14`) but no CIP class is documented for any of them in Ch. 8.12,
+  and a live sweep of classes `0x35A`-`0x360` on the real SX3 found nothing
+  (`PathDestinationUnknown` on all of them). Needs either a manual
+  reference this project doesn't have yet, or a different investigative
+  approach (e.g. checking whether they're exposed as a sub-range of some
+  other class's attribute space rather than their own class).
 - **C 16-bit/32-bit range boundary is not enforced or auto-detected** —
   intentionally, since it differs by CPU model (confirmed `C235` on
   ES/EX/EC vs. `C200` on EC3-8K — see

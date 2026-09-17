@@ -4,9 +4,10 @@ const assert = require('assert');
 const deviceTypes = require('../src/delta/device-types');
 
 describe('Delta device-type registry', function () {
-    it('lists the registered types, including sx3 and es2', function () {
+    it('lists the registered types, including sx3, es3 and es2', function () {
         const types = deviceTypes.list();
         assert.ok(types.includes('sx3'));
+        assert.ok(types.includes('es3'));
         assert.ok(types.includes('es2'));
     });
 

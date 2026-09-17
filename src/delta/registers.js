@@ -71,6 +71,29 @@ function wordInstance(classId) {
     return WordOnlyClasses.has(classId) ? RegisterInstance.Bit : RegisterInstance.Word;
 }
 
+/**
+ * X/Y point labels (e.g. "X10", "Y377") are literal octal digits, not
+ * decimal — confirmed against Delta's own device-range table (docs/
+ * dvp-plc-device-ranges.md, AS-series/SX3 section): X0-X377 octal = 256
+ * points, decimal 0-255, with digits 8/9 never appearing because it's
+ * genuinely base-8 formatting. The conversion is exactly parseInt(label,
+ * 8) / index.toString(8) — nothing more is going on.
+ */
+function octalLabelToIndex(label) {
+    const match = /^[A-Za-z]*([0-7]+)$/.exec(String(label).trim());
+    if (!match) {
+        throw new RangeError(`octalLabelToIndex: "${label}" is not a valid octal I/O label (digits must be 0-7)`);
+    }
+    return parseInt(match[1], 8);
+}
+
+function indexToOctalLabel(index) {
+    if (!Number.isInteger(index) || index < 0) {
+        throw new RangeError(`indexToOctalLabel: index must be a non-negative integer, got ${index}`);
+    }
+    return index.toString(8);
+}
+
 function bitAttribute(wordIndex, bitIndex) {
     if (bitIndex < 0 || bitIndex > 15) {
         throw new RangeError(`bitAttribute: bitIndex must be 0-15, got ${bitIndex}`);
@@ -203,10 +226,18 @@ const writeHC = (session, n, value) => writeWord(session, RegisterClass.HC, n, v
 const readSM = (session, n) => readBit(session, RegisterClass.SM, n);
 const readSR = (session, n) => readWord(session, RegisterClass.SR, n);
 
+// Octal-label convenience wrappers — e.g. readXBitLabel(session, 'X10')
+// instead of readXBit(session, octalLabelToIndex('X10')).
+const readXBitLabel = (session, label) => readXBit(session, octalLabelToIndex(label));
+const readYBitLabel = (session, label) => readYBit(session, octalLabelToIndex(label));
+const writeYBitLabel = (session, label, value) => writeYBit(session, octalLabelToIndex(label), value);
+
 module.exports = {
     RegisterClass,
     RegisterInstance,
     bitAttribute,
+    octalLabelToIndex,
+    indexToOctalLabel,
     registerPath,
     wordInstance,
     readWord,
@@ -216,10 +247,13 @@ module.exports = {
     writeWordViaBits,
     readX,
     readXBit,
+    readXBitLabel,
     readY,
     writeY,
     readYBit,
     writeYBit,
+    readYBitLabel,
+    writeYBitLabel,
     readD,
     writeD,
     readM,

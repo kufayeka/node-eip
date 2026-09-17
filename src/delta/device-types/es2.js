@@ -56,7 +56,7 @@
  */
 
 const { readD: readDViaMirror } = require('../es2-fallback-profile');
-const { RegisterClass, readXBit, readYBit, writeYBit, readM, writeM, readS, writeS, readBit, writeBit } = require('../registers');
+const { RegisterClass, readXBit, readXBitLabel, readYBit, writeYBit, readYBitLabel, writeYBitLabel, readM, writeM, readS, writeS, readBit, writeBit } = require('../registers');
 
 function unsupported(name, reason) {
     return async () => {
@@ -70,10 +70,13 @@ module.exports = {
 
     readX: readXBit,
     readXBit,
+    readXBitLabel,
     readY: readYBit,
     writeY: writeYBit,
     readYBit,
     writeYBit,
+    readYBitLabel,
+    writeYBitLabel,
 
     readD: readDViaMirror,
     writeD: unsupported('writeD', 'no working write path found after exhausting every avenue tried: Class 0x352 bit-mode write, explicit Set_Attribute_Single on all 8 O->T Assembly instances (100/102/104/106/108/110/112/114), and Assembly writes during an active Forward_Open connection — none propagate to the PLC\'s actual D-table. See README Domain J.'),

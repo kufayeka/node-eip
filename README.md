@@ -634,6 +634,49 @@ SX3-to-ES2 exchange (`pktmon` on Windows, admin-required) remains the most
 concrete unexplored next step. Full details in
 [src/delta/README.md](src/delta/README.md).
 
+#### `'sx3'`/`'es3'` — full read/write coverage, real device ranges, octal I/O labels (2026-09)
+
+Closed out the `'sx3'` profile's remaining open items in one pass, driven
+by the real AS300 device-range table the owner provided (saved at
+[docs/dvp-plc-device-ranges.md](docs/dvp-plc-device-ranges.md#as-series--sx3-as300-cpu)):
+`X`/`Y` 0-377 octal (256 points), `M` 0-8191, `SM` 0-2047, `S` 0-2047, `T`
+0-511, `C` 0-511, `HC` 0-255, `D` 0-29999, `SR` 0-2047.
+
+- **Full read/write mirroring test suite** — a new fake CIP session
+  ([test/helpers/mirror-session.js](test/helpers/mirror-session.js)) that
+  actually stores and returns whatever's written to a given CIP path (not
+  just asserting on encoded request bytes) drives
+  [test/sx3-full-roundtrip_spec.js](test/sx3-full-roundtrip_spec.js): every
+  register type, word and bit mode, 16-bit and 32-bit, each tested at a
+  normal value AND at the top of its real range (`M8191`, `S2047`, `T511`,
+  `C511`, `HC255`, `D29999`, `SM2047`, `SR2047`, `X377`).
+- **Live-validated against the real SX3** end to end
+  ([examples/delta-sx3-full-roundtrip.js](examples/delta-sx3-full-roundtrip.js)):
+  every write/read/restore round trip passed — Y, D, M, S, T, C, HC word
+  mode; YBit bit mode; D32 and C32 (HC alias) 32-bit — closing every
+  previously "not yet round-trip tested" item for this profile (`writeYBit`,
+  `writeT`/`writeC`/`writeHC`, `writeC32`).
+- **Octal X/Y label conversion, finally implemented** — the labels
+  WPLSoft/ISPSoft display (`X10`, `Y377`, ...) are literal base-8 digits;
+  `octalLabelToIndex()`/`indexToOctalLabel()`
+  ([src/delta/registers.js](src/delta/registers.js)) do exactly
+  `parseInt(label, 8)`/`index.toString(8)`, wrapped by
+  `readXBitLabel`/`readYBitLabel`/`writeYBitLabel` on both `'sx3'` and
+  `'es2'` profiles. Live-confirmed: `writeYBitLabel('Y62', true)` round
+  trips identically to `writeYBit(50, true)` (Y62 octal = decimal 50).
+- **`'es3'` registered as its own explicit device type**
+  ([src/delta/device-types/es3.js](src/delta/device-types/es3.js)) — same
+  implementation as `'sx3'` (they're the same manual family and ES3's EDS
+  was already confirmed structurally identical), just addressable as
+  `new DeltaDevice(host, 'es3')` instead of the less-obvious `'sx3'`. Still
+  unconfirmed against real ES3 hardware.
+- **`W`, `FR`, `E` — no CIP mapping found.** These exist as ladder device
+  types on the AS300 (`W0`-`W29999`, `FR0`-`FR65535`, `E0`-`E14`) but the
+  manual's Ch. 8.12 documents no CIP class for any of them, and a live
+  sweep of classes `0x35A`-`0x360` (right after `SR`) on the real SX3 came
+  back `PathDestinationUnknown` on every one. Left as an open item — see
+  [src/delta/README.md](src/delta/README.md).
+
 ### K. Future — CIP Security & advanced conformance
 
 | Item | Status | Notes |
@@ -684,6 +727,9 @@ src/
       index.js                       — profile registry (register/get/list) ✅
       sx3.js                          — profile: vendor Register Objects,
                                           bit- and word-mode              ✅
+      es3.js                           — profile: identical to sx3.js,
+                                           registered separately, unconfirmed
+                                           on real hardware                 ✅
       es2.js                           — profile: bit-mode Register Objects
                                            for X/Y/M/S/T/C, Assembly-window
                                            fallback for D (read-only)      ✅
@@ -851,7 +897,7 @@ its own new `EIPAdapter`):
   the fixed port 2222 (a protocol/OS constraint, not an implementation gap;
   see Domain H for the full explanation).
 
-`npm test` (111 tests) covers the same logic with synthetic buffers for
+`npm test` (153 tests) covers the same logic with synthetic buffers for
 regression safety. Still ahead: Multiple Service Packet and Rockwell/Logix
 tag services (Phase 2 loose ends), TCP/IP Interface + Ethernet Link Objects
 and real cross-device I/O validation (Phase 3 loose ends).

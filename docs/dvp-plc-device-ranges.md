@@ -82,6 +82,52 @@ only); **C** `C0`-`C199` = 16-bit (200 points), `C200`-`C254` = 32-bit (48
 points) — note this boundary (`C200`) differs from the ES/EX/EC table's
 `C235` boundary above.
 
+## AS-series / SX3 (AS300 CPU)
+
+Pasted by the project owner (2026-09) for the real SX3 test unit (AS300
+CPU). Notably larger than every DVP-family table above, and adds two
+device types (`W`, `FR`) that don't appear anywhere in this driver's `D`/`M`/
+etc. list.
+
+| Type | Range | Notes |
+|---|---|---|
+| `X` | `X0`-`X377` | **Octal** — 256 points (`X377` octal = decimal 255), same convention as the DVP tables above |
+| `Y` | `Y0`-`Y377` | **Octal** — 256 points |
+| `M` | `M0`-`M8191` | |
+| `SM` | `SM0`-`SM2047` | |
+| `S` | `S0`-`S2047` | |
+| `T` | `T0`-`T511` | |
+| `C` | `C0`-`C511` | |
+| `HC` | `HC0`-`HC255` | |
+| `D` | `D0`-`D29999` | |
+| `W` | `W0`-`W29999` | no CIP mapping found — see below |
+| `FR` | `FR0`-`FR65535` | no CIP mapping found — see below |
+| `SR` | `SR0`-`SR2047` | |
+| `E` | `E0`-`E14` | index register — no CIP mapping found, not implemented |
+
+**Octal addressing, confirmed:** `X`/`Y` labels are literal octal digits —
+`X10` is octal `10` = decimal `8`, not decimal ten. The conversion is
+exactly `parseInt(label, 8)` / `index.toString(8)`, nothing more elaborate;
+implemented as `octalLabelToIndex()`/`indexToOctalLabel()` in
+[src/delta/registers.js](../src/delta/registers.js), with `readXBitLabel`/
+`readYBitLabel`/`writeYBitLabel` wrappers that take a label like `'X10'`
+directly. This closes the long-standing "octal addressing" open item in
+[src/delta/README.md](../src/delta/README.md).
+
+**`W` and `FR` — no known CIP mapping.** These exist as ladder-programming
+device types on the AS-series (per this table) but Ch. 8.12 of
+[docs/DELTA_IA-PLC_EtherNet-IP_OP_EN_20251021.pdf](DELTA_IA-PLC_EtherNet-IP_OP_EN_20251021.pdf)
+only documents CIP classes for `X`/`Y`/`D`/`M`/`S`/`T`/`C`/`HC`/`SM`/`SR`
+(`0x350`-`0x359`) — no entry for `W` or `FR` anywhere in that chapter. A
+live sweep of the real SX3 for CIP classes `0x35A`-`0x360` (the sequential
+range right after `SR`) found nothing — every one responded
+`PathDestinationUnknown`. So either `W`/`FR` aren't exposed over CIP at
+all on this device, or they're reachable through some other means not yet
+found (e.g. a non-sequential class ID, or as a sub-range of the `D`
+object's own attribute space rather than a separate class). Not
+implemented; revisit if a manual reference or a new idea turns up. Same
+status for `E` (index register) — no CIP class documented or found.
+
 ## Practical takeaway for this driver
 
 Given the C 16-bit/32-bit boundary moves between CPU models (`C235` vs.

@@ -42,10 +42,14 @@ class DeltaDevice {
     // Delegate every register method to the chosen profile, bound to this device's session.
     readX(n) { return this.profile.readX(this.session, n); }
     readXBit(n) { return this.profile.readXBit(this.session, n); }
+    // Octal I/O labels (e.g. 'X10' = decimal 8) — see docs/dvp-plc-device-ranges.md.
+    readXBitLabel(label) { return this.profile.readXBitLabel(this.session, label); }
     readY(n) { return this.profile.readY(this.session, n); }
     writeY(n, v) { return this.profile.writeY(this.session, n, v); }
     readYBit(n) { return this.profile.readYBit(this.session, n); }
     writeYBit(n, v) { return this.profile.writeYBit(this.session, n, v); }
+    readYBitLabel(label) { return this.profile.readYBitLabel(this.session, label); }
+    writeYBitLabel(label, v) { return this.profile.writeYBitLabel(this.session, label, v); }
     readD(n) { return this.profile.readD(this.session, n); }
     writeD(n, v) { return this.profile.writeD(this.session, n, v); }
     readM(n) { return this.profile.readM(this.session, n); }

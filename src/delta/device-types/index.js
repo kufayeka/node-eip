@@ -40,6 +40,7 @@ function list() {
 }
 
 register('sx3', require('./sx3'));
+register('es3', require('./es3'));
 register('es2', require('./es2'));
 
 module.exports = { register, get, list };
