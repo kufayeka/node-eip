@@ -234,6 +234,28 @@ like it needs either a mechanism this driver hasn't tried yet (packet
 capture of the real SX3-to-ES2 exchange would settle it definitively) or
 is a genuine firmware/configuration limitation — see Open items.
 
+**Re-checked specifically at D100 after the Instance 103 discovery
+(2026-09):** the original "isolated scratch store" conclusion about
+Class `0x352`'s bit-mode instance was reached before Instance 103 was
+known to exist, so it had only ever been cross-checked against D0-D99
+(Instance 101). Wrote a distinct 16-bit pattern (`0b0101010101010101`) to
+D100 via 16 individual bit-mode writes (`bitAttribute(100, 0..15)`),
+confirmed it landed correctly by reading the same bit-mode store back
+(exact match), then re-read D100 through Instance 103 — unchanged. So the
+isolation is confirmed at D100 too, not just D0-D99: genuinely two
+separate stores, not a stale conclusion from checking the wrong window.
+(Incidentally, D100 via Instance 103 read `3` during this test, not the
+`1111` from the original write — the real SX3-to-ES2 exchange is still
+cyclically live and D100's value keeps changing with whatever the SX3's
+own D100 currently is.)
+
+**Also checked: does the 32-bit counter range hide behind a similar
+trick?** See the `'sx3'`/T-C-limitation discussion above (T/C limitation
+paragraph) — no, `C`'s bit-mode is a flat one-bit-per-counter contact
+enumeration with a hard ceiling at `C255`, and the `D`-style
+`wordIndex*16+bitIndex` scheme doesn't respond at all for `C`. No hidden
+32-bit access exists on this device via any addressing scheme tried.
+
 **Word-level access:** X/Y/M/S/T/C are only accessible bit-by-bit on this
 device (its word-mode instance doesn't exist) — `readX(0)`/`readY(3)`/etc.
 return booleans, matching how these types are actually addressed in
@@ -246,6 +268,21 @@ works, but doesn't connect anywhere real, as above).
 timer/counter's *contact* (on/off) state, not a numeric elapsed-time or
 count value — there's no word-mode instance to carry that number, unlike
 the `'sx3'` profile where `readT`/`readC` return the real current value.
+This includes the 32-bit counter range (`C235`-`C254` on this CPU family,
+docs/dvp-plc-device-ranges.md's ES/EX/EC table) — investigated 2026-09 on
+the theory that since `HC` (Class `0x357`) doesn't exist on this device at
+all, maybe the 32-bit *value* was still reachable through `C`'s own class
+(`0x356`, which does exist) at those higher counter numbers. Live-tested
+two ways: (1) the contact bit for `C230`-`C260` — all answer normally
+(one flat bit per counter number, `C254` happened to read `true`, nothing
+distinguishes the "32-bit" numbers from any other), and this device's real
+`C` range hard-stops at `C255` (`C256`+ is `PathDestinationUnknown`); (2)
+the `wordIndex*16+bitIndex` bit-enumeration scheme (the same one `D` uses)
+applied to `C235` — every attribute in that range also came back
+`PathDestinationUnknown`. So there's no hidden word-level access lurking
+behind a different addressing scheme: the 32-bit counter *value* is simply
+not reachable via CIP on this device, full stop — same underlying
+limitation as `T`/`C`'s 16-bit current value, not a separate gap.
 
 **Octal addressing (X/Y only), resolved 2026-09:** Delta's own convention
 for X and Y labels is octal, not decimal — `X0`-`X7`, then `X10`-`X17`
@@ -322,7 +359,11 @@ eds-inspect.js              Profile-authoring assist: parses an EDS file's
 ## Adding a new device type
 
 1. Get the device talking generic CIP first (`Scanner.discover()` /
-   `getAttribute()` against Identity) to confirm basic connectivity.
+   `getAttribute()` against Identity) to confirm basic connectivity. Then
+   run `node examples/discover-cip-classes.js <host>` — a full class sweep
+   (0x0001-0x03FF by default, covering every standard CIP object and
+   Delta's whole vendor range in one pass) that tells you up front which
+   classes the device implements at all, so you're not guessing blind.
 2. Try `registers.js`'s Class `0x350`-`0x359` directly — **both modes**,
    don't stop at the first failure: `readWord(session, RegisterClass.D, 0)`
    (Instance 2, word-mode) AND `readBit(session, RegisterClass.D, 0)`
