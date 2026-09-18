@@ -267,7 +267,7 @@ ${scalingStr}
             const toRef = toAssem ? `Assem${toAssem.instance}` : '';
 
             eds += `        Connection${connIdx} =
-                0x04010002,             $ 1. Trigger: cyclic, Transport: Exclusive-Owner Class 1
+                0x04030002,             $ 1. Trigger: cyclic or change-of-state, Transport: Exclusive-Owner Class 1
                 0x44640405,             $ 2. Point-to-Point, 4-byte Run/Idle header
                 ,,${otRef},           $ 3, 4, 5. O->T RPI, Size, Format
                 ,,${toRef},           $ 6, 7, 8. T->O RPI, Size, Format
@@ -315,7 +315,7 @@ ${scalingStr}
         Max_Number_Of_Dynamic_Instances = 0;
 
         Connection1 =
-                0x04010002,             $ 1. Trigger: cyclic, Transport: Exclusive-Owner Class 1
+                0x04030002,             $ 1. Trigger: cyclic or change-of-state, Transport: Exclusive-Owner Class 1
                 0x44640405,             $ 2. Point-to-Point, 4-byte Run/Idle header
                 ,,Assem${outputAssem.instance},           $ 3, 4, 5. O->T RPI, Size, Format
                 ,,Assem${inputAssem.instance},           $ 6, 7, 8. T->O RPI, Size, Format

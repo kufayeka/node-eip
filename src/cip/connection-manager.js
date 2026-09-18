@@ -38,6 +38,23 @@ const ConnectionType = Object.freeze({ Null: 0, Multicast: 1, PointToPoint: 2, R
 const ConnectionPriority = Object.freeze({ Low: 0, High: 1, Scheduled: 2, Urgent: 3 });
 
 /**
+ * Transport Type/Trigger byte (CIP Vol 1, Table 3-4.5) — the single byte a
+ * Forward_Open request carries to select both the production trigger
+ * (Cyclic vs Change-of-State vs Application-Object, bits 6-4) and the
+ * Transport Class (bits 3-0) for the connection being opened. Bit 7
+ * (Direction) is left at 0 (Client) for every value here since the
+ * Originator is always the Client in a Forward_Open. Convenience presets
+ * for the common classic Class 1 I/O case — pass one of these as
+ * `transportTypeTrigger` to buildForwardOpenRequest()/buildLargeForwardOpenRequest().
+ */
+const TransportTrigger = Object.freeze({
+    Class1Cyclic: 0x01,
+    Class1ChangeOfState: 0x11,
+    Class1ApplicationObject: 0x21,
+    Class3: 0x03
+});
+
+/**
  * Encodes the 16-bit Network Connection Parameters word (CIP Vol 1, Table
  * 3-5.13) used by classic Forward_Open for each direction (O->T/T->O).
  *   bits 0-8  : connection size, 0-511 bytes
@@ -526,6 +543,7 @@ module.exports = {
     ConnectionManagerServices,
     ConnectionType,
     ConnectionPriority,
+    TransportTrigger,
     connectionManagerPath,
     encodeNetworkConnectionParams,
     decodeNetworkConnectionParams,

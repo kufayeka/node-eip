@@ -4,7 +4,8 @@ const assert = require('assert');
 const { ConnectionHandler } = require('../src/adapter/connection-handler');
 const { AssemblyObject } = require('../src/cip/objects/assembly');
 const { buildIoDatagram, parseIoDatagram } = require('../src/cip/io-connection');
-const { encodeAssemblyConnectionPath, encodeElectronicKeySegment, LogicalType, encodeLogicalSegment } = require('../src/cip/path');
+const { encodeAssemblyConnectionPath, encodeSymbolicPath, encodeElectronicKeySegment, LogicalType, encodeLogicalSegment } = require('../src/cip/path');
+const { TransportTrigger } = require('../src/cip/connection-manager');
 const { CipGeneralStatus } = require('../src/constants');
 
 function baseRequest(overrides = {}) {
@@ -340,6 +341,154 @@ describe('ConnectionHandler (Adapter-side Forward_Open/Forward_Close + cyclic I/
             const second = h.openConnection(baseRequest(), { remoteAddress: '10.0.0.5' });
             assert.strictEqual(second.ok, true);
             h.closeAll();
+        });
+    });
+
+    describe('Production Trigger (Cyclic vs Change-of-State, CIP Vol 1 Table 3-4.5)', function () {
+        it('cyclic (default, no transportTypeTrigger given): keeps sending unconditionally at every RPI tick, even with unchanged data', function (done) {
+            const h = new ConnectionHandler({ assemblyObject: assembly, sendDatagram: (buf) => sentDatagrams.push({ buf }) });
+            h.openConnection(baseRequest({ toRpiUs: 5000 }), { remoteAddress: '10.0.0.5' }); // rpiMs = 5
+            setTimeout(() => {
+                assert.ok(sentDatagrams.length >= 4, `expected several cyclic packets, got ${sentDatagrams.length}`);
+                h.closeAll();
+                done();
+            }, 30);
+        });
+
+        it('change-of-state: after the initial packet, sends nothing more while the data stays unchanged (well under one RPI)', function (done) {
+            const h = new ConnectionHandler({ assemblyObject: assembly, sendDatagram: (buf) => sentDatagrams.push({ buf }) });
+            h.openConnection(baseRequest({ toRpiUs: 300000, transportTypeTrigger: TransportTrigger.Class1ChangeOfState }), { remoteAddress: '10.0.0.5' }); // rpiMs = 300, pollMs = 50
+            setTimeout(() => {
+                assert.strictEqual(sentDatagrams.length, 1); // only the mandatory initial packet
+                h.closeAll();
+                done();
+            }, 120);
+        });
+
+        it('change-of-state: sends promptly (within one poll interval) as soon as the produced data actually changes', function (done) {
+            const h = new ConnectionHandler({ assemblyObject: assembly, sendDatagram: (buf) => sentDatagrams.push({ buf }) });
+            h.openConnection(baseRequest({ toRpiUs: 300000, transportTypeTrigger: TransportTrigger.Class1ChangeOfState }), { remoteAddress: '10.0.0.5' });
+            setTimeout(() => {
+                assert.strictEqual(sentDatagrams.length, 1);
+                assembly.setData(101, Buffer.from([9, 9, 9, 9]));
+                setTimeout(() => {
+                    assert.ok(sentDatagrams.length >= 2, `expected a change-triggered packet, got ${sentDatagrams.length}`);
+                    const last = parseIoDatagram(sentDatagrams[sentDatagrams.length - 1].buf);
+                    assert.deepStrictEqual(last.data.subarray(2), Buffer.from([9, 9, 9, 9]));
+                    h.closeAll();
+                    done();
+                }, 60);
+            }, 10);
+        });
+
+        it('change-of-state: still sends a heartbeat at the RPI even when nothing changed, so the Originator watchdog never times out', function (done) {
+            const h = new ConnectionHandler({ assemblyObject: assembly, sendDatagram: (buf) => sentDatagrams.push({ buf }) });
+            h.openConnection(baseRequest({ toRpiUs: 40000, transportTypeTrigger: TransportTrigger.Class1ChangeOfState }), { remoteAddress: '10.0.0.5' }); // rpiMs = 40, pollMs = 40
+            setTimeout(() => {
+                assert.ok(sentDatagrams.length >= 2, `expected an unconditional heartbeat resend, got ${sentDatagrams.length}`);
+                h.closeAll();
+                done();
+            }, 90);
+        });
+    });
+
+    describe('Symbolic Produced/Consumed Tag Class 1 I/O Connections (path.tagPath — runtime counterpart of eds-exporter.js\'s SYMBOL_ANSI "Tag Connection")', function () {
+        function tagRequest(overrides = {}) {
+            return {
+                connectionPath: encodeSymbolicPath('TotalCount'),
+                otSize: 0,
+                toSize: 0,
+                otRpiUs: 5000,
+                toRpiUs: 5000,
+                toNetworkConnectionId: 0xdeadbeef,
+                connectionSerialNumber: 0x1234,
+                originatorVendorId: 0xaaaa,
+                originatorSerialNumber: 0x11223344,
+                ...overrides
+            };
+        }
+
+        let tagStore;
+        beforeEach(function () {
+            tagStore = new Map([['TotalCount', { type: 'DINT', buffer: Buffer.from([7, 0, 0, 0]), value: 7 }]]);
+        });
+
+        it('is NOT misclassified as an explicit (Class 3) connection — a Produced tag actually drives cyclic I/O', function (done) {
+            const h = new ConnectionHandler({ assemblyObject: assembly, tagStore, sendDatagram: (buf) => sentDatagrams.push({ buf }) });
+            const result = h.openConnection(tagRequest({ toSize: 4, toRpiUs: 2000 }), { remoteAddress: '10.0.0.5' });
+            assert.strictEqual(result.ok, true);
+            setTimeout(() => {
+                assert.ok(sentDatagrams.length >= 1);
+                const parsed = parseIoDatagram(sentDatagrams[0].buf);
+                assert.deepStrictEqual(parsed.data, Buffer.from([1, 0, 7, 0, 0, 0])); // seq 1 + tag's current buffer
+                h.closeAll();
+                done();
+            }, 20);
+        });
+
+        it('consumes an incoming O->T datagram into the tag buffer directly when no onTagWrite hook is given', function () {
+            const h = new ConnectionHandler({ assemblyObject: assembly, tagStore, sendDatagram: () => {} });
+            const result = h.openConnection(tagRequest({ otSize: 4 }), { remoteAddress: '10.0.0.5' });
+            assert.strictEqual(result.ok, true);
+            const datagram = buildIoDatagram({ connectionId: result.response.otNetworkConnectionId, sequenceNumber: 1, data: Buffer.from([42, 0, 0, 0]) });
+            h.handleIncomingDatagram(datagram);
+            assert.deepStrictEqual(tagStore.get('TotalCount').buffer, Buffer.from([42, 0, 0, 0]));
+            h.closeAll();
+        });
+
+        it('routes incoming O->T tag data through the onTagWrite hook when given, instead of mutating the buffer directly', function () {
+            const writes = [];
+            const h = new ConnectionHandler({
+                assemblyObject: assembly,
+                tagStore,
+                onTagWrite: (name, buf) => writes.push({ name, buf }),
+                sendDatagram: () => {}
+            });
+            const result = h.openConnection(tagRequest({ otSize: 4 }), { remoteAddress: '10.0.0.5' });
+            const datagram = buildIoDatagram({ connectionId: result.response.otNetworkConnectionId, sequenceNumber: 1, data: Buffer.from([42, 0, 0, 0]) });
+            h.handleIncomingDatagram(datagram);
+            assert.strictEqual(writes.length, 1);
+            assert.strictEqual(writes[0].name, 'TotalCount');
+            assert.deepStrictEqual(writes[0].buf, Buffer.from([42, 0, 0, 0]));
+            assert.deepStrictEqual(tagStore.get('TotalCount').buffer, Buffer.from([7, 0, 0, 0])); // untouched — the hook owns the mutation
+            h.closeAll();
+        });
+
+        it('binds both directions to the SAME tag when both otSize and toSize are nonzero (bidirectional read/write)', function (done) {
+            const h = new ConnectionHandler({ assemblyObject: assembly, tagStore, sendDatagram: (buf) => sentDatagrams.push({ buf }) });
+            const result = h.openConnection(tagRequest({ otSize: 4, toSize: 4, toRpiUs: 2000 }), { remoteAddress: '10.0.0.5' });
+            assert.strictEqual(result.ok, true);
+            const datagram = buildIoDatagram({ connectionId: result.response.otNetworkConnectionId, sequenceNumber: 1, data: Buffer.from([99, 0, 0, 0]) });
+            h.handleIncomingDatagram(datagram);
+            assert.deepStrictEqual(tagStore.get('TotalCount').buffer, Buffer.from([99, 0, 0, 0]));
+            setTimeout(() => {
+                const last = parseIoDatagram(sentDatagrams[sentDatagrams.length - 1].buf);
+                assert.deepStrictEqual(last.data.subarray(2), Buffer.from([99, 0, 0, 0])); // produces the just-written value back
+                h.closeAll();
+                done();
+            }, 20);
+        });
+
+        it('rejects a tag path referencing an undefined tag with extended status 0x0107 (connection not found at target)', function () {
+            const h = new ConnectionHandler({ assemblyObject: assembly, tagStore, sendDatagram: () => {} });
+            const request = { ...tagRequest({ toSize: 4 }), connectionPath: encodeSymbolicPath('NoSuchTag') };
+            const result = h.openConnection(request, { remoteAddress: '10.0.0.5' });
+            assert.strictEqual(result.ok, false);
+            assert.strictEqual(result.extendedStatus, 0x0107);
+        });
+
+        it('rejects a size mismatch between the requested connection size and the tag\'s actual byte size with 0x0109', function () {
+            const h = new ConnectionHandler({ assemblyObject: assembly, tagStore, sendDatagram: () => {} });
+            const result = h.openConnection(tagRequest({ toSize: 2 }), { remoteAddress: '10.0.0.5' }); // TotalCount is a 4-byte DINT
+            assert.strictEqual(result.ok, false);
+            assert.strictEqual(result.extendedStatus, 0x0109);
+        });
+
+        it('rejects a Forward_Open with neither direction populated (otSize and toSize both 0)', function () {
+            const h = new ConnectionHandler({ assemblyObject: assembly, tagStore, sendDatagram: () => {} });
+            const result = h.openConnection(tagRequest(), { remoteAddress: '10.0.0.5' });
+            assert.strictEqual(result.ok, false);
+            assert.strictEqual(result.extendedStatus, 0x0120);
         });
     });
 });

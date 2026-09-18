@@ -18,8 +18,23 @@ const { decodeEPath } = require('../cip/path');
 const { buildIoDatagram, parseIoDatagram } = require('../cip/io-connection');
 const { CipGeneralStatus } = require('../constants');
 
+/**
+ * Production Trigger — CIP Vol 1, Table 3-4.5 "Transport Type/Trigger" byte
+ * (bits 6-4). Carried in every Forward_Open request (connection-manager.js's
+ * parseForwardOpenRequest() `transportTypeTrigger`) — the Scanner picks one
+ * of these when it opens the connection; the EDS's Connection entry only
+ * advertises which ones this device is willing to accept (see
+ * eds-exporter.js's 0x04030002 capability mask), it doesn't select one itself.
+ */
+const ProductionTrigger = Object.freeze({ CYCLIC: 0, CHANGE_OF_STATE: 1, APPLICATION_OBJECT: 2 });
+
+function decodeProductionTrigger(transportTypeTrigger) {
+    if (typeof transportTypeTrigger !== 'number') return ProductionTrigger.CYCLIC;
+    return (transportTypeTrigger >> 4) & 0x07;
+}
+
 class ConnectionHandler {
-    constructor({ assemblyObject, identity, sendDatagram, connectionManagerObject, quiet = false, strictDuplicateConnections = false }) {
+    constructor({ assemblyObject, identity, sendDatagram, connectionManagerObject, quiet = false, strictDuplicateConnections = false, tagStore = null, onTagWrite = null }) {
         this.assemblyObject = assemblyObject;
         this.identity = identity; // optional — enables Electronic Key validation below
         this.sendDatagram = sendDatagram; // (buffer, remoteAddress) => void
@@ -28,6 +43,16 @@ class ConnectionHandler {
         this._nextConnectionId = 1;
         this.quiet = Boolean(quiet);
         this.onProduceData = null; // optional hook (t2oInstance) => void
+        // Symbolic ("Produced/Consumed Tag") Class 1 I/O connections — see
+        // openConnection()'s path.tagPath branch below. tagStore is the
+        // adapter's own `name -> { type, buffer, value }` Map (EIPAdapter.tags),
+        // shared by reference so writes here are visible to explicit-message
+        // reads immediately. onTagWrite(name, buffer), if given, lets the
+        // adapter own value-decoding and tagWrite/tagChange event emission for
+        // incoming O->T tag data — the same role AssemblyObject's own 'change'/
+        // 'write' events play for numeric I/O.
+        this.tagStore = tagStore instanceof Map ? tagStore : new Map();
+        this.onTagWrite = typeof onTagWrite === 'function' ? onTagWrite : null;
         // Default (false) is deliberately more lenient than strict ODVA
         // conformance: a repeat Forward_Open from the same originator
         // silently supersedes its own prior connection instead of being
@@ -127,7 +152,10 @@ class ConnectionHandler {
             return { ok: false, ...keyError };
         }
 
-        const isExplicit = path.classId === 0x02 || (!path.connectionPoints || path.connectionPoints.length === 0);
+        // A symbolic tag path (path.tagPath) is a Produced/Consumed Tag Class 1
+        // I/O connection, not an explicit-message connection, even though it
+        // has no numeric connectionPoints either — handled in its own branch below.
+        const isExplicit = !path.tagPath && (path.classId === 0x02 || (!path.connectionPoints || path.connectionPoints.length === 0));
 
         const cleanAddress = (typeof remoteAddress === 'string' && remoteAddress.startsWith('::ffff:'))
             ? remoteAddress.slice(7)
@@ -187,6 +215,10 @@ class ConnectionHandler {
                     toApiUs: request.toRpiUs
                 }
             };
+        }
+
+        if (path.tagPath) {
+            return this._openTagConnection(request, path.tagPath, { remoteAddress: cleanAddress });
         }
 
         const [o2tInstance, t2oInstance] = path.connectionPoints || [];
@@ -249,61 +281,29 @@ class ConnectionHandler {
             t2oInstance,
             otSize: request.otSize,
             toSize: request.toSize,
+            toRpiUs: request.toRpiUs,
             remoteAddress: cleanAddress,
             remotePort: null,
             sequenceNumber: 1,
+            productionTrigger: decodeProductionTrigger(request.transportTypeTrigger),
             useRunIdleHeader: Boolean(request.useRunIdleHeader),
             runIdle: true,
             timer: null
         };
 
-        const targetDataSize = request.toSize;
-        const getProducedData = () => {
+        this._startProducer(state, () => this.assemblyObject.getData(t2oInstance), () => {
             if (typeof this.onProduceData === 'function') {
                 try { this.onProduceData(t2oInstance); } catch {}
             }
-            const raw = this.assemblyObject.getData(t2oInstance);
-            if (raw.length === targetDataSize) return raw;
-            if (raw.length > targetDataSize) return raw.subarray(0, targetDataSize);
-            const padded = Buffer.alloc(targetDataSize);
-            raw.copy(padded);
-            return padded;
-        };
-
-        const rpiMs = Math.max(1, Math.round(request.toRpiUs / 1000));
-
-        // Immediate first packet dispatch to prevent PLC connection watchdog timeout.
-        // In ODVA CIP Transport Class 1 specification, Connected Data (item 0x00B1)
-        // carries a 16-bit Sequence Count (transport header) so controllers (Delta, Rockwell, Omron)
-        // do not consume the first 2 bytes of data as sequence numbers.
-        const initialDatagram = buildIoDatagram({
-            connectionId: state.toNetworkConnectionId,
-            sequenceNumber: state.sequenceNumber,
-            data: getProducedData(),
-            useRunIdleHeader: false,
-            runIdle: true,
-            includeSequenceCount: true
         });
-        this.sendDatagram(initialDatagram, state.remoteAddress, state.remotePort);
-
-        state.timer = setInterval(() => {
-            state.sequenceNumber = (state.sequenceNumber + 1) >>> 0 || 1;
-            const datagram = buildIoDatagram({
-                connectionId: state.toNetworkConnectionId,
-                sequenceNumber: state.sequenceNumber,
-                data: getProducedData(),
-                useRunIdleHeader: false,
-                runIdle: true,
-                includeSequenceCount: true
-            });
-            this.sendDatagram(datagram, state.remoteAddress, state.remotePort);
-        }, rpiMs);
 
         this.connections.set(otNetworkConnectionId, state);
         this.connectionManagerObject?.recordOpenRequest(true);
 
         if (!this.quiet) {
-            console.log(`\x1b[32m[PLC CLASS 1 I/O CONNECTED]\x1b[0m \x1b[1m${cleanAddress}\x1b[0m | O->T: Assem ${o2tInstance} (${request.otSize}B), T->O: Assem ${t2oInstance} (${request.toSize}B), RPI: ${rpiMs}ms | ConnID: 0x${otNetworkConnectionId.toString(16)}`);
+            const rpiMs = Math.max(1, Math.round(request.toRpiUs / 1000));
+            const trigger = state.productionTrigger === ProductionTrigger.CYCLIC ? 'Cyclic' : 'Change-of-State';
+            console.log(`\x1b[32m[PLC CLASS 1 I/O CONNECTED]\x1b[0m \x1b[1m${cleanAddress}\x1b[0m | O->T: Assem ${o2tInstance} (${request.otSize}B), T->O: Assem ${t2oInstance} (${request.toSize}B), RPI: ${rpiMs}ms, Trigger: ${trigger} | ConnID: 0x${otNetworkConnectionId.toString(16)}`);
         }
 
         return {
@@ -318,6 +318,182 @@ class ConnectionHandler {
                 toApiUs: request.toRpiUs
             }
         };
+    }
+
+    /**
+     * Opens a symbolic Produced/Consumed Tag Class 1 I/O connection — the
+     * runtime counterpart of eds-exporter.js's "Tag Connection" / SYMBOL_ANSI
+     * entry. Unlike a numeric Assembly connection, the path carries a tag
+     * NAME (decodeEPath's path.tagPath) instead of Class/ConnectionPoint
+     * segments, resolved against this adapter's own tag registry
+     * (EIPAdapter.tags, shared here as `this.tagStore`).
+     *
+     * Matches real hardware convention (confirmed against this project's own
+     * real Delta SX3 EDS, eds/031F000E0F0600010001.eds's own "Tag Connection":
+     * O->T size 0, only T->O populated) — one tag, bound to whichever
+     * direction(s) have a nonzero size in the Forward_Open request: O->T only
+     * (Consumed, PLC writes it), T->O only (Produced, PLC reads it), or both
+     * (the same tag, readable and writable).
+     */
+    _openTagConnection(request, tagName, { remoteAddress }) {
+        const tag = this.tagStore.get(tagName);
+        if (!tag) {
+            this.connectionManagerObject?.recordOpenRequest(false, 'resource');
+            return { ok: false, generalStatus: CipGeneralStatus.ConnectionFailure, extendedStatus: 0x0107 }; // connection not found at target
+        }
+
+        const consumes = request.otSize > 0;
+        const produces = request.toSize > 0;
+        if (!consumes && !produces) {
+            this.connectionManagerObject?.recordOpenRequest(false, 'format');
+            return { ok: false, generalStatus: CipGeneralStatus.PathSegmentError, extendedStatus: 0x0120 };
+        }
+        if ((consumes && request.otSize !== tag.buffer.length) || (produces && request.toSize !== tag.buffer.length)) {
+            this.connectionManagerObject?.recordOpenRequest(false, 'format');
+            return { ok: false, generalStatus: CipGeneralStatus.ConnectionFailure, extendedStatus: 0x0109 }; // invalid connection size
+        }
+
+        if (this.strictDuplicateConnections && this._findMatchingConnection(request)) {
+            this.connectionManagerObject?.recordOpenRequest(false, 'duplicate');
+            return { ok: false, generalStatus: CipGeneralStatus.ConnectionFailure, extendedStatus: 0x0100 };
+        }
+        if (!this.strictDuplicateConnections) {
+            for (const [id, existing] of this.connections.entries()) {
+                if (
+                    (existing.originatorSerialNumber === request.originatorSerialNumber && existing.originatorVendorId === request.originatorVendorId) ||
+                    (existing.remoteAddress === remoteAddress && existing.tagName === tagName)
+                ) {
+                    if (existing.timer) clearInterval(existing.timer);
+                    this.connections.delete(id);
+                }
+            }
+        }
+
+        const otNetworkConnectionId = (Math.floor(Math.random() * 0x3FFFFFFF) + 0x10000000) >>> 0;
+        const state = {
+            otNetworkConnectionId,
+            toNetworkConnectionId: request.toNetworkConnectionId,
+            connectionSerialNumber: request.connectionSerialNumber,
+            originatorVendorId: request.originatorVendorId,
+            originatorSerialNumber: request.originatorSerialNumber,
+            tagName,
+            consumes,
+            produces,
+            otSize: request.otSize,
+            toSize: request.toSize,
+            toRpiUs: request.toRpiUs,
+            remoteAddress,
+            remotePort: null,
+            sequenceNumber: 1,
+            productionTrigger: decodeProductionTrigger(request.transportTypeTrigger),
+            timer: null
+        };
+
+        if (produces) {
+            this._startProducer(state, () => (this.tagStore.get(tagName) || {}).buffer || Buffer.alloc(state.toSize));
+        }
+
+        this.connections.set(otNetworkConnectionId, state);
+        this.connectionManagerObject?.recordOpenRequest(true);
+
+        if (!this.quiet) {
+            const dir = [consumes && 'Consumed', produces && 'Produced'].filter(Boolean).join('+');
+            const trigger = state.productionTrigger === ProductionTrigger.CYCLIC ? 'Cyclic' : 'Change-of-State';
+            console.log(`\x1b[32m[PLC CLASS 1 TAG CONNECTED]\x1b[0m \x1b[1m${remoteAddress}\x1b[0m | Tag: "${tagName}" (${dir}), Trigger: ${trigger} | ConnID: 0x${otNetworkConnectionId.toString(16)}`);
+        }
+
+        return {
+            ok: true,
+            response: {
+                otNetworkConnectionId,
+                toNetworkConnectionId: request.toNetworkConnectionId,
+                connectionSerialNumber: request.connectionSerialNumber,
+                originatorVendorId: request.originatorVendorId,
+                originatorSerialNumber: request.originatorSerialNumber,
+                otApiUs: request.otRpiUs,
+                toApiUs: request.toRpiUs
+            }
+        };
+    }
+
+    /**
+     * Drives cyclic Class 1 production (setInterval @ RPI) for a connection,
+     * OR — when the Scanner selected Change-of-State at Forward_Open time —
+     * event-driven production: send immediately when data actually changes,
+     * with the RPI still acting as a maximum "heartbeat" interval so the
+     * Originator's connection watchdog never times out on an unchanging value.
+     * Shared by both numeric Assembly connections and symbolic Tag connections.
+     *
+     * @param {object} state - connection state (mutated: .timer, .sequenceNumber, .lastSentData, .lastSentAt)
+     * @param {() => Buffer} getRawData - reads the current T->O source buffer (Assembly or tag)
+     * @param {() => void} [beforeProduce] - optional hook run just before each read (e.g. DeviceBuilder's onProduceData sync)
+     */
+    _startProducer(state, getRawData, beforeProduce) {
+        const targetDataSize = state.toSize;
+        const getProducedData = () => {
+            if (typeof beforeProduce === 'function') {
+                try { beforeProduce(); } catch {}
+            }
+            const raw = getRawData();
+            if (raw.length === targetDataSize) return raw;
+            if (raw.length > targetDataSize) return raw.subarray(0, targetDataSize);
+            const padded = Buffer.alloc(targetDataSize);
+            raw.copy(padded);
+            return padded;
+        };
+
+        // Sends at the CURRENT sequence number without advancing it — used
+        // only for the very first packet, which must go out as sequence 1
+        // (matches every real Scanner's expectation, and the pre-existing
+        // behavior this refactor must not change).
+        const sendAtCurrentSeq = (data) => {
+            const datagram = buildIoDatagram({
+                connectionId: state.toNetworkConnectionId,
+                sequenceNumber: state.sequenceNumber,
+                data,
+                useRunIdleHeader: false,
+                runIdle: true,
+                includeSequenceCount: true
+            });
+            this.sendDatagram(datagram, state.remoteAddress, state.remotePort);
+            // A copy, not the live reference: getRawData() (e.g. AssemblyObject.getData())
+            // typically returns the SAME underlying Buffer every call, mutated in place —
+            // caching that reference directly would make every future Change-of-State
+            // comparison compare the buffer to itself and never detect a change.
+            state.lastSentData = Buffer.from(data);
+            state.lastSentAt = Date.now();
+        };
+
+        // Advances the sequence number, then sends — used for every packet after the first.
+        const send = (data) => {
+            state.sequenceNumber = (state.sequenceNumber + 1) >>> 0 || 1;
+            sendAtCurrentSeq(data);
+        };
+
+        const rpiMs = Math.max(1, Math.round((state.toRpiUs || 20000) / 1000));
+
+        // Immediate first packet dispatch to prevent PLC connection watchdog timeout,
+        // unconditionally, regardless of trigger mode — real devices do this too.
+        // In ODVA CIP Transport Class 1 specification, Connected Data (item 0x00B1)
+        // carries a 16-bit Sequence Count (transport header) so controllers (Delta, Rockwell, Omron)
+        // do not consume the first 2 bytes of data as sequence numbers.
+        sendAtCurrentSeq(getProducedData());
+
+        if (state.productionTrigger === ProductionTrigger.CHANGE_OF_STATE || state.productionTrigger === ProductionTrigger.APPLICATION_OBJECT) {
+            // Poll faster than the RPI so a change is noticed promptly, but only
+            // actually transmit when the data changed or the RPI heartbeat is due
+            // — CIP Vol 1 3-4.5.2: for a Change of State connection the RPI is the
+            // *maximum* production interval, not a fixed cadence.
+            const pollMs = Math.max(5, Math.min(rpiMs, 50));
+            state.timer = setInterval(() => {
+                const current = getProducedData();
+                const changed = !state.lastSentData || !current.equals(state.lastSentData);
+                const heartbeatDue = Date.now() - state.lastSentAt >= rpiMs;
+                if (changed || heartbeatDue) send(current);
+            }, pollMs);
+        } else {
+            state.timer = setInterval(() => send(getProducedData()), rpiMs);
+        }
     }
 
     /** @param {object} request - cip/connection-manager.js's parseForwardCloseRequest() output */
@@ -359,7 +535,9 @@ class ConnectionHandler {
                 state.remotePort = rinfo.port;
                 state.remoteAddress = (rinfo.address && rinfo.address.startsWith('::ffff:')) ? rinfo.address.slice(7) : rinfo.address;
             }
-            const outputBuf = this.assemblyObject.getData(state.o2tInstance);
+            const isTagConnection = state.tagName !== undefined;
+            if (isTagConnection && !state.consumes) return; // produce-only tag connection — nothing to consume
+
             let payload = parsed.data;
 
             // Strip CIP I/O transport headers:
@@ -389,10 +567,21 @@ class ConnectionHandler {
                     payload = payload.subarray(2);
                 }
             }
-            if (outputBuf.length !== payload.length && payload.length > 0) {
-                this.assemblyObject.define(state.o2tInstance, payload.length);
+            if (isTagConnection) {
+                if (payload.length === 0) return;
+                if (typeof this.onTagWrite === 'function') {
+                    this.onTagWrite(state.tagName, payload);
+                } else {
+                    const tag = this.tagStore.get(state.tagName);
+                    if (tag) tag.buffer = Buffer.from(payload);
+                }
+            } else {
+                const outputBuf = this.assemblyObject.getData(state.o2tInstance);
+                if (outputBuf.length !== payload.length && payload.length > 0) {
+                    this.assemblyObject.define(state.o2tInstance, payload.length);
+                }
+                this.assemblyObject.setData(state.o2tInstance, payload);
             }
-            this.assemblyObject.setData(state.o2tInstance, payload);
             return;
         }
     }
@@ -403,4 +592,4 @@ class ConnectionHandler {
     }
 }
 
-module.exports = { ConnectionHandler };
+module.exports = { ConnectionHandler, ProductionTrigger, decodeProductionTrigger };

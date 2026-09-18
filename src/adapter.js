@@ -103,6 +103,8 @@ class EIPAdapter extends EventEmitter {
             ...tcpIp
         });
 
+        this.tags = new Map(); // tagName -> { type, buffer, value }
+
         this.objects = new Map();
         this.objects.set(CipClassCodes.Identity, this.identity);
         this.objects.set(CipClassCodes.MessageRouter, this.messageRouter);
@@ -126,6 +128,23 @@ class EIPAdapter extends EventEmitter {
             connectionManagerObject: this.connectionManagerObj,
             quiet: this.quiet,
             strictDuplicateConnections: Boolean(strictDuplicateConnections),
+            tagStore: this.tags,
+            // Lets the ConnectionHandler write incoming O->T Class 1 datagrams
+            // into a symbolic tag (Produced/Consumed Tag connection) while
+            // this object still owns value-decoding and event emission —
+            // exactly the same tagWrite/tagChange contract as an explicit
+            // Set_Attribute_Single write to the tag (see _dispatchCipRequest below).
+            onTagWrite: (tagName, payload) => {
+                const tag = this.tags.get(tagName);
+                if (!tag) return;
+                const oldVal = tag.value;
+                tag.buffer = Buffer.from(payload);
+                try { tag.value = decodeType(tag.type, tag.buffer).value; } catch {}
+                this.emit('tagWrite', tagName, tag.value, oldVal, { source: 'io' });
+                if (tag.value !== oldVal) {
+                    this.emit('tagChange', tagName, tag.value, oldVal, { source: 'io' });
+                }
+            },
             sendDatagram: (buf, remoteAddress, remotePort) => {
                 if (!this._udpIo) return;
                 let targetIp = remoteAddress;
@@ -142,7 +161,6 @@ class EIPAdapter extends EventEmitter {
         this._tcpServer = null;
         this._udpListen = null;
         this._udpIo = null;
-        this.tags = new Map(); // tagName -> { type, buffer, value }
     }
 
     /** Defines (or resets) an Assembly instance's data buffer — call before start(), or any time after. */
