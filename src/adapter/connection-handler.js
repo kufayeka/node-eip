@@ -19,7 +19,7 @@ const { buildIoDatagram, parseIoDatagram } = require('../cip/io-connection');
 const { CipGeneralStatus } = require('../constants');
 
 class ConnectionHandler {
-    constructor({ assemblyObject, identity, sendDatagram, connectionManagerObject, quiet = false }) {
+    constructor({ assemblyObject, identity, sendDatagram, connectionManagerObject, quiet = false, strictDuplicateConnections = false }) {
         this.assemblyObject = assemblyObject;
         this.identity = identity; // optional — enables Electronic Key validation below
         this.sendDatagram = sendDatagram; // (buffer, remoteAddress) => void
@@ -28,6 +28,31 @@ class ConnectionHandler {
         this._nextConnectionId = 1;
         this.quiet = Boolean(quiet);
         this.onProduceData = null; // optional hook (t2oInstance) => void
+        // Default (false) is deliberately more lenient than strict ODVA
+        // conformance: a repeat Forward_Open from the same originator
+        // silently supersedes its own prior connection instead of being
+        // rejected, which is friendlier for interactive development
+        // (re-running a client without an explicit Forward_Close first).
+        // Set true for strict CIP Vol 1 3-5.5.3 behavior — reject a
+        // matching (same Connection Serial Number + Originator Vendor ID +
+        // Originator Serial Number) Forward_Open with ConnectionFailure /
+        // extended status 0x0100 "Connection in use or duplicate Forward
+        // Open", exactly as OpENer's HandleNonNullMatchingForwardOpenRequest does.
+        this.strictDuplicateConnections = Boolean(strictDuplicateConnections);
+    }
+
+    /** Finds an existing connection with the same triple OpENer uses to detect a "matching" Forward_Open. */
+    _findMatchingConnection(request) {
+        for (const existing of this.connections.values()) {
+            if (
+                existing.connectionSerialNumber === request.connectionSerialNumber &&
+                existing.originatorVendorId === request.originatorVendorId &&
+                existing.originatorSerialNumber === request.originatorSerialNumber
+            ) {
+                return existing;
+            }
+        }
+        return null;
     }
 
     /**
@@ -109,15 +134,24 @@ class ConnectionHandler {
             : remoteAddress;
 
         if (isExplicit) {
+            if (this.strictDuplicateConnections && this._findMatchingConnection(request)) {
+                this.connectionManagerObject?.recordOpenRequest(false, 'duplicate');
+                return { ok: false, generalStatus: CipGeneralStatus.ConnectionFailure, extendedStatus: 0x0100 };
+            }
             // Clean up any existing explicit connection from the same originator or endpoint
-            for (const [id, existing] of this.connections.entries()) {
-                if (
-                    existing.isExplicit &&
-                    ((existing.originatorSerialNumber === request.originatorSerialNumber && existing.originatorVendorId === request.originatorVendorId) ||
-                     existing.remoteAddress === cleanAddress)
-                ) {
-                    if (existing.timer) clearInterval(existing.timer);
-                    this.connections.delete(id);
+            // (skipped in strict mode: the exact-triple check above already ran,
+            // and strict mode should let a genuinely different connection from
+            // the same originator/endpoint coexist rather than silently killing it).
+            if (!this.strictDuplicateConnections) {
+                for (const [id, existing] of this.connections.entries()) {
+                    if (
+                        existing.isExplicit &&
+                        ((existing.originatorSerialNumber === request.originatorSerialNumber && existing.originatorVendorId === request.originatorVendorId) ||
+                         existing.remoteAddress === cleanAddress)
+                    ) {
+                        if (existing.timer) clearInterval(existing.timer);
+                        this.connections.delete(id);
+                    }
                 }
             }
 
@@ -185,14 +219,22 @@ class ConnectionHandler {
             return { ok: false, generalStatus: CipGeneralStatus.ConnectionFailure, extendedStatus: 0x0113 };
         }
 
+        if (this.strictDuplicateConnections && this._findMatchingConnection(request)) {
+            this.connectionManagerObject?.recordOpenRequest(false, 'duplicate');
+            return { ok: false, generalStatus: CipGeneralStatus.ConnectionFailure, extendedStatus: 0x0100 };
+        }
+
         // Clean up any existing connection from the same originator or endpoint
-        for (const [id, existing] of this.connections.entries()) {
-            if (
-                (existing.originatorSerialNumber === request.originatorSerialNumber && existing.originatorVendorId === request.originatorVendorId) ||
-                (existing.remoteAddress === cleanAddress && existing.o2tInstance === o2tInstance && existing.t2oInstance === t2oInstance)
-            ) {
-                if (existing.timer) clearInterval(existing.timer);
-                this.connections.delete(id);
+        // (skipped in strict mode — see the matching comment in the explicit-connection branch above).
+        if (!this.strictDuplicateConnections) {
+            for (const [id, existing] of this.connections.entries()) {
+                if (
+                    (existing.originatorSerialNumber === request.originatorSerialNumber && existing.originatorVendorId === request.originatorVendorId) ||
+                    (existing.remoteAddress === cleanAddress && existing.o2tInstance === o2tInstance && existing.t2oInstance === t2oInstance)
+                ) {
+                    if (existing.timer) clearInterval(existing.timer);
+                    this.connections.delete(id);
+                }
             }
         }
 

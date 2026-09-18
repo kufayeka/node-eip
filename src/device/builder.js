@@ -264,6 +264,7 @@ class DeviceBuilder extends EventEmitter {
             ioPort: adapterOpts.ioPort,
             address: adapterOpts.address,
             quiet: adapterOpts.quiet !== undefined ? adapterOpts.quiet : false,
+            strictDuplicateConnections: Boolean(adapterOpts.strictDuplicateConnections),
             identity: {
                 vendorId: this.identity.vendorId,
                 deviceType: this.identity.deviceType,

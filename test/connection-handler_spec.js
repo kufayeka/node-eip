@@ -295,4 +295,51 @@ describe('ConnectionHandler (Adapter-side Forward_Open/Forward_Close + cyclic I/
             h.closeAll();
         });
     });
+
+    describe('strictDuplicateConnections option (CIP Vol 1 3-5.5.3, ODVA-strict vs. the lenient default)', function () {
+        it('default (false): a repeat Forward_Open from the same originator silently supersedes the old connection', function () {
+            const h = new ConnectionHandler({ assemblyObject: assembly, sendDatagram: () => {} });
+            const first = h.openConnection(baseRequest(), { remoteAddress: '10.0.0.5' });
+            assert.strictEqual(first.ok, true);
+            const second = h.openConnection(baseRequest(), { remoteAddress: '10.0.0.5' });
+            assert.strictEqual(second.ok, true);
+            assert.notStrictEqual(second.response.otNetworkConnectionId, first.response.otNetworkConnectionId);
+            assert.strictEqual(h.connections.size, 1); // old one was replaced, not left dangling
+            h.closeAll();
+        });
+
+        it('strict (true): a matching Forward_Open (same Connection Serial Number + Originator) is rejected with 0x0100', function () {
+            const h = new ConnectionHandler({ assemblyObject: assembly, sendDatagram: () => {}, strictDuplicateConnections: true });
+            const first = h.openConnection(baseRequest(), { remoteAddress: '10.0.0.5' });
+            assert.strictEqual(first.ok, true);
+
+            const second = h.openConnection(baseRequest(), { remoteAddress: '10.0.0.5' });
+            assert.strictEqual(second.ok, false);
+            assert.strictEqual(second.generalStatus, CipGeneralStatus.ConnectionFailure);
+            assert.strictEqual(second.extendedStatus, 0x0100);
+            assert.strictEqual(h.connections.size, 1); // original connection untouched
+            h.closeAll();
+        });
+
+        it('strict (true): a Forward_Open with a DIFFERENT triple is still accepted normally', function () {
+            const h = new ConnectionHandler({ assemblyObject: assembly, sendDatagram: () => {}, strictDuplicateConnections: true });
+            const first = h.openConnection(baseRequest(), { remoteAddress: '10.0.0.5' });
+            assert.strictEqual(first.ok, true);
+
+            const second = h.openConnection(baseRequest({ connectionSerialNumber: 0x9999 }), { remoteAddress: '10.0.0.6' });
+            assert.strictEqual(second.ok, true);
+            assert.strictEqual(h.connections.size, 2);
+            h.closeAll();
+        });
+
+        it('strict (true): closing the original connection first frees it up for a matching Forward_Open again', function () {
+            const h = new ConnectionHandler({ assemblyObject: assembly, sendDatagram: () => {}, strictDuplicateConnections: true });
+            const first = h.openConnection(baseRequest(), { remoteAddress: '10.0.0.5' });
+            h.closeConnection({ connectionSerialNumber: 0x1234, originatorVendorId: 0xaaaa, originatorSerialNumber: 0x11223344 });
+
+            const second = h.openConnection(baseRequest(), { remoteAddress: '10.0.0.5' });
+            assert.strictEqual(second.ok, true);
+            h.closeAll();
+        });
+    });
 });

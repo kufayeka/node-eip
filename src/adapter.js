@@ -74,7 +74,7 @@ function getLocalInterfaceDetails(targetAddress) {
 }
 
 class EIPAdapter extends EventEmitter {
-    constructor({ port = EIP_ENCAPSULATION_PORT, ioPort = EIP_IO_UDP_PORT, address, identity, tcpIp, ethernetLink, quiet = false } = {}) {
+    constructor({ port = EIP_ENCAPSULATION_PORT, ioPort = EIP_IO_UDP_PORT, address, identity, tcpIp, ethernetLink, quiet = false, strictDuplicateConnections = false } = {}) {
         super();
         this.quiet = Boolean(quiet);
         this.port = port;
@@ -125,6 +125,7 @@ class EIPAdapter extends EventEmitter {
             identity: this.identity,
             connectionManagerObject: this.connectionManagerObj,
             quiet: this.quiet,
+            strictDuplicateConnections: Boolean(strictDuplicateConnections),
             sendDatagram: (buf, remoteAddress, remotePort) => {
                 if (!this._udpIo) return;
                 let targetIp = remoteAddress;
