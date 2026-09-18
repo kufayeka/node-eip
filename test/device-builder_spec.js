@@ -179,6 +179,37 @@ describe('Universal EtherNet/IP Device Builder & EDS Exporter', () => {
         });
     });
 
+    describe('Symbolic Produced/Consumed Tag Connection export (SYMBOL_ANSI)', () => {
+        it('adds a "Tag Connection" entry with Path = "SYMBOL_ANSI" once any tag is defined', () => {
+            const b = new DeviceBuilder({ vendorId: 799, productName: 'Tagged Node' });
+            b.addTag('Heartbeat', 'DINT', 0);
+            b.defineAssembly({ instance: 100, name: 'Out', type: 'output', sizeBytes: 4 });
+            b.defineAssembly({ instance: 101, name: 'In', type: 'input', sizeBytes: 4 });
+            b.defineConnection({ name: 'Exclusive Owner', outputAssembly: 100, inputAssembly: 101 });
+
+            const eds = b.generateEds();
+            const cm = eds.split('[Connection Manager]')[1].split('[Capacity]')[0];
+
+            assert.ok(cm.includes('"Tag Connection"'));
+            assert.ok(cm.includes('"SYMBOL_ANSI"'));
+            assert.ok(cm.includes('MaxInst = 2')); // the explicit connection + the tag connection
+            assert.ok(cm.includes('Connection2 ='));
+        });
+
+        it('does NOT add a Tag Connection entry when no tags are defined', () => {
+            const b = new DeviceBuilder({ vendorId: 799, productName: 'No Tags Node' });
+            b.defineAssembly({ instance: 100, name: 'Out', type: 'output', sizeBytes: 4 });
+            b.defineAssembly({ instance: 101, name: 'In', type: 'input', sizeBytes: 4 });
+            b.defineConnection({ name: 'Exclusive Owner', outputAssembly: 100, inputAssembly: 101 });
+
+            const eds = b.generateEds();
+            const cm = eds.split('[Connection Manager]')[1].split('[Capacity]')[0];
+
+            assert.ok(!cm.includes('SYMBOL_ANSI'));
+            assert.ok(cm.includes('MaxInst = 1'));
+        });
+    });
+
     describe('Live Server (EIPAdapter) & Client Control Loopback', () => {
         let builder;
         let adapter;

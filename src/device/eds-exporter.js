@@ -33,6 +33,12 @@ function exportToEds(deviceSpec) {
     const identity = deviceSpec.identity || {};
     const params = deviceSpec.params || [];
     const assemblies = deviceSpec.assemblies || [];
+    // Accept a Map (DeviceBuilder.tags), a plain array, or an object — just
+    // need to know whether any symbolic tags exist for the Tag Connection below.
+    const rawTags = deviceSpec.tags;
+    const hasTags = rawTags instanceof Map ? rawTags.size > 0
+        : Array.isArray(rawTags) ? rawTags.length > 0
+        : Boolean(rawTags && Object.keys(rawTags).length > 0);
     const now = new Date();
 
     const vendCode = identity.vendorId !== undefined ? identity.vendorId : 799; // Default 799 (Delta) or custom
@@ -242,12 +248,13 @@ ${scalingStr}
 
     // 3. [Connection Manager] Section (Matches Delta EIP Builder & ODVA Standard exactly)
     if (Array.isArray(connections) && connections.length > 0) {
+        const totalConnections = connections.length + (hasTags ? 1 : 0);
         eds += `[Connection Manager]
         Object_Name = "Connection Manager Object";
         Object_Class_Code = 0x06;
         Revision = 1;
-        MaxInst = ${connections.length};
-        Number_Of_Static_Instances = ${connections.length};
+        MaxInst = ${totalConnections};
+        Number_Of_Static_Instances = ${totalConnections};
         Max_Number_Of_Dynamic_Instances = 0;\n\n`;
 
         connections.forEach((conn, index) => {
@@ -270,6 +277,31 @@ ${scalingStr}
                 ${JSON.stringify(conn.help || conn.name || '')}, $ 14. Help String
                 "20 04 24 01 2C ${otInstHex} 2C ${toInstHex}"; $ 15. Path\n\n`;
         });
+
+        if (hasTags) {
+            // Symbolic Produced/Consumed Tag Connection — CIP Vol 1 C-1.4.3 /
+            // this driver's src/cip/path.js encodeTagConnectionPath(). Unlike
+            // every connection above, the Path here isn't a fixed Class/
+            // Instance/ConnectionPoint pair — "SYMBOL_ANSI" is the literal
+            // keyword real EDS-consuming tools (confirmed against this
+            // project's own real Delta SX3 EDS, eds/031F000E0F0600010001.eds,
+            // Connection "Tag Connection") use to mean "the user picks the
+            // actual tag name for O->T (Consumed) / T->O (Produced) at
+            // configuration time" — that's what makes the Scanner's config
+            // tool show a "Symbol Configuration" screen instead of a plain
+            // fixed I/O size.
+            const tagConnIdx = connections.length + 1;
+            eds += `        Connection${tagConnIdx} =
+                0x04010002,             $ 1. Trigger: cyclic, Transport: Exclusive-Owner Class 1
+                0x44640405,             $ 2. Point-to-Point, 4-byte Run/Idle header
+                ,,,                     $ 3, 4, 5. O->T (Consumed) RPI, Size, Format — chosen tag decides size
+                ,,,                     $ 6, 7, 8. T->O (Produced) RPI, Size, Format — chosen tag decides size
+                ,,                      $ 9, 10. Proxy Config Size, Proxy Config Format
+                0,,                     $ 11, 12. Target Config Size (0), Target Config Format (none)
+                "Tag Connection",       $ 13. Connection Name
+                "Produced/Consumed symbolic tag connection — pick any defined tag as Produced (read) or Consumed (write)", $ 14. Help String
+                "SYMBOL_ANSI";          $ 15. Path\n\n`;
+        }
     } else if (outputAssem && inputAssem) {
         const otInstHex = outputAssem.instance.toString(16).padStart(2, '0').toUpperCase();
         const toInstHex = inputAssem.instance.toString(16).padStart(2, '0').toUpperCase();

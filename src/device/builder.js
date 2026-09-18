@@ -231,7 +231,8 @@ class DeviceBuilder extends EventEmitter {
             description: this.description,
             params: this.params,
             assemblies: this.assemblies,
-            connections: this.connections
+            connections: this.connections,
+            tags: this.tags
         });
     }
 
