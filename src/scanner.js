@@ -16,7 +16,7 @@ const { EIPSession } = require('./client');
 const { encodeEPath, encodeSymbolicPath } = require('./cip/path');
 const { buildRequest } = require('./cip/message-router');
 const { decodeMessage } = require('./encapsulation/header');
-const { scanUdp, scanUdpUnicast, probeTcp } = require('./encapsulation/discovery');
+const { scanUdp, scanUdpUnicast, scanSubnet, probeTcp } = require('./encapsulation/discovery');
 const { buildListServicesRequest, parseListServicesResponse } = require('./encapsulation/services');
 const { buildMultipleServiceRequest, parseMultipleServiceResponse } = require('./cip/multiple-service');
 const { CipCommonServices, CipGeneralStatus, CipClassCodes, EIP_ENCAPSULATION_PORT } = require('./constants');
@@ -45,6 +45,10 @@ class Scanner {
         }
         this.host = host;
         this.session = new EIPSession(host, options);
+        // Prevent uncaught 'error' exception if caller does not attach a listener
+        this.session.on('error', (err) => {
+            this.emit ? this.emit('error', err) : null;
+        });
     }
 
     /** Discovers EIP devices on the local network(s) via UDP broadcast ListIdentity. */
@@ -55,6 +59,15 @@ class Scanner {
     /** ListIdentity via UDP unicast to a known host. */
     static discoverAt(host, opts) {
         return scanUdpUnicast(host, opts);
+    }
+
+    /** Sweeps an entire subnet via fast UDP unicast (reliable on Wi-Fi & managed switches). */
+    static scanSubnet(opts) {
+        return scanSubnet(opts);
+    }
+
+    static sweep(opts) {
+        return scanSubnet(opts);
     }
 
     /** ListIdentity via TCP (no session needed) to a known host. */

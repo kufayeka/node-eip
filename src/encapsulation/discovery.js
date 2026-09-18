@@ -212,11 +212,86 @@ function probeTcp(host, { port = EIP_ENCAPSULATION_PORT, timeoutMs = 3000 } = {}
     });
 }
 
+/**
+ * Sweeps an IPv4 /24 subnet (e.g. '192.168.68.0/24' or prefix '192.168.68') using fast
+ * concurrent UDP unicast probes. Highly reliable across Wi-Fi routers and managed switches
+ * where UDP broadcast (.255) packets are silently dropped by broadcast storm control or AP isolation.
+ *
+ * @param {object} [opts]
+ * @param {string|string[]} [opts.subnets] - Subnet prefix or CIDR, e.g. '192.168.68'
+ * @param {number} [opts.port=44818]
+ * @param {number} [opts.timeoutMs=1500]
+ * @returns {Promise<Array<{ remoteAddress: string, remotePort: number, identity: object }>>}
+ */
+function scanSubnet({ subnets, port = EIP_ENCAPSULATION_PORT, timeoutMs = 1500 } = {}) {
+    const prefixes = [];
+    if (subnets) {
+        const list = Array.isArray(subnets) ? subnets : [subnets];
+        for (const s of list) {
+            const clean = s.split('/')[0].replace(/\.\d+$/, '');
+            prefixes.push(clean);
+        }
+    } else {
+        const interfaces = os.networkInterfaces();
+        for (const entries of Object.values(interfaces)) {
+            for (const entry of entries || []) {
+                if (entry.internal || entry.family !== 'IPv4') continue;
+                const parts = entry.address.split('.');
+                prefixes.push(`${parts[0]}.${parts[1]}.${parts[2]}`);
+            }
+        }
+    }
+
+    const uniquePrefixes = [...new Set(prefixes)];
+    return new Promise((resolve, reject) => {
+        const socket = dgram.createSocket('udp4');
+        const found = new Map();
+
+        socket.on('error', (err) => {
+            socket.close();
+            reject(err);
+        });
+
+        socket.on('message', (msg, rinfo) => {
+            try {
+                const parsed = parseListIdentityResponse(msg);
+                if (parsed) {
+                    found.set(rinfo.address, { remoteAddress: rinfo.address, remotePort: rinfo.port, identity: parsed.identity });
+                }
+            } catch {}
+        });
+
+        socket.bind(() => {
+            const request = buildListIdentityRequest();
+            const sendSweep = () => {
+                for (const prefix of uniquePrefixes) {
+                    for (let i = 1; i <= 254; i++) {
+                        socket.send(request, port, `${prefix}.${i}`);
+                    }
+                }
+            };
+
+            // Pass 1
+            sendSweep();
+
+            // Pass 2 after 200ms to overcome Wi-Fi packet drop / jitter
+            setTimeout(sendSweep, 200);
+        });
+
+        setTimeout(() => {
+            socket.close();
+            resolve([...found.values()]);
+        }, timeoutMs);
+    });
+}
+
 module.exports = {
     buildListIdentityRequest,
     parseListIdentityResponse,
     ipv4DirectedBroadcasts,
     scanUdp,
     scanUdpUnicast,
+    scanSubnet,
     probeTcp
 };
+
