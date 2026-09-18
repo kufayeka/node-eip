@@ -10,7 +10,9 @@
  * - Attr 1: Value (encapsulated binary data per data type)
  * - Attr 2: Link Path Size
  * - Attr 3: Link Path
- * - Attr 4: Descriptor (bitmask: 0x0001 = read-only, 0x0002 = read-write)
+ * - Attr 4: Descriptor (bitmask, CIP Vol 1 Appx C: bit0 = Supports Settable
+ *   Path, bit1 = Enumerated strings supplied, bit4 (0x0010) = Read-Only.
+ *   There is no dedicated "read-write" bit — writable is simply bit4 clear.)
  * - Attr 5: Data Type (CIP elementary data type code)
  * - Attr 6: Data Size (size in bytes)
  */
@@ -172,7 +174,7 @@ class ParameterObject extends EventEmitter {
             }
             case 4: { // Descriptor
                 const b = Buffer.alloc(2);
-                const descriptor = (param.access === 'rw') ? 0x0002 : 0x0001;
+                const descriptor = (param.access === 'r') ? 0x0010 : 0x0000; // bit4 = Read-Only
                 b.writeUInt16LE(descriptor, 0);
                 return ok(b);
             }

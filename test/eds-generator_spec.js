@@ -29,7 +29,7 @@ const sampleInverterEds = `
     Param1 =
         0,                      $ reserved
         ,,                      $ link path
-        0x0002,                 $ descriptor (read/write)
+        0x0000,                 $ descriptor (bit4 clear = read/write)
         0x00C7,                 $ UINT 16-bit
         2,                      $ size
         "01-00 Output Frequency", $ name
@@ -40,7 +40,7 @@ const sampleInverterEds = `
     Param2 =
         0,
         ,,
-        0x0001,                 $ descriptor (read-only)
+        0x0010,                 $ descriptor (bit4 set = read-only)
         0x00C7,                 $ UINT 16-bit
         2,
         "01-01 Output Current",
@@ -51,7 +51,7 @@ const sampleInverterEds = `
     Param3 =
         0,
         "20 28 24 01 30 01",     $ link path: Class 0x28 (Motor Data), Inst 1, Attr 1
-        0x0002,
+        0x0000,                 $ descriptor (bit4 clear = read/write)
         0x00C8,                 $ UDINT 32-bit
         4,
         "02-00 Rated Power",

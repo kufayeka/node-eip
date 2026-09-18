@@ -132,7 +132,11 @@ function createProfileFromEds(edsSource, options = {}) {
         const code = extractParamCode(param);
         const { classId, instance, attribute } = resolveParamCipPath(param);
         const dataType = mapCipDataType(param.dataType, param.dataSize);
-        const access = (param.descriptor & 0x02) ? 'rw' : 'r';
+        // Param Descriptor bitmap (CIP Vol 1 Appx C): bit4 (0x0010) = Read-Only.
+        // There is no dedicated read-write bit -- writable is simply bit4 clear.
+        // (0x0002, used here previously, is "Enumerated strings supplied" --
+        // unrelated to access.)
+        const access = (param.descriptor & 0x0010) ? 'r' : 'rw';
 
         const paramDef = {
             id,
@@ -366,7 +370,7 @@ function generateProfileCodeFromEds(edsSource, options = {}) {
         const code = extractParamCode(param);
         const { classId, instance, attribute } = resolveParamCipPath(param);
         const dataType = mapCipDataType(param.dataType, param.dataSize);
-        const access = (param.descriptor & 0x02) ? 'rw' : 'r';
+        const access = (param.descriptor & 0x0010) ? 'r' : 'rw'; // bit4 = Read-Only
 
         paramEntries.push(`        '${code}': { id: ${id}, code: '${code}', name: ${JSON.stringify(param.name || `Param${id}`)}, classId: 0x${classId.toString(16).toUpperCase()}, instance: ${instance}, attribute: ${attribute}, dataType: '${dataType}', byteWidth: ${param.dataSize || 2}, units: ${JSON.stringify(param.units || '')}, min: ${param.min || 0}, max: ${param.max || 0}, access: '${access}' }`);
     }
