@@ -7,7 +7,23 @@
  * Verified against official Rockwell Automation and Delta Electronics (EIP Builder) EDS standards.
  */
 
-const { getCipTypeInfo, CipDataTypeCode } = require('../cip/types');
+const { getCipTypeInfo, CipDataTypeCode, encodeType } = require('../cip/types');
+
+// Conservative full-range bounds per elementary CIP numeric type, used only
+// for the synthetic tag-derived Param entries below (real addParam() calls
+// already carry their own min/max).
+function numericTypeRange(dataType) {
+    switch (String(dataType || 'DINT').toUpperCase()) {
+        case 'BOOL': return [0, 1];
+        case 'SINT': return [-128, 127];
+        case 'USINT': case 'BYTE': return [0, 255];
+        case 'INT': return [-32768, 32767];
+        case 'UINT': case 'WORD': return [0, 65535];
+        case 'DINT': return [-2147483648, 2147483647];
+        case 'UDINT': case 'DWORD': return [0, 4294967295];
+        default: return [0, 4294967295];
+    }
+}
 
 function formatDate(d = new Date()) {
     const mm = String(d.getMonth() + 1).padStart(2, '0');
@@ -33,12 +49,54 @@ function exportToEds(deviceSpec) {
     const identity = deviceSpec.identity || {};
     const params = deviceSpec.params || [];
     const assemblies = deviceSpec.assemblies || [];
-    // Accept a Map (DeviceBuilder.tags), a plain array, or an object — just
-    // need to know whether any symbolic tags exist for the Tag Connection below.
+    // Accept a Map (DeviceBuilder.tags), a plain array, or an object.
     const rawTags = deviceSpec.tags;
-    const hasTags = rawTags instanceof Map ? rawTags.size > 0
-        : Array.isArray(rawTags) ? rawTags.length > 0
-        : Boolean(rawTags && Object.keys(rawTags).length > 0);
+    const tagEntries = rawTags instanceof Map ? Array.from(rawTags.values())
+        : Array.isArray(rawTags) ? rawTags
+        : (rawTags && typeof rawTags === 'object') ? Object.values(rawTags)
+        : [];
+    const hasTags = tagEntries.length > 0;
+
+    // Config tools (confirmed against Delta EIP Builder: without this, the
+    // Tag Connection's "Length" column is stuck at an arbitrary default and
+    // isn't editable) need a static, sized list to resolve a typed-in tag
+    // name against — so every NUMERIC tag also gets its own synthetic Param
+    // entry, continuing the same Param numbering as real addParam() params,
+    // and a synthetic Assembly (built below) referencing all of them is
+    // wired into the Tag Connection's Format field. This mirrors this
+    // project's own real Delta SX3 EDS's Tag Connection, whose Format field
+    // likewise references an Assembly of Params rather than being blank.
+    // STRING/SHORT_STRING tags are skipped: EDS Params are fixed-size and
+    // carry numeric Min/Max/Default, which doesn't fit a variable-length
+    // string — those tags remain explicit-messaging-only (no Length entry).
+    const STRING_TAG_TYPES = new Set(['STRING', 'SHORT_STRING']);
+    const tagParamBaseId = params.length;
+    const tagParams = tagEntries
+        .filter((t) => !STRING_TAG_TYPES.has(String(t.type || 'DINT').toUpperCase()))
+        .map((t, idx) => {
+            const dataType = t.type || 'DINT';
+            const typeInfo = getCipTypeInfo(dataType);
+            const typeCode = typeInfo ? typeInfo.code : CipDataTypeCode.DINT;
+            let byteSize;
+            try { byteSize = encodeType(dataType, t.value).length; } catch { byteSize = typeInfo ? typeInfo.size : 4; }
+            const [min, max] = numericTypeRange(dataType);
+            return {
+                id: tagParamBaseId + idx + 1,
+                name: t.name,
+                typeCode,
+                byteSize,
+                min,
+                max,
+                defVal: typeof t.value === 'number' ? t.value : 0
+            };
+        });
+    const hasNumericTagParams = tagParams.length > 0;
+    // Unused instance number for the synthetic tag-symbol table Assembly —
+    // referenced from the Tag Connection's Format field below, never opened
+    // as a real Class 1 I/O connection itself.
+    const tagAssemblyInstance = hasNumericTagParams
+        ? (assemblies.length > 0 ? Math.max(...assemblies.map((a) => a.instance)) + 1 : 199)
+        : null;
     const now = new Date();
 
     const vendCode = identity.vendorId !== undefined ? identity.vendorId : 799; // Default 799 (Delta) or custom
@@ -84,9 +142,9 @@ $ Timestamp: ${now.toISOString()}
 `;
 
     // 1. [ParamClass] & [Params] Section
-    if (params.length > 0) {
+    if (params.length > 0 || hasNumericTagParams) {
         eds += `\n[ParamClass]
-        MaxInst = ${params.length};
+        MaxInst = ${params.length + tagParams.length};
         Descriptor = 0x0001;
         CfgAssembly = 0;\n`;
 
@@ -149,6 +207,25 @@ ${scalingStr}
 `;
             }
         }
+
+        // Synthetic Param entries for numeric symbolic tags (see tagParams'
+        // comment above) — always read/write (0x0000), no scaling, no link path.
+        for (const tp of tagParams) {
+            eds += `        Param${tp.id} =
+                0,
+                ,,
+                0x0000,
+                0x${tp.typeCode.toString(16).padStart(2, '0').toUpperCase()},
+                ${tp.byteSize},
+                ${JSON.stringify(tp.name)},
+                "",
+                ${JSON.stringify(`Symbolic tag "${tp.name}" (Produced/Consumed Tag Connection member)`)},
+                ${tp.min},${tp.max},${tp.defVal},
+                ,,,,
+                ,,,,
+                ;
+`;
+        }
     }
 
     const connections = deviceSpec.connections || [];
@@ -157,15 +234,16 @@ ${scalingStr}
     const inputAssem = assemblies.find(a => a.type === 'input' || a.type === 'produce');
     const outputAssem = assemblies.find(a => a.type === 'output' || a.type === 'consume');
 
-    if (assemblies.length > 0) {
-        const maxInst = assemblies.reduce((max, a) => Math.max(max, a.instance), 1);
+    if (assemblies.length > 0 || hasNumericTagParams) {
+        const maxInst = Math.max(1, ...assemblies.map((a) => a.instance), tagAssemblyInstance || 0);
+        const totalAssemblyCount = assemblies.length + (hasNumericTagParams ? 1 : 0);
 
         eds += `\n[Assembly]
         Object_Name = "Assembly Object";
         Object_Class_Code = 0x04;
         Revision = 2;
         MaxInst = ${maxInst};
-        Number_Of_Static_Instances = ${assemblies.length};
+        Number_Of_Static_Instances = ${totalAssemblyCount};
         Max_Number_Of_Dynamic_Instances = 0;\n\n`;
 
         for (const assem of assemblies) {
@@ -244,6 +322,29 @@ ${scalingStr}
             });
             eds += memLines.join('\n') + '\n\n';
         }
+
+        // Synthetic "symbol table" Assembly listing every numeric tag as a
+        // member — not a real I/O connection endpoint, only referenced from
+        // the Tag Connection's Format field below so a config tool has a
+        // sized, named list to resolve a typed-in tag name against (this
+        // project's own real Delta SX3 EDS does the same: its own Tag
+        // Connection's Format field references an Assembly built from Params,
+        // not a blank field).
+        if (hasNumericTagParams) {
+            const instHex = tagAssemblyInstance.toString(16).padStart(2, '0').toUpperCase();
+            const totalBytes = tagParams.reduce((sum, tp) => sum + tp.byteSize, 0);
+            eds += `        Assem${tagAssemblyInstance} =
+                "TAG_SYMBOL_TABLE",
+                "20 04 24 ${instHex} 30 03",
+                ${totalBytes},
+                0x0000,
+                ,,\n`;
+            const tagMemLines = tagParams.map((tp, idx) => {
+                const isLast = idx === tagParams.length - 1;
+                return `                ${tp.byteSize * 8},Param${tp.id}${isLast ? ';' : ','}`;
+            });
+            eds += tagMemLines.join('\n') + '\n\n';
+        }
     }
 
     // 3. [Connection Manager] Section (Matches Delta EIP Builder & ODVA Standard exactly)
@@ -290,12 +391,22 @@ ${scalingStr}
             // configuration time" — that's what makes the Scanner's config
             // tool show a "Symbol Configuration" screen instead of a plain
             // fixed I/O size.
+            //
+            // The Format field below (both directions) references the
+            // synthetic TAG_SYMBOL_TABLE assembly built above when at least
+            // one numeric tag exists — confirmed necessary against a real
+            // Delta EIP Builder test: with Format left blank, the Data
+            // Exchange grid's "Length" column is stuck at a meaningless
+            // default and isn't editable, even after typing in a valid tag
+            // name. Real SX3's own Tag Connection does the same (its Format
+            // field references an Assembly of Params, not a blank field).
             const tagConnIdx = connections.length + 1;
+            const tagFormatRef = hasNumericTagParams ? `Assem${tagAssemblyInstance}` : '';
             eds += `        Connection${tagConnIdx} =
                 0x04010002,             $ 1. Trigger: cyclic, Transport: Exclusive-Owner Class 1
                 0x44640405,             $ 2. Point-to-Point, 4-byte Run/Idle header
-                ,,,                     $ 3, 4, 5. O->T (Consumed) RPI, Size, Format — chosen tag decides size
-                ,,,                     $ 6, 7, 8. T->O (Produced) RPI, Size, Format — chosen tag decides size
+                ,,${tagFormatRef},                     $ 3, 4, 5. O->T (Consumed) RPI, Size, Format — chosen tag decides size
+                ,,${tagFormatRef},                     $ 6, 7, 8. T->O (Produced) RPI, Size, Format — chosen tag decides size
                 ,,                      $ 9, 10. Proxy Config Size, Proxy Config Format
                 0,,                     $ 11, 12. Target Config Size (0), Target Config Format (none)
                 "Tag Connection",       $ 13. Connection Name

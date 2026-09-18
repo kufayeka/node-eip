@@ -208,6 +208,59 @@ describe('Universal EtherNet/IP Device Builder & EDS Exporter', () => {
             assert.ok(!cm.includes('SYMBOL_ANSI'));
             assert.ok(cm.includes('MaxInst = 1'));
         });
+
+        // Confirmed necessary against a real Delta EIP Builder test: with the
+        // Tag Connection's Format field left blank, the Data Exchange grid's
+        // "Length" column got stuck at an uneditable default (2 bytes) no
+        // matter which tag name was typed in — so numeric tags now also get
+        // a synthetic Param entry plus a synthetic Assembly (referenced from
+        // the Tag Connection's Format field) the config tool can look their
+        // size up against, matching how this project's own real Delta SX3
+        // EDS's Tag Connection references an Assembly of Params instead of
+        // leaving Format blank.
+        it('gives every numeric tag its own synthetic Param and wires a TAG_SYMBOL_TABLE Assembly into the Tag Connection\'s Format fields', () => {
+            const b = new DeviceBuilder({ vendorId: 799, productName: 'Tagged Node' });
+            b.addTag('Heartbeat', 'DINT', 0); // 4 bytes
+            b.addTag('CommandCode', 'INT', 10); // 2 bytes
+            b.defineAssembly({ instance: 100, name: 'Out', type: 'output', sizeBytes: 4 });
+            b.defineAssembly({ instance: 101, name: 'In', type: 'input', sizeBytes: 4 });
+            b.defineConnection({ name: 'Exclusive Owner', outputAssembly: 100, inputAssembly: 101 });
+
+            const eds = b.generateEds();
+
+            // Each tag became its own Param, sized to its real CIP type.
+            assert.ok(/Param1\s*=[\s\S]*?"Heartbeat"/.test(eds));
+            assert.ok(/Param2\s*=[\s\S]*?"CommandCode"/.test(eds));
+
+            // A synthetic Assembly lists both as members...
+            const assemblySection = eds.split('[Assembly]')[1].split('[Connection Manager]')[0];
+            assert.ok(assemblySection.includes('"TAG_SYMBOL_TABLE"'));
+            assert.ok(assemblySection.includes('Param1'));
+            assert.ok(assemblySection.includes('Param2'));
+
+            // ...and the Tag Connection's O->T and T->O Format fields both reference it.
+            const cm = eds.split('[Connection Manager]')[1].split('[Capacity]')[0];
+            const tagConnBlock = cm.split('"Tag Connection"')[0].split(/Connection\d+ =/).pop();
+            const tagSymbolAssemMatch = assemblySection.match(/Assem(\d+) =\s*\n\s*"TAG_SYMBOL_TABLE"/);
+            assert.ok(tagSymbolAssemMatch);
+            const tagSymbolAssemRef = `Assem${tagSymbolAssemMatch[1]}`;
+            const formatOccurrences = tagConnBlock.split(tagSymbolAssemRef).length - 1;
+            assert.strictEqual(formatOccurrences, 2); // once for O->T, once for T->O
+        });
+
+        it('skips STRING-type tags entirely (no synthetic Param/Assembly, Format stays blank)', () => {
+            const b = new DeviceBuilder({ vendorId: 799, productName: 'String Tag Node' });
+            b.addTag('MES_BatchId', 'STRING', 'BATCH-1');
+            b.defineAssembly({ instance: 100, name: 'Out', type: 'output', sizeBytes: 4 });
+            b.defineAssembly({ instance: 101, name: 'In', type: 'input', sizeBytes: 4 });
+            b.defineConnection({ name: 'Exclusive Owner', outputAssembly: 100, inputAssembly: 101 });
+
+            const eds = b.generateEds();
+
+            assert.ok(!eds.includes('TAG_SYMBOL_TABLE'));
+            assert.ok(!eds.includes('MES_BatchId')); // no synthetic Param either
+            assert.ok(eds.includes('"SYMBOL_ANSI"')); // the Tag Connection entry itself is still exported
+        });
     });
 
     describe('Live Server (EIPAdapter) & Client Control Loopback', () => {

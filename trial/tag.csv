@@ -1,0 +1,24 @@
+ParamID,ParamName,ParamValue
+1,01-00 TargetFrequency,100
+2,01-01 ControlWord,200
+3,01-02 AccelTime,50
+4,01-03 DecelTime,50
+5,02-00 ChamberTemperature,300
+6,02-01 PressureSetpoint,400
+7,02-02 SpeedSetpoint,500
+8,02-03 FeedRate,1200
+9,02-04 TargetCount,1000
+10,02-05 UserCommand,1
+11,03-00 ActualFrequency,5000
+12,03-01 ActualCurrent,148
+13,03-02 ActualVoltage,3800
+14,03-03 ActualTorque,750
+15,03-04 ActualTemperature,25
+16,03-05 ActualPressure,101
+17,03-06 ActualSpeed,1450
+18,03-07 ActualFeedRate,1195
+19,03-08 PartsProduced,245
+20,03-09 StatusWord,3
+21,Heartbeat,0
+22,CommandCode,10
+23,PartCounter,0
