@@ -15,6 +15,8 @@ class DeltaDevice extends Device {
     }
 }
 
+const { createProfileFromEds, generateProfileCodeFromEds } = require('./eds-generator');
+
 module.exports = {
     DeviceProfile,
     BatchBuilder,
@@ -23,6 +25,9 @@ module.exports = {
     registerProfile,
     getProfile,
     hasProfile,
-    listProfiles
+    listProfiles,
+    createProfileFromEds,
+    generateProfileCodeFromEds
 };
+
 

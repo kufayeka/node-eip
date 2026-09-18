@@ -6,7 +6,11 @@
   "scripts": {
     "test": "mocha --exit \"test/**/*_spec.js\""
   },
+  "bin": {
+    "eip-profile-gen": "./bin/eds-to-profile.js"
+  },
   "keywords": [
+
     "ethernet-ip",
     "cip",
     "odva",

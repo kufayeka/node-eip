@@ -59,8 +59,10 @@ class DeviceProfile {
             access: def.access || 'rw', // 'r', 'w', 'rw'
             isBit: Boolean(def.isBit),
             isWord: def.isWord !== undefined ? def.isWord : !def.isBit,
+            isScalar: Boolean(def.isScalar),
+            units: def.units || '',
             octal: Boolean(def.octal),
-            range: def.range || [0, 65535],
+            range: def.range || null,
             resolve: def.resolve || null // dynamic resolver fn(index, mode) => { classId, instance, attribute, dataType, byteWidth }
         };
     }
@@ -97,6 +99,24 @@ class DeviceProfile {
         const reg = this.getRegister(regName);
         let index = indexOrLabel;
 
+        if (reg.isScalar && index === undefined) {
+            index = 0;
+        }
+
+        // Custom dynamic resolver (e.g. PARAM register or dynamic attribute/instance logic)
+        if (typeof reg.resolve === 'function') {
+            const resolved = reg.resolve(index, options);
+            return {
+                classId: resolved.classId !== undefined ? resolved.classId : reg.classId,
+                instance: resolved.instance !== undefined ? resolved.instance : (typeof reg.instance === 'function' ? reg.instance(index) : reg.instance),
+                attribute: resolved.attribute !== undefined ? resolved.attribute : index,
+                dataType: resolved.dataType || reg.dataType,
+                byteWidth: resolved.byteWidth || (resolved.dataType === 'DINT' ? 4 : 2),
+                access: resolved.access || reg.access,
+                isBit: resolved.isBit !== undefined ? resolved.isBit : reg.isBit
+            };
+        }
+
         if (typeof index === 'string') {
             if (reg.octal) {
                 index = this.parseOctalLabel(index);
@@ -109,22 +129,8 @@ class DeviceProfile {
             throw new RangeError(`Invalid register address "${indexOrLabel}" for ${regName}`);
         }
 
-        if (reg.range && (index < reg.range[0] || index > reg.range[1])) {
+        if (reg.range && !reg.isScalar && (index < reg.range[0] || index > reg.range[1])) {
             throw new RangeError(`Address ${index} is out of range [${reg.range[0]}..${reg.range[1]}] for register ${regName}`);
-        }
-
-        // Custom dynamic resolver (e.g. C register >= 200 on ES2)
-        if (typeof reg.resolve === 'function') {
-            const resolved = reg.resolve(index, options);
-            return {
-                classId: resolved.classId !== undefined ? resolved.classId : reg.classId,
-                instance: resolved.instance !== undefined ? resolved.instance : (typeof reg.instance === 'function' ? reg.instance(index) : reg.instance),
-                attribute: resolved.attribute !== undefined ? resolved.attribute : index,
-                dataType: resolved.dataType || reg.dataType,
-                byteWidth: resolved.byteWidth || (resolved.dataType === 'DINT' ? 4 : 2),
-                access: resolved.access || reg.access,
-                isBit: resolved.isBit !== undefined ? resolved.isBit : reg.isBit
-            };
         }
 
         const isBitMode = options.mode === 'bit' || (reg.isBit && options.mode !== 'word');
@@ -176,4 +182,15 @@ class DeviceProfile {
     }
 }
 
+DeviceProfile.fromEds = function (edsSource, options) {
+    const { createProfileFromEds } = require('./eds-generator');
+    return createProfileFromEds(edsSource, options);
+};
+
+DeviceProfile.generateCodeFromEds = function (edsSource, options) {
+    const { generateProfileCodeFromEds } = require('./eds-generator');
+    return generateProfileCodeFromEds(edsSource, options);
+};
+
 module.exports = { DeviceProfile };
+

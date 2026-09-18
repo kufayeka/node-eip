@@ -257,22 +257,46 @@ class EdsFile {
             const id = Number(match[1]);
             const arr = Array.isArray(val) ? val : [val];
 
-            // Standard Param layout:
-            // 0: reserved, 1: link path size, 2: link path, 3: descriptor, 4: data type,
-            // 5: data size, 6: name, 7: units, 8: help string, 9: min, 10: max, 11: default
+            // Standard Param layout can have either:
+            // - [reserved, linkPathSize, linkPath, descriptor, dataType, dataSize, name, units, help, min, max, default] (12 fields)
+            // - [reserved, linkPath, descriptor, dataType, dataSize, name, units, help, min, max, default] (11 fields)
+            // - [reserved, '', '', descriptor, ...] (empty link path with two commas)
+            let linkPath = '';
+            let offset = 2;
+
+            if (typeof arr[1] === 'string' && (arr[1].startsWith('20 ') || arr[1].includes(' '))) {
+                offset = 1;
+                linkPath = arr[1];
+            } else if (typeof arr[2] === 'string' && arr[2].trim().length > 0) {
+                offset = 2;
+                linkPath = arr[2].trim();
+            }
+
+            const descriptorVal = arr[offset + 1];
+            const dataTypeVal = arr[offset + 2];
+            const dataSizeVal = arr[offset + 3];
+            const nameVal = arr[offset + 4];
+            const unitsVal = arr[offset + 5];
+            const helpVal = arr[offset + 6];
+            const minVal = arr[offset + 7];
+            const maxVal = arr[offset + 8];
+            const defVal = arr[offset + 9];
+
             params.set(id, {
                 id,
-                descriptor: typeof arr[3] === 'number' ? arr[3] : 0,
-                dataType: typeof arr[4] === 'number' ? arr[4] : 0,
-                dataSize: typeof arr[5] === 'number' ? arr[5] : 0,
-                name: typeof arr[6] === 'string' ? arr[6] : '',
-                units: typeof arr[7] === 'string' ? arr[7] : '',
-                help: typeof arr[8] === 'string' ? arr[8] : '',
-                min: typeof arr[9] === 'number' ? arr[9] : 0,
-                max: typeof arr[10] === 'number' ? arr[10] : 0,
-                default: typeof arr[11] === 'number' ? arr[11] : 0
+                linkPath,
+                descriptor: typeof descriptorVal === 'number' ? descriptorVal : 0,
+                dataType: typeof dataTypeVal === 'number' ? dataTypeVal : 0,
+                dataSize: typeof dataSizeVal === 'number' ? dataSizeVal : 0,
+                name: typeof nameVal === 'string' ? nameVal : '',
+                units: typeof unitsVal === 'string' ? unitsVal : '',
+                help: typeof helpVal === 'string' ? helpVal : '',
+                min: typeof minVal === 'number' ? minVal : 0,
+                max: typeof maxVal === 'number' ? maxVal : 0,
+                default: typeof defVal === 'number' ? defVal : 0
             });
         }
+
 
         return params;
     }
@@ -287,24 +311,50 @@ class EdsFile {
 
             const id = Number(match[1]);
             const arr = Array.isArray(val) ? val : [val];
-
             // AssemN = "Name", Path, MaxSizeInBytes, Descriptor, ...
             const name = typeof arr[0] === 'string' ? arr[0] : `Assembly ${id}`;
+
             const path = typeof arr[1] === 'string' ? arr[1] : '';
             const size = typeof arr[2] === 'number' ? arr[2] : 0;
             const descriptor = typeof arr[3] === 'number' ? arr[3] : 0;
+
+            // Extract Member entries if present in EDS (e.g. Member1 = Param1, bitOffset, bitLength)
+            const members = [];
+            for (let m = 1; m <= 256; m++) {
+                const memVal = sec[`Member${m}`];
+                if (!memVal) break;
+                const memArr = Array.isArray(memVal) ? memVal : [memVal];
+                let paramId = null;
+                if (typeof memArr[0] === 'string') {
+                    const pMatch = memArr[0].match(/Param(\d+)/i);
+                    if (pMatch) paramId = Number(pMatch[1]);
+                } else if (typeof memArr[0] === 'number') {
+                    paramId = memArr[0];
+                }
+
+                members.push({
+                    index: m,
+                    paramRef: memArr[0],
+                    paramId,
+                    bitOffset: typeof memArr[1] === 'number' ? memArr[1] : 0,
+                    bitLength: typeof memArr[2] === 'number' ? memArr[2] : 16
+                });
+            }
 
             assemblies.set(id, {
                 id,
                 name,
                 path,
                 size,
-                descriptor
+                descriptor,
+                members
             });
+
         }
 
         return assemblies;
     }
+
 
     _parseConnectionManagerSection() {
         const sec = this.raw['Connection Manager'] || {};
