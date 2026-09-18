@@ -126,6 +126,7 @@ class ParameterObject extends EventEmitter {
         param.value = value;
         param.buffer = encodeType(param.dataType, value);
         this.emit('change', param, value, oldVal);
+        this.emit('write', param, value, oldVal);
         return this;
     }
 
@@ -221,6 +222,7 @@ class ParameterObject extends EventEmitter {
         param.buffer = Buffer.from(data.subarray(0, param.byteSize));
 
         this.emit('change', param, param.value, oldVal);
+        this.emit('write', param, param.value, oldVal);
         return ok(Buffer.alloc(0));
     }
 }

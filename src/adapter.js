@@ -16,6 +16,7 @@
  * Delta hardware, just running in reverse.
  */
 
+const { EventEmitter } = require('events');
 const net = require('net');
 const dgram = require('dgram');
 const os = require('os');
@@ -65,8 +66,9 @@ function getLocalInterfaceDetails(targetAddress) {
     return { name: 'eth0', address: '127.0.0.1', netmask: '255.255.255.0', mac: '00:00:00:00:00:00' };
 }
 
-class EIPAdapter {
+class EIPAdapter extends EventEmitter {
     constructor({ port = EIP_ENCAPSULATION_PORT, ioPort = EIP_IO_UDP_PORT, address, identity, tcpIp, ethernetLink } = {}) {
+        super();
         this.port = port;
         this.ioPort = ioPort;
         const iface = getLocalInterfaceDetails(address);
@@ -360,10 +362,15 @@ class EIPAdapter {
                 });
             }
             if (request.service === CipCommonServices.SetAttributeSingle || request.service === 0x4d) {
+                const oldVal = tag.value;
                 tag.buffer = Buffer.from(request.data);
                 try {
                     tag.value = decodeType(tag.type, tag.buffer).value;
                 } catch {}
+                this.emit('tagWrite', tagName, tag.value, oldVal, context);
+                if (tag.value !== oldVal) {
+                    this.emit('tagChange', tagName, tag.value, oldVal, context);
+                }
                 return buildResponse({
                     service: request.service,
                     generalStatus: CipGeneralStatus.Success,

@@ -223,6 +223,13 @@ describe('Universal EtherNet/IP Device Builder & EDS Exporter', () => {
                 type: 'input'
             });
 
+            builder.defineAssembly({
+                instance: 101,
+                name: 'Consume Command',
+                sizeBytes: 4,
+                type: 'output'
+            });
+
             // Start live adapter
             adapter = builder.createAdapter({
                 port: TEST_PORT,
@@ -307,5 +314,36 @@ describe('Universal EtherNet/IP Device Builder & EDS Exporter', () => {
             assert.strictEqual(results[1], 180);  // read 01-00
             assert.ok(Math.abs(results[2] - 12.5) < 0.001); // read 01-01
         });
+
+        it('watches incoming parameter, tag, and assembly writes in real-time', async () => {
+            const events = [];
+            builder.watch((event) => {
+                events.push(event);
+            });
+
+            // 1. Write parameter
+            await device.writeParam('01-00', 250);
+
+            // 2. Write tag
+            await device.scanner.writeTag('Counter', 999);
+
+            // 3. Write assembly (Instance 101)
+            const buf = Buffer.from([0xAA, 0xBB, 0xCC, 0xDD]);
+            await device.scanner.setAttribute({ classId: 0x04, instance: 101, attribute: 3, data: buf });
+
+            assert.strictEqual(events.length, 3);
+            assert.strictEqual(events[0].type, 'param');
+            assert.strictEqual(events[0].code, '01-00');
+            assert.strictEqual(events[0].value, 250);
+
+            assert.strictEqual(events[1].type, 'tag');
+            assert.strictEqual(events[1].name, 'Counter');
+            assert.strictEqual(events[1].value, 999);
+
+            assert.strictEqual(events[2].type, 'assembly');
+            assert.strictEqual(events[2].instance, 101);
+            assert.strictEqual(events[2].hex, 'aabbccdd');
+        });
     });
 });
+

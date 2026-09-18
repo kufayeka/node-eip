@@ -18,14 +18,16 @@
  * not assumed, so replicating it here isn't guesswork, it's fidelity.
  */
 
+const { EventEmitter } = require('events');
 const { CipGeneralStatus } = require('../../constants');
 
 function ok(data) {
     return { generalStatus: CipGeneralStatus.Success, data };
 }
 
-class AssemblyObject {
+class AssemblyObject extends EventEmitter {
     constructor({ maxFragmentSize = 0 } = {}) {
+        super();
         this.instances = new Map(); // instance number -> Buffer
         this.maxFragmentSize = maxFragmentSize;
     }
@@ -53,7 +55,13 @@ class AssemblyObject {
         if (buf.length !== current.length) {
             throw new RangeError(`AssemblyObject.setData: instance ${instance} is ${current.length} bytes, got ${buf.length}`);
         }
+        const hasChanged = !buf.equals(current);
+        const oldBuf = Buffer.from(current);
         buf.copy(current);
+        if (hasChanged) {
+            this.emit('change', instance, current, oldBuf);
+        }
+        this.emit('write', instance, current, oldBuf);
         return this;
     }
 
@@ -115,7 +123,13 @@ class AssemblyObject {
         if (newData.length !== current.length) {
             return { generalStatus: CipGeneralStatus.TooMuchData, data: Buffer.alloc(0) };
         }
+        const hasChanged = !newData.equals(current);
+        const oldBuf = Buffer.from(current);
         newData.copy(current);
+        if (hasChanged) {
+            this.emit('change', instance, current, oldBuf);
+        }
+        this.emit('write', instance, current, oldBuf);
         return ok(Buffer.alloc(0));
     }
 }

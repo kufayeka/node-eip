@@ -45,9 +45,12 @@ class DeviceBuilder extends EventEmitter {
         this.tags = new Map(); // tagName -> { type, value }
         this.assemblies = [];
 
-        // Forward parameter changes
+        // Forward parameter changes and writes
         this.parameterObject.on('change', (param, newVal, oldVal) => {
             this.emit('paramChange', param.code || param.id, newVal, oldVal, param);
+        });
+        this.parameterObject.on('write', (param, newVal, oldVal) => {
+            this.emit('paramWrite', param.code || param.id, newVal, oldVal, param);
         });
     }
 
@@ -141,6 +144,7 @@ class DeviceBuilder extends EventEmitter {
         const oldVal = tag.value;
         tag.value = value;
         this.emit('tagChange', name, value, oldVal);
+        this.emit('tagWrite', name, value, oldVal);
         return this;
     }
 
@@ -248,13 +252,89 @@ class DeviceBuilder extends EventEmitter {
             try { adapter.setTag(name, val); } catch {}
         });
 
+        // Forward tag writes and changes from adapter back to DeviceBuilder
+        adapter.on('tagChange', (name, val, oldVal) => {
+            const tag = this.tags.get(name);
+            if (tag) tag.value = val;
+            this.emit('tagChange', name, val, oldVal);
+        });
+        adapter.on('tagWrite', (name, val, oldVal) => {
+            this.emit('tagWrite', name, val, oldVal);
+        });
+
+        // Forward assembly events
+        adapter.assembly.on('change', (instance, current, oldBuf) => {
+            this.emit('assemblyChange', instance, current, oldBuf);
+        });
+        adapter.assembly.on('write', (instance, current, oldBuf) => {
+            this.emit('assemblyWrite', instance, current, oldBuf);
+        });
+
         // 3. Register Assemblies
         for (const assem of this.assemblies) {
             adapter.defineAssembly(assem.instance, assem.sizeBytes);
         }
 
+        this.adapter = adapter;
         return adapter;
+    }
+
+    /**
+     * Real-time watcher for all incoming write events from PLCs / Scanners.
+     * Captures parameter writes, symbolic tag writes, and assembly data writes.
+     *
+     * @param {function(object): void} [callback] - Optional custom event handler. If omitted, prints formatted console logs.
+     * @returns {DeviceBuilder}
+     */
+    watch(callback) {
+        const handler = callback || ((event) => {
+            const now = new Date();
+            const time = now.toTimeString().split(' ')[0] + '.' + String(now.getMilliseconds()).padStart(3, '0');
+            if (event.type === 'param') {
+                console.log(`\x1b[36m[${time}] [PLC WRITE -> PARAM]\x1b[0m \x1b[1m${event.code}\x1b[0m ("${event.name}"): \x1b[31m${event.oldValue}\x1b[0m -> \x1b[32m${event.value}\x1b[0m ${event.units || ''}`);
+            } else if (event.type === 'tag') {
+                console.log(`\x1b[35m[${time}] [PLC WRITE -> TAG]\x1b[0m \x1b[1m${event.name}\x1b[0m: \x1b[31m${JSON.stringify(event.oldValue)}\x1b[0m -> \x1b[32m${JSON.stringify(event.value)}\x1b[0m`);
+            } else if (event.type === 'assembly') {
+                console.log(`\x1b[33m[${time}] [PLC WRITE -> ASSEMBLY ${event.instance}]\x1b[0m Size: ${event.length}B | Hex: \x1b[36m${event.hex}\x1b[0m`);
+            }
+        });
+
+        this.on('paramWrite', (code, value, oldValue, param) => {
+            handler({
+                type: 'param',
+                code,
+                name: param ? param.name : code,
+                value,
+                oldValue,
+                units: param ? param.units : '',
+                timestamp: new Date()
+            });
+        });
+
+        this.on('tagWrite', (name, value, oldValue) => {
+            handler({
+                type: 'tag',
+                name,
+                value,
+                oldValue,
+                timestamp: new Date()
+            });
+        });
+
+        this.on('assemblyWrite', (instance, buffer, oldBuf) => {
+            handler({
+                type: 'assembly',
+                instance,
+                buffer,
+                hex: buffer.toString('hex'),
+                length: buffer.length,
+                timestamp: new Date()
+            });
+        });
+
+        return this;
     }
 }
 
 module.exports = { DeviceBuilder, EIPDeviceBuilder: DeviceBuilder };
+
