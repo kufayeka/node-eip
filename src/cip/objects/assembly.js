@@ -47,7 +47,7 @@ class AssemblyObject extends EventEmitter {
         return this.instances.get(instance);
     }
 
-    setData(instance, buf) {
+    setData(instance, buf, { silent = false } = {}) {
         const current = this.instances.get(instance);
         if (!current) {
             throw new Error(`AssemblyObject.setData: instance ${instance} is not defined`);
@@ -61,7 +61,9 @@ class AssemblyObject extends EventEmitter {
         if (hasChanged) {
             this.emit('change', instance, current, oldBuf);
         }
-        this.emit('write', instance, current, oldBuf);
+        if (!silent) {
+            this.emit('write', instance, current, oldBuf);
+        }
         return this;
     }
 

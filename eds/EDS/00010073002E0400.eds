@@ -1,0 +1,1463 @@
+$ Description:	842D Encoder Ser A, 4.0x Absolute Multi-Turn Encoder, 60mm, 26 bit
+$ Last Changes:	2.03	PAH	03/17/06	Cfg Assy added, updated naming, vendor name,
+$						IO Assy added, diagnostic enumeration, COS variant correction
+
+$ Note: !!! Not compatible with old .dnt files !!!
+$ Note: Compatible with Revision 2.19 of EDS Checker utility
+$
+$ Edit History:	1.20	02/08/01	DR 	Initial Release 
+$		1.21	05/11/01	PAH	Param 63 NA,
+$						COS not support position + velocity param 67 and input assy 3
+$		1.22	07/01/01	PAH	Param 63 Read Only help clean up
+$		1.23	07/06/01	PAH	New help, less other stuff
+$		1.24	10/30/02	PAH	ICON, Not used, Data Types, Default IO
+$		2.01	10/30/05	PAH	Cfg Assy added, updated naming, vendor name,
+$						IO Assy added, diagnostic enumeration
+$		2.02	02/17/06	PAH	COS variant correction.
+$		2.03	03/17/06	PAH	Position Assem data size for control logix
+
+[File]
+  DescText	= "Absolute Multi-Turn Encoder 842D, 60mm, 26 bit";
+	CreateDate	= 06-08-2000;		$mm-dd-yyyy
+	CreateTime	= 14:10:00;
+	ModDate		= 02-17-2006;
+	ModTime		= 13:45:00;
+	Revision	= 2.03;
+	HomeURL		= "http://www.ab.com/networks/eds/DN/00010073002E0400.eds";
+
+
+$ =================	Device Description Section	=========================
+
+[Device]
+  VendCode	= 1;
+  VendName	= "Rockwell Automation/Allen-Bradley";	$ us
+  ProdType	= 115;
+  ProdTypeStr	= "Miscellaneous";
+  ProdCode	= 46;
+  MajRev	= 4;
+  MinRev	= 1;
+  ProdName	= "Absolute Multi-Turn Encoder 842D, 60mm, 26 bit";
+  Catalog	= "842D-60131331B**";	
+  Icon		= "842D_Encoder.ico";
+
+$ Configurationby = 1, EDS, Preset_Button, Switches
+$ BaudRateSwitch = True
+$ Baud Rates supported = 3, 125, 250, 500
+$ MACIDSwitch = True
+$ MACID supported = 1, 0-63
+$ Faulted Address Recovery = False
+$ CCV = False
+
+$ ADR = False
+$ AppNVFlash = None
+$ UCMM = False
+
+$ Node Power = From network
+$ Operating Current = ??? ma
+
+$ Response Time = .00025 seconds
+$ Indicators = 1, Mod/Net LED
+
+[Device Classification]
+	Class1 = DeviceNet;
+
+$ =================	IO Characteristics Section	=========================
+
+[IO_Info]
+	1_COSetPathNotSupported = 1;
+
+	Default=	0x0002;			$ Default IO Typ mask: (Stobed)
+	
+	PollInfo=
+			0x000F,			$ to combine (Poll, Strobe, COS, Cylic)
+			1,				$ Default Prod connection: - Input1
+			0;				$ Default Cons connection: - (0: None)
+
+	COSInfo=
+			0x000F,			$ to combine (Poll, Strobe, COS, Cylic)
+			1,				$ Default Prod connection: - Input1
+			0;				$ Default Cons connection: - (0: None)
+
+	StrobeInfo=
+			0x000F,			$ to combine (Poll, Strobe, COS, Cylic)
+			1,				$ Default Prod connection: - Input1
+			0;				$ Default Cons connection: - (0: None)
+
+	CyclicInfo=
+			0x000F,			$ to combine (Poll, Strobe, COS, Cylic)
+			1,				$ Default Prod connection: - Input1
+			0;				$ Default Cons connection: - (0: None)
+
+
+	PollInfoExa=
+			0x000F,			$ to combine (Poll, Strobe, COS, Cylic)
+			1,				$ Default Prod connection: - Input1
+			0;				$ Default Cons connection: - (0: None)
+
+	COSInfoExa=
+			0x000F,			$ to combine (Poll, Strobe, COS, Cyclic)
+			2,				$ Default Prod connection: - InputExa2
+			0;				$ Default Cons connection: - (0: None)
+
+	StrobeInfoExa=
+			0x000F,			$ to combine (Poll, Strobe, COS, Cyclic)
+			3,				$ Default Prod connection: - InputExa3
+			0;				$ Default Cons connection: - (0: None)
+
+
+	CyclicInfoExa=
+			0x000F,			$ to combine (Poll, Strobe, COS, Cyclic)
+			2,				$ Default Prod connection: - InputExa4
+			0;				$ Default Cons connection: - (0: None)
+
+
+$ ----- INPUT Connections: == Producing Connection Entries	-----
+	Input1=
+		4,				$ data size in bytes
+		0,				$ num of significant bits (0: all)
+		0x000F,				$ IO Typ mask
+		"Position Value",		$ name for data (Instance)
+		6,				$ link path size
+		"20 04 24 01 30 03",		$ link path (Ass | Instance | attrib)
+		"A DINT with 26bits of 'POSITION VALUE' (4 Bytes)";
+
+	Input2=
+		5,				$ data size in bytes
+		0,				$ num of significant bits (0: all)
+		0x000F,				$ IO Typ mask
+		"Position Value and Flags",	$ name for data (Instance)
+		6,				$ link path size
+		"20 04 24 02 30 03",		$ link path (Ass | Instance | attrib)
+		"A DINT with 26bits of 'POSITION VALUE' (4 Bytes) and "
+		"flags (1 Byte) 'WARNING FLAG' (Bit 1) and 'ALARM FLAG' (Bit 0)";
+
+	Input3=
+		8,				$ data size in bytes
+		0,				$ num of significant bits (0: all)
+		0x0003,				$ IO Typ mask (not COS or cyclic )
+		"Position Value and Velocity",	$ name for data (Instance)
+		6,				$ link path size
+		"20 04 24 03 30 03",		$ link path (Ass | Instance | attrib)
+		"A DINT with 26bits of 'POSITION VALUE' (4 Bytes) and "
+		"a DINT with 'VELOCITY VALUE'(4 Bytes)";
+
+	Input4=
+		5,				$ data size in bytes
+		0,				$ num of significant bits (0: all)
+		0x000F,				$ IO Typ mask
+		"Position Value and Cam State",	$ name for data (Instance)
+		6,				$ link path size
+		"20 04 24 04 30 03",		$ link path (Ass | Instance | attrib)
+		"A DINT with 26bits of 'POSITION VALUE' (4 Bytes) and "
+		"8 bits of the 'CAM STATE REGISTER' (1 Byte)";
+
+
+	InputExa1=			$ Poll
+		,			$ data size in bytes, determined based on Assem size
+		0,			$ num of significant bits, determined based on Assem definition
+		0x000F,			$ IO Type mask
+		"POLL Variant",			$ name, determined based on Assem name
+		,			$ link path size, not required
+		VariantExa1, 		$ link path, obtained from Assem
+		" ";			$ help string
+
+	InputExa2=			$ Cos
+		,			$ data size in bytes, determined based on Assem size
+		0,			$ num of significant bits, determined based on Assem definition
+		0x000F,			$ IO Type mask
+		"COS Variant",			$ name, determined based on Assem name
+		,			$ link path size, not required
+		VariantExa2,		$ link path, obtained from Assem
+		" ";			$ help string
+
+	InputExa3=			$ Strobe
+		,			$ data size in bytes, determined based on Assem size
+		0,			$ num of significant bits, determined based on Assem definition
+		0x000F,			$ IO Type mask
+		"Strobed Variant",			$ name, determined based on Assem name
+		,			$ link path size, not required
+		VariantExa3,		$ link path, obtained from Assem
+		" ";			$ help string
+
+[ParamClass]
+	MaxInst		= 65;
+	Descriptor	= 0x00;			$ only 3 bytes supported NV
+	CfgAssembly	= 0;
+	1_CfgAssembly	= 150;			$ Null configuration Assy
+
+$ =================	Parameters  Section		=========================
+
+[Params]
+
+	Param1 =			$ Code Sequence.
+		0,				$ must zero definition
+		6, "20 2F 24 01 30 03",		$ link size and path
+		0x0002,				$ descriptor ( Enum )
+		0xC1, 1,			$ Type: Boolean, size: 1 byte
+		"Code Sequence",		$ parameter name
+		"",				$ units
+		"Defines the increasing 'POSITION VALUE' as clockwise shaft rotation or \n"
+		"counter clockwise as seen when facing the shaft (CW, CCW).",
+		0, 1, 0,			$ min, max, default
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param2 =			$ Scaling Control
+		0,
+		6, "20 2F 24 01 30 05",
+		0x0002,				$ descriptor ( Enum )
+		0xC1, 1,			$ Type: Boolean, size: 1 byte
+		"Scaling",
+		"",
+		"Enabling 'SCALING' changes the 'POSITION VALUE' I/O data resolution to \n"
+		"'RESOLUTION PER REVOLUTION' and 'TOTAL MEASURING RANGE'.",
+		0, 1, 1,			$ min, max, default
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param3=				$ Resolution per Revolution
+		0,
+		6, "20 2F 24 01 30 07",
+		0x0000,				$ descriptor ( Writeable Data )
+		0xC8, 4,			$ Type: UDINT, size: 4 byte
+		"Resolution Per Revolution",
+		"Steps",			$ units
+		"If 'SCALING' is enabled the 'POSITION VALUE' is scaled to this number of \n"
+		"distinguishable steps for one revolution. The maximum value is 'SINGLE  \n" 
+		"TURN RESOLUTION'.",
+		1, 8192, 8192,			$ min, max, default
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param4=				$ Total measuring range
+		0,
+		6, "20 2F 24 01 30 08",
+		0x0000,				$ descriptor ( Writeable Data )
+		0xC8, 4,			$ Type: UDINT, size: 4 byte
+		"Total Measuring Range",
+		"Steps",			$ units
+		"The number of steps over the total measuring range. 'POSITION VALUE' will \n" 
+		"roll over to zero when it hits this number. This number is automatically \n"
+		"adjusted to the nearest 2^0 - 2^13 multiple of 'RESOLUTION PER \n" 
+		"REVOLUTION'. \n" 
+		"Example: if the user enters a value of 3600 for 'RESOLUTION PER \n" 
+		"REVOLUTION', then the possible 'TOTAL MEASURING RANGE' values will be 3600, \n" 
+		"7200, 14400, 28800 and so on up to 29491200. For an entered value of 3599, \n" 
+		"the possible values are the same: 3600, 7200, 14400, 28800 and so on up \n" 
+		"to 29491200. ",
+		1, 0x4000000, 0x4000000,	$ min, max, default
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+ 	Param5=				$ Preset Value
+		0,
+		6, "20 2F 24 01 30 0A",
+		0x0000,				$ descriptor ( Writeable Data )
+		0xC8, 4,			$ Type: UDINT, size: 4 byte
+		"Preset Value",	
+		"Steps",			$ units
+		"This value is used to determine a total offset value, which is then \n" 
+		"applied to the 'POSITION VALUE'. Offset allows adaptation of the \n"
+		"encoder zero point to the mechanical zero point of the system.", 
+		0, 0x3FFFFFF, 0,		$ min, max, default
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param6=				$ Position Value
+		0,
+		6, "20 2F 24 01 30 0C",
+		0x0030,				$ descriptor ( mon, ROnly )
+		0xC4, 4,			$ Type: DINT, size: 4 byte
+		"Position Value",
+		"Steps",			$ units
+		"Gives the current position value. This value is effected by 'PRESET \n"
+		"VALUE', 'RESOLUTION PER REVOLUTION', and 'SCALING'.",
+		0, 0x3FFFFFF, 0,		$ min, max, default
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param7=				$ Operating Status
+		0,
+		6, "20 2F 24 01 30 50", 	$(#80)
+		0x0032,				$ descriptor ( mon, Read Only, Enum )
+		0xD1, 1,		 	$ Type: BYTE, size: 1 byte
+		"Operating Status",
+		"",
+		"The 'Direction: CCW' and 'Scaling: On' indicators show enabled modes for \n"
+		"'CODE SEQUENCE' and 'SCALING'.",
+		0, 0x07, 0x04,			$ min, max (0..7), default
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param8=				$Single Turn Resolution
+		0,
+		6, "20 2F 24 01 30 51", 	$ (#81)
+		0x0030,				$ descriptor ( mon, Read Only )
+		0xC8, 4,			$ Type: UDINT, size: 4 byte
+		"Single Turn Resolution",
+		"Steps",			$ units
+		"This is the maximum distinguishable number of steps per revolution \n"
+		"possible with this encoder and the highest possible value for \n" 
+		"'RESOLUTION PER REVOLUTION'. This value when multiplied by the \n"
+		"'NUMBER OF REVOLUTIONS' gives the maximum possible \n"
+		"'TOTAL MEASURING RANGE' of 67108864 steps.",
+		0, 0x2000, 0x2000,		$ min, max (0..8192), default
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param9=				$ Number of distinguishable revolutions
+		0,
+		6, "20 2F 24 01 30 52", 	$ (#82)
+		0x0030,				$ descriptor ( mon, Read Only )
+		0xC7, 2,			$ Type: UINT, size: 2 byte
+		"Number of Revolutions",
+		"Revs",				$ units:
+		"This is the maximum distinguishable number of revolutions possible \n"
+		"with this encoder. This value when multiplied by the 'SINGLE TURN \n"
+		"RESOLUTION' gives the maximum possible 'TOTAL MEASURING RANGE' of \n" 
+		"67108864 steps.",
+		0, 0x2000, 0x2000,		$ min, max (0..8192), default
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param10=			$ Alarm Flag
+ 		0,
+		6, "20 2F 24 01 30 55", 	$ (#85)
+		0x0032,		 		$ descriptor ( mon, Read Only, Enum )
+		0xC1, 1,			$ Type: BOOLEAN, size: 1 byte
+		"Alarm Flag",
+		"",
+		"This flag indicates any device failure that requires user intervention. \n"
+		"The 'ALARMS' indicate the specific failure. This value will be reported \n"
+		"if 'INPUT ASSY.' is set to 'Position + Flags' as bit 0 of the 5th byte.",
+		0, 1, 0,			$ min, max (0, 1), default
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param11=			$ Alarms Values
+		0,
+		6, "20 2F 24 01 30 53", 	$ (#83)
+		0x0032,		 		$ descriptor ( mon, Read Only, Enum )
+		0xD2, 2,			$ Type: WORD, size: 2 byte
+		"Alarms",
+		"",
+		"Conditions leading to an alarm state. Any alarm will set the 'ALARM FLAG'. \n"
+		"If these conditions recur, contact the factory at 1.800.666.0001 \n" 
+		"for further assistance.\n",
+		0, 0xFFFF, 0,			$ min, max (0..FFFF), default
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param12=			$ Warning Flag
+		0,
+		6, "20 2F 24 01 30 58", 	$ (#88)
+		0x0032,		 		$ descriptor ( mon, Read Only, Enum )
+		0xC1, 1,			$ Type: BOOLEAN, size: 1 byte
+		"Warning Flag",
+		"",
+		"Indicate if any of the 'WARNINGS' are active. This value will be reported \n"
+		"if the 'INPUT ASSY. is set to 'Position + Flags' as bit 1 of the 5th byte.",
+		0, 1, 0,			$ min, max (0, 1), default 0
+ 		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param13=			$ Warnings Values
+		0,
+		6, "20 2F 24 01 30 56", 	$ (#86)
+		0x0032,		 		$ descriptor ( mon, Read Only, Enum )
+		0xD2, 2,			$ Type: WORD, size: 2 byte
+		"Warnings",
+		"",
+		"Any warning will set the 'WARNING FLAG'. \n"
+		"The 'Frequency Exceeded' flag is caused by rotation faster then 6000 RPM. \n"
+		"The Velocity min/max flag is caused by a 'VELOCITY VALUE' under or \n"
+		"over the velocity limits. \n"
+		"The Acceleration min/max flag is a 'ACCELERATION VALUE' under or \n"
+		"over the acceleration limits. \n"
+		"The 'Cam Limits Out of Order' flag is cause by a set of cam limits \n"
+		"where the hysteresis value is larger then the cam lower limit, or the \n"
+		"higher or lower limit that is greater then the 'TOTAL MEASURING RANGE'.",
+		0, 0xFFFF, 0,			$ min, max (0..FFFF), default
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param14=			$ Hysteresis Value for position change in COS
+		0,
+		6, "20 2F 24 01 30 0B",
+		0x0020,		 		$ descriptor ( mon, Get/Set  )
+		0xC4, 4,		   	$ Type: DINT, size: 4 byte
+		"Delta for COS",
+		"Steps",			$ units
+		"A COS I/O message will be generated when the 'POSITION VALUE' changes \n"
+		"by this value. Inputting a value greater than the 'TOTAL MEASURING RANGE' \n"
+		"will cause this value to default to 5. Setting this value to 0 disables \n" 
+		"COS messaging for 'POSITION VALUE' changes. \n"
+		"To lessen network traffic for high speed (4000 RPM+) and/or high \n"
+		"resolution (1024 Steps/Rev+) applications either: \n"
+		"increase the hysteresis to over 10% of the 'RESOLUTION PER REVOLUTION' \n"
+		"value, or increase the 'Inhibit Time' \n "
+		"('Scanlist', 'Edit I/O Parameters...', 'Advanced...') to 10 msec. \n",
+		0, 0x3FFFFFF, 5,		$ min, max, default
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param15=			$ Velocity  Format.
+ 		0,
+		6, "20 2F 24 01 30 14", 	$ (#20)
+		0x0002,				$ descriptor ( Get/Set, Enum )
+		0xC6, 1,			$ Type: USINT, size: 1 byte
+		"Velocity Format",
+		"",
+		"This sets the units format for velocity and acceleration values. The max \n"
+		"and min limits for velocity and acceleration are affected as well. \n"
+		"'Steps/Sec' shows how many of the user-defined steps the encoder shaft \n" 
+		"rotates through per second. \n"
+		"'RPM' shows how many complete revolutions the shaft makes per minute. \n"
+		"'RPS' shows how many complete revolutions the shaft makes per second." ,
+		0, 2, 1,			$ min, max, default
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param16=			$ Value for Minimum velocity
+		0,
+		6, "20 2F 24 01 30 17", 	$ (#23)
+		0x0000,				$ descriptor ( Writeable Data )
+		0xC4, 4,			$ Type: DINT, size: 4 byte
+		"Velocity Minimum Limit",
+		" * [Vel. Format]",		$ units
+		"Value of minimum velocity limit with the units type of 'VELOCITY FORMAT'. \n"
+		"A 'VELOCITY VALUE' under this limit will cause a 'Min. Velocity Underrun' \n"
+		"warning and set the corresponding warning flag.",
+		0, 819200, 0,			$ min, max: = (1 *100 RpSec. * 8192 steps), default: = [RpMin: - "0" ]
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param17=			$ Value for Maximum velocity
+		0,
+		6, "20 2F 24 01 30 18", 	$ (#24)
+		0x0000,				$ descriptor ( Writeable Data )
+		0xC4, 4,			$ Type: DINT, size: 4 byte
+		"Velocity Maximum Limit",
+		" * [Vel. Format]",		$ units
+		"Value of maximum velocity limit with the units type of 'VELOCITY FORMAT'. \n"
+		"A 'VELOCITY VALUE' over this limit will cause a 'Max. Velocity Exceeded' \n"
+		"warning and set the corresponding warning flag.",
+		0, 819200, 6000,		$ min, max: = (1 *100 RpSec. * 8192 steps), [RpMin: - 1 *100 RpSec. *60 ]
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param18=			$ Value for Current velocity speed
+		0,
+		6, "20 2F 24 01 30 16", 	$ (#22)
+		0x0030,				$ descriptor ( mon, Read Only, )
+		0xC4, 4,			$ Type: DINT, size: 4 byte
+		"Velocity Value",
+		" * [Vel. Format]",		$ units
+		"This is the value of the current velocity with the units type of \n"
+		"'VELOCITY FORMAT'.",
+		0, 819200, 0,			$ min, max: = (1 *100 RpSec. * 8192 steps)
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param19=			$ Value for Minimum acceleration
+		0,
+		6, "20 2F 24 01 30 20", 	$ (#32)
+		0x0000,				$ descriptor ( Writeable Data )
+		0xC4, 4,			$ Type: DINT, size: 4 byte
+		"Acceleration Minimum Limit",
+		" * [Vel. Format]",			$ units
+		"Value of minimum acceleration limit with the units type of 'VELOCITY \n"
+		"FORMAT'. An 'ACCELERATION VALUE' under this limit will cause a \n"
+		"a 'Min. Accel. Underrun' warning and set the corresponding warning flag. ",
+		0, 8192000, 0,			$ min, max: = (10 *100 RpSec. * 8192 steps) default: = [RpMin/sec: - "0" ]
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param20=			$ Value for Maximum acceleration
+		0,
+		6, "20 2F 24 01 30 21", 	$ (#33)
+		0x0000,				$ descriptor ( Writeable Data )
+		0xC4, 4,			$ Type: DINT, size: 4 byte
+		"Acceleration Maximum Limit",
+		" * [Vel. Format]",			$ units
+		"Value of maximum acceleration limit with the units type of \n"
+		"'VELOCITY FORMAT'. An 'ACCELERATION VALUE' over this limit will cause \n"
+		"a 'Max. Accel. Exceeded' warning and set the corresponding warning flag.",
+		0, 8192000, 60000,		$ min, max: = (10 *100 RpSec. * 8192 steps) default: = [RpMin/sec: - 10 *100 RpSec. *60 ]
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param21=			$ Value for Current acceleration speed
+		0,
+		6, "20 2F 24 01 30 1F", 	$ (#31)
+		0x0030,				$ descriptor ( mon, Read Only, )
+		0xC4, 4,			$ Type: DINT, size: 4 byte
+		"Acceleration Value",
+		" * [Vel. Format]",		$ units
+		"Value of the current acceleration with the units type of 'VELOCITY FORMAT'.",
+		0, 8192000, 0,			$ min, max: = (10 *100 RpSec. * 8192 steps) default: = [RpMin: - 1 *100 RpSec. *60 ]
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+$ ---------------------------	Cam Section	------------------------------
+
+	Param22=			$ Cam state register
+		0,
+		6, "20 2F 24 01 30 28", 	$ (#40)
+		0x0032,				$ descriptor ( mon, Read Only, Enum )
+		0xD1, 1,		 	$ Type: BYTE, size: 1 byte
+		"Cam State Register",
+		"",
+		"State of all 8 cams",
+		0, 0xFF, 0,			$ min, max, default
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param23=			$ Cam polarity register
+		0,
+		6, "20 2F 24 01 30 29", 	$ (#41)
+		0x0002,				$ descriptor ( , Get/Set, Enum )
+		0xD1, 1,		 	$ Type: BYTE, size: 1 byte
+		"Cam Polarity Register",
+		"",
+		"Polarity for the state of the 8 independent cams (1-8): \n"
+		"1 cam state will be active outside of the cam limits\n"
+		"0 cam state will be active inside of the cam limits",
+		0, 0xFF, 0,			$ min, max, default: [0: norm, 1: invert]
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param24=			$ Cam Enable register
+		0,
+		6, "20 2F 24 01 30 2A", 	$ (#42)
+		0x0002,				$ descriptor ( , Get/Set, Enum )
+		0xD1, 1,		 	$ Type: BYTE, size: 1 byte
+		"Cam Enable Register",
+		"",
+		"Enable / Disable 8 independent cams (1-8): \n"
+		"1 cam state will be effected by position \n"
+		"0 cam state will always be 0",
+		0, 0xFF, 0x00,			$ min, max, default: [0: disable, 1: enable]
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+$ ------------------	Cam-1: Switch point: Lower Limit  --------------------
+
+	Param25=			$ Cam (1):- SW Lower Limit
+		0,
+		6, "20 2F 24 01 30 2B", 	$ (#43)
+		0x0000,				$ descriptor ( Writeable Data  )
+		0xC4, 4,			$ Type: DINT, size: 4 byte
+		"Cam (1) Low Limit",
+		"Steps",			$ units
+		"This is the switch point for this cam's lower limit. The value must be \n"
+		"less than the 'CAM HYSTERESIS' for this cam as well as less than the \n" 
+		"'TOTAL MEASURING RANGE'.",
+		0, 0x03FFFFFF, 0x100,		$ min, max, default: [100]h
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param26=			$ Cam (2):- SW Lower Limit
+		0,
+		6, "20 2F 24 01 30 2E",		$ (#46)
+		0x0000,				$ descriptor ( Writeable Data  )
+		0xC4, 4,			$ Type: DINT, size: 4 byte
+		"Cam (2) Low Limit",
+		"Steps",			$ units
+		"This is the switch point for this cam's lower limit. The value must be \n"
+		"less than the 'CAM HYSTERESIS' for this cam as well as less than the \n" 
+		"'TOTAL MEASURING RANGE'.",
+		0, 0x03FFFFFF, 0x100,		$ min, max, default: [100]h
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param27=			$ Cam (3):- SW Lower Limit
+		0,
+		6, "20 2F 24 01 30 31", 	$ (#49)
+		0x0000,				$ descriptor ( Writeable Data  )
+		0xC4, 4,			$ Type: DINT, size: 4 byte
+		"Cam (3) Low Limit",
+		"Steps",			$ units
+		"This is the switch point for this cam's lower limit. The value must be \n"
+		"less than the 'CAM HYSTERESIS' for this cam as well as less than the \n" 
+		"'TOTAL MEASURING RANGE'.",
+		0, 0x03FFFFFF, 0x100,		$ min, max, default: [100]h
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param28=			$ Cam (4):- SW Lower Limit
+		0,
+		6, "20 2F 24 01 30 34",		$ (#52)
+		0x0000,				$ descriptor ( Writeable Data  )
+		0xC4, 4,			$ Type: DINT, size: 4 byte
+		"Cam (4) Low Limit",
+		"Steps",			$ units
+		"This is the switch point for this cam's lower limit. The value must be \n"
+		"less than the 'CAM HYSTERESIS' for this cam as well as less than the \n" 
+		"'TOTAL MEASURING RANGE'.",
+		0, 0x03FFFFFF, 0x100,		$ min, max, default: [100]h
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param29=			$ Cam (5):- SW Lower Limit
+		0,
+		6, "20 2F 24 01 30 37",		$ (#55)
+		0x0000,				$ descriptor ( Writeable Data  )
+		0xC4, 4,			$ Type: DINT, size: 4 byte
+		"Cam (5) Low Limit",
+		"Steps",			$ units
+		"This is the switch point for this cam's lower limit. The value must be \n"
+		"less than the 'CAM HYSTERESIS' for this cam as well as less than the \n" 
+		"'TOTAL MEASURING RANGE'.",
+		0, 0x03FFFFFF, 0x100,		$ min, max, default: [100]h
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param30=			$ Cam (6):- SW Lower Limit
+		0,
+		6, "20 2F 24 01 30 3A", 	$ (#58)
+		0x0000,				$ descriptor ( Writeable Data  )
+		0xC4, 4,			$ Type: DINT, size: 4 byte
+		"Cam (6) Low Limit",
+		"Steps",			$ units
+		"This is the switch point for this cam's lower limit. The value must be \n"
+		"less than the 'CAM HYSTERESIS' for this cam as well as less than the \n" 
+		"'TOTAL MEASURING RANGE'.",
+		0, 0x03FFFFFF, 0x100,		$ min, max, default: [100]h
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param31=			$ Cam (7):- SW Lower Limit
+		0,
+		6, "20 2F 24 01 30 3D",		$ (#61)
+		0x0000,				$ descriptor ( Writeable Data  )
+		0xC4, 4,			$ Type: DINT, size: 4 byte
+		"Cam (7) Low Limit",
+		"Steps",			$ units:
+		"This is the switch point for this cam's lower limit. The value must be \n"
+		"less than the 'CAM HYSTERESIS' for this cam as well as less than the \n" 
+		"'TOTAL MEASURING RANGE'.",
+		0, 0x03FFFFFF, 0x100,		$ min, max, default: [100]h
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param32=			$ Cam (8):- SW Lower Limit
+		0,
+		6, "20 2F 24 01 30 40",		$ (#64)
+		0x0000,				$ descriptor ( Writeable Data  )
+		0xC4, 4,			$ Type: DINT, size: 4 byte
+		"Cam (8) Low Limit",
+		"Steps",			$ units
+		"This is the switch point for this cam's lower limit. The value must be \n"
+		"less than the 'CAM HYSTERESIS' for this cam as well as less than the \n" 
+		"'TOTAL MEASURING RANGE'.",
+		0, 0x03FFFFFF, 0x100,		$ min, max, default: [100]h
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+$ ------------------	Cam-1: Switch point: Higher Limit  -------------------
+
+	Param33=			$ Cam (1):- SW Higher Limit
+		0,
+		6, "20 2F 24 01 30 2C",		$ (#44)
+		0x0000,				$ descriptor ( Writeable Data  )
+		0xC4, 4,			$ Type: DINT, size: 4 byte
+		"Cam (1) High Limit",
+		"Steps",			$ units
+		"This is the switch point for this cam's upper limit. The value must be less \n"
+		"than the 'TOTAL MEASURING RANGE'.",
+		0, 0x03FFFFFF,	0x03FFFC00,		$ min, max, default: [max -400]h
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param34=			$ Cam (2):- SW Higher Limit
+		0,
+		6, "20 2F 24 01 30 2F",		$ (#47)
+		0x0000,				$ descriptor ( Writeable Data  )
+		0xC4, 4,			$ Type: DINT, size: 4 byte
+		"Cam (2) High Limit",
+		"Steps",			$ units
+		"This is the switch point for this cam's upper limit. The value must be less \n"
+		"than the 'TOTAL MEASURING RANGE'.",
+		0, 0x03FFFFFF,	0x03FFFC00,		$ min, max, default: [max -400]h
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param35=			$ Cam (3):- SW Higher Limit
+		0,
+		6, "20 2F 24 01 30 32", 	$(#50)
+		0x0000,				$ descriptor ( Writeable Data  )
+		0xC4, 4,			$ Type: DINT, size: 4 byte
+		"Cam (3) High Limit",
+		"Steps",			$ units
+		"This is the switch point for this cam's upper limit. The value must be less \n"
+		"than the 'TOTAL MEASURING RANGE'.",
+		0, 0x03FFFFFF,	0x03FFFC00,		$ min, max, default: [max -400]h
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param36=			$ Cam (4):- SW Higher Limit
+		0,
+		6, "20 2F 24 01 30 35",		$ (#53)
+		0x0000,				$ descriptor ( Writeable Data  )
+		0xC4, 4,			$ Type: DINT, size: 4 byte
+		"Cam (4) High Limit",
+		"Steps",			$ units
+		"This is the switch point for this cam's upper limit. The value must be less \n"
+		"than the 'TOTAL MEASURING RANGE'.",
+		0, 0x03FFFFFF,	0x03FFFC00,		$ min, max, default: [max -400]h
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param37=			$ Cam (5):- SW Higher Limit
+		0,
+		6, "20 2F 24 01 30 38", 	$ (#56)
+		0x0000, 			$ descriptor ( Writeable Data  )
+		0xC4, 4,			$ Type: DINT, size: 4 byte
+		"Cam (5) High Limit",
+		"Steps",			$ units
+		"This is the switch point for this cam's upper limit. The value must be less \n"
+		"than the 'TOTAL MEASURING RANGE'.",
+		0, 0x03FFFFFF,	0x03FFFC00,		$ min, max, default: [max -400]h
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param38=			$ Cam (6):- SW Higher Limit
+		0,
+		6, "20 2F 24 01 30 3B",		$ (#59)
+		0x0000,				$ descriptor ( Writeable Data  )
+		0xC4, 4,			$ Type: DINT, size: 4 byte
+		"Cam (6) High Limit",
+		"Steps",			$ units
+		"This is the switch point for this cam's upper limit. The value must be less \n"
+		"than the 'TOTAL MEASURING RANGE'.",
+		0, 0x03FFFFFF,	0x03FFFC00,		$ min, max, default: [max -400]h
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param39=			$ Cam (7):- SW Higher Limit
+		0,
+		6, "20 2F 24 01 30 3E",		$ (#62)
+		0x0000,				$ descriptor ( Writeable Data  )
+		0xC4, 4,			$ Type: DINT, size: 4 byte
+		"Cam (7) High Limit",
+		"Steps",			$ units
+		"This is the switch point for this cam's upper limit. The value must be less \n"
+		"than the 'TOTAL MEASURING RANGE'.",
+		0, 0x03FFFFFF,	0x03FFFC00,		$ min, max, default: [max -400]h
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param40=			$ Cam (8):- SW Higher Limit
+		0,
+		6, "20 2F 24 01 30 41", 	$ (#65)
+		0x0000,				$ descriptor ( Writeable Data  )
+		0xC4, 4,			$ Type: DINT, size: 4 byte
+		"Cam (8) High Limit",
+		"Steps",			$ units:
+		"This is the switch point for this cam's upper limit. The value must be less \n"
+		"than the 'TOTAL MEASURING RANGE'.",
+		0, 0x03FFFFFF,	0x03FFFC00,		$ min, max, default: [max -400]h
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+$ ------------------	Cam-1: Hysteresis of Switch points -------------------
+
+	Param41=			$Cam (1):- Hysteresis of Switch point
+		0,
+		6, "20 2F 24 01 30 2D", 	$ (#45)
+		0x0000,				$ descriptor ( Writeable Data  )
+		0xC7, 2,		       	$ Type: UINT, size: 2 byte
+		"Cam (1) Hysteresis",
+		"Steps",			$ units
+		"This value will be added to the 'CAM (1) HIGH LIMIT' and subtracted from the \n"
+		"'CAM (1) LOW LIMIT' when calculating the cam state. This value must be \n"
+		"less than 'CAM (1) LOW LIMIT'. ",
+		0, 0xFFFF, 0x20,		$ min, max, default: [20]h
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param42=			$ Cam (2):- Hysteresis of Switch point
+		0,
+		6, "20 2F 24 01 30 30", 	$(#48)
+		0x0000,				$ descriptor ( Writeable Data  )
+		0xC7, 2,		       	$ Type: UINT, size: 2 byte
+		"Cam (2) Hysteresis",
+		"Steps",			$ units
+		"This value will be added to the 'CAM (2) HIGH LIMIT' and subtracted from the \n"
+		"'CAM (2) LOW LIMIT' when calculating the cam state. This value must be \n"
+		"less than 'CAM (2) LOW LIMIT'. ",
+		0, 0xFFFF, 0x20,		$ min, max, default: [20]h
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param43=			$ Cam (3):- Hysteresis of Switch point
+		0,
+		6, "20 2F 24 01 30 33", 	$ (#51)
+		0x0000,				$ descriptor ( Writeable Data  )
+		0xC7, 2,		       	$ Type: UINT, size: 2 byte
+		"Cam (3) Hysteresis",
+		"Steps",			$ units
+		"This value will be added to the 'CAM (3) HIGH LIMIT' and subtracted from the \n"
+		"'CAM (3) LOW LIMIT' when calculating the cam state. This value must be \n"
+		"less than 'CAM (3) LOW LIMIT'. ",
+		0, 0xFFFF, 0x20,		$ min, max, default: [20]h
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param44=			$ Cam (4):- Hysteresis of Switch point
+		0,
+		6, "20 2F 24 01 30 36", 	$ (#54)
+		0x0000,				$ descriptor ( Writeable Data  )
+		0xC7, 2,		       	$ Type: UINT, size: 2 byte
+		"Cam (4) Hysteresis",
+		"Steps",			$ units
+		"This value will be added to the 'CAM (4) HIGH LIMIT' and subtracted from the \n"
+		"'CAM (4) LOW LIMIT' when calculating the cam state. This value must be \n"
+		"less than 'CAM (4) LOW LIMIT'. ",
+		0, 0xFFFF, 0x20,		$ min, max, default: [20]h
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param45=			$ Cam (5):- Hysteresis of Switch point
+		0,
+		6, "20 2F 24 01 30 39",		$ (#57)
+		0x0000,				$ descriptor ( Writeable Data  )
+		0xC7, 2,		       	$ Type: UINT, size: 2 byte
+		"Cam (5) Hysteresis",
+		"Steps",			$ units
+		"This value will be added to the 'CAM (5) HIGH LIMIT' and subtracted from the \n"
+		"'CAM (5) LOW LIMIT' when calculating the cam state. This value must be \n"
+		"less than 'CAM (5) LOW LIMIT'. ",
+		0, 0xFFFF, 0x20,		$ min, max, default: [20]h
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param46=			$ Cam (6):- Hysteresis of Switch point
+		0,
+		6, "20 2F 24 01 30 3C",		$ (#60)
+		0x0000,				$ descriptor ( Writeable Data  )
+		0xC7, 2,		       	$ Type: UINT, size: 2 byte
+		"Cam (6) Hysteresis",
+		"Steps",			$ units
+		"This value will be added to the 'CAM (6) HIGH LIMIT' and subtracted from the \n"
+		"'CAM (6) LOW LIMIT' when calculating the cam state. This value must be \n"
+		"less than 'CAM (6) LOW LIMIT'. ",
+		0, 0xFFFF, 0x20,		$ min, max, default: [20]h
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param47=			$ Cam (7):- Hysteresis of Switch point
+		0,
+		6, "20 2F 24 01 30 3F", 	$ (#63)
+		0x0000,				$ descriptor ( Writeable Data  )
+		0xC7, 2,		       	$ Type: UINT, size: 2 byte
+		"Cam (7) Hysteresis",
+		"Steps",			$ units
+		"This value will be added to the 'CAM (7) HIGH LIMIT' and subtracted from the \n"
+		"'CAM (7) LOW LIMIT' when calculating the cam state. This value must be \n"
+		"less than 'CAM (7) LOW LIMIT'. ",
+		0, 0xFFFF, 0x20,		$ min, max, default: [20]h
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param48=			$ Cam (8):- Hysteresis of Switch point
+		0,
+		6, "20 2F 24 01 30 42",		$ (#66)
+		0x0000,				$ descriptor ( Writeable Data  )
+		0xC7, 2,		       	$ Type: UINT, size: 2 byte
+		"Cam (8) Hysteresis",
+		"Steps",			$ units
+		"This value will be added to the 'CAM (8) HIGH LIMIT' and subtracted from the \n"
+		"'CAM (8) LOW LIMIT' when calculating the cam state. This value must be \n"
+		"less than 'CAM (8) LOW LIMIT'. ",
+		0, 0xFFFF, 0x20,		$ min, max, default: [20]h
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+$	DIAGNOSTIC - SECTION: 
+
+	Param49=			$ DIP-Switch (6), (3), Preset_Key	
+		0,
+		6, "20 2F 24 01 30 6A",		$ (#106)
+		0x0032,				$ descriptor ( mon, Read Only, Enum )
+		0xD2, 2,			$ Type: WORD, size: 2 byte
+		"Device Switches",
+		"",
+		"These Switches are located under the plug on the back of the encoder: \n"
+		"High-Byte indicates Switch-1 (6) -- MAC-ID \n"
+		"Low -Byte indicates Switch-3 (3) -- Baudrate",
+		0, 0xFFFF, 0,			$ min, max, default
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param50=			$ number of Start Up the device
+		0,
+		6, "20 2F 24 01 30 6B",		$ (#107)
+		0x0030,				$ descriptor ( mon, Read Only, ... )
+		0xC7, 2,		       	$ Type: UINT, size: 2 byte
+		"Number of Start-UPs",
+		"",
+		"The total number of times the encoder has been power cycled.",
+		0, 0xFFFF, 0,			$ min, max, default
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param51=			$ Max. velocity since powerup
+		0,
+		6, "20 2F 24 01 30 6C", 	$ (#108)
+		0x0030,				$ descriptor ( mon, Read Only, ... )
+		0xC7, 2,		       	$ Type: UINT, size: 2 byte
+		"Velocity Maximum Value",
+		" [RPM]",			$ units
+		"The highest 'VELOCITY VALUE' the encoder has sampled since power up.",
+		0, 0xFFFF, 0,			$ min, max, default
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param52=			$ Max. accel. since powerup
+		0,
+		6, "20 2F 24 01 30 6D", 	$ (#109)
+		0x0030,				$ descriptor ( mon, Read Only, ... )
+		0xC7, 2,		       	$ Type: UINT, size: 2 byte
+		"Acceleration Maximum Value",
+		" [RPS]",			$ units
+		"The highest 'ACCELERATION VALUE' the encoder has sampled since \n" 
+		"power up.",
+		0, 0xFFFF, 0,			$ min, max, default
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param53=			$ Total Time Encoders is turning
+		0,
+		6, "20 2F 24 01 30 6E", 	$ (#110)
+		0x0030,				$ descriptor ( mon, Read Only, ... )
+		0xC8, 4,			$ Type: UDINT, size: 4 byte
+		"Total Motion Time ",
+ 		" Sec",				$ units
+		"The total time in seconds the encoder has spent moving since power up.",
+		0, 0x7FFFFFFF, 0,		$ min, max, default
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param54=			$ operating Time (Profile)
+		0,
+		6, "20 2F 24 01 30 5A",		$ (#90)
+		0x0034,				$ descriptor ( mon, Read Only, ... )
+		0xC8, 4,			$ Type: UDINT, size: 4 byte
+		"Operating Time ",
+		"Hours",			$ units
+		"The number of hours the encoder has been operating. This value is \n"
+		"updated every 0.1 hours and resets each powerup.",
+		0, 0xFFFFFFFF, 0,		$ min, max, default
+		1, 10, 1, 0,			$ scaling (mult, div, base, offset)
+		0, 0, 0, 0, 
+		1 ;			$ .1 decimal
+
+
+$	INPUT_Assembly - SECTION: -- [111, 112, 113]
+
+	Param55=			$ Assembly Number: -- Polling mode 
+		0,
+		6, "20 2F 24 01 30 6F",		$(#111)
+ 		0x0082,				$ descriptor ( NO mon, R/W, enum...non-consecutive )
+		0xC6, 1,			$ Type: USINT, size: 1 byte
+		"Input Assy. (POLL)",
+		"",
+		"The type of input data that is sent for the Polling I/O connections. \n"
+		"Position = 4 bytes, \n"
+		"Position + Cam State = 5 bytes, \n"
+		"Position + Flags = 5 bytes, \n"
+		"Position + Velocity = 8 bytes. \n"
+		"Update time: Velocity 50 mS, other modes 0.3 mS.",
+		1, 4, 1,			$ min, max, default
+		1,1,1,0,
+		0,0,0,0,
+		0;
+	Enum55=				$ "Input Assembly (Polled)"
+		1, "Position Value",
+		2, "Position Value + Flag",
+		3, "Position Value + Velocity",
+		4, "Position Value + Cam State";
+
+	Param56=			$ Assembly Number: -- COS / Cyclic mode
+		0,
+		6, "20 2F 24 01 30 70",		$ (#112)
+		0x0082,				$ descriptor ( NO mon, R/W, enum...non-consecutive )
+		0xC6, 1,			$ Type: USINT, size: 1 byte
+		"Input Assy. (COS)",
+		"",
+		"The type of input data that is sent for the Change of State I/O connections. \n"
+		"Position = 4 bytes, \n"
+		"Position + Cam State = 5 bytes, \n"
+		"Position + Flags = 5 bytes \n"
+		"Update time:  0.3 mS, Velocity not supported.",
+		1, 4, 1,			$ min, max, default
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Enum56=				$ "Input Assembly (COS )"
+		1,"Position Value",
+		2, "Position Value + Flag",
+		4, "Position Value + Cam State";
+
+	Param57=			$ Assembly Number: -- BIT Strobed mode 
+		0,
+		6, "20 2F 24 01 30 71",		$ (#113)
+		0x0082,				$ descriptor ( NO mon, R/W, enum...non-consecutive )
+		0xC6, 1,			$ Type: USINT, size: 1 byte
+		"Input Assy. (Strobed)",
+		"",
+		"The type of input data that is sent for the Strobed I/O connections. \n"
+		"Position = 4 bytes, \n"
+		"Position + Cam State = 5 bytes, \n"
+		"Position + Flags = 5 bytes, \n"
+		"Position + Velocity = 8 bytes. \n"
+		"Update time: Velocity 50 mS, other modes 0.3 mS.",
+		1, 4, 1,			$ min, max, default
+		1,1,1,0,
+		0,0,0,0,
+		0;
+	Enum57=				$ "Input Assembly (Strobe )"
+		1, "Position Value",
+		2, "Position Value + Flag",
+		3, "Position Value + Velocity",
+		4, "Position Value + Cam State";
+
+	Param58 =								$ # bits, Pad bit for Assy
+		0,	
+		,,								$ Path size and Path to value Attribute
+		0x0A10,									$ Read-only Data non-displayed not addressable
+		0xC1, 1,								$ Bool
+		"Cam State 1",
+		"",
+		"Outerspace",
+		0,1,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param59 =								$ # bits, Pad bit for Assy
+		0,	
+		,,								$ Path size and Path to value Attribute
+		0x0A10,									$ Read-only Data non-displayed not addressable
+		0xC1, 1,								$ Bool
+		"Cam State 2",
+		"",
+		"Outerspace",
+		0,1,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param60 =								$ # bits, Pad bit for Assy
+		0,	
+		,,								$ Path size and Path to value Attribute
+		0x0A10,									$ Read-only Data non-displayed not addressable
+		0xC1, 1,								$ Bool
+		"Cam State 3",
+		"",
+		"Outerspace",
+		0,1,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param61 =								$ # bits, Pad bit for Assy
+		0,	
+		,,								$ Path size and Path to value Attribute
+		0x0A10,									$ Read-only Data non-displayed not addressable
+		0xC1, 1,								$ Bool
+		"Cam State 4",
+		"",
+		"Outerspace",
+		0,1,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param62 =								$ # bits, Pad bit for Assy
+		0,	
+		,,								$ Path size and Path to value Attribute
+		0x0A10,									$ Read-only Data non-displayed not addressable
+		0xC1, 1,								$ Bool
+		"Cam State 5",
+		"",
+		"Outerspace",
+		0,1,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param63 =								$ # bits, Pad bit for Assy
+		0,	
+		,,								$ Path size and Path to value Attribute
+		0x0A10,									$ Read-only Data non-displayed not addressable
+		0xC1, 1,								$ Bool
+		"Cam State 6",
+		"",
+		"Outerspace",
+		0,1,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param64 =								$ # bits, Pad bit for Assy
+		0,	
+		,,								$ Path size and Path to value Attribute
+		0x0A10,									$ Read-only Data non-displayed not addressable
+		0xC1, 1,								$ Bool
+		"Cam State 7",
+		"",
+		"Outerspace",
+		0,1,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param65 =								$ # bits, Pad bit for Assy
+		0,	
+		,,								$ Path size and Path to value Attribute
+		0x0A10,									$ Read-only Data non-displayed not addressable
+		0xC1, 1,								$ Bool
+		"Cam State 8",
+		"",
+		"Outerspace",
+		0,1,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+$ =================	Parameter Enumerating  Section	=========================
+
+[EnumPar]
+	Param1=					$ Code Sequence	
+		"CW",
+		"CCW";
+
+	Param2=					$ Scaling Enable
+		"No",
+		"Yes";
+
+	Param7=					$ "operating state"
+		"Direction: CCW",
+		"Reserved",
+		"Scaling: On",
+		"Reserved",
+		"Reserved",
+		"Reserved",
+		"Reserved",
+		"Reserved";
+
+	Param10=				$ "alarm flag"
+		"No",
+		"Yes";
+
+	Param11=				$ "alarms"	
+		"Position Error",
+		"Not Used", "Not Used", "Not Used", 
+		"Not Used", "Not Used", "Not Used", "Not Used",			$ bit 4...7
+		"Not Used", "Not Used", "Not Used", "Not Used",			$ bit 8...11
+		"EEPROM Error",			$ bit 12
+		"CRC Error",			$ bit 13
+		"Not Used",			$ bit 14, 15
+		"Not Used";
+
+	Param12=				$ "warning flag"	
+		"No",
+		"Yes";
+
+	Param13=				$ "warnings"	
+		"Frequency Exceeded",
+		"Reserved",
+		"Watchdog Generate Reset",
+		"Reserved",
+ 		"Reserved",
+		"Reserved",
+		"Min. Velocity Underrun",
+		"Max. Velocity Exceeded",
+		"Min. Accel. Underrun",
+		"Max. Accel. Exceeded",
+		"Reserved",
+		"Reserved",
+		"Reserved",
+		"Cam Limits Out of Order",
+		"Reserved",
+		"Not Used";
+
+	Param15=				$ "Format velocity"
+		"Steps / Sec",
+		"RPM",
+		"RPS" ;
+
+	Param22=				$ "Cam-1 State reg"
+		"Cam State (1)",
+		"Cam State (2)",
+		"Cam State (3)",
+		"Cam State (4)",
+		"Cam State (5)",
+		"Cam State (6)",
+		"Cam State (7)",
+		"Cam State (8)"  ;
+
+	Param23=				$ "Cam-1 polarity reg"
+		"Invert Cam State (1)",
+		"Invert Cam State (2)",
+		"Invert Cam State (3)",
+		"Invert Cam State (4)",
+		"Invert Cam State (5)",
+		"Invert Cam State (6)",
+		"Invert Cam State (7)",
+		"Invert Cam State (8)"  ;
+
+	Param24=				$ "Cam-1 Enable reg"	
+		"Enable Cam (1)",
+		"Enable Cam (2)",
+		"Enable Cam (3)",
+		"Enable Cam (4)",
+		"Enable Cam (5)",
+		"Enable Cam (6)",
+		"Enable Cam (7)",
+		"Enable Cam (8)"  ;
+
+
+	Param49=				$ "device SW"
+		"BaudRate: DIP-1",		$ bit 0...3
+		"BaudRate: DIP-2",
+		"BaudRate: DIP-3",
+		"Reserved",
+
+		"Reserved",			$ bit 4...7
+		"Reserved",
+		"Reserved",
+		"Preset Key",
+
+		"MacID: DIP-1",			$ bit 8...15
+		"MacID: DIP-2",
+		"MacID: DIP-3",
+		"MacID: DIP-4",
+		"MacID: DIP-5",
+		"MacID: DIP-6",
+		"Reserved",
+		"Reserved"  ;
+
+$ ===============================================================================
+$ ===============================================================================
+
+$ =================	Parameter Groups  Section	=========================
+
+[Groups]
+
+	Group1=
+		"Encoder Configuration",	$ Name
+		8,				$ number of members
+		1,2,3,4,5,8,9,14
+		;
+	Group2=
+		"Profile Limits", 		$ Name
+		9,				$ number of members
+		15,16,17,18,51,19,20,21,
+		52
+		;
+	Group3=
+		"Monitoring",			$ Name
+		9,				$ number of members
+		6,7,10,11,12,13,18,21,
+		22
+		;
+	Group4=
+		"Cams Configuration",			$ Name
+		28,				$ number of members
+		6,22,23,24,
+		25,26,27,28,29,30,31,32,
+		33,34,35,36,37,38,39,40,
+		41,42,43,44,45,46,47,48
+		;
+	Group5=
+		"DNet Configuration",		$ Name:
+		5,				$ number of members
+		14,49,55,56,57
+		;
+	Group6=
+		"Encoder Diagnostic",		$ Name:
+		10,				$ number of members
+		10,11,12,13,49,50,51,52,
+		53,54
+		;
+
+[Assembly]
+
+	VariantExa1 = 				$ variant used for POLL assembly selection
+		"POLL Variant",,,,,
+		Param55,
+		0x01, Assem1,
+		0x02, Assem2,
+		0x03, Assem3,
+		0x04, Assem4;
+
+	VariantExa2 = 				$ variant used for COS assembly selection
+		"COS Variant",,,,,
+		Param56,
+		0x01, Assem1,
+		0x02, Assem2,
+		0x04, Assem4;
+
+	VariantExa3 = 				$ variant used for BIT strobed assembly selection
+		"Strobed Variant",,,,,
+		Param57,
+		0x01, Assem1,
+		0x02, Assem2,
+		0x03, Assem3,
+		0x04, Assem4;
+
+	Assem1 = "Position Value", 
+		"20 04 24 01 30 03",
+		4,				$ total length in bytes
+		0,				$ Discriptor
+		, ,
+		32, Param6,			$ Position value
+		6, ;				$ Reserved
+
+	Assem2 = "Position Value + Flag",
+		"20 04 24 02 30 03",
+		5,				$ total length in bytes
+		0,				$ Discriptor
+		, ,
+		32, Param6,			$ Position value
+		1, Param10,			$ Flag Alarm
+		1, Param12,			$ Flag Warning
+		6, ;				$ Reserved
+
+	Assem3 = "Position Value + Velocity",
+		"20 04 24 03 30 03",
+		8,
+		0,				$ Discriptor
+		, ,
+		32, Param6,			$ Position value
+		32, Param18;			$ Velocity
+
+	Assem4 = "Position Value + Cam State",
+		"20 04 24 04 30 03",		$ Path is ins 4
+		5,				$ total length in bytes
+		0,				$ Discriptor
+		, ,
+		32, Param6,			$ Position value
+		1, Param58,			$ Cam State 1
+		1, Param59,			$ Cam State 2
+		1, Param60,			$ Cam State 3
+		1, Param61,			$ Cam State 4
+		1, Param62,			$ Cam State 5
+		1, Param63,			$ Cam State 6
+		1, Param64,			$ Cam State 7
+		1, Param65;			$ Cam State 8
+
+
+	Assem150 = "Encoder Configuration",
+		,		$ Path is ins 
+		3,				$ total length in bytes (115 total)
+		0x0010,			$ not directly addressable
+		, ,
+$		   1,  Param1,			$ Code Sequence
+$		   1,  Param2,			$ Scaling Enable
+$		   1,  0,			$ Pad
+$		   1,  0,			$ Pad
+$		   1,  0,			$ Pad
+$		   1,  0,			$ Pad
+$		   1,  0,			$ Pad
+$		   1,  0,			$ Pad
+$		   1,  0,			$ Pad
+
+$		   32, Param3,			$ Resolution Per Revolution
+$		   32, Param4,			$ Total Measuring Range
+$		   32, Param14,			$ Delta for Cos
+$		   8,  Param15,			$ Velocity Format
+$		   32, Param16,			$ Velocity Minimum Limit
+$		   32, Param17,			$ Velocity Maxmim Limit
+$		   32, Param19,			$ Acceleration Minimum Limit
+
+$		   32, Param20,			$ Acceleration Maximum Limit
+$		   8,  Param23,			$ CAM Polarity Register
+$		   8,  Param24,			$ CAM Enable Register
+$		   32, Param25,			$ CAM Low Limit (1)
+$		   32, Param26,			$ CAM Low Limit (2)
+$		   32, Param27,			$ CAM Low Limit (3)
+$		   32, Param28,			$ CAM Low Limit (4)
+$		   32, Param29,			$ CAM Low Limit (5)
+$		   32, Param30,			$ CAM Low Limit (6)
+$		   32, Param31,			$ CAM Low Limit (7)
+
+$		   32, Param32,			$ CAM Low Limit (8)
+$		   32, Param33,			$ CAM High Limit (1)
+$		   32, Param34,			$ CAM High Limit (2)
+$		   32, Param35,			$ CAM High Limit (3)
+$		   32, Param36,			$ CAM High Limit (4)
+$		   32, Param37,			$ CAM High Limit (5)
+$		   32, Param38,			$ CAM High Limit (6)
+$		   32, Param39,			$ CAM High Limit (7)
+$		   32, Param40,			$ CAM High Limit (8)
+$		   16, Param41,			$ CAM Hysteresis (1)
+
+$		   16, Param42,			$ CAM Hysteresis (2)
+$		   16, Param43,			$ CAM Hysteresis (3)
+$		   16, Param44,			$ CAM Hysteresis (4)
+$		   16, Param45,			$ CAM Hysteresis (5)
+$		   16, Param46,			$ CAM Hysteresis (6)
+$		   16, Param47,			$ CAM Hysteresis (7)
+$		   16, Param48,			$ CAM Hysteresis (8)
+		8,  Param55,			$ Input Assy. (Poll)
+		8,  Param56,			$ Input Assy. (COS)
+		8,  Param57;			$ Input Assy. (Strobe)

@@ -1,0 +1,241 @@
+$ Electronic Data Sheet for CompactBlock LDX 1790D-N0C2
+$ Copyright 2001 by Rockwell Automation and the author
+
+[File]
+	DescText	= "1790D-N0C2 CompactBlock LDX EDS File";
+	CreateDate	= 4-11-2001;
+	CreateTime	= 14:30:00;
+	ModDate		= 06-12-2002;
+	ModTime		= 12:30:00;
+	Revision	= 1.002;		$ EDS revision.
+	HomeURL		= "http://www.ab.com/networks/eds/DN/0001007300340100.eds";
+
+[Device]
+	VendCode	= 1;
+	VendName	= "Allen-Bradley Company, Inc.";
+	ProdType	= 115;
+	ProdTypeStr 	= "Rockwell Automation Miscellaneous";
+	ProdCode	= 52;
+	MajRev		= 1;
+	MinRev		= 2;
+	ProdName	= "1790D-N0C2 2 Analog Current Out";
+	Catalog		= "1790D-N0C2";
+	1_RSNetWorx_DNetTool = "RSI.DeviceNet.ChassisApplet.2";
+	Icon		= "compactblkLDX.ico";
+
+[Modular]
+	Rack1 = 1,108,85,1,1, , , ,0;
+	Query = "20 01 24 01 30 64", 0x0E, 1, "00";
+
+
+[IO_Info]
+	Default    = 0x01;
+	PollInfo   = 0x000D, 1, 1;
+	StrobeInfo = 0x0002, 1, 1;
+	COSInfo    = 0x0005, 1, 1;
+	CyclicInfo = 0x0009, 1, 1;
+
+	1_Input1 = ,0,0x000D,"Produced Connection" ,,ProxyAssem1,;
+	1_Output1= ,0,0x000D,"Consumed Connnection",,Assem2,;
+
+[ParamClass]
+	MaxInst = 13;		$ 9 configurable parameters.
+	Descriptor =  0x08;	$ Stub param instances in eeprom.
+	CfgAssembly = 0;	$ Config assembly.		
+
+[Params]
+	$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+	Param1 =		$ Autobaud
+	0,			$ reserved
+	6,			$ Link Path Size
+	"20 03 24 01 30 64",	$ Link Path to disable autobaud attribute.
+	0x0002,			$ No support for settable path, scaling, scaling links, enumerated
+				$ strings, or real time update of value.  Value is Get/Set.
+	0xC1,			$ Data Type - boolean
+	1,			$ Data Size
+	"Autobaud",		$ Parameter Name
+	"",			$ Units String
+				$$$$$$$$$$ Help string $$$$$$$$$$$
+	"This parameter Disables or Enables the Autobaud feature in the block. The change occurs after the next power up. The default is Enabled.",
+	0,1,0,			$ Min, Max, and Default values
+	1,1,1,0,0,0,0,0,0;	$ Not Used
+
+	Param2 = 0,			$ Status 0
+		6,"20 0B 24 01 30 04",	$ Link Path Size, Link Path
+		0x0032,	 		$ Descriptor
+		0xC1, 1,		$ Data Type, Data Size
+		"Status #0",
+		"",
+		"Status of Output channel.  This bit is the OR of all possible channel Faults.",
+		0,1,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param3 = 0,			$ Status 1
+		6,"20 0B 24 02 30 04",	$ Link Path Size, Link Path
+		0x0032,	 		$ Descriptor
+		0xC1, 1,		$ Data Type, Data Size
+		"Status #1",
+		"",
+		"Status of Output channel.  This bit is the OR of all possible channel Faults.",
+		0,1,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param4 = 0,$ 			Status 2
+		6,"20 0B 24 01 30 09",	$ Link Path Size, Link Path
+		0x0002,	 		$ Descriptor
+		0xC6, 1,		$ Data Type, Data Size
+		"Fault State #0",
+		"",
+		"The Output will go to this state during a Fault.  \n\nPossible choices are:\n - Hold Last State\n - Go to Low Clamp value\n - Go to High Clamp value\n - Go to Fault value",
+		0,3,1,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param5 = 0,			$ Status 3
+		6,"20 0B 24 02 30 09",	$ Link Path Size, Link Path
+		0x0002,	 		$ Descriptor
+		0xC6, 1,		$ Data Type, Data Size
+		"Fault State #1",
+		"",
+		"The Output will go to this state during a Fault.  \n\nPossible choices are:\n - Hold Last State\n - Go to Low Clamp value\n - Go to High Clamp value\n - Go to Fault value",
+		0,3,1,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param6 = 0,
+		6,"20 0B 24 01 30 0a",	$ Link Path Size, Link Path
+		0x0002,	 		$ Descriptor
+		0xC6, 1,		$ Data Type, Data Size
+		"Idle State #0",
+		"",
+		"The Output will go to this state during Idle or Program mode.  \n\nPossible choices are:\n - Hold Last State\n - Go to Low Clamp value\n - Go to High Clamp value\n - Go to Idle value",
+		0,3,1,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param7 = 0,
+		6,"20 0B 24 02 30 0a",	$ Link Path Size, Link Path
+		0x0002,	 		$ Descriptor
+		0xC6, 1,		$ Data Type, Data Size
+		"Idle State #1",
+		"",
+		"The Output will go to this state during Idle or Program mode.  \n\nPossible choices are:\n - Hold Last State\n - Go to Low Clamp value\n - Go to High Clamp value\n - Go to Idle value",
+		0,3,1,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param8 = 0,
+		6,"20 0B 24 01 30 0B",	$ Link Path Size, Link Path
+		0x0000,	 		$ Descriptor
+		0xC7, 2,		$ Data Type, Data Size
+		"Fault Value #0",
+		"",
+		"When the Fault State is set to 'Fault Value', \nthis is the value the Output will go to during a Fault.  \nThe value is bounded by the High and Low Clamps.",
+		0,4095,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param9 = 0,
+		6,"20 0B 24 02 30 0B",	$ Link Path Size, Link Path
+		0x0000,	 		$ Descriptor
+		0xC7, 2,		$ Data Type, Data Size
+		"Fault Value #1",
+		"",
+		"When the Fault State is set to 'Fault Value', \nthis is the value the Output will go to during a Fault.  \nThe value is bounded by the High and Low Clamps.",
+		0,4095,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param10 = 0,
+		6,"20 0B 24 01 30 0C",	$ Link Path Size, Link Path
+		0x0000,	 		$ Descriptor
+		0xC7, 2,		$ Data Type, Data Size
+		"Idle Value #0",
+		"",
+		"When the Idle State is set to 'Idle Value,' \nthis is the value the Output will go to during Idle or Program mode.  \nThe value is bounded by the High and Low Clamps.",
+		0,4095,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param11 = 0,
+		6,"20 0B 24 02 30 0C",	$ Link Path Size, Link Path
+		0x0000,	 		$ Descriptor
+		0xC7, 2,		$ Data Type, Data Size
+		"Idle Value #1",
+		"",
+		"When the Idle State is set to 'Idle Value,' \nthis is the value the Output will go to during Idle or Program mode.  \nThe value is bounded by the High and Low Clamps.",
+		0,4095,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param12 = 0,			$ Scaled Output 0
+		6,"20 0B 24 01 30 03",	$ Link Path Size, Link Path
+		0x0074,	 		$ Descriptor
+		0xC7, 2,		$ Data Type, Data Size
+		"Output Setting #0",	$ Name
+		"mA",			$ Units
+		"Setting of analog Output point scaled to read in mA.",
+		0,4095,0,		$ Min, Max, Default
+		20,4095,1000,0,		$ Scaling
+		0,0,0,0,		$ Links
+		3;			$ Precision
+
+	Param13 = 0,			$ Scaled Output 1
+		6,"20 0B 24 02 30 03",	$ Link Path Size, Link Path
+		0x0074,	 		$ Descriptor
+		0xC7, 2,		$ Data Type, Data Size
+		"Output Setting #1",	$ Name
+		"mA",			$ Units
+		"Setting of analog Output point scaled to read in mA.",
+		0,4095,0,		$ Min, Max, Default
+		20,4095,1000,0,		$ Scaling
+		0,0,0,0,		$ Links
+		3;			$ Precision
+
+[EnumPar]
+	Param1=
+		"Enabled","Disabled";
+	Param2 =
+ 		"Normal Operation",
+		"FAULT";
+	Param3 =
+ 		"Normal Operation",
+		"FAULT";
+	Param4 =
+ 		"Hold Last State",
+		"Go to Low Clamp",
+		"Go to High Clamp",
+		"Go to Fault Value";
+	Param5 =
+ 		"Hold Last State",
+		"Go to Low Clamp",
+		"Go to High Clamp",
+		"Go to Fault Value";
+	Param6 =
+ 		"Hold Last State",
+		"Go to Low Clamp",
+		"Go to High Clamp",
+		"Go to Idle Value";
+	Param7 =
+ 		"Hold Last State",
+		"Go to Low Clamp",
+		"Go to High Clamp",
+		"Go to Idle Value";
+
+[Assembly]
+	Assem2 = "Output Data Size",,,,,,32,,,ProxyAssem2;
+
+	ProxyAssem1	= "Expansion Module Input Data",,,0b110,,,ModuleMemberList;
+	ProxyAssem2	= "Expansion Module Output Data",,,0b110,,,ModuleMemberList;

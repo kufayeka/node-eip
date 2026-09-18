@@ -1,0 +1,1726 @@
+$ Revision History
+$ 1.001  07-28-05  jgm  Initial version.
+$ 1.002  03-21-06  jgm  Updated to support standardization guidelines
+$ 1.003  05-08-07  pdt  Added entry to prevent usage of RSLogix 5000 EDS AOP
+
+[File]
+	DescText    = "1769-OV32T/A EDS File";
+	CreateDate  = 07-28-2005;
+	CreateTime  = 12:00:00;
+	ModDate     = 05-08-2007;
+	ModTime     = 06:00:00;
+	Revision    = 1.003;
+	HomeURL     = "http://www.ab.com/networks/eds/XX/00010007004B0300.eds";
+
+[Device]
+	VendCode    = 1;
+	VendName    = "Rockwell Automation/Allen-Bradley";
+	ProdType    = 7;
+	ProdTypeStr = "Discrete I/O";
+	ProdCode    = 75;
+	ProdName    = "1769-32pt 24Vdc Output/w MIL Connector/A";
+	Catalog     = "1769-OV32T/A";
+	MajRev      = 3;
+	MinRev      = 1;
+	Icon        = "1769-Green.ico";
+	1_EDS_AOP_Support = "No";
+
+[Modular]
+	Rack1 =  1,108,91,1,1,,,,
+			 1, 2, 3, 4, 5, 6, 7, 8, 9,10, $ Legal slots
+			11,12,13,14,15,16,17,18,19,20,
+			21,22,23,24,25,26,27,28,29,30,
+			31,32,33,34,35,36,37;
+
+	ExternalID = "01 00 07 00 4B 00 03";
+
+[1_1769Audit]
+	1_5vdcPwrLoad   = 220;
+	1_24vdcPwrLoad  = 0;
+	1_DistRating    = 8;
+
+[Params]
+	ProxiedParam4 = ,,,,,,"","","",0,2,2,,,,,,,,,;	$ Input data size
+	ProxiedEnum4 =
+				0, "Use No Input Data",
+				1, "Use First Input Word Only",
+				2, "Use Both Input Words";
+
+	ProxiedParam5 = ,,,,,,"","","",0,2,2,,,,,,,,,;	$ Output data size
+	ProxiedEnum5 =
+				0, "Use No Output Data",
+				1, "Use 1 Output Word",
+				2, "Use 2 Output Words";
+
+	ProxiedParam6 = ,,,,,,"","","",0,2,2,,,,,,,,,;	$ Electronic Keying
+	ProxiedEnum6 = 0,"Disable Keying", 1,"Exact Match",2,"Compatible Module";
+
+	ProxiedParam7 = ,,,,,,"","","",1,255,1,,,,,,,,,;	$ Configured Minor Revision
+
+	ProxiedParam8 = ,,,,,,"","","",1,255,1,,,,,,,,,;	$ Actual Minor Revision
+
+
+	$***********************************
+	$	Input array data (2 words)
+	$***********************************
+	Param20 =
+			0,,,				$ Reserved, link size, link path
+			0x0010, 			$ Descriptor (Read Only)
+			0xD3, 4,			$ DWORD
+			"Readback","",
+			"Echo of module's output data.",
+			0,0xFFFFFFFF,0,,,,,,,,,;
+
+
+	$***********************************
+	$	Output array data (2 words)
+	$***********************************
+	Param30 =
+			0,,,				$ Reserved, link size, link path
+			0x0000, 			$ Descriptor
+			0xD3,4, 			$ DWORD
+			"Data","",
+			"Directed state of the discrete output points.",
+			0,0xFFFFFFFF,0,,,,,,,,,;
+
+
+	$***********************************
+	$	Configuration Array (16 words)
+	$***********************************
+
+	$*************************************************************
+	$	Word 0 configuration data - Program To Fault Enable Word
+	$*************************************************************
+	Param1 =
+			0,,,				$ Reserved, link size, link path
+			0x0002, 			$ Descriptor (Enum)
+			0xC6,1, 			$ USINT
+			"Program To Fault Enable","",
+			"Select outputs to apply after fault occurs while in Program Mode",
+			0,1,0,,,,,,,,,;
+	Enum1 =
+			0, "Do Not Change",
+			1, "Change Outputs";
+
+
+	$*************************************************************
+	$	Word 1 configuration data - Reserved (always 0)
+	$*************************************************************
+
+	$*********************************************************************
+	$	Word 2 configuration data - Program State for Output Array Word 0
+	$*********************************************************************
+	Param200 =
+			0,,,				$ Reserved, link size, link path
+			0x0002, 			$ Descriptor (Enum)
+			0xC6,1, 			$ USINT
+			"OUT 0 Program State","",
+			"Select I/O safe state condition after change from Run to Program",
+			0,1,0,,,,,,,,,;
+	Enum200 =
+			0, "User-defined Safe State",
+			1, "Hold Last State";
+
+	Param201 =
+			0,,,				$ Reserved, link size, link path
+			0x0002, 			$ Descriptor (Enum)
+			0xC6,1, 			$ USINT
+			"OUT 1 Program State","",
+			"Select I/O safe state condition after change from Run to Program",
+			0,1,0,,,,,,,,,;
+	Enum201 =
+			0, "User-defined Safe State",
+			1, "Hold Last State";
+
+	Param202 =
+			0,,,				$ Reserved, link size, link path
+			0x0002, 			$ Descriptor (Enum)
+			0xC6,1, 			$ USINT
+			"OUT 2 Program State","",
+			"Select I/O safe state condition after change from Run to Program",
+			0,1,0,,,,,,,,,;
+	Enum202 =
+			0, "User-defined Safe State",
+			1, "Hold Last State";
+
+	Param203 =
+			0,,,				$ Reserved, link size, link path
+			0x0002, 			$ Descriptor (Enum)
+			0xC6,1, 			$ USINT
+			"OUT 3 Program State","",
+			"Select I/O safe state condition after change from Run to Program",
+			0,1,0,,,,,,,,,;
+	Enum203 =
+			0, "User-defined Safe State",
+			1, "Hold Last State";
+
+	Param204 =
+			0,,,				$ Reserved, link size, link path
+			0x0002, 			$ Descriptor (Enum)
+			0xC6,1, 			$ USINT
+			"OUT 4 Program State","",
+			"Select I/O safe state condition after change from Run to Program",
+			0,1,0,,,,,,,,,;
+	Enum204 =
+			0, "User-defined Safe State",
+			1, "Hold Last State";
+
+	Param205 =
+			0,,,				$ Reserved, link size, link path
+			0x0002, 			$ Descriptor (Enum)
+			0xC6,1, 			$ USINT
+			"OUT 5 Program State","",
+			"Select I/O safe state condition after change from Run to Program",
+			0,1,0,,,,,,,,,;
+	Enum205 =
+			0, "User-defined Safe State",
+			1, "Hold Last State";
+
+	Param206 =
+			0,,,				$ Reserved, link size, link path
+			0x0002, 			$ Descriptor (Enum)
+			0xC6,1, 			$ USINT
+			"OUT 6 Program State","",
+			"Select I/O safe state condition after change from Run to Program",
+			0,1,0,,,,,,,,,;
+	Enum206 =
+			0, "User-defined Safe State",
+			1, "Hold Last State";
+
+	Param207 =
+			0,,,				$ Reserved, link size, link path
+			0x0002, 			$ Descriptor (Enum)
+			0xC6,1, 			$ USINT
+			"OUT 7 Program State","",
+			"Select I/O safe state condition after change from Run to Program",
+			0,1,0,,,,,,,,,;
+	Enum207 =
+			0, "User-defined Safe State",
+			1, "Hold Last State";
+
+	Param208 =
+			0,,,				$ Reserved, link size, link path
+			0x0002, 			$ Descriptor (Enum)
+			0xC6,1, 			$ USINT
+			"OUT 8 Program State","",
+			"Select I/O safe state condition after change from Run to Program",
+			0,1,0,,,,,,,,,;
+	Enum208 =
+			0, "User-defined Safe State",
+			1, "Hold Last State";
+
+	Param209 =
+			0,,,				$ Reserved, link size, link path
+			0x0002, 			$ Descriptor (Enum)
+			0xC6,1, 			$ USINT
+			"OUT 9 Program State","",
+			"Select I/O safe state condition after change from Run to Program",
+			0,1,0,,,,,,,,,;
+	Enum209 =
+			0, "User-defined Safe State",
+			1, "Hold Last State";
+
+	Param210 =
+			0,,,				$ Reserved, link size, link path
+			0x0002, 			$ Descriptor (Enum)
+			0xC6,1, 			$ USINT
+			"OUT 10 Program State","",
+			"Select I/O safe state condition after change from Run to Program",
+			0,1,0,,,,,,,,,;
+	Enum210 =
+			0, "User-defined Safe State",
+			1, "Hold Last State";
+
+	Param211 =
+			0,,,				$ Reserved, link size, link path
+			0x0002, 			$ Descriptor (Enum)
+			0xC6,1, 			$ USINT
+			"OUT 11 Program State","",
+			"Select I/O safe state condition after change from Run to Program",
+			0,1,0,,,,,,,,,;
+	Enum211 =
+			0, "User-defined Safe State",
+			1, "Hold Last State";
+
+	Param212 =
+			0,,,				$ Reserved, link size, link path
+			0x0002, 			$ Descriptor (Enum)
+			0xC6,1, 			$ USINT
+			"OUT 12 Program State","",
+			"Select I/O safe state condition after change from Run to Program",
+			0,1,0,,,,,,,,,;
+	Enum212 =
+			0, "User-defined Safe State",
+			1, "Hold Last State";
+
+	Param213 =
+			0,,,				$ Reserved, link size, link path
+			0x0002, 			$ Descriptor (Enum)
+			0xC6,1, 			$ USINT
+			"OUT 13 Program State","",
+			"Select I/O safe state condition after change from Run to Program",
+			0,1,0,,,,,,,,,;
+	Enum213 =
+			0, "User-defined Safe State",
+			1, "Hold Last State";
+
+	Param214 =
+			0,,,				$ Reserved, link size, link path
+			0x0002, 			$ Descriptor (Enum)
+			0xC6,1, 			$ USINT
+			"OUT 14 Program State","",
+			"Select I/O safe state condition after change from Run to Program",
+			0,1,0,,,,,,,,,;
+	Enum214 =
+			0, "User-defined Safe State",
+			1, "Hold Last State";
+
+	Param215 =
+			0,,,				$ Reserved, link size, link path
+			0x0002, 			$ Descriptor (Enum)
+			0xC6,1, 			$ USINT
+			"OUT 15 Program State","",
+			"Select I/O safe state condition after change from Run to Program",
+			0,1,0,,,,,,,,,;
+	Enum215 =
+			0, "User-defined Safe State",
+			1, "Hold Last State";
+
+	$*********************************************************************
+	$	Word 3 configuration data - Program State for Output Array Word 1
+	$*********************************************************************
+	Param300 =
+			0,,,				$ Reserved, link size, link path
+			0x0002, 			$ Descriptor (Enum)
+			0xC6,1, 			$ USINT
+			"OUT 16 Program State","",
+			"Select I/O safe state condition after change from Run to Program",
+			0,1,0,,,,,,,,,;
+	Enum300 =
+			0, "User-defined Safe State",
+			1, "Hold Last State";
+
+	Param301 =
+			0,,,				$ Reserved, link size, link path
+			0x0002, 			$ Descriptor (Enum)
+			0xC6,1, 			$ USINT
+			"OUT 17 Program State","",
+			"Select I/O safe state condition after change from Run to Program",
+			0,1,0,,,,,,,,,;
+	Enum301 =
+			0, "User-defined Safe State",
+			1, "Hold Last State";
+
+	Param302 =
+			0,,,				$ Reserved, link size, link path
+			0x0002, 			$ Descriptor (Enum)
+			0xC6,1, 			$ USINT
+			"OUT 18 Program State","",
+			"Select I/O safe state condition after change from Run to Program",
+			0,1,0,,,,,,,,,;
+	Enum302 =
+			0, "User-defined Safe State",
+			1, "Hold Last State";
+
+	Param303 =
+			0,,,				$ Reserved, link size, link path
+			0x0002, 			$ Descriptor (Enum)
+			0xC6,1, 			$ USINT
+			"OUT 19 Program State","",
+			"Select I/O safe state condition after change from Run to Program",
+			0,1,0,,,,,,,,,;
+	Enum303 =
+			0, "User-defined Safe State",
+			1, "Hold Last State";
+
+	Param304 =
+			0,,,				$ Reserved, link size, link path
+			0x0002, 			$ Descriptor (Enum)
+			0xC6,1, 			$ USINT
+			"OUT 20 Program State","",
+			"Select I/O safe state condition after change from Run to Program",
+			0,1,0,,,,,,,,,;
+	Enum304 =
+			0, "User-defined Safe State",
+			1, "Hold Last State";
+
+	Param305 =
+			0,,,				$ Reserved, link size, link path
+			0x0002, 			$ Descriptor (Enum)
+			0xC6,1, 			$ USINT
+			"OUT 21 Program State","",
+			"Select I/O safe state condition after change from Run to Program",
+			0,1,0,,,,,,,,,;
+	Enum305 =
+			0, "User-defined Safe State",
+			1, "Hold Last State";
+
+	Param306 =
+			0,,,				$ Reserved, link size, link path
+			0x0002, 			$ Descriptor (Enum)
+			0xC6,1, 			$ USINT
+			"OUT 22 Program State","",
+			"Select I/O safe state condition after change from Run to Program",
+			0,1,0,,,,,,,,,;
+	Enum306 =
+			0, "User-defined Safe State",
+			1, "Hold Last State";
+
+	Param307 =
+			0,,,				$ Reserved, link size, link path
+			0x0002, 			$ Descriptor (Enum)
+			0xC6,1, 			$ USINT
+			"OUT 23 Program State","",
+			"Select I/O safe state condition after change from Run to Program",
+			0,1,0,,,,,,,,,;
+	Enum307 =
+			0, "User-defined Safe State",
+			1, "Hold Last State";
+
+	Param308 =
+			0,,,				$ Reserved, link size, link path
+			0x0002, 			$ Descriptor (Enum)
+			0xC6,1, 			$ USINT
+			"OUT 24 Program State","",
+			"Select I/O safe state condition after change from Run to Program",
+			0,1,0,,,,,,,,,;
+	Enum308 =
+			0, "User-defined Safe State",
+			1, "Hold Last State";
+
+	Param309 =
+			0,,,				$ Reserved, link size, link path
+			0x0002, 			$ Descriptor (Enum)
+			0xC6,1, 			$ USINT
+			"OUT 25 Program State","",
+			"Select I/O safe state condition after change from Run to Program",
+			0,1,0,,,,,,,,,;
+	Enum309 =
+			0, "User-defined Safe State",
+			1, "Hold Last State";
+
+	Param310 =
+			0,,,				$ Reserved, link size, link path
+			0x0002, 			$ Descriptor (Enum)
+			0xC6,1, 			$ USINT
+			"OUT 26 Program State","",
+			"Select I/O safe state condition after change from Run to Program",
+			0,1,0,,,,,,,,,;
+	Enum310 =
+			0, "User-defined Safe State",
+			1, "Hold Last State";
+
+	Param311 =
+			0,,,				$ Reserved, link size, link path
+			0x0002, 			$ Descriptor (Enum)
+			0xC6,1, 			$ USINT
+			"OUT 27 Program State","",
+			"Select I/O safe state condition after change from Run to Program",
+			0,1,0,,,,,,,,,;
+	Enum311 =
+			0, "User-defined Safe State",
+			1, "Hold Last State";
+
+	Param312 =
+			0,,,				$ Reserved, link size, link path
+			0x0002, 			$ Descriptor (Enum)
+			0xC6,1, 			$ USINT
+			"OUT 28 Program State","",
+			"Select I/O safe state condition after change from Run to Program",
+			0,1,0,,,,,,,,,;
+	Enum312 =
+			0, "User-defined Safe State",
+			1, "Hold Last State";
+
+	Param313 =
+			0,,,				$ Reserved, link size, link path
+			0x0002, 			$ Descriptor (Enum)
+			0xC6,1, 			$ USINT
+			"OUT 29 Program State","",
+			"Select I/O safe state condition after change from Run to Program",
+			0,1,0,,,,,,,,,;
+	Enum313 =
+			0, "User-defined Safe State",
+			1, "Hold Last State";
+
+	Param314 =
+			0,,,				$ Reserved, link size, link path
+			0x0002, 			$ Descriptor (Enum)
+			0xC6,1, 			$ USINT
+			"OUT 30 Program State","",
+			"Select I/O safe state condition after change from Run to Program",
+			0,1,0,,,,,,,,,;
+	Enum314 =
+			0, "User-defined Safe State",
+			1, "Hold Last State";
+
+	Param315 =
+			0,,,				$ Reserved, link size, link path
+			0x0002, 			$ Descriptor (Enum)
+			0xC6,1, 			$ USINT
+			"OUT 31 Program State","",
+			"Select I/O safe state condition after change from Run to Program",
+			0,1,0,,,,,,,,,;
+	Enum315 =
+			0, "User-defined Safe State",
+			1, "Hold Last State";
+
+	$**********************************************************************
+	$	Word 4 configuration data - Program Value for Output Array Word 0
+	$**********************************************************************
+	Param400 =
+			0,,,				$ Reserved, link size, link path
+			0x0002, 			$ Descriptor (Enum)
+			0xC6,1, 			$ USINT
+			"OUT 0 Program Value","",
+			"OUT 0 User-defined program mode safe state I/O output value.",
+			0,1,0,,,,,,,,,;
+	Enum400 =
+			0, "Off",
+			1, "On";
+
+	Param401 =
+			0,,,				$ Reserved, link size, link path
+			0x0002, 			$ Descriptor (Enum)
+			0xC6,1, 			$ USINT
+			"OUT 1 Program Value","",
+			"OUT 1 User-defined program mode safe state I/O output value.",
+			0,1,0,,,,,,,,,;
+	Enum401 =
+			0, "Off",
+			1, "On";
+
+	Param402 =
+			0,,,				$ Reserved, link size, link path
+			0x0002, 			$ Descriptor (Enum)
+			0xC6,1, 			$ USINT
+			"OUT 2 Program Value","",
+			"OUT 2 User-defined program mode safe state I/O output value.",
+			0,1,0,,,,,,,,,;
+	Enum402 =
+			0, "Off",
+			1, "On";
+
+	Param403 =
+			0,,,				$ Reserved, link size, link path
+			0x0002, 			$ Descriptor (Enum)
+			0xC6,1, 			$ USINT
+			"OUT 3 Program Value","",
+			"OUT 3 User-defined program mode safe state I/O output value.",
+			0,1,0,,,,,,,,,;
+	Enum403 =
+			0, "Off",
+			1, "On";
+
+	Param404 =
+			0,,,				$ Reserved, link size, link path
+			0x0002, 			$ Descriptor (Enum)
+			0xC6,1, 			$ USINT
+			"OUT 4 Program Value","",
+			"OUT 4 User-defined program mode safe state I/O output value.",
+			0,1,0,,,,,,,,,;
+	Enum404 =
+			0, "Off",
+			1, "On";
+
+	Param405 =
+			0,,,				$ Reserved, link size, link path
+			0x0002, 			$ Descriptor (Enum)
+			0xC6,1, 			$ USINT
+			"OUT 5 Program Value","",
+			"OUT 5 User-defined program mode safe state I/O output value.",
+			0,1,0,,,,,,,,,;
+	Enum405 =
+			0, "Off",
+			1, "On";
+
+	Param406 =
+			0,,,				$ Reserved, link size, link path
+			0x0002, 			$ Descriptor (Enum)
+			0xC6,1, 			$ USINT
+			"OUT 6 Program Value","",
+			"OUT 6 User-defined program mode safe state I/O output value.",
+			0,1,0,,,,,,,,,;
+	Enum406 =
+			0, "Off",
+			1, "On";
+
+	Param407 =
+			0,,,				$ Reserved, link size, link path
+			0x0002, 			$ Descriptor (Enum)
+			0xC6,1, 			$ USINT
+			"OUT 7 Program Value","",
+			"OUT 7 User-defined program mode safe state I/O output value.",
+			0,1,0,,,,,,,,,;
+	Enum407 =
+			0, "Off",
+			1, "On";
+
+	Param408 =
+			0,,,				$ Reserved, link size, link path
+			0x0002, 			$ Descriptor (Enum)
+			0xC6,1, 			$ USINT
+			"OUT 8 Program Value","",
+			"OUT 8 User-defined program mode safe state I/O output value.",
+			0,1,0,,,,,,,,,;
+	Enum408 =
+			0, "Off",
+			1, "On";
+
+	Param409 =
+			0,,,				$ Reserved, link size, link path
+			0x0002, 			$ Descriptor (Enum)
+			0xC6,1, 			$ USINT
+			"OUT 9 Program Value","",
+			"OUT 9 User-defined program mode safe state I/O output value.",
+			0,1,0,,,,,,,,,;
+	Enum409 =
+			0, "Off",
+			1, "On";
+
+	Param410 =
+			0,,,				$ Reserved, link size, link path
+			0x0002, 			$ Descriptor (Enum)
+			0xC6,1, 			$ USINT
+			"OUT 10 Program Value","",
+			"OUT 10 User-defined program mode safe state I/O output value.",
+			0,1,0,,,,,,,,,;
+	Enum410 =
+			0, "Off",
+			1, "On";
+
+	Param411 =
+			0,,,				$ Reserved, link size, link path
+			0x0002, 			$ Descriptor (Enum)
+			0xC6,1, 			$ USINT
+			"OUT 11 Program Value","",
+			"OUT 11 User-defined program mode safe state I/O output value.",
+			0,1,0,,,,,,,,,;
+	Enum411 =
+			0, "Off",
+			1, "On";
+
+	Param412 =
+			0,,,				$ Reserved, link size, link path
+			0x0002, 			$ Descriptor (Enum)
+			0xC6,1, 			$ USINT
+			"OUT 12 Program Value","",
+			"OUT 12 User-defined program mode safe state I/O output value.",
+			0,1,0,,,,,,,,,;
+	Enum412 =
+			0, "Off",
+			1, "On";
+
+	Param413 =
+			0,,,				$ Reserved, link size, link path
+			0x0002, 			$ Descriptor (Enum)
+			0xC6,1, 			$ USINT
+			"OUT 13 Program Value","",
+			"OUT 13 User-defined program mode safe state I/O output value.",
+			0,1,0,,,,,,,,,;
+	Enum413 =
+			0, "Off",
+			1, "On";
+
+	Param414 =
+			0,,,				$ Reserved, link size, link path
+			0x0002, 			$ Descriptor (Enum)
+			0xC6,1, 			$ USINT
+			"OUT 14 Program Value","",
+			"OUT 14 User-defined program mode safe state I/O output value.",
+			0,1,0,,,,,,,,,;
+	Enum414 =
+			0, "Off",
+			1, "On";
+
+	Param415 =
+			0,,,				$ Reserved, link size, link path
+			0x0002, 			$ Descriptor (Enum)
+			0xC6,1, 			$ USINT
+			"OUT 15 Program Value","",
+			"OUT 15 User-defined program mode safe state I/O output value.",
+			0,1,0,,,,,,,,,;
+	Enum415 =
+			0, "Off",
+			1, "On";
+
+	$***********************************
+	$	Word 5 configuration data - Program Value for Output Array Word 1
+	$***********************************
+	Param500 =
+			0,,,				$ Reserved, link size, link path
+			0x0002, 			$ Descriptor (Enum)
+			0xC6,1, 			$ USINT
+			"OUT 16 Program Value","",
+			"OUT 16 User-defined program mode safe state I/O output value.",
+			0,1,0,,,,,,,,,;
+	Enum500 =
+			0, "Off",
+			1, "On";
+
+	Param501 =
+			0,,,				$ Reserved, link size, link path
+			0x0002, 			$ Descriptor (Enum)
+			0xC6,1, 			$ USINT
+			"OUT 17 Program Value","",
+			"OUT 17 User-defined program mode safe state I/O output value.",
+			0,1,0,,,,,,,,,;
+	Enum501 =
+			0, "Off",
+			1, "On";
+
+	Param502 =
+			0,,,				$ Reserved, link size, link path
+			0x0002, 			$ Descriptor (Enum)
+			0xC6,1, 			$ USINT
+			"OUT 18 Program Value","",
+			"OUT 18 User-defined program mode safe state I/O output value.",
+			0,1,0,,,,,,,,,;
+	Enum502 =
+			0, "Off",
+			1, "On";
+
+	Param503 =
+			0,,,				$ Reserved, link size, link path
+			0x0002, 			$ Descriptor (Enum)
+			0xC6,1, 			$ USINT
+			"OUT 19 Program Value","",
+			"OUT 19 User-defined program mode safe state I/O output value.",
+			0,1,0,,,,,,,,,;
+	Enum503 =
+			0, "Off",
+			1, "On";
+
+	Param504 =
+			0,,,				$ Reserved, link size, link path
+			0x0002, 			$ Descriptor (Enum)
+			0xC6,1, 			$ USINT
+			"OUT 20 Program Value","",
+			"OUT 20 User-defined program mode safe state I/O output value.",
+			0,1,0,,,,,,,,,;
+	Enum504 =
+			0, "Off",
+			1, "On";
+
+	Param505 =
+			0,,,				$ Reserved, link size, link path
+			0x0002, 			$ Descriptor (Enum)
+			0xC6,1, 			$ USINT
+			"OUT 21 Program Value","",
+			"OUT 21 User-defined program mode safe state I/O output value.",
+			0,1,0,,,,,,,,,;
+	Enum505 =
+			0, "Off",
+			1, "On";
+
+	Param506 =
+			0,,,				$ Reserved, link size, link path
+			0x0002, 			$ Descriptor (Enum)
+			0xC6,1, 			$ USINT
+			"OUT 22 Program Value","",
+			"OUT 22 User-defined program mode safe state I/O output value.",
+			0,1,0,,,,,,,,,;
+	Enum506 =
+			0, "Off",
+			1, "On";
+
+	Param507 =
+			0,,,				$ Reserved, link size, link path
+			0x0002, 			$ Descriptor (Enum)
+			0xC6,1, 			$ USINT
+			"OUT 23 Program Value","",
+			"OUT 23 User-defined program mode safe state I/O output value.",
+			0,1,0,,,,,,,,,;
+	Enum507 =
+			0, "Off",
+			1, "On";
+
+	Param508 =
+			0,,,				$ Reserved, link size, link path
+			0x0002, 			$ Descriptor (Enum)
+			0xC6,1, 			$ USINT
+			"OUT 24 Program Value","",
+			"OUT 24 User-defined program mode safe state I/O output value.",
+			0,1,0,,,,,,,,,;
+	Enum508 =
+			0, "Off",
+			1, "On";
+
+	Param509 =
+			0,,,				$ Reserved, link size, link path
+			0x0002, 			$ Descriptor (Enum)
+			0xC6,1, 			$ USINT
+			"OUT 25 Program Value","",
+			"OUT 25 User-defined program mode safe state I/O output value.",
+			0,1,0,,,,,,,,,;
+	Enum509 =
+			0, "Off",
+			1, "On";
+
+	Param510 =
+			0,,,				$ Reserved, link size, link path
+			0x0002, 			$ Descriptor (Enum)
+			0xC6,1, 			$ USINT
+			"OUT 26 Program Value","",
+			"OUT 26 User-defined program mode safe state I/O output value.",
+			0,1,0,,,,,,,,,;
+	Enum510 =
+			0, "Off",
+			1, "On";
+
+	Param511 =
+			0,,,				$ Reserved, link size, link path
+			0x0002, 			$ Descriptor (Enum)
+			0xC6,1, 			$ USINT
+			"OUT 27 Program Value","",
+			"OUT 27 User-defined program mode safe state I/O output value.",
+			0,1,0,,,,,,,,,;
+	Enum511 =
+			0, "Off",
+			1, "On";
+
+	Param512 =
+			0,,,				$ Reserved, link size, link path
+			0x0002, 			$ Descriptor (Enum)
+			0xC6,1, 			$ USINT
+			"OUT 28 Program Value","",
+			"OUT 28 User-defined program mode safe state I/O output value.",
+			0,1,0,,,,,,,,,;
+	Enum512 =
+			0, "Off",
+			1, "On";
+
+	Param513 =
+			0,,,				$ Reserved, link size, link path
+			0x0002, 			$ Descriptor (Enum)
+			0xC6,1, 			$ USINT
+			"OUT 29 Program Value","",
+			"OUT 29 User-defined program mode safe state I/O output value.",
+			0,1,0,,,,,,,,,;
+	Enum513 =
+			0, "Off",
+			1, "On";
+
+	Param514 =
+			0,,,				$ Reserved, link size, link path
+			0x0002, 			$ Descriptor (Enum)
+			0xC6,1, 			$ USINT
+			"OUT 30 Program Value","",
+			"OUT 30 User-defined program mode safe state I/O output value.",
+			0,1,0,,,,,,,,,;
+	Enum514 =
+			0, "Off",
+			1, "On";
+
+	Param515 =
+			0,,,				$ Reserved, link size, link path
+			0x0002, 			$ Descriptor (Enum)
+			0xC6,1, 			$ USINT
+			"OUT 31 Program Value","",
+			"OUT 31 User-defined program mode safe state I/O output value.",
+			0,1,0,,,,,,,,,;
+	Enum515 =
+			0, "Off",
+			1, "On";
+
+	$***********************************
+	$	Word 6 configuration data - Fault State for Output Array Word
+	$***********************************
+	Param600 =
+			0,,,				$ Reserved, link size, link path
+			0x0002, 			$ Descriptor (Enum)
+			0xC6,1, 			$ USINT
+			"OUT 0 Fault State","",
+			"Select I/O safe state condition after change from Run to Fault.",
+			0,1,0,,,,,,,,,;
+	Enum600 =
+			0, "User-defined Safe State",
+			1, "Hold Last State";
+
+	Param601 =
+			0,,,				$ Reserved, link size, link path
+			0x0002, 			$ Descriptor (Enum)
+			0xC6,1, 			$ USINT
+			"OUT 1 Fault State","",
+			"Select I/O safe state condition after change from Run to Fault.",
+			0,1,0,,,,,,,,,;
+	Enum601 =
+			0, "User-defined Safe State",
+			1, "Hold Last State";
+
+	Param602 =
+			0,,,				$ Reserved, link size, link path
+			0x0002, 			$ Descriptor (Enum)
+			0xC6,1, 			$ USINT
+			"OUT 2 Fault State","",
+			"Select I/O safe state condition after change from Run to Fault.",
+			0,1,0,,,,,,,,,;
+	Enum602 =
+			0, "User-defined Safe State",
+			1, "Hold Last State";
+
+	Param603 =
+			0,,,				$ Reserved, link size, link path
+			0x0002, 			$ Descriptor (Enum)
+			0xC6,1, 			$ USINT
+			"OUT 3 Fault State","",
+			"Select I/O safe state condition after change from Run to Fault.",
+			0,1,0,,,,,,,,,;
+	Enum603 =
+			0, "User-defined Safe State",
+			1, "Hold Last State";
+
+	Param604 =
+			0,,,				$ Reserved, link size, link path
+			0x0002, 			$ Descriptor (Enum)
+			0xC6,1, 			$ USINT
+			"OUT 4 Fault State","",
+			"Select I/O safe state condition after change from Run to Fault.",
+			0,1,0,,,,,,,,,;
+	Enum604 =
+			0, "User-defined Safe State",
+			1, "Hold Last State";
+
+	Param605 =
+			0,,,				$ Reserved, link size, link path
+			0x0002, 			$ Descriptor (Enum)
+			0xC6,1, 			$ USINT
+			"OUT 5 Fault State","",
+			"Select I/O safe state condition after change from Run to Fault.",
+			0,1,0,,,,,,,,,;
+	Enum605 =
+			0, "User-defined Safe State",
+			1, "Hold Last State";
+
+	Param606 =
+			0,,,				$ Reserved, link size, link path
+			0x0002, 			$ Descriptor (Enum)
+			0xC6,1, 			$ USINT
+			"OUT 6 Fault State","",
+			"Select I/O safe state condition after change from Run to Fault.",
+			0,1,0,,,,,,,,,;
+	Enum606 =
+			0, "User-defined Safe State",
+			1, "Hold Last State";
+
+	Param607 =
+			0,,,				$ Reserved, link size, link path
+			0x0002, 			$ Descriptor (Enum)
+			0xC6,1, 			$ USINT
+			"OUT 7 Fault State","",
+			"Select I/O safe state condition after change from Run to Fault.",
+			0,1,0,,,,,,,,,;
+	Enum607 =
+			0, "User-defined Safe State",
+			1, "Hold Last State";
+
+	Param608 =
+			0,,,				$ Reserved, link size, link path
+			0x0002, 			$ Descriptor (Enum)
+			0xC6,1, 			$ USINT
+			"OUT 8 Fault State","",
+			"Select I/O safe state condition after change from Run to Fault.",
+			0,1,0,,,,,,,,,;
+	Enum608 =
+			0, "User-defined Safe State",
+			1, "Hold Last State";
+
+	Param609 =
+			0,,,				$ Reserved, link size, link path
+			0x0002, 			$ Descriptor (Enum)
+			0xC6,1, 			$ USINT
+			"OUT 9 Fault State","",
+			"Select I/O safe state condition after change from Run to Fault.",
+			0,1,0,,,,,,,,,;
+	Enum609 =
+			0, "User-defined Safe State",
+			1, "Hold Last State";
+
+	Param610 =
+			0,,,				$ Reserved, link size, link path
+			0x0002, 			$ Descriptor (Enum)
+			0xC6,1, 			$ USINT
+			"OUT 10 Fault State","",
+			"Select I/O safe state condition after change from Run to Fault.",
+			0,1,0,,,,,,,,,;
+	Enum610 =
+			0, "User-defined Safe State",
+			1, "Hold Last State";
+
+	Param611 =
+			0,,,				$ Reserved, link size, link path
+			0x0002, 			$ Descriptor (Enum)
+			0xC6,1, 			$ USINT
+			"OUT 11 Fault State","",
+			"Select I/O safe state condition after change from Run to Fault.",
+			0,1,0,,,,,,,,,;
+	Enum611 =
+			0, "User-defined Safe State",
+			1, "Hold Last State";
+
+	Param612 =
+			0,,,				$ Reserved, link size, link path
+			0x0002, 			$ Descriptor (Enum)
+			0xC6,1, 			$ USINT
+			"OUT 12 Fault State","",
+			"Select I/O safe state condition after change from Run to Fault.",
+			0,1,0,,,,,,,,,;
+	Enum612 =
+			0, "User-defined Safe State",
+			1, "Hold Last State";
+
+	Param613 =
+			0,,,				$ Reserved, link size, link path
+			0x0002, 			$ Descriptor (Enum)
+			0xC6,1, 			$ USINT
+			"OUT 13 Fault State","",
+			"Select I/O safe state condition after change from Run to Fault.",
+			0,1,0,,,,,,,,,;
+	Enum613 =
+			0, "User-defined Safe State",
+			1, "Hold Last State";
+
+	Param614 =
+			0,,,				$ Reserved, link size, link path
+			0x0002, 			$ Descriptor (Enum)
+			0xC6,1, 			$ USINT
+			"OUT 14 Fault State","",
+			"Select I/O safe state condition after change from Run to Fault.",
+			0,1,0,,,,,,,,,;
+	Enum614 =
+			0, "User-defined Safe State",
+			1, "Hold Last State";
+
+	Param615 =
+			0,,,				$ Reserved, link size, link path
+			0x0002, 			$ Descriptor (Enum)
+			0xC6,1, 			$ USINT
+			"OUT 15 Fault State","",
+			"Select I/O safe state condition after change from Run to Fault.",
+			0,1,0,,,,,,,,,;
+	Enum615 =
+			0, "User-defined Safe State",
+			1, "Hold Last State";
+
+	$***********************************
+	$	Word 7 configuration data - Fault State for Output Array Word 1
+	$***********************************
+	Param700 =
+			0,,,				$ Reserved, link size, link path
+			0x0002, 			$ Descriptor (Enum)
+			0xC6,1, 			$ USINT
+			"OUT 16 Fault State","",
+			"Select I/O safe state condition after change from Run to Fault.",
+			0,1,0,,,,,,,,,;
+	Enum700 =
+			0, "User-defined Safe State",
+			1, "Hold Last State";
+
+	Param701 =
+			0,,,				$ Reserved, link size, link path
+			0x0002, 			$ Descriptor (Enum)
+			0xC6,1, 			$ USINT
+			"OUT 17 Fault State","",
+			"Select I/O safe state condition after change from Run to Fault.",
+			0,1,0,,,,,,,,,;
+	Enum701 =
+			0, "User-defined Safe State",
+			1, "Hold Last State";
+
+	Param702 =
+			0,,,				$ Reserved, link size, link path
+			0x0002, 			$ Descriptor (Enum)
+			0xC6,1, 			$ USINT
+			"OUT 18 Fault State","",
+			"Select I/O safe state condition after change from Run to Fault.",
+			0,1,0,,,,,,,,,;
+	Enum702 =
+			0, "User-defined Safe State",
+			1, "Hold Last State";
+
+	Param703 =
+			0,,,				$ Reserved, link size, link path
+			0x0002, 			$ Descriptor (Enum)
+			0xC6,1, 			$ USINT
+			"OUT 19 Fault State","",
+			"Select I/O safe state condition after change from Run to Fault.",
+			0,1,0,,,,,,,,,;
+	Enum703 =
+			0, "User-defined Safe State",
+			1, "Hold Last State";
+
+	Param704 =
+			0,,,				$ Reserved, link size, link path
+			0x0002, 			$ Descriptor (Enum)
+			0xC6,1, 			$ USINT
+			"OUT 20 Fault State","",
+			"Select I/O safe state condition after change from Run to Fault.",
+			0,1,0,,,,,,,,,;
+	Enum704 =
+			0, "User-defined Safe State",
+			1, "Hold Last State";
+
+	Param705 =
+			0,,,				$ Reserved, link size, link path
+			0x0002, 			$ Descriptor (Enum)
+			0xC6,1, 			$ USINT
+			"OUT 21 Fault State","",
+			"Select I/O safe state condition after change from Run to Fault.",
+			0,1,0,,,,,,,,,;
+	Enum705 =
+			0, "User-defined Safe State",
+			1, "Hold Last State";
+
+	Param706 =
+			0,,,				$ Reserved, link size, link path
+			0x0002, 			$ Descriptor (Enum)
+			0xC6,1, 			$ USINT
+			"OUT 22 Fault State","",
+			"Select I/O safe state condition after change from Run to Fault.",
+			0,1,0,,,,,,,,,;
+	Enum706 =
+			0, "User-defined Safe State",
+			1, "Hold Last State";
+
+	Param707 =
+			0,,,				$ Reserved, link size, link path
+			0x0002, 			$ Descriptor (Enum)
+			0xC6,1, 			$ USINT
+			"OUT 23 Fault State","",
+			"Select I/O safe state condition after change from Run to Fault.",
+			0,1,0,,,,,,,,,;
+	Enum707 =
+			0, "User-defined Safe State",
+			1, "Hold Last State";
+
+	Param708 =
+			0,,,				$ Reserved, link size, link path
+			0x0002, 			$ Descriptor (Enum)
+			0xC6,1, 			$ USINT
+			"OUT 24 Fault State","",
+			"Select I/O safe state condition after change from Run to Fault.",
+			0,1,0,,,,,,,,,;
+	Enum708 =
+			0, "User-defined Safe State",
+			1, "Hold Last State";
+
+	Param709 =
+			0,,,				$ Reserved, link size, link path
+			0x0002, 			$ Descriptor (Enum)
+			0xC6,1, 			$ USINT
+			"OUT 25 Fault State","",
+			"Select I/O safe state condition after change from Run to Fault.",
+			0,1,0,,,,,,,,,;
+	Enum709 =
+			0, "User-defined Safe State",
+			1, "Hold Last State";
+
+	Param710 =
+			0,,,				$ Reserved, link size, link path
+			0x0002, 			$ Descriptor (Enum)
+			0xC6,1, 			$ USINT
+			"OUT 26 Fault State","",
+			"Select I/O safe state condition after change from Run to Fault.",
+			0,1,0,,,,,,,,,;
+	Enum710 =
+			0, "User-defined Safe State",
+			1, "Hold Last State";
+
+	Param711 =
+			0,,,				$ Reserved, link size, link path
+			0x0002, 			$ Descriptor (Enum)
+			0xC6,1, 			$ USINT
+			"OUT 27 Fault State","",
+			"Select I/O safe state condition after change from Run to Fault.",
+			0,1,0,,,,,,,,,;
+	Enum711 =
+			0, "User-defined Safe State",
+			1, "Hold Last State";
+
+	Param712 =
+			0,,,				$ Reserved, link size, link path
+			0x0002, 			$ Descriptor (Enum)
+			0xC6,1, 			$ USINT
+			"OUT 28 Fault State","",
+			"Select I/O safe state condition after change from Run to Fault.",
+			0,1,0,,,,,,,,,;
+	Enum712 =
+			0, "User-defined Safe State",
+			1, "Hold Last State";
+
+	Param713 =
+			0,,,				$ Reserved, link size, link path
+			0x0002, 			$ Descriptor (Enum)
+			0xC6,1, 			$ USINT
+			"OUT 29 Fault State","",
+			"Select I/O safe state condition after change from Run to Fault.",
+			0,1,0,,,,,,,,,;
+	Enum713 =
+			0, "User-defined Safe State",
+			1, "Hold Last State";
+
+	Param714 =
+			0,,,				$ Reserved, link size, link path
+			0x0002, 			$ Descriptor (Enum)
+			0xC6,1, 			$ USINT
+			"OUT 30 Fault State","",
+			"Select I/O safe state condition after change from Run to Fault.",
+			0,1,0,,,,,,,,,;
+	Enum714 =
+			0, "User-defined Safe State",
+			1, "Hold Last State";
+
+	Param715 =
+			0,,,				$ Reserved, link size, link path
+			0x0002, 			$ Descriptor (Enum)
+			0xC6,1, 			$ USINT
+			"OUT 31 Fault State","",
+			"Select I/O safe state condition after change from Run to Fault.",
+			0,1,0,,,,,,,,,;
+	Enum715 =
+			0, "User-defined Safe State",
+			1, "Hold Last State";
+
+	$***********************************
+	$	Word 8 configuration data - Fault Value for Output Array Word 0
+	$***********************************
+	Param800 =
+			0,,,				$ Reserved, link size, link path
+			0x0002, 			$ Descriptor (Enum)
+			0xC6,1, 			$ USINT
+			"OUT 0 Fault Value","",
+			"OUT 0 User-defined Fault mode safe state I/O output value.",
+			0,1,0,,,,,,,,,;
+	Enum800 =
+			0, "Off",
+			1, "On";
+
+	Param801 =
+			0,,,				$ Reserved, link size, link path
+			0x0002, 			$ Descriptor (Enum)
+			0xC6,1, 			$ USINT
+			"OUT 1 Fault Value","",
+			"OUT 1 User-defined Fault mode safe state I/O output value.",
+			0,1,0,,,,,,,,,;
+	Enum801 =
+			0, "Off",
+			1, "On";
+
+	Param802 =
+			0,,,				$ Reserved, link size, link path
+			0x0002, 			$ Descriptor (Enum)
+			0xC6,1, 			$ USINT
+			"OUT 2 Fault Value","",
+			"OUT 2 User-defined Fault mode safe state I/O output value.",
+			0,1,0,,,,,,,,,;
+	Enum802 =
+			0, "Off",
+			1, "On";
+
+	Param803 =
+			0,,,				$ Reserved, link size, link path
+			0x0002, 			$ Descriptor (Enum)
+			0xC6,1, 			$ USINT
+			"OUT 3 Fault Value","",
+			"OUT 3 User-defined Fault mode safe state I/O output value.",
+			0,1,0,,,,,,,,,;
+	Enum803 =
+			0, "Off",
+			1, "On";
+
+	Param804 =
+			0,,,				$ Reserved, link size, link path
+			0x0002, 			$ Descriptor (Enum)
+			0xC6,1, 			$ USINT
+			"OUT 4 Fault Value","",
+			"OUT 4 User-defined Fault mode safe state I/O output value.",
+			0,1,0,,,,,,,,,;
+	Enum804 =
+			0, "Off",
+			1, "On";
+
+	Param805 =
+			0,,,				$ Reserved, link size, link path
+			0x0002, 			$ Descriptor (Enum)
+			0xC6,1, 			$ USINT
+			"OUT 5 Fault Value","",
+			"OUT 5 User-defined Fault mode safe state I/O output value.",
+			0,1,0,,,,,,,,,;
+	Enum805 =
+			0, "Off",
+			1, "On";
+
+	Param806 =
+			0,,,				$ Reserved, link size, link path
+			0x0002, 			$ Descriptor (Enum)
+			0xC6,1, 			$ USINT
+			"OUT 6 Fault Value","",
+			"OUT 6 User-defined Fault mode safe state I/O output value.",
+			0,1,0,,,,,,,,,;
+	Enum806 =
+			0, "Off",
+			1, "On";
+
+	Param807 =
+			0,,,				$ Reserved, link size, link path
+			0x0002, 			$ Descriptor (Enum)
+			0xC6,1, 			$ USINT
+			"OUT 7 Fault Value","",
+			"OUT 7 User-defined Fault mode safe state I/O output value.",
+			0,1,0,,,,,,,,,;
+	Enum807 =
+			0, "Off",
+			1, "On";
+
+	Param808 =
+			0,,,				$ Reserved, link size, link path
+			0x0002, 			$ Descriptor (Enum)
+			0xC6,1, 			$ USINT
+			"OUT 8 Fault Value","",
+			"OUT 8 User-defined Fault mode safe state I/O output value.",
+			0,1,0,,,,,,,,,;
+	Enum808 =
+			0, "Off",
+			1, "On";
+
+	Param809 =
+			0,,,				$ Reserved, link size, link path
+			0x0002, 			$ Descriptor (Enum)
+			0xC6,1, 			$ USINT
+			"OUT 9 Fault Value","",
+			"OUT 9 User-defined Fault mode safe state I/O output value.",
+			0,1,0,,,,,,,,,;
+	Enum809 =
+			0, "Off",
+			1, "On";
+
+	Param810 =
+			0,,,				$ Reserved, link size, link path
+			0x0002, 			$ Descriptor (Enum)
+			0xC6,1, 			$ USINT
+			"OUT 10 Fault Value","",
+			"OUT 10 User-defined Fault mode safe state I/O output value.",
+			0,1,0,,,,,,,,,;
+	Enum810 =
+			0, "Off",
+			1, "On";
+
+	Param811 =
+			0,,,				$ Reserved, link size, link path
+			0x0002, 			$ Descriptor (Enum)
+			0xC6,1, 			$ USINT
+			"OUT 11 Fault Value","",
+			"OUT 11 User-defined Fault mode safe state I/O output value.",
+			0,1,0,,,,,,,,,;
+	Enum811 =
+			0, "Off",
+			1, "On";
+
+	Param812 =
+			0,,,				$ Reserved, link size, link path
+			0x0002, 			$ Descriptor (Enum)
+			0xC6,1, 			$ USINT
+			"OUT 12 Fault Value","",
+			"OUT 12 User-defined Fault mode safe state I/O output value.",
+			0,1,0,,,,,,,,,;
+	Enum812 =
+			0, "Off",
+			1, "On";
+
+	Param813 =
+			0,,,				$ Reserved, link size, link path
+			0x0002, 			$ Descriptor (Enum)
+			0xC6,1, 			$ USINT
+			"OUT 13 Fault Value","",
+			"OUT 13 User-defined Fault mode safe state I/O output value.",
+			0,1,0,,,,,,,,,;
+	Enum813 =
+			0, "Off",
+			1, "On";
+
+	Param814 =
+			0,,,				$ Reserved, link size, link path
+			0x0002, 			$ Descriptor (Enum)
+			0xC6,1, 			$ USINT
+			"OUT 14 Fault Value","",
+			"OUT 14 User-defined Fault mode safe state I/O output value.",
+			0,1,0,,,,,,,,,;
+	Enum814 =
+			0, "Off",
+			1, "On";
+
+	Param815 =
+			0,,,				$ Reserved, link size, link path
+			0x0002, 			$ Descriptor (Enum)
+			0xC6,1, 			$ USINT
+			"OUT 15 Fault Value","",
+			"OUT 15 User-defined Fault mode safe state I/O output value.",
+			0,1,0,,,,,,,,,;
+	Enum815 =
+			0, "Off",
+			1, "On";
+
+	$***********************************
+	$	Word 9 configuration data - Fault Value for Output Array Word 0
+	$***********************************
+	Param900 =
+			0,,,				$ Reserved, link size, link path
+			0x0002, 			$ Descriptor (Enum)
+			0xC6,1, 			$ USINT
+			"OUT 16 Fault Value","",
+			"OUT 16 User-defined Fault mode safe state I/O output value.",
+			0,1,0,,,,,,,,,;
+	Enum900 =
+			0, "Off",
+			1, "On";
+
+	Param901 =
+			0,,,				$ Reserved, link size, link path
+			0x0002, 			$ Descriptor (Enum)
+			0xC6,1, 			$ USINT
+			"OUT 17 Fault Value","",
+			"OUT 17 User-defined Fault mode safe state I/O output value.",
+			0,1,0,,,,,,,,,;
+	Enum901 =
+			0, "Off",
+			1, "On";
+
+	Param902 =
+			0,,,				$ Reserved, link size, link path
+			0x0002, 			$ Descriptor (Enum)
+			0xC6,1, 			$ USINT
+			"OUT 18 Fault Value","",
+			"OUT 18 User-defined Fault mode safe state I/O output value.",
+			0,1,0,,,,,,,,,;
+	Enum902 =
+			0, "Off",
+			1, "On";
+
+	Param903 =
+			0,,,				$ Reserved, link size, link path
+			0x0002, 			$ Descriptor (Enum)
+			0xC6,1, 			$ USINT
+			"OUT 19 Fault Value","",
+			"OUT 19 User-defined Fault mode safe state I/O output value.",
+			0,1,0,,,,,,,,,;
+	Enum903 =
+			0, "Off",
+			1, "On";
+
+	Param904 =
+			0,,,				$ Reserved, link size, link path
+			0x0002, 			$ Descriptor (Enum)
+			0xC6,1, 			$ USINT
+			"OUT 20 Fault Value","",
+			"OUT 20 User-defined Fault mode safe state I/O output value.",
+			0,1,0,,,,,,,,,;
+	Enum904 =
+			0, "Off",
+			1, "On";
+
+	Param905 =
+			0,,,				$ Reserved, link size, link path
+			0x0002, 			$ Descriptor (Enum)
+			0xC6,1, 			$ USINT
+			"OUT 21 Fault Value","",
+			"OUT 21 User-defined Fault mode safe state I/O output value.",
+			0,1,0,,,,,,,,,;
+	Enum905 =
+			0, "Off",
+			1, "On";
+
+	Param906 =
+			0,,,				$ Reserved, link size, link path
+			0x0002, 			$ Descriptor (Enum)
+			0xC6,1, 			$ USINT
+			"OUT 22 Fault Value","",
+			"OUT 22 User-defined Fault mode safe state I/O output value.",
+			0,1,0,,,,,,,,,;
+	Enum906 =
+			0, "Off",
+			1, "On";
+
+	Param907 =
+			0,,,				$ Reserved, link size, link path
+			0x0002, 			$ Descriptor (Enum)
+			0xC6,1, 			$ USINT
+			"OUT 23 Fault Value","",
+			"OUT 23 User-defined Fault mode safe state I/O output value.",
+			0,1,0,,,,,,,,,;
+	Enum907 =
+			0, "Off",
+			1, "On";
+
+	Param908 =
+			0,,,				$ Reserved, link size, link path
+			0x0002, 			$ Descriptor (Enum)
+			0xC6,1, 			$ USINT
+			"OUT 24 Fault Value","",
+			"OUT 24 User-defined Fault mode safe state I/O output value.",
+			0,1,0,,,,,,,,,;
+	Enum908 =
+			0, "Off",
+			1, "On";
+
+	Param909 =
+			0,,,				$ Reserved, link size, link path
+			0x0002, 			$ Descriptor (Enum)
+			0xC6,1, 			$ USINT
+			"OUT 25 Fault Value","",
+			"OUT 25 User-defined Fault mode safe state I/O output value.",
+			0,1,0,,,,,,,,,;
+	Enum909 =
+			0, "Off",
+			1, "On";
+
+	Param910 =
+			0,,,				$ Reserved, link size, link path
+			0x0002, 			$ Descriptor (Enum)
+			0xC6,1, 			$ USINT
+			"OUT 26 Fault Value","",
+			"OUT 26 User-defined Fault mode safe state I/O output value.",
+			  0,1,0,,,,,,,,,;
+	Enum910 =
+			0, "Off",
+			1, "On";
+
+	Param911 =
+			0,,,				$ Reserved, link size, link path
+			0x0002, 			$ Descriptor (Enum)
+			0xC6,1, 			$ USINT
+			"OUT 27 Fault Value","",
+			"OUT 27 User-defined Fault mode safe state I/O output value.",
+			0,1,0,,,,,,,,,;
+	Enum911 =
+			0, "Off",
+			1, "On";
+
+	Param912 =
+			0,,,				$ Reserved, link size, link path
+			0x0002, 			$ Descriptor (Enum)
+			0xC6,1, 			$ USINT
+			"OUT 28 Fault Value","",
+			"OUT 28 User-defined Fault mode safe state I/O output value.",
+			0,1,0,,,,,,,,,;
+	Enum912 =
+			0, "Off",
+			1, "On";
+
+	Param913 =
+			0,,,				$ Reserved, link size, link path
+			0x0002, 			$ Descriptor (Enum)
+			0xC6,1, 			$ USINT
+			"OUT 29 Fault Value","",
+			"OUT 29 User-defined Fault mode safe state I/O output value.",
+			0,1,0,,,,,,,,,;
+	Enum913 =
+			0, "Off",
+			1, "On";
+
+	Param914 =
+			0,,,				$ Reserved, link size, link path
+			0x0002, 			$ Descriptor (Enum)
+			0xC6,1, 			$ USINT
+			"OUT 30 Fault Value","",
+			"OUT 30 User-defined Fault mode safe state I/O output value.",
+			0,1,0,,,,,,,,,;
+	Enum914 =
+			0, "Off",
+			1, "On";
+
+	Param915 =
+			0,,,				$ Reserved, link size, link path
+			0x0002, 			$ Descriptor (Enum)
+			0xC6,1, 			$ USINT
+			"OUT 31 Fault Value","",
+			"OUT 31 User-defined Fault mode safe state I/O output value.",
+			0,1,0,,,,,,,,,;
+	Enum915 =
+			0, "Off",
+			1, "On";
+
+
+[Assembly]
+
+	ProxiedAssem101 =
+		"Input Array",,,,,,
+		32, Param20;
+
+	ProxiedAssem100 =
+		"Output Array",,,,,,
+		32, Param30;
+
+	ProxiedAssem4 =
+
+		"Channel Config",,,,,,
+
+		$------------ Word 0  --------------------------------
+		 1, Param1,
+		15, 0,
+
+		$------------ Word 1  --------------------------------
+		16, 0,
+
+		$------------ Word 2 - Program State (0-15) ----------
+		 1, Param200,	$ Program State OUT 0
+		 1, Param201,	$ Program State OUT 1
+		 1, Param202,	$ Program State OUT 2
+		 1, Param203,	$ Program State OUT 3
+		 1, Param204,	$ Program State OUT 4
+		 1, Param205,	$ Program State OUT 5
+		 1, Param206,	$ Program State OUT 6
+		 1, Param207,	$ Program State OUT 7
+		 1, Param208,	$ Program State OUT 8
+		 1, Param209,	$ Program State OUT 9
+		 1, Param210,	$ Program State OUT 10
+		 1, Param211,	$ Program State OUT 11
+		 1, Param212,	$ Program State OUT 12
+		 1, Param213,	$ Program State OUT 13
+		 1, Param214,	$ Program State OUT 14
+		 1, Param215,	$ Program State OUT 15
+
+		$------------ Word 3 - Program State (16-31) ---------
+		 1, Param300,	$ Program State OUT 16
+		 1, Param301,	$ Program State OUT 17
+		 1, Param302,	$ Program State OUT 18
+		 1, Param303,	$ Program State OUT 19
+		 1, Param304,	$ Program State OUT 20
+		 1, Param305,	$ Program State OUT 21
+		 1, Param306,	$ Program State OUT 22
+		 1, Param307,	$ Program State OUT 23
+		 1, Param308,	$ Program State OUT 24
+		 1, Param309,	$ Program State OUT 25
+		 1, Param310,	$ Program State OUT 26
+		 1, Param311,	$ Program State OUT 27
+		 1, Param312,	$ Program State OUT 28
+		 1, Param313,	$ Program State OUT 29
+		 1, Param314,	$ Program State OUT 30
+		 1, Param315,	$ Program State OUT 31
+
+		$------------ Word 4 - Program Value (0-15) ----------
+		 1, Param400,	$ Program Value OUT 0
+		 1, Param401,	$ Program Value OUT 1
+		 1, Param402,	$ Program Value OUT 2
+		 1, Param403,	$ Program Value OUT 3
+		 1, Param404,	$ Program Value OUT 4
+		 1, Param405,	$ Program Value OUT 5
+		 1, Param406,	$ Program Value OUT 6
+		 1, Param407,	$ Program Value OUT 7
+		 1, Param408,	$ Program Value OUT 8
+		 1, Param409,	$ Program Value OUT 9
+		 1, Param410,	$ Program Value OUT 10
+		 1, Param411,	$ Program Value OUT 11
+		 1, Param412,	$ Program Value OUT 12
+		 1, Param413,	$ Program Value OUT 13
+		 1, Param414,	$ Program Value OUT 14
+		 1, Param415,	$ Program Value OUT 15
+
+		$------------ Word 5 - Program Value (16-31) ---------
+		 1, Param500,	$ Program Value OUT 16
+		 1, Param501,	$ Program Value OUT 17
+		 1, Param502,	$ Program Value OUT 18
+		 1, Param503,	$ Program Value OUT 19
+		 1, Param504,	$ Program Value OUT 20
+		 1, Param505,	$ Program Value OUT 21
+		 1, Param506,	$ Program Value OUT 22
+		 1, Param507,	$ Program Value OUT 23
+		 1, Param508,	$ Program Value OUT 24
+		 1, Param509,	$ Program Value OUT 25
+		 1, Param510,	$ Program Value OUT 26
+		 1, Param511,	$ Program Value OUT 27
+		 1, Param512,	$ Program Value OUT 28
+		 1, Param513,	$ Program Value OUT 29
+		 1, Param514,	$ Program Value OUT 30
+		 1, Param515,	$ Program Value OUT 31
+
+		$------------ Word 6 - Fault State (0-15) ------------
+		 1, Param600,	$ Fault State OUT 0
+		 1, Param601,	$ Fault State OUT 1
+		 1, Param602,	$ Fault State OUT 2
+		 1, Param603,	$ Fault State OUT 3
+		 1, Param604,	$ Fault State OUT 4
+		 1, Param605,	$ Fault State OUT 5
+		 1, Param606,	$ Fault State OUT 6
+		 1, Param607,	$ Fault State OUT 7
+		 1, Param608,	$ Fault State OUT 8
+		 1, Param609,	$ Fault State OUT 9
+		 1, Param610,	$ Fault State OUT 10
+		 1, Param611,	$ Fault State OUT 11
+		 1, Param612,	$ Fault State OUT 12
+		 1, Param613,	$ Fault State OUT 13
+		 1, Param614,	$ Fault State OUT 14
+		 1, Param615,	$ Fault State OUT 15
+
+		$------------ Word 7 - Fault State (16-31) -----------
+		 1, Param700,	$ Fault State OUT 16
+		 1, Param701,	$ Fault State OUT 17
+		 1, Param702,	$ Fault State OUT 18
+		 1, Param703,	$ Fault State OUT 19
+		 1, Param704,	$ Fault State OUT 20
+		 1, Param705,	$ Fault State OUT 21
+		 1, Param706,	$ Fault State OUT 22
+		 1, Param707,	$ Fault State OUT 23
+		 1, Param708,	$ Fault State OUT 24
+		 1, Param709,	$ Fault State OUT 25
+		 1, Param710,	$ Fault State OUT 26
+		 1, Param711,	$ Fault State OUT 27
+		 1, Param712,	$ Fault State OUT 28
+		 1, Param713,	$ Fault State OUT 29
+		 1, Param714,	$ Fault State OUT 30
+		 1, Param715,	$ Fault State OUT 31
+
+		$------------ Word 8 - Fault Value (1-15) ------------
+		 1, Param800,	$ Fault Value OUT 0
+		 1, Param801,	$ Fault Value OUT 1
+		 1, Param802,	$ Fault Value OUT 2
+		 1, Param803,	$ Fault Value OUT 3
+		 1, Param804,	$ Fault Value OUT 4
+		 1, Param805,	$ Fault Value OUT 5
+		 1, Param806,	$ Fault Value OUT 6
+		 1, Param807,	$ Fault Value OUT 7
+		 1, Param808,	$ Fault Value OUT 8
+		 1, Param809,	$ Fault Value OUT 9
+		 1, Param810,	$ Fault Value OUT 10
+		 1, Param811,	$ Fault Value OUT 11
+		 1, Param812,	$ Fault Value OUT 12
+		 1, Param813,	$ Fault Value OUT 13
+		 1, Param814,	$ Fault Value OUT 14
+		 1, Param815,	$ Fault Value OUT 15
+
+		$------------ Word 9 - Fault Value (16-31) -----------
+		 1, Param900,	$ Fault Value OUT 16
+		 1, Param901,	$ Fault Value OUT 17
+		 1, Param902,	$ Fault Value OUT 18
+		 1, Param903,	$ Fault Value OUT 19
+		 1, Param904,	$ Fault Value OUT 20
+		 1, Param905,	$ Fault Value OUT 21
+		 1, Param906,	$ Fault Value OUT 22
+		 1, Param907,	$ Fault Value OUT 23
+		 1, Param908,	$ Fault Value OUT 24
+		 1, Param909,	$ Fault Value OUT 25
+		 1, Param910,	$ Fault Value OUT 26
+		 1, Param911,	$ Fault Value OUT 27
+		 1, Param912,	$ Fault Value OUT 28
+		 1, Param913,	$ Fault Value OUT 29
+		 1, Param914,	$ Fault Value OUT 30
+		 1, Param915,	$ Fault Value OUT 31
+
+		$------------ Words 10-15 - Reserved -----------
+		16, 0,			$ word 10
+		16, 0,			$ word 11
+		16, 0,			$ word 12
+		16, 0,			$ word 13
+		16, 0,			$ word 14
+		16, 0;			$ word 15
+
+
+[Groups]
+	Group1 = "General", 1, 1;
+	Group2 = "Program State for Outputs 0-15", 16,200,201,202,203,204,205,206,207,208,209,210,211,212,213,214,215;
+	Group3 = "Program State for Outputs 16-31",16,300,301,302,303,304,305,306,307,308,309,310,311,312,313,314,315;
+	Group4 = "Program Value for Outputs 0-15", 16,400,401,402,403,404,405,406,407,408,409,410,411,412,413,414,415;
+	Group5 = "Program Value for Outputs 16-31",16,500,501,502,503,504,505,506,507,508,509,510,511,512,513,514,515;
+	Group6 = "Fault State for Outputs 0-15",   16,600,601,602,603,604,605,606,607,608,609,610,611,612,613,614,615;
+	Group7 = "Fault State for Outputs 16-31",  16,700,701,702,703,704,705,706,707,708,709,710,711,712,713,714,715;
+	Group8 = "Fault Value for Outputs 0-15",   16,800,801,802,803,804,805,806,807,808,809,810,811,812,813,814,815;
+	Group9 = "Fault Value for Outputs 16-31",  16,900,901,902,903,904,905,906,907,908,909,910,911,912,913,914,915;

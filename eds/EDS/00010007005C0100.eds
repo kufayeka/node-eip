@@ -1,0 +1,209 @@
+[File]
+	DescText = "1794-Generic Discrete Flex module EDS";
+	CreateDate = 02-22-2000;
+	CreateTime = 08:40:00;
+	ModDate = 02-18-2003;
+	ModTime = 08:03:00;
+	Revision = 5.2;
+
+[Device]
+	VendCode = 1;
+	VendName = "Allen-Bradley";
+	ProdType = 7;
+	ProdTypeStr = "General Purpose Discrete I/O";
+	ProdCode= 92;
+	MajRev = 1;
+	MinRev = 1;
+	ProdName = "1794-Generic Discrete";
+	Catalog = "1794-Generic Discrete";
+	Icon = "94GENERIC.ICO";
+
+	1_Revision_Alpha = "Yes";
+	1_RSNetWorx_NoAutoEnter = "Yes";
+
+[Device Classification]
+	Class1 = 1_RSNetWorx_1794, 1_RSNetWorx_Connectable_Module;
+
+[Params]
+
+      Param1 =	$ LKS ADDED PARAM1 & PARAM2
+        0,          $ first field shall equal 0
+        ,,          $ path size,path
+        0x0000,        $ descriptor
+        2,          $ data type : 16-bit Unsigned Integer
+        2,          $ data size in bytes
+        "Program Mode",   $ name
+        "",            $ units
+        "",            $ help string
+        0,2,0,         $ min,max,default data values
+        0,0,0,0,    $ mult,dev,base,offset scaling not used
+        0,0,0,0,    $ mult,dev,base,offset link not used
+        0;          $ decimal places not used
+      Enum1 =
+        0,"Reset Outputs",1,"Hold Last Outputs",2,"Outputs to Safe State";
+
+      Param2 =
+        0,          $ first field shall equal 0
+        ,,          $ path size,path
+        0x0000,        $ descriptor
+        2,          $ data type : 16-bit Unsigned Integer
+        2,          $ data size in bytes
+        "Lost Communications",  $ name
+        "",            $ units
+        "",            $ help string
+        0,2,2,         $ min,max,default data values
+        0,0,0,0,    $ mult,dev,base,offset scaling not used
+        0,0,0,0,    $ mult,dev,base,offset link not used
+        0;          $ decimal places not used
+      Enum2 =
+        0,"Reset Outputs",1,"Hold Last Outputs",2,"Outputs to Safe State";
+
+	ProxiedParam1 = 0,
+		,,	$ Link Path Size, Link Path
+		0x0000,	 $ Descriptor
+		, ,	$ Data Type, Data Size
+		"input size",
+		"",
+		"",
+		0,2,2,
+		,,,,
+		,,,,
+		;
+
+	ProxiedParam3 = 0,
+		,,	$ Link Path Size, Link Path
+		0x0000,	 $ Descriptor
+		, ,	$ Data Type, Data Size
+		"module input size",
+		"",
+		"",
+		0,1,1,
+		,,,,
+		,,,,
+		;
+
+	ProxiedParam4 = 0,
+		,,	$ Link Path Size, Link Path
+		0x0000,	 $ Descriptor
+		, ,	$ Data Type, Data Size
+		"module status size",
+		"",
+		"",
+		0,0,0,
+		,,,,
+		,,,,
+		;
+
+	ProxiedParam5 = 0,
+		,,	$ Link Path Size, Link Path
+		0x0000,	 $ Descriptor
+		, ,	$ Data Type, Data Size
+		"module output size",
+		"",
+		"",
+		0,1,1,
+		,,,,
+		,,,,
+		;
+
+	ProxiedParam6 = 0,
+		,,	$ Link Path Size, Link Path
+		0x0000,	 $ Descriptor
+		, ,	$ Data Type, Data Size
+		"module config size",
+		"",
+		"",
+		0,1,1,
+		,,,,
+		,,,,
+		;
+
+	ProxiedParam7 = 0,
+		,,	$ Link Path Size, Link Path
+		0x0000,	 $ Descriptor
+		, ,	$ Data Type, Data Size
+		"output size",
+		"",
+		"",
+		0,2,2,
+		,,,,
+		,,,,
+		;
+
+[Assembly]
+	Revision = 2;
+
+	ProxiedAssem1 = "module config",,
+		,0x0001,,,
+		16,;
+
+	ProxiedAssem2 = "real time input format",,
+		,,,,
+		16,;
+
+	ProxiedAssem3 = "real time output format",,
+		,0x0001,,,
+		16,;
+
+	ProxiedAssem4 = "real time status format",,
+		,,,;
+
+	ProxiedAssem5 = "module config and safe state",,
+		,0x0001,,;
+
+	ProxiedAssem6 = "safe state",,
+		,0x0001,,,
+		16,;
+
+	ProxiedAssem7 = "module flag data",,,,,, $ LKS
+	        4, Param1,		$ LKS idle action
+		4, Param2,		$ LKS fault action
+		8, 0x0000;		$ LKS auto match, fault from idle, hold last inputs, not used
+
+
+[Connection Manager]
+
+	ProxiedConnect1 = 0x00000000,
+		0x00000000,
+		,,,	$ O=>T 
+		,,,	$ T=>O
+		,,	$ Config #1
+		,,	$ Config #2
+		"",
+		"",
+		"";
+
+	ProxiedConnect2 = 0x00000000,
+		0x00000000,
+		,,,	$ O=>T 
+		,,,	$ T=>O
+		,,	$ Config #1
+		,,	$ Config #2
+		"",
+		"",
+		"";
+
+	ProxiedConnect3 = 0x00000000,
+		0x00000000,
+		,,,	$ O=>T 
+		,,,	$ T=>O
+		,,	$ Config #1
+		,,	$ Config #2
+		"",
+		"",
+		"";
+
+	ProxiedConnect4 = 0x00000000,
+		0x00000000,
+		,,,	$ O=>T 
+		,,,	$ T=>O
+		,,	$ Config #1
+		,,	$ Config #2
+		"",
+		"",
+		"";
+
+[Modular]
+	Width = 1;
+	Rack1 = 1,108,33,1,1,,,,
+		1,2,3,4,5,6,7,8;

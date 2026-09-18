@@ -1,0 +1,724 @@
+$ EZ-EDS Version 2.0 (Alpha, 24-Jan-2006) Generated Electronic Data Sheet
+
+$ Electronic Data Sheet for Tower Light  (855T-DXXX)
+
+[File]
+        DescText = "Stack Light EDS File";
+        CreateDate = 04-18-1996;
+        CreateTime = 12:00:00;
+        ModDate = 03-01-2006;
+        ModTime = 11:18:00;
+        Revision = 1.8;                 $ EDS revision.
+
+[Device]
+        VendCode = 1;
+        VendName = "Allen-Bradley Company, Inc.";
+        ProdType = 7;
+        ProdTypeStr = "General Purpose Discrete I/O";
+        ProdCode = 756;
+        MajRev = 1;
+        MinRev = 2;
+        ProdName = "Stack Light DeviceNet Base";
+        Catalog = "855T-DXXX";
+
+[IO_Info]
+        Default = 0x0001;       $ The default I/O type is Polled I/O.
+
+        PollInfo =
+                0x0001,         $ Polled I/O device.
+                1,              $ Input1 entry is the default input connection.
+                1;              $ Output1 entry is the default output connection.
+
+    $ Input Connections
+
+        Input1 =
+                1,                      $ The size in bytes that this connection produces.
+                5,                      $ Only the five least significant bits of this
+                                        $ connection are used.
+                0x0001,                 $ Polled I/O device.
+                "Tower Light Production Data",    $ Name of Connection.
+                6,                      $ Path length.
+                "20 04 24 64 30 03",    $ Path to I/O Production Assembly.
+                                        $ $$$$$$$$$ Help string $$$$$$$$$$$
+                "This connection contains output status at bits 4, 3, 2, 1, and 0.";
+
+    $ Output Connections
+
+        Output1 =
+                1,                      $ The size in bytes that this connection consumes.
+                5,                      $ Only the five least significant bits of this
+                                        $ connection are used.
+                0x0001,                 $ Polled I/O device.
+                "Tower Light Consumption Data",    $ Name of Connection.
+                6,                      $ Path length.
+                "20 04 24 20 30 03",    $ Path to I/O Consumption Assembly.
+                                        $ $$$$$$$$$ Help string $$$$$$$$$$$
+                "This connection contains data for five outputs.";
+
+[ParamClass]
+        MaxInst = 16;                   $ 16 configurable parameters.
+        Descriptor = 0x0009;            $ Stub param instances in eeprom.
+        CfgAssembly = 104;              $ The config assembly is instance #104 of assy obj.
+
+[Params]
+    $ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+        Param1 =                        $ Disable Autobaud
+                0,                      $ reserved
+                6,"20 03 24 01 30 64",  $ Link Path Size
+                                        $ Link Path to disable autobaud attribute.
+                0x0002,                 $ No support for settable path, scaling, scaling links, or
+                                        $ real time update of value.  Value is gettable and
+                                        $ Settable.  Enumerated strings are supported.
+                0xC1,                   $ Data Type - boolean
+                1,                      $ Data Size
+                "Autobaud",             $ Parameter Name
+                "",                     $ Units String
+                                        $ $$$$$$$$$ Help string $$$$$$$$$$$
+                "Enable takes effect after next powerup.  Disable is required to set fixed baud rate, no power cycle is required.",
+                0,1,0,                  $ Min, Max, and Default values
+                ,,,,
+                ,,,,
+                0;                      $ Not Used
+
+    $ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+        Param2 =                        $ Input filter Off_to_On Delay selection
+                0,                      $ reserved
+                6,"20 0F 24 02 30 01",  $ Link Path Size
+                                        $ Link Path to param instance.  The param instance decodes
+                                        $ the enumerated parameter into engineering units (micro seconds).
+                0x0002,                 $ No support for settable path, scaling, scaling links,
+                                        $ or real time update of value.  Value is gettable and
+                                        $ Settable.  Enumerated strings are supported.
+                0xC6,                   $ Data Type - unsigned int
+                1,                      $ Data Size - (in bytes)
+                "Off-to-On Delay",      $ Parameter Name
+                "ms",                   $ Units String
+                                        $ $$$$$$$$$ Help string $$$$$$$$$$$
+                "Signal must be present for this delay period before module detects the change.",
+                0,4,0,                  $ Min, Max (max enumeration #), and Default values
+                ,,,,
+                ,,,,
+                0;                      $ Not Used
+
+    $ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+        Param3 =                        $ Input filter On_to_Off Delay selection
+                0,                      $ reserved
+                6,"20 0F 24 03 30 01",  $ Link Path Size
+                                        $ Link Path to param instance.  The param instance decodes
+                                        $ the enumerated parameter into engineering units (micro seconds).
+                0x0002,                 $ No support for settable path, scaling, scaling links,
+                                        $ or real time update of value.  Value is gettable and
+                                        $ Settable.  Enumerated strings are supported.
+                0xC6,                   $ Data Type - unsigned int
+                1,                      $ Data Size - (in bytes)
+                "On-to-Off Delay",      $ Parameter Name
+                "ms",                   $ Units String
+                                        $ $$$$$$$$$ Help string $$$$$$$$$$$
+                "Signal must be present for this delay period before module detects the change.",
+                0,4,0,                  $ Min, Max (max enumeration #), and Default values
+                ,,,,
+                ,,,,
+                0;                      $ Not Used
+
+    $ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+        Param4 =                        $ Fault State selection
+                0,                      $ reserved
+                6,"20 1E 24 01 30 07",  $ Link Path Size
+                                        $ Link Path to DOG object's fault state attribute.
+                0x0002,                 $ No support for settable path, scaling, scaling links, or
+                                        $ real time update of value.  Value is gettable and
+                                        $ Settable.  Enumerated strings are supported.
+                0xC1,                   $ Data Type - boolean
+                1,                      $ Data Size
+                "Fault State",          $ Parameter Name
+                "",                     $ Units String
+                                        $ $$$$$$$$$ Help string $$$$$$$$$$$
+                "Defines output behavior in the event of a communication fault.",
+                0,1,0,                  $ Min, Max (max enumeration #), and Default values
+                ,,,,
+                ,,,,
+                0;                      $ Not Used
+
+    $ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+        Param5 =                        $ Idle State selection
+                0,                      $ reserved
+                6,"20 1E 24 01 30 09",  $ Link Path Size
+                                        $ Link Path to DOG object's idle state attribute.
+                0x0002,                 $ No support for settable path, scaling, scaling links, or
+                                        $ real time update of value.  Value is gettable and
+                                        $ Settable.  Enumerated strings are supported.
+                0xC1,                   $ Data Type - boolean
+                1,                      $ Data Size
+                "Idle State",           $ Parameter Name
+                "",                     $ Units String
+                                        $ $$$$$$$$$ Help string $$$$$$$$$$$
+                "Defines output behavior during program mode.",
+                0,1,0,                  $ Min, Max (max enumeration #), and Default values
+                ,,,,
+                ,,,,
+                0;                      $ Not Used
+
+    $ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+        Param6 =                        $ Reserved
+                0,                      $ reserved
+                6,"20 0F 24 06 30 01",  $ Link Path Size
+                                        $ Link Path to param instance.
+                0x0002,                 $ No support for settable path, scaling, scaling links,
+                                        $ or real time update of value.  Value is gettable and
+                                        $ Settable.  Enumerated strings are supported.
+                0xC6,                   $ Data Type - unsigned short int
+                1,                      $ Data Size - (in bytes)
+                "Reserved",             $ Parameter Name
+                "",                     $ Units String
+                                        $ $$$$$$$$$ Help string $$$$$$$$$$$
+                "Reserved for future use.  A reset will only be accepted if a fault exists.",
+                0,0,0,                  $ Min, Max (max enumeration #), and Default values
+                ,,,,
+                ,,,,
+                0;                      $ Not Used
+
+    $ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+        Param7 =                        $ Module 1 Type
+                0,                      $ reserved
+                6,"20 09 24 01 30 81",  $ Link Path Size
+                                        $ Link Path to Module 1 Type attribute.
+                0x0002,                 $ No support for settable path, scaling, or scaling links.
+                                        $ Value is gettable and settable.
+                                        $ Enumerated strings are supported.
+                0xC6,                   $ Data Type - unsigned short int
+                1,                      $ Data Size - (in bytes)
+                "Module 1 Type",        $ Parameter Name
+                "",                     $ Units String
+                                        $ $$$$$$$$$ Help string $$$$$$$$$$$
+                "This parameter is Station 1's Module Type.",
+                0,8,0,                  $ Min, Max, and Default values
+                ,,,,
+                ,,,,
+                0;                      $ Not Used
+
+    $ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+        Param8 =                        $ Module 1 Mode
+                0,                      $ reserved
+                6,"20 09 24 01 30 80",  $ Link Path Size
+                                        $ Link Path to Module 1 Mode attribute.
+                0x0002,                 $ No support for settable path, scaling, or scaling links.
+                                        $ Value is gettable and settable.
+                                        $ Enumerated strings are supported.
+                0xC6,                   $ Data Type - unsigned short int
+                1,                      $ Data Size - (in bytes)
+                "Module 1 Mode",        $ Parameter Name
+                "",                     $ Units String
+                                        $ $$$$$$$$$ Help string $$$$$$$$$$$
+                "This parameter is Station 1's Operating Mode.",
+                0,20,5,                 $ Min, Max, and Default values
+                ,,,,
+                ,,,,
+                0;                      $ Not Used
+
+    $ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+        Param9 =                        $ Module 2 Type
+                0,                      $ reserved
+                6,"20 09 24 02 30 81",  $ Link Path Size
+                                        $ Link Path to Module 2 Type attribute.
+                0x0002,                 $ No support for settable path, scaling, or scaling links.
+                                        $ Value is gettable and settable.
+                                        $ Enumerated strings are supported.
+                0xC6,                   $ Data Type - unsigned short int
+                1,                      $ Data Size - (in bytes)
+                "Module 2 Type",        $ Parameter Name
+                "",                     $ Units String
+                                        $ $$$$$$$$$ Help string $$$$$$$$$$$
+                "This parameter is Station 2's Module Type.",
+                0,8,0,                  $ Min, Max, and Default values
+                ,,,,
+                ,,,,
+                0;                      $ Not Used
+
+    $ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+        Param10 =                       $ Module 2 Mode
+                0,                      $ reserved
+                6,"20 09 24 02 30 80",  $ Link Path Size
+                                        $ Link Path to Module 2 Mode attribute.
+                0x0002,                 $ No support for settable path, scaling, or scaling links.
+                                        $ Value is gettable and settable.
+                                        $ Enumerated strings are supported.
+                0xC6,                   $ Data Type - unsigned short int
+                1,                      $ Data Size - (in bytes)
+                "Module 2 Mode",        $ Parameter Name
+                "",                     $ Units String
+                                        $ $$$$$$$$$ Help string $$$$$$$$$$$
+                "This parameter is Station 2's Operating Mode.",
+                0,20,5,                 $ Min, Max, and Default values
+                ,,,,
+                ,,,,
+                0;                      $ Not Used
+
+    $ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+        Param11 =                       $ Module 3 Type
+                0,                      $ reserved
+                6,"20 09 24 03 30 81",  $ Link Path Size
+                                        $ Link Path to Module 2 Type attribute.
+                0x0002,                 $ No support for settable path, scaling, or scaling links.
+                                        $ Value is gettable and settable.
+                                        $ Enumerated strings are supported.
+                0xC6,                   $ Data Type - unsigned short int
+                1,                      $ Data Size - (in bytes)
+                "Module 3 Type",        $ Parameter Name
+                "",                     $ Units String
+                                        $ $$$$$$$$$ Help string $$$$$$$$$$$
+                "This parameter is Station 3's Module Type.",
+                0,8,0,                  $ Min, Max, and Default values
+                ,,,,
+                ,,,,
+                0;                      $ Not Used
+
+    $ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+        Param12 =                       $ Module 3 Mode
+                0,                      $ reserved
+                6,"20 09 24 03 30 80",  $ Link Path Size
+                                        $ Link Path to Module 3 Mode attribute.
+                0x0002,                 $ No support for settable path, scaling, or scaling links.
+                                        $ Value is gettable and settable.
+                                        $ Enumerated strings are supported.
+                0xC6,                   $ Data Type - unsigned short int
+                1,                      $ Data Size - (in bytes)
+                "Module 3 Mode",        $ Parameter Name
+                "",                     $ Units String
+                                        $ $$$$$$$$$ Help string $$$$$$$$$$$
+                "This parameter is Station 3's Operating Mode.",
+                0,20,5,                 $ Min, Max, and Default values
+                ,,,,
+                ,,,,
+                0;                      $ Not Used
+
+    $ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+        Param13 =                       $ Module 4 Type
+                0,                      $ reserved
+                6,"20 09 24 04 30 81",  $ Link Path Size
+                                        $ Link Path to Module 4 Type attribute.
+                0x0002,                 $ No support for settable path, scaling, or scaling links.
+                                        $ Value is gettable and settable.
+                                        $ Enumerated strings are supported.
+                0xC6,                   $ Data Type - unsigned short int
+                1,                      $ Data Size - (in bytes)
+                "Module 4 Type",        $ Parameter Name
+                "",                     $ Units String
+                                        $ $$$$$$$$$ Help string $$$$$$$$$$$
+                "This parameter is Station 4's Module Type.",
+                0,8,0,                  $ Min, Max, and Default values
+                ,,,,
+                ,,,,
+                0;                      $ Not Used
+
+    $ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+        Param14 =                       $ Module 4 Mode
+                0,                      $ reserved
+                6,"20 09 24 04 30 80",  $ Link Path Size
+                                        $ Link Path to Module 4 Mode attribute.
+                0x0002,                 $ No support for settable path, scaling, or scaling links.
+                                        $ Value is gettable and settable.
+                                        $ Enumerated strings are supported.
+                0xC6,                   $ Data Type - unsigned short int
+                1,                      $ Data Size - (in bytes)
+                "Module 4 Mode",        $ Parameter Name
+                "",                     $ Units String
+                                        $ $$$$$$$$$ Help string $$$$$$$$$$$
+                "This parameter is Station 4's Operating Mode.",
+                0,20,5,                 $ Min, Max, and Default values
+                ,,,,
+                ,,,,
+                0;                      $ Not Used
+
+    $ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+        Param15 =                       $ Module 5 Type
+                0,                      $ reserved
+                6,"20 09 24 05 30 81",  $ Link Path Size
+                                        $ Link Path to Module 5 Type attribute.
+                0x0002,                 $ No support for settable path, scaling, or scaling links.
+                                        $ Value is gettable and settable.
+                                        $ Enumerated strings are supported.
+                0xC6,                   $ Data Type - unsigned short int
+                1,                      $ Data Size - (in bytes)
+                "Module 5 Type",        $ Parameter Name
+                "",                     $ Units String
+                                        $ $$$$$$$$$ Help string $$$$$$$$$$$
+                "This parameter is Station 5's Module Type.",
+                0,8,0,                  $ Min, Max, and Default values
+                ,,,,
+                ,,,,
+                0;                      $ Not Used
+
+    $ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+        Param16 =                       $ Module 5 Mode
+                0,                      $ reserved
+                6,"20 09 24 05 30 80",  $ Link Path Size
+                                        $ Link Path to Module 5 Mode attribute.
+                0x0002,                 $ No support for settable path, scaling, or scaling links.
+                                        $ Value is gettable and settable.
+                                        $ Enumerated strings are supported.
+                0xC6,                   $ Data Type - unsigned short int
+                1,                      $ Data Size - (in bytes)
+                "Module 5 Mode",        $ Parameter Name
+                "",                     $ Units String
+                                        $ $$$$$$$$$ Help string $$$$$$$$$$$
+                "This parameter is Station 5's Operating Mode.",
+                0,20,5,                 $ Min, Max, and Default values
+                ,,,,
+                ,,,,
+                0;                      $ Not Used
+
+    $ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+        Param101 =                      $ Position 1 Status
+                0,                      $ reserved
+                ,,                      $ Link Path Size
+                                        $ Link Path to device status attribute.
+                0x0A10,                 $ Read-only Data non-displayed not addressable
+                0xC1,                   $ Data Type - BOOL
+                1,                      $ Data Size
+                "Position 1 Status",    $ Parameter Name
+                "",                     $ Units String
+                "Position 1 Status.  When 1, Position 1 is Idle, Not Present, or Burned Out.  When 0, Position 1 is Normal.",
+                0,1,0,                  $ Min, Max, and Default values
+                ,,,,                    $ mult,div,base,offset scale
+                ,,,,                    $ mult,div,base,offset scale
+                1;                      $ decimal places
+        Param102 =                      $ Position 2 Status
+                0,                      $ reserved, shall equal 0
+                ,,                      $ Link Path Size, Link Path
+                0x0A10,                 $ Descriptor
+                0xC1,                   $ Data Type
+                1,                      $ Data Size in bytes
+                "Position 2 Status",    $ name
+                "",                     $ units
+                "Position 2 Status.  When 1, Position 2 is Idle, Not Present, or Burned Out.  When 0, Position 2 is Normal.",    $ help string
+                ,,0,                    $ min, max, default data values
+                ,,,,                    $ mult, div, base, offset scaling
+                ,,,,                    $ mult, div, base, offset links
+                ;                       $ decimal places
+        Param103 =                      $ Position 3 Status
+                0,                      $ reserved, shall equal 0
+                ,,                      $ Link Path Size, Link Path
+                0x0A10,                 $ Descriptor
+                0xC1,                   $ Data Type
+                1,                      $ Data Size in bytes
+                "Position 3 Status",    $ name
+                "",                     $ units
+                "Position 3 Status.  When 1, Position 3 is Idle, Not Present, or Burned Out.  When 0, Position 3 is Normal.",    $ help string
+                ,,0,                    $ min, max, default data values
+                ,,,,                    $ mult, div, base, offset scaling
+                ,,,,                    $ mult, div, base, offset links
+                ;                       $ decimal places
+        Param104 =                      $ Position 4 Status
+                0,                      $ reserved, shall equal 0
+                ,,                      $ Link Path Size, Link Path
+                0x0A10,                 $ Descriptor
+                0xC1,                   $ Data Type
+                1,                      $ Data Size in bytes
+                "Position 4 Status",    $ name
+                "",                     $ units
+                "Position 4 Status.  When 1, Position 4 is Idle, Not Present, or Burned Out.  When 0, Position 4 is Normal.",    $ help string
+                ,,0,                    $ min, max, default data values
+                ,,,,                    $ mult, div, base, offset scaling
+                ,,,,                    $ mult, div, base, offset links
+                ;                       $ decimal places
+        Param105 =                      $ Position 5 Status
+                0,                      $ reserved, shall equal 0
+                ,,                      $ Link Path Size, Link Path
+                0x0A10,                 $ Descriptor
+                0xC1,                   $ Data Type
+                1,                      $ Data Size in bytes
+                "Position 5 Status",    $ name
+                "",                     $ units
+                "Position 5 Status.  When 1, Position 5 is Idle, Not Present, or Burned Out.  When 0, Position 5 is Normal.",    $ help string
+                ,,0,                    $ min, max, default data values
+                ,,,,                    $ mult, div, base, offset scaling
+                ,,,,                    $ mult, div, base, offset links
+                ;                       $ decimal places
+
+    $ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+        Param111 =                      $ Position 1 Command
+                0,                      $ reserved
+                ,,                      $ Link Path Size
+                                        $ Link Path to device status attribute.
+                0x0A10,                 $ Read-only Data non-displayed not addressable
+                0xC1,                   $ Data Type - BOOL
+                1,                      $ Data Size
+                "Position 1 Command",   $ Parameter Name
+                "",                     $ Units String
+                "Position 1 Command.  When 1, Position 1 is Execute.  When 0, Position 1 is Idle.",
+                0,1,0,                  $ Min, Max, and Default values
+                ,,,,                    $ mult,div,base,offset scale
+                ,,,,                    $ mult,div,base,offset scale
+                1;                      $ decimal places
+        Param112 =                      $ Position 2 Command
+                0,                      $ reserved
+                ,,                      $ Link Path Size
+                                        $ Link Path to device status attribute.
+                0x0A10,                 $ Read-only Data non-displayed not addressable
+                0xC1,                   $ Data Type - BOOL
+                1,                      $ Data Size
+                "Position 2 Command",   $ Parameter Name
+                "",                     $ Units String
+                "Position 2 Command.  When 1, Position 2 is Execute.  When 0, Position 2 is Idle.",
+                0,1,0,                  $ Min, Max, and Default values
+                ,,,,                    $ mult,div,base,offset scale
+                ,,,,                    $ mult,div,base,offset scale
+                1;                      $ decimal places
+        Param113 =                      $ Position 3 Command
+                0,                      $ reserved
+                ,,                      $ Link Path Size
+                                        $ Link Path to device status attribute.
+                0x0A10,                 $ Read-only Data non-displayed not addressable
+                0xC1,                   $ Data Type - BOOL
+                1,                      $ Data Size
+                "Position 3 Command",   $ Parameter Name
+                "",                     $ Units String
+                "Position 3 Command.  When 1, Position 3 is Execute.  When 0, Position 3 is Idle.",
+                0,1,0,                  $ Min, Max, and Default values
+                ,,,,                    $ mult,div,base,offset scale
+                ,,,,                    $ mult,div,base,offset scale
+                1;                      $ decimal places
+        Param114 =                      $ Position 4 Command
+                0,                      $ reserved
+                ,,                      $ Link Path Size
+                                        $ Link Path to device status attribute.
+                0x0A10,                 $ Read-only Data non-displayed not addressable
+                0xC1,                   $ Data Type - BOOL
+                1,                      $ Data Size
+                "Position 4 Command",   $ Parameter Name
+                "",                     $ Units String
+                "Position 4 Command.  When 1, Position 4 is Execute.  When 0, Position 4 is Idle.",
+                0,1,0,                  $ Min, Max, and Default values
+                ,,,,                    $ mult,div,base,offset scale
+                ,,,,                    $ mult,div,base,offset scale
+                1;                      $ decimal places
+        Param115 =                      $ Position 5 Command
+                0,                      $ reserved
+                ,,                      $ Link Path Size
+                                        $ Link Path to device status attribute.
+                0x0A10,                 $ Read-only Data non-displayed not addressable
+                0xC1,                   $ Data Type - BOOL
+                1,                      $ Data Size
+                "Position 5 Command",   $ Parameter Name
+                "",                     $ Units String
+                "Position 5 Command.  When 1, Position 5 is Execute.  When 0, Position 5 is Idle.",
+                0,1,0,                  $ Min, Max, and Default values
+                ,,,,                    $ mult,div,base,offset scale
+                ,,,,                    $ mult,div,base,offset scale
+                1;                      $ decimal places
+
+
+[EnumPar]
+        Param1 =
+                "Enable",
+                "Disable";
+        Param2 =
+                "0 ms",
+                "2 ms",
+                "4 ms",
+                "8 ms",
+                "16 ms";
+        Param3 =
+                "0 ms",
+                "2 ms",
+                "4 ms",
+                "8 ms",
+                "16 ms";
+        Param4 =
+                "Reset Outputs",
+                "Hold Last State";
+        Param5 =
+                "Reset Outputs",
+                "Hold Last State";
+        Param6 =
+                "Reserved";
+        Param7 =
+                "Incandescent",
+                "LED",
+                "Strobe",
+                "Combination Incandescent/Sound",
+                "Combination LED/Sound",
+                "Combination Strobe/Sound",
+                "Single Tone Sound",
+                "Dual Tone Sound",
+                "Invalid Module";
+        Param8 =
+                "Self-Test",
+                "For Future Use",
+                "For Future Use",
+                "Module LED",
+                "Network LED",
+                "Manual Operation",
+                "For Future Use",
+                "For Future Use",
+                "Fast Flash (2Hz)",
+                "For Future Use",
+                "For Future Use",
+                "Slow Flash (.6Hz)",
+                "For Future Use",
+                "For Future Use",
+                "Horn Cycle(30s On, 10s Off)",
+                "Walk",
+                "Stack",
+                "Binary Count",
+                "Odd-Even Fast Flash",
+                "For Future Use",
+                "For Future Use";
+        Param9 =
+                "Incandescent",
+                "LED",
+                "Strobe",
+                "Combination Incandescent/Sound",
+                "Combination LED/Sound",
+                "Combination Strobe/Sound",
+                "Single Tone Sound",
+                "Dual Tone Sound",
+                "Invalid Module";
+        Param10 =
+                "Self-Test",
+                "For Future Use",
+                "For Future Use",
+                "Module LED",
+                "Network LED",
+                "Manual Operation",
+                "For Future Use",
+                "For Future Use",
+                "Fast Flash (2Hz)",
+                "For Future Use",
+                "For Future Use",
+                "Slow Flash (.6Hz)",
+                "For Future Use",
+                "For Future Use",
+                "Horn Cycle(30s On, 10s Off)",
+                "Walk",
+                "Stack",
+                "Binary Count",
+                "Odd-Even Fast Flash",
+                "For Future Use",
+                "For Future Use";
+        Param11 =
+                "Incandescent",
+                "LED",
+                "Strobe",
+                "Combination Incandescent/Sound",
+                "Combination LED/Sound",
+                "Combination Strobe/Sound",
+                "Single Tone Sound",
+                "Dual Tone Sound",
+                "Invalid Module";
+        Param12 =
+                "Self-Test",
+                "For Future Use",
+                "For Future Use",
+                "Module LED",
+                "Network LED",
+                "Manual Operation",
+                "For Future Use",
+                "For Future Use",
+                "Fast Flash (2Hz)",
+                "For Future Use",
+                "For Future Use",
+                "Slow Flash (.6Hz)",
+                "For Future Use",
+                "For Future Use",
+                "Horn Cycle(30s On, 10s Off)",
+                "Walk",
+                "Stack",
+                "Binary Count",
+                "Odd-Even Fast Flash",
+                "For Future Use",
+                "For Future Use";
+        Param13 =
+                "Incandescent",
+                "LED",
+                "Strobe",
+                "Combination Incandescent/Sound",
+                "Combination LED/Sound",
+                "Combination Strobe/Sound",
+                "Single Tone Sound",
+                "Dual Tone Sound",
+                "Invalid Module";
+        Param14 =
+                "Self-Test",
+                "For Future Use",
+                "For Future Use",
+                "Module LED",
+                "Network LED",
+                "Manual Operation",
+                "For Future Use",
+                "For Future Use",
+                "Fast Flash (2Hz)",
+                "For Future Use",
+                "For Future Use",
+                "Slow Flash (.6Hz)",
+                "For Future Use",
+                "For Future Use",
+                "Horn Cycle(30s On, 10s Off)",
+                "Walk",
+                "Stack",
+                "Binary Count",
+                "Odd-Even Fast Flash",
+                "For Future Use",
+                "For Future Use";
+        Param15 =
+                "Incandescent",
+                "LED",
+                "Strobe",
+                "Combination Incandescent/Sound",
+                "Combination LED/Sound",
+                "Combination Strobe/Sound",
+                "Single Tone Sound",
+                "Dual Tone Sound",
+                "Invalid Module";
+        Param16 =
+                "Self-Test",
+                "For Future Use",
+                "For Future Use",
+                "Module LED",
+                "Network LED",
+                "Manual Operation",
+                "For Future Use",
+                "For Future Use",
+                "Fast Flash (2Hz)",
+                "For Future Use",
+                "For Future Use",
+                "Slow Flash (.6Hz)",
+                "For Future Use",
+                "For Future Use",
+                "Horn Cycle(30s On, 10s Off)",
+                "Walk",
+                "Stack",
+                "Binary Count",
+                "Odd-Even Fast Flash",
+                "For Future Use",
+                "For Future Use";
+
+[Assembly]
+        Revision = 2;
+
+        Assem32 =
+                "Tower Light Consumption Data",
+                "20 04 24 20 30 03",
+                1,                      $ total length in bytes
+                0x0000,
+                ,,                      $ ",,"= reserved
+                1,Param111,
+                1,Param112,
+                1,Param113,
+                1,Param114,
+                1,Param115,
+                3,;
+
+        Assem100 =
+                "Tower Light Production Data",
+                "20 04 24 64 30 03",
+                1,                      $ total length in bytes
+                0x0000,
+                ,,
+                1,Param101,
+                1,Param102,
+                1,Param103,
+                1,Param104,
+                1,Param105,
+                3,;
+

@@ -1,0 +1,201 @@
+
+[File]
+DescText = "1732D 24Vdc 8 In M8 Inputs";
+CreateDate = 10-19-2005;
+CreateTime = 10:30:00;
+ModDate = 10-19-2005;
+ModTime = 09:00:00;
+Revision = 1.004;         $ EDS revision.
+HomeURL    = "http://www.ab.com/networks/eds/DN/0001000700E40100.eds";
+
+[Device]
+VendCode = 1;
+VendName = "Rockwell Automation/Allen-Bradley";
+ProdType = 7;
+ProdTypeStr = "General Purpose Discrete I/O";
+ProdCode = 228;		   
+MajRev = 1;
+MinRev = 9;
+ProdName = "ArmorBlock 8 Input 24VDC M8";
+Catalog="1732D-IB8M8";
+Icon = "1732D_M8.ico";	
+DNetQC=0B0000000000000001, 200; $ Quick Connect supported at power up. 200ms powerup time
+
+[Device Classification]
+Class1 = DeviceNet;
+
+[IO_Info]
+Default = 0x0004;       $ The default I/O type is COS I/O.
+
+1_COSetPathNotSupported = 1;	$Paths not settable.
+1_COSetSizeNotSupported = 1;	$Paths not settable.
+
+PollInfo =
+0x000D,                 $ Poll connection can be used with COS or Cyclic I/O.
+1,                      $ Input1 entry is the default input connection.
+0;                      $ Output1 entry is the default output connection.
+
+COSInfo=
+0x0005,                 $ COS connection can be used with Polled I/O.
+1,                      $ Input1 entry is the default input connection.
+0;                      $ Output1 entry is the default output connection.
+
+CyclicInfo=
+0x0009,                 $ Cyclic connection can be used with Polled I/O.
+1,                      $ Input1 entry is the default input connection.
+0;                      $ Output1 entry is the default output connection.
+
+Input1 =
+1,                      $ The size in bytes that this connection produces.
+0,                      $ All bits of this connection are significant.
+0x000D,                 $ Polled, COS and Cyclic I/O device.
+"Data",			$ Name of Connection.
+6,                      $ Path length.
+"20 04 24 04 30 03", 	$ Path to I/O Production Assembly.
+			$$$$$$$$$$ Help string $$$$$$$$$$$
+"This contains 1 byte: Bits 0-7 = Inputs 0-7.";
+[ParamClass]
+MaxInst = 6;		$ 4 configurable and 2 read-only parameters.
+Descriptor =  0x09;	$ Stub param instances in eeprom.
+CfgAssembly = 0;		$ Config assembly.
+1_CfgAssembly = 0x7E;	$ Config assembly.
+
+$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+[Params]
+Param1 =                $ Autobaud
+0,                      $ reserved
+6,                      $ Link Path Size
+"20 03 24 01 30 64", 	$ Link Path to disable autobaud attribute.
+0x0002,                 $ No support for settable path, scaling, or scaling links.
+				$ Value is gettable and settable. Enumerated strings are
+				$ supported.
+0xC1,                   $ Data Type - boolean
+1,                      $ Data Size - (in bytes)
+"Autobaud",             $ Parameter Name
+"",                     $ Units String
+			$$$$$$$$$$ Help string $$$$$$$$$$$
+"Setting this parameter ON disables the Autobaud feature in the block. The change occurs after the next power up. The default is Enabled.",
+0,1,0,                  $ Min, Max, and Default values
+1,1,1,0,0,0,0,0,0;      $ Not Used
+
+$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+Param2 =                $ Quick Start
+0,                      $ reserved
+6,                      $ Link Path Size
+"20 03 24 01 30 66", 	$ Link Path to disable quick start attribute.
+0x0002,                 $ No support for settable path, scaling, or scaling links.
+				$ Value is gettable and settable. Enumerated strings are
+				$ supported.
+0xC1,                   $ Data Type - boolean
+1,                      $ Data Size - (in bytes)
+"Quick Connect",         $ Parameter Name
+"",                     $ Units String
+			$$$$$$$$$$ Help string $$$$$$$$$$$
+"Setting this parameter ON Enables the Quick Connect feature in the block. The change occurs after the next power up. The default is Disabled.",
+0,1,0,                  $ Min, Max, and Default values
+1,1,1,0,0,0,0,0,0;      $ Not Used
+
+$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+Param3 = 	        	$ Input filter Off_to_On Delay selection
+0,        			$ reserved
+6,          		$ Link Path Size
+"20 1D 24 01 30 06", 	$ Link Path to param instance.  The param instance decodes
+				$ the enumerated parameter into engineering units (micro seconds).
+0x0000,			$ No support for settable path, scaling, scaling links,
+				$ or real time update of value.  Value is gettable and
+				$ Settable.  Enumerated strings are supported.
+0xC7,        		$ Data Type - unsigned int
+2,        			$ Data Size - (in bytes)
+"Off-To-On Delay",      $ Parameter Name
+"us",				$ Units String
+			$$$$$$$$$$ Help string $$$$$$$$$$$
+"The input must be ON for the delay period specified in microseconds before the module detects the change. The minimum delay time is 0uS while the maximum delay time is 16000uS.",
+0,16000,1000,          	$ Min, Max (max enumeration #), and Default values
+1,1,1,0,0,0,0,0,0;	$ Not Used
+
+$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+Param4 =      		$ Input filter On_to_Off Delay selection
+0,          		$ reserved
+6,        			$ Link Path Size
+"20 1D 24 01 30 07", 	$ Link Path to param instance.  The param instance decodes
+				$ the enumerated parameter into engineering units (micro seconds).
+0x0000,     	      $ No support for settable path, scaling, scaling links,
+				$ or real time update of value.  Value is gettable and
+				$ Settable.  Enumerated strings are supported.
+0xC7,        		$ Data Type - unsigned int
+2,         			$ Data Size - (in bytes)
+"On-To-Off Delay", 	$ Parameter Name
+"us",           		$ Units String
+			$$$$$$$$$$ Help string $$$$$$$$$$$
+"The input must be OFF for the delay period specified in microseconds before the module detects the change. The minimum delay time is 0uS while the maximum delay time is 16000uS.",
+0,16000,1000,          	$ Min, Max (max enumeration #), and Default values
+1,1,1,0,0,0,0,0,0;  	$ Not Used
+
+$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+Param5 =			$ Input  Values (0-7) for use by Rsnetwork Parameters.
+0,				$ reserved
+6,				$ Link Path Size
+"20 04 24 04 30 03",	$ Link Path to DIP Input values attribute.
+0x0030,			$ No support for settable path, scaling, or scaling links.
+				$ Value is gettable only. Enumerated strings are not
+				$ supported.
+0xD1,				$ Data Type - 8 bit string
+1,				$ Data Size - (in bytes)
+"Input Values (7-0)",	$ Parameter Name
+"",				$ Units String
+			$$$$$$$$$$ Help string $$$$$$$$$$$
+"This parameter is the current value of all Inputs, either On(1) or Off(0).",
+0,255,0,			$ Min, Max, and Default values
+1,1,1,0,0,0,0,0,0;	$ Not Used
+
+$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+Param6 =			$ Input  Values (0-7) for use by Input Assembly
+0,				$ reserved
+6,				$ Link Path Size
+"20 04 24 04 30 03",	$ Link Path to DIP Input values attribute.
+0x0230,			$ No support for settable path, scaling, or scaling links.
+				$ Value is gettable only. Enumerated strings are not
+				$ supported.  Not displayable.
+0xD1,				$ Data Type - 8 bit string
+1,				$ Data Size - (in bytes)
+"Data",			$ Parameter Name
+"",				$ Units String
+			$$$$$$$$$$ Help string $$$$$$$$$$$
+"This parameter is the current value of all Inputs, either On(1) or Off(0).",
+0,255,0,			$ Min, Max, and Default values
+1,1,1,0,0,0,0,0,0;	$ Not Used
+
+
+
+[Assembly]
+Revision = 2;
+
+Assem4 = 
+"Data",			$ Name of Connection.
+"20 04 24 04 30 03", 	$ Path to I/O Production Assembly.
+1,                      $ The size in bytes that this connection produces.
+0, , ,			$ Not editable, not modular.
+8, Param6;			$ 8 input values (byte 0)
+
+
+Assem126 = 
+"Configuration Data",	$ Name of Connection.
+,				$ Path to I/O Production Assembly.
+,                      	$ The size in bytes that this connection produces.
+0, , ,			$ Not editable, not modular.
+,Param1,			$ Autobaud 					(bit 0, byte 0)
+,Param2,			$ Quick Connect 				(bit 1, byte 0)
+,Param3,			$ 16 bit Off to On Input filter 	(byte 1,2)
+,Param4;			$ 16 bit On to Off Input filter 	(byte 3,4)
+
+
+[Groups]
+Group1="DeviceNet Configuration",2,1,2;
+Group2="Input Configuration",2,3,4;
+Group3="Monitoring",1,5;
+
+
+[EnumPar]
+Param1="Enabled","Disabled";
+Param2="Disabled","Enabled";
+

@@ -1,0 +1,516 @@
+$ Revision History
+$ 1.001  12-02-04  jgm  Initial version for Series A FW Rev 3.1 module
+$ 1.002  12-14-05  jgm  Updated to support standardization guidelines
+$ 1.003  03-21-06  jgm  Updated Input/Output data names per DPI group review
+$ 1.004  05-08-07  pdt  Added entry to prevent usage of RSLogix 5000 EDS AOP
+
+[File]
+	DescText    = "1769-OA16/A FW Rev 3.1 EDS File";
+	CreateDate  = 12-02-2004;
+	CreateTime  = 11:00:00;
+	ModDate     = 05-08-2007;
+	ModTime     = 06:00:00;
+	Revision    = 1.004;
+	HomeURL     = "http://www.ab.com/networks/eds/XX/00010007005D0300.eds";
+
+[Device]
+	VendCode    = 1;
+	VendName    = "Rockwell Automation/Allen-Bradley";
+	ProdType    = 7;
+	ProdTypeStr = "General Purpose Discrete I/O";
+	ProdCode    = 93;
+	MajRev      = 3;
+	MinRev      = 1;
+	ProdName    = "1769-16pt 120/240Vac Triac Output/A/FW Rev 3.1";
+	Catalog     = "1769-OA16/A/FW Rev 3.1";
+	Icon        = "1769-Orange.ico";
+	1_EDS_AOP_Support = "No";
+
+[Modular]
+	Rack1 =  1,108,91,1,1,,,,
+			 1, 2, 3, 4, 5, 6, 7, 8, 9,10, $ Legal slots
+			11,12,13,14,15,16,17,18,19,20,
+			21,22,23,24,25,26,27,28,29,30,
+			31,32,33,34,35,36,37;
+
+	ExternalID = "01 00 07 00 5D 00 03";
+
+[1_1769Audit]
+	1_5vdcPwrLoad  = 225;
+	1_24vdcPwrLoad = 0;
+	1_DistRating   = 8;
+
+[Params]
+	ProxiedParam4 = ,,,,,,"","","",0,1,1,,,,,,,,,;		$ Input data size
+	ProxiedEnum4 = 0,"No Input Data", 1,"1 Word (DataEcho)";
+
+	ProxiedParam5 = ,,,,,,"","","",0,1,1,,,,,,,,,;		$ Output data size
+	ProxiedEnum5 = 0,"No Output Data", 1,"1 Word (Output Data)";
+
+	ProxiedParam6 = ,,,,,,"","","",0,2,2,,,,,,,,,;		$ Electronic Keying
+	ProxiedEnum6 = 0,"Disable Keying", 1,"Exact Match", 2,"Compatible Module";
+
+	ProxiedParam7 = ,,,,,,"","","",1,255,1,,,,,,,,,;	$ Configured Minor Revision
+
+	ProxiedParam8 = ,,,,,,"","","",1,255,1,,,,,,,,,;	$ Actual Minor Revision
+
+	Param10 =
+			0,,,                   $ Reserved,link size, link path & descriptor
+			0x0002,                $ Descriptor (Enum)
+			0xC7,2,                $ UINT
+			"Communication Failure","",
+			"Select output state after Communication Failure in Program Mode.",
+			0,1,0,,,,,,,,,;
+	Enum10 = 0,"Don't Change Outputs", 1,"Change Outputs to Fault Mode";
+
+
+	$***********************************
+	$	Input array data
+	$***********************************
+	Param20 =
+			  0,,,                   $ Reserved, link size, link path
+			  0x0010,                $ Descriptor (Read Only)
+			  0xD2, 2,               $ WORD
+			  "ReadBack","",
+			  "Data Echo of output points 0 - 15.",
+			  0,0xFFFF,0,,,,,,,,,;
+
+
+	$***********************************
+	$	Output array data
+	$***********************************
+	Param30 =
+			  0,,,                $ Reserved, link size, link path
+			  0x0000,             $ Descriptor
+			  0xD2, 2,            $ WORD
+			  "Data","",
+			  "Output data points 0 -15.",
+			  0,0xFFFF,0,,,,,,,,,;
+
+
+	$***********************************
+	$	Word 1 configuration data - Program State for Output Array Word
+	$***********************************
+	Param100= 0,,,0,0xC6,1,"Pt00 Program State","",
+			  "Select output state on system transition from Run to Program.",
+			  0,1,0,,,,,,,,,;
+	Enum100=  0,"User-defined Safe State", 1,"Hold Last State";
+
+	Param101= 0,,,0,0xC6,1,"Pt01 Program State","",
+			  "Select output state on system transition from Run to Program.",
+			  0,1,0,,,,,,,,,;
+	Enum101=  0,"User-defined Safe State", 1,"Hold Last State";
+
+	Param102= 0,,,0,0xC6,1,"Pt02 Program State","",
+			  "Select output state on system transition from Run to Program.",
+			  0,1,0,,,,,,,,,;
+	Enum102=  0,"User-defined Safe State", 1,"Hold Last State";
+
+	Param103= 0,,,0,0xC6,1,"Pt03 Program State","",
+			  "Select output state on system transition from Run to Program.",
+			  0,1,0,,,,,,,,,;
+	Enum103=  0,"User-defined Safe State", 1,"Hold Last State";
+
+	Param104= 0,,,0,0xC6,1,"Pt04 Program State","",
+			  "Select output state on system transition from Run to Program.",
+			  0,1,0,,,,,,,,,;
+	Enum104=  0,"User-defined Safe State", 1,"Hold Last State";
+
+	Param105= 0,,,0,0xC6,1,"Pt05 Program State","",
+			  "Select output state on system transition from Run to Program.",
+			  0,1,0,,,,,,,,,;
+	Enum105=  0,"User-defined Safe State", 1,"Hold Last State";
+
+	Param106= 0,,,0,0xC6,1,"Pt06 Program State","",
+			  "Select output state on system transition from Run to Program.",
+			  0,1,0,,,,,,,,,;
+	Enum106=  0,"User-defined Safe State", 1,"Hold Last State";
+
+	Param107= 0,,,0,0xC6,1,"Pt07 Program State","",
+			  "Select output state on system transition from Run to Program.",
+			  0,1,0,,,,,,,,,;
+	Enum107=  0,"User-defined Safe State", 1,"Hold Last State";
+
+	Param108= 0,,,0,0xC6,1,"Pt08 Program State","",
+			  "Select output state on system transition from Run to Program.",
+			  0,1,0,,,,,,,,,;
+	Enum108=  0,"User-defined Safe State", 1,"Hold Last State";
+
+	Param109= 0,,,0,0xC6,1,"Pt09 Program State","",
+			  "Select output state on system transition from Run to Program.",
+			  0,1,0,,,,,,,,,;
+	Enum109=  0,"User-defined Safe State", 1,"Hold Last State";
+
+	Param110= 0,,,0,0xC6,1,"Pt10 Program State","",
+			  "Select output state on system transition from Run to Program.",
+			  0,1,0,,,,,,,,,;
+	Enum110=  0,"User-defined Safe State", 1,"Hold Last State";
+
+	Param111= 0,,,0,0xC6,1,"Pt11 Program State","",
+			  "Select output state on system transition from Run to Program.",
+			  0,1,0,,,,,,,,,;
+	Enum111=  0,"User-defined Safe State", 1,"Hold Last State";
+
+	Param112= 0,,,0,0xC6,1,"Pt12 Program State","",
+			  "Select output state on system transition from Run to Program.",
+			  0,1,0,,,,,,,,,;
+	Enum112=  0,"User-defined Safe State", 1,"Hold Last State";
+
+	Param113= 0,,,0,0xC6,1,"Pt13 Program State","",
+			  "Select output state on system transition from Run to Program.",
+			  0,1,0,,,,,,,,,;
+	Enum113=  0,"User-defined Safe State", 1,"Hold Last State";
+
+	Param114= 0,,,0,0xC6,1,"Pt14 Program State","",
+			  "Select output state on system transition from Run to Program.",
+			  0,1,0,,,,,,,,,;
+	Enum114=  0,"User-defined Safe State", 1,"Hold Last State";
+
+	Param115= 0,,,0,0xC6,1,"Pt15 Program State","",
+			  "Select output state on system transition from Run to Program.",
+			  0,1,0,,,,,,,,,;
+	Enum115=  0,"User-defined Safe State", 1,"Hold Last State";
+
+	$***********************************
+	$	Word 2 configuration data - Program Value for Output Array Word
+	$***********************************
+	Param200= 0,,,0,0xC6,1,"Pt00 Program Value","",
+			  "User-defined safe state value after transistion to Program Mode.",
+			  0,1,0,,,,,,,,,;
+	Enum200=  0,"Off", 1,"On";
+
+	Param201= 0,,,0,0xC6,1,"Pt01 Program Value","",
+			  "User-defined safe state value after transistion to Program Mode.",
+			  0,1,0,,,,,,,,,;
+	Enum201=  0,"Off", 1,"On";
+
+	Param202= 0,,,0,0xC6,1,"Pt02 Program Value","",
+			  "User-defined safe state value after transistion to Program Mode.",
+			  0,1,0,,,,,,,,,;
+	Enum202=  0,"Off", 1,"On";
+
+	Param203= 0,,,0,0xC6,1,"Pt03 Program Value","",
+			  "User-defined safe state value after transistion to Program Mode.",
+			  0,1,0,,,,,,,,,;
+	Enum203=  0,"Off", 1,"On";
+
+	Param204= 0,,,0,0xC6,1,"Pt04 Program Value","",
+			  "User-defined safe state value after transistion to Program Mode.",
+			  0,1,0,,,,,,,,,;
+	Enum204=  0,"Off", 1,"On";
+
+	Param205= 0,,,0,0xC6,1,"Pt05 Program Value","",
+			  "User-defined safe state value after transistion to Program Mode.",
+			  0,1,0,,,,,,,,,;
+	Enum205=  0,"Off", 1,"On";
+
+	Param206= 0,,,0,0xC6,1,"Pt06 Program Value","",
+			  "User-defined safe state value after transistion to Program Mode.",
+			  0,1,0,,,,,,,,,;
+	Enum206=  0,"Off", 1,"On";
+
+	Param207= 0,,,0,0xC6,1,"Pt07 Program Value","",
+			  "User-defined safe state value after transistion to Program Mode.",
+			  0,1,0,,,,,,,,,;
+	Enum207=  0,"Off", 1,"On";
+
+	Param208= 0,,,0,0xC6,1,"Pt08 Program Value","",
+			  "User-defined safe state value after transistion to Program Mode.",
+			  0,1,0,,,,,,,,,;
+	Enum208=  0,"Off", 1,"On";
+
+	Param209= 0,,,0,0xC6,1,"Pt09 Program Value","",
+			  "User-defined safe state value after transistion to Program Mode.",
+			  0,1,0,,,,,,,,,;
+	Enum209=  0,"Off", 1,"On";
+
+	Param210= 0,,,0,0xC6,1,"Pt10 Program Value","",
+			  "User-defined safe state value after transistion to Program Mode.",
+			  0,1,0,,,,,,,,,;
+	Enum210=  0,"Off", 1,"On";
+
+	Param211= 0,,,0,0xC6,1,"Pt11 Program Value","",
+			  "User-defined safe state value after transistion to Program Mode.",
+			  0,1,0,,,,,,,,,;
+	Enum211=  0,"Off", 1,"On";
+
+	Param212= 0,,,0,0xC6,1,"Pt12 Program Value","",
+			  "User-defined safe state value after transistion to Program Mode.",
+			  0,1,0,,,,,,,,,;
+	Enum212=  0,"Off", 1,"On";
+
+	Param213= 0,,,0,0xC6,1,"Pt13 Program Value","",
+			  "User-defined safe state value after transistion to Program Mode.",
+			  0,1,0,,,,,,,,,;
+	Enum213=  0,"Off", 1,"On";
+
+	Param214= 0,,,0,0xC6,1,"Pt14 Program Value","",
+			  "User-defined safe state value after transistion to Program Mode.",
+			  0,1,0,,,,,,,,,;
+	Enum214=  0,"Off", 1,"On";
+
+	Param215= 0,,,0,0xC6,1,"Pt15 Program Value","",
+			  "User-defined safe state value after transistion to Program Mode.",
+			  0,1,0,,,,,,,,,;
+	Enum215=  0,"Off", 1,"On";
+
+	$***********************************
+	$	Word 3 configuration data - Fault State for Output Array Word
+	$***********************************
+	Param300= 0,,,0,0xC6,1,"Pt00 Fault State","",
+			  "Select output state on system transition from Run to Fault.",
+			  0,1,0,,,,,,,,,;
+	Enum300=  0,"User-defined Safe State", 1,"Hold Last State";
+
+	Param301= 0,,,0,0xC6,1,"Pt01 Fault State","",
+			  "Select output state on system transition from Run to Fault.",
+			  0,1,0,,,,,,,,,;
+	Enum301=  0,"User-defined Safe State", 1,"Hold Last State";
+
+	Param302= 0,,,0,0xC6,1,"Pt02 Fault State","",
+			  "Select output state on system transition from Run to Fault.",
+			  0,1,0,,,,,,,,,;
+	Enum302=  0,"User-defined Safe State", 1,"Hold Last State";
+
+	Param303= 0,,,0,0xC6,1,"Pt03 Fault State","",
+			  "Select output state on system transition from Run to Fault.",
+			  0,1,0,,,,,,,,,;
+	Enum303=  0,"User-defined Safe State", 1,"Hold Last State";
+
+	Param304= 0,,,0,0xC6,1,"Pt04 Fault State","",
+			  "Select output state on system transition from Run to Fault.",
+			  0,1,0,,,,,,,,,;
+	Enum304=  0,"User-defined Safe State", 1,"Hold Last State";
+
+	Param305= 0,,,0,0xC6,1,"Pt05 Fault State","",
+			  "Select output state on system transition from Run to Fault.",
+			  0,1,0,,,,,,,,,;
+	Enum305=  0,"User-defined Safe State", 1,"Hold Last State";
+
+	Param306= 0,,,0,0xC6,1,"Pt06 Fault State","",
+			  "Select output state on system transition from Run to Fault.",
+			  0,1,0,,,,,,,,,;
+	Enum306=  0,"User-defined Safe State", 1,"Hold Last State";
+
+	Param307= 0,,,0,0xC6,1,"Pt07 Fault State","",
+			  "Select output state on system transition from Run to Fault.",
+			  0,1,0,,,,,,,,,;
+	Enum307=  0,"User-defined Safe State", 1,"Hold Last State";
+
+	Param308= 0,,,0,0xC6,1,"Pt08 Fault State","",
+			  "Select output state on system transition from Run to Fault.",
+			  0,1,0,,,,,,,,,;
+	Enum308=  0,"User-defined Safe State", 1,"Hold Last State";
+
+	Param309= 0,,,0,0xC6,1,"Pt09 Fault State","",
+			  "Select output state on system transition from Run to Fault.",
+			  0,1,0,,,,,,,,,;
+	Enum309=  0,"User-defined Safe State", 1,"Hold Last State";
+
+	Param310= 0,,,0,0xC6,1,"Pt10 Fault State","",
+			  "Select output state on system transition from Run to Fault.",
+			  0,1,0,,,,,,,,,;
+	Enum310=  0,"User-defined Safe State", 1,"Hold Last State";
+
+	Param311= 0,,,0,0xC6,1,"Pt11 Fault State","",
+			  "Select output state on system transition from Run to Fault.",
+			  0,1,0,,,,,,,,,;
+	Enum311=  0,"User-defined Safe State", 1,"Hold Last State";
+
+	Param312= 0,,,0,0xC6,1,"Pt12 Fault State","",
+			  "Select output state on system transition from Run to Fault.",
+			  0,1,0,,,,,,,,,;
+	Enum312=  0,"User-defined Safe State", 1,"Hold Last State";
+
+	Param313= 0,,,0,0xC6,1,"Pt13 Fault State","",
+			  "Select output state on system transition from Run to Fault.",
+			  0,1,0,,,,,,,,,;
+	Enum313=  0,"User-defined Safe State", 1,"Hold Last State";
+
+	Param314= 0,,,0,0xC6,1,"Pt14 Fault State","",
+			  "Select output state on system transition from Run to Fault.",
+			  0,1,0,,,,,,,,,;
+	Enum314=  0,"User-defined Safe State", 1,"Hold Last State";
+
+	Param315= 0,,,0,0xC6,1,"Pt15 Fault State","",
+			  "Select output state on system transition from Run to Fault.",
+			  0,1,0,,,,,,,,,;
+	Enum315=  0,"User-defined Safe State", 1,"Hold Last State";
+
+	$***********************************
+	$	Word 4 configuration data - Fault Value for Output Array Word
+	$***********************************
+	Param400= 0,,,0,0xC6,1,"Pt00 Fault Value","",
+			 "User-defined safe state value after transistion to Fault Mode.",
+			  0,1,0,,,,,,,,,;
+	Enum400=  0,"Off", 1,"On";
+
+	Param401= 0,,,0,0xC6,1,"Pt01 Fault Value","",
+			 "User-defined safe state value after transistion to Fault Mode.",
+			  0,1,0,,,,,,,,,;
+	Enum401=  0,"Off", 1,"On";
+
+	Param402= 0,,,0,0xC6,1,"Pt02 Fault Value","",
+			 "User-defined safe state value after transistion to Fault Mode.",
+			  0,1,0,,,,,,,,,;
+	Enum402=  0,"Off", 1,"On";
+
+	Param403= 0,,,0,0xC6,1,"Pt03 Fault Value","",
+			 "User-defined safe state value after transistion to Fault Mode.",
+			  0,1,0,,,,,,,,,;
+	Enum403=  0,"Off", 1,"On";
+
+	Param404= 0,,,0,0xC6,1,"Pt04 Fault Value","",
+			 "User-defined safe state value after transistion to Fault Mode.",
+			  0,1,0,,,,,,,,,;
+	Enum404=  0,"Off", 1,"On";
+
+	Param405= 0,,,0,0xC6,1,"Pt05 Fault Value","",
+			 "User-defined safe state value after transistion to Fault Mode.",
+			  0,1,0,,,,,,,,,;
+	Enum405=  0,"Off", 1,"On";
+
+	Param406= 0,,,0,0xC6,1,"Pt06 Fault Value","",
+			 "User-defined safe state value after transistion to Fault Mode.",
+			  0,1,0,,,,,,,,,;
+	Enum406=  0,"Off", 1,"On";
+
+	Param407= 0,,,0,0xC6,1,"Pt07 Fault Value","",
+			 "User-defined safe state value after transistion to Fault Mode.",
+			  0,1,0,,,,,,,,,;
+	Enum407=  0,"Off", 1,"On";
+
+	Param408= 0,,,0,0xC6,1,"Pt08 Fault Value","",
+			 "User-defined safe state value after transistion to Fault Mode.",
+			  0,1,0,,,,,,,,,;
+	Enum408=  0,"Off", 1,"On";
+
+	Param409= 0,,,0,0xC6,1,"Pt09 Fault Value","",
+			 "User-defined safe state value after transistion to Fault Mode.",
+			  0,1,0,,,,,,,,,;
+	Enum409=  0,"Off", 1,"On";
+
+	Param410= 0,,,0,0xC6,1,"Pt10 Fault Value","",
+			 "User-defined safe state value after transistion to Fault Mode.",
+			  0,1,0,,,,,,,,,;
+	Enum410=  0,"Off", 1,"On";
+
+	Param411= 0,,,0,0xC6,1,"Pt11 Fault Value","",
+			 "User-defined safe state value after transistion to Fault Mode.",
+			  0,1,0,,,,,,,,,;
+	Enum411=  0,"Off", 1,"On";
+
+	Param412= 0,,,0,0xC6,1,"Pt12 Fault Value","",
+			 "User-defined safe state value after transistion to Fault Mode.",
+			  0,1,0,,,,,,,,,;
+	Enum412=  0,"Off", 1,"On";
+
+	Param413= 0,,,0,0xC6,1,"Pt13 Fault Value","",
+			 "User-defined safe state value after transistion to Fault Mode.",
+			  0,1,0,,,,,,,,,;
+	Enum413=  0,"Off", 1,"On";
+
+	Param414= 0,,,0,0xC6,1,"Pt14 Fault Value","",
+			 "User-defined safe state value after transistion to Fault Mode.",
+			  0,1,0,,,,,,,,,;
+	Enum414=  0,"Off", 1,"On";
+
+	Param415= 0,,,0,0xC6,1,"Pt15 Fault Value","",
+			 "User-defined safe state value after transistion to Fault Mode.",
+			  0,1,0,,,,,,,,,;
+	Enum415=  0,"Off", 1,"On";
+
+
+[Assembly]
+
+	ProxiedAssem101 =
+		"Input Array",,,,,,
+		16,Param20;
+
+	ProxiedAssem100 =
+		"Output Array",,,,,,
+		16,Param30;
+
+	ProxiedAssem4 =
+		"Channel Config",,,,,,
+		$------------ Word[0] --------------------------------
+		16,Param10,
+
+		$------------ Program State Word[1] ------------------
+		1,Param100,		$ Program State Point 0
+		1,Param101,		$ Program State Point 1
+		1,Param102,		$ Program State Point 2
+		1,Param103,		$ Program State Point 3
+		1,Param104,		$ Program State Point 4
+		1,Param105,		$ Program State Point 5
+		1,Param106,		$ Program State Point 6
+		1,Param107,		$ Program State Point 7
+		1,Param108,		$ Program State Point 8
+		1,Param109,		$ Program State Point 9
+		1,Param110,		$ Program State Point 10
+		1,Param111,		$ Program State Point 11
+		1,Param112,		$ Program State Point 12
+		1,Param113,		$ Program State Point 13
+		1,Param114,		$ Program State Point 14
+		1,Param115,		$ Program State Point 15
+
+		$------------ Program Value Word[2] ------------------
+		1,Param200,		$ Program Value Point 0
+		1,Param201,		$ Program Value Point 1
+		1,Param202,		$ Program Value Point 2
+		1,Param203,		$ Program Value Point 3
+		1,Param204,		$ Program Value Point 4
+		1,Param205,		$ Program Value Point 5
+		1,Param206,		$ Program Value Point 6
+		1,Param207,		$ Program Value Point 7
+		1,Param208,		$ Program Value Point 8
+		1,Param209,		$ Program Value Point 9
+		1,Param210,		$ Program Value Point 10
+		1,Param211,		$ Program Value Point 11
+		1,Param212,		$ Program Value Point 12
+		1,Param213,		$ Program Value Point 13
+		1,Param214,		$ Program Value Point 14
+		1,Param215,		$ Program Value Point 15
+
+		$------------ Fault State Word[3] ------------------
+		1,Param300,		$ Fault State Point 0
+		1,Param301,		$ Fault State Point 1
+		1,Param302,		$ Fault State Point 2
+		1,Param303,		$ Fault State Point 3
+		1,Param304,		$ Fault State Point 4
+		1,Param305,		$ Fault State Point 5
+		1,Param306,		$ Fault State Point 6
+		1,Param307,		$ Fault State Point 7
+		1,Param308,		$ Fault State Point 8
+		1,Param309,		$ Fault State Point 9
+		1,Param310,		$ Fault State Point 10
+		1,Param311,		$ Fault State Point 11
+		1,Param312,		$ Fault State Point 12
+		1,Param313,		$ Fault State Point 13
+		1,Param314,		$ Fault State Point 14
+		1,Param315,		$ Fault State Point 15
+
+		$------------ Fault Value Word[4] ------------------
+		1,Param400,		$ Fault Value Point 0
+		1,Param401,		$ Fault Value Point 1
+		1,Param402,		$ Fault Value Point 2
+		1,Param403,		$ Fault Value Point 3
+		1,Param404,		$ Fault Value Point 4
+		1,Param405,		$ Fault Value Point 5
+		1,Param406,		$ Fault Value Point 6
+		1,Param407,		$ Fault Value Point 7
+		1,Param408,		$ Fault Value Point 8
+		1,Param409,		$ Fault Value Point 9
+		1,Param410,		$ Fault Value Point 10
+		1,Param411,		$ Fault Value Point 11
+		1,Param412,		$ Fault Value Point 12
+		1,Param413,		$ Fault Value Point 13
+		1,Param414,		$ Fault Value Point 14
+		1,Param415;		$ Fault Value Point 15
+
+[Groups]
+	Group1 = "General",1,10;
+	Group2 = "Program States",16,100,101,102,103,104,105,106,107,108,109,110,111,112,113,114,115;
+	Group3 = "Program Values",16,200,201,202,203,204,205,206,207,208,209,210,211,212,213,214,215;
+	Group4 = "Fault States",16,300,301,302,303,304,305,306,307,308,309,310,311,312,313,314,315;
+	Group5 = "Fault Values",16,400,401,402,403,404,405,406,407,408,409,410,411,412,413,414,415;

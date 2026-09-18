@@ -517,7 +517,8 @@ function parseLargeForwardOpenRequest(data) {
         toConnectionType: toParams.connectionType,
         toVariableSize: toParams.variableSize,
         transportTypeTrigger: data.readUInt8(38),
-        connectionPath
+        connectionPath,
+        isLarge: true
     };
 }
 

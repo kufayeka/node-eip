@@ -1,0 +1,130 @@
+$ EZ-EDS Version 3.9 Generated Electronic Data Sheet
+
+[File]
+        DescText = "PanelView Plus_7 12.1 in.";
+        CreateDate = 09-20-2013;
+        CreateTime = 00:25:47;
+        ModDate = 09-20-2013;
+        ModTime = 02:47:15;
+        Revision = 1.0;
+        HomeURL = "http://www.ab.com/networks/eds/EN/0001001800590700.eds";
+
+[Device]
+        VendCode = 1;
+        VendName = "Allen-Bradley";
+        ProdType = 24;
+        ProdTypeStr = "Human-Machine Interface";
+        ProdCode = 89;
+        MajRev = 7;
+        MinRev = 1;
+        ProdName = "PanelView Plus_7 12.1 in.";
+        Catalog = "2711P-x12W22D8Sxx";
+        Icon = "0001_PVP7_Touch_12.ico";
+        IconContents =
+                "AAABAAEAICAAAAEAIACoEAAAFgAAACgAAAAgAAAAQAAAAAEAIAAAAAAAgBAA"
+                "ABMLAAATCwAAAAAAAAAAAAD///8A////AP///wD///8A////AP///wD///8A"
+                "////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD/"
+                "//8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP//"
+                "/wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////"
+                "AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A"
+                "////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD/"
+                "//8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP//"
+                "/wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////"
+                "AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A"
+                "////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD/"
+                "//8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP//"
+                "/wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////"
+                "AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A"
+                "////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD/"
+                "//8A////AP///wD///8A////AP///wD///8AbmxrzXx6ePZ8enj2fHp49nx6"
+                "ePZ8enj2fHp49nx6ePZ8enj2fHp49nx6ePZ8enj2fHp49nx6ePZ8enj2fHp4"
+                "9nx6ePZ8enj2fHp49nx6ePZ8enj2fHp49nx6ePZ8enj2fHp49nx6ePZ8enj2"
+                "fHp49nx6ePZ8enj2fHp49m9sa9OHg4Dvh4B7/oeAe/6HgHv+h4B7/oeAe/6H"
+                "gHv+h4B7/oeAe/6HgHv+h4B7/oeAe/6HgHv+h4B7/oeAe/6HgHv+h4B7/oeA"
+                "e/6HgHv+h4B7/oeAe/6HgHv+h4B7/oeAe/6HgHv+h4B7/oeAe/6HgHv+h4B7"
+                "/oeAe/6HgHv+iYWC9XlxbO5PPjL/Tz4y/08+Mv9PPjL/Tz4y/08+Mv9PPjL/"
+                "Tz4y/08+Mv9PPjL/Tz4y/08+Mv9PPjL/Tz8y/1BAM/9QQDP/UEAz/08+Mv9P"
+                "PjL/Tz4y/08+Mv9PPjL/Tz4y/08+Mv9PPjL/Tz4y/08+Mv9PPjL/Tz4y/08+"
+                "Mv95cWv1fHRv7lFAM/9RQDP/U0I0/11KN/5dSjf+XUo3/l1KN/5dSjf+XUo3"
+                "/l1KN/5dSjf+XUo3/l1KN/5dSjf+XUo3/11KN/9eSjf+XUo3/l1KN/5dSjf+"
+                "XUo3/l1KN/5dSjf+XUo3/l1KN/5dSjf+XUo3/lRCNP9RQDP/UUAz/3x0bvV9"
+                "dXDuU0I1/1NCNf9yWz7+w5xU/8OcVP/DnFT/w5xU/8OcVP/DnFT/w5xU/8Oc"
+                "VP/DnFT/w5xU/8OcVP/DnFT/w5xU/8OcVP/DnFT/w5xU/8OcVP/DnFT/w5xU"
+                "/8OcVP/DnFT/w5xU/8OcVP/DnFT/d18//lNCNf9TQjX/fXVv9X52ce5VQzb/"
+                "VUM2/3VdP/7HnlT/x55U/8eeVP/HnlT/x55U/8eeVP/HnlT/x55U/8eeVP/H"
+                "nlT/x55U/8eeVP/HnlT/x55U/8eeVP/HnlT/x55U/8eeVP/HnlT/x55U/8ee"
+                "VP/HnlT/x55U/8eeVP96YUD+VUM2/1VDNv9+dnD1fnZx7ldFOP9XRTj/d19A"
+                "/suhVf/LoVX/y6FV/8uhVf/LoVX/y6FV/8uhVf/LoVX/y6FV/8uhVf/LoVX/"
+                "y6FV/8uhVf/LoVX/y6FV/8uhVf/LoVX/y6FV/8uhVf/LoVX/y6FV/8uhVf/L"
+                "oVX/y6FV/3xjQv5XRTj/V0U4/352cPV8dG7uWUc5/1lHOf95YUH+z6RV/8+k"
+                "Vf/PpFX/z6RV/8+kVf/PpFX/z6RV/8+kVf/PpFX/z6RV/8+kVf/PpFX/z6RV"
+                "/8+kVf/PpFX/z6RV/8+kVf/PpFb/z6RV/8+kVf/PpFX/z6RW/8+kVf/PpFX/"
+                "f2VD/llHOf9ZRzn/fHRu9Xtzbe5bSTv/W0k7/3xjQ/7Tp1b/06dW/9OnVv/T"
+                "p1b/06dW/9OnVv/Tp1b/06dW/9OnVv/Tp1b/06dW/9OnVv/Tp1b/06dW/9On"
+                "Vv/Tp1b/06dW/9OnVv/Tp1b/06dW/9OnVv/Tp1b/06dW/9OnVv+BZ0T+W0k7"
+                "/1tJO/98c231e3Nt7l1KPP9dSjz/fmVE/teqV//Xqlf/16pX/9eqV//Xqlf/"
+                "16pX/9eqV//Xqlf/16pX/9eqV//Xqlf/16pX/9eqV//Xqlf/16pX/9eqV//X"
+                "qlf/16pX/9eqV//Xqlf/16pX/9isXP/ZrmL/27Fq/4RqR/5dSjz/XUo8/3xz"
+                "bfV8dG7uX0w+/19MPv+BZ0X+2qxX/9qsV//arFf/2qxX/9qsV//arFf/2qxX"
+                "/9qsV//arFf/2qxX/9qsV//arFf/2qxX/9qsV//arFf/2qxY/9utXP/cr2D/"
+                "3LFl/92yav/etG//37Vx/9+1cf/ftXH/h2xI/l9MPv9fTD7/fHRt9Xx0bu5h"
+                "TkD/YU5A/4NpR/7er1n/3q9Z/96vWf/er1r/3q9b/96wW//esF3/3rBe/96x"
+                "YP/fsmL/37Jk/+CzZv/gtGn/4LVs/+G2b//ht3L/4bdy/+G3cv/ht3L/4bdy"
+                "/+G3cv/ht3L/4bdy/+G3cv+JbUn+YU5A/2FOQP99dG71fXVv7mJQQf9iUEH/"
+                "hmtK/uW6c//lunP/5bpz/+W6c//lunP/5bpz/+W6c//lunP/5bpz/+W6c//l"
+                "unP/5bpz/+W6c//lunP/5bpz/+W6c//lunP/5bpz/+W6c//lunP/5bpz/+W6"
+                "c//lunP/5bpz/4tvSv5iUEH/YlBB/351bvV+dW/uZVFC/2VRQv+IbUv+57t0"
+                "/+e7dP/nu3T/57t0/+e7dP/nu3T/57t0/+e7dP/nu3T/57t0/+e7dP/nu3T/"
+                "57t0/+e7dP/nu3T/57t0/+e7dP/nu3T/57t0/+e7dP/nu3T/57t0/+e7dP/n"
+                "u3T/jXFK/mVRQv9lUUL/fnVv9X52cO5nU0T/Z1NE/4luTP7mu3L/5rty/+a7"
+                "cv/mu3L/5rty/+a7cv/mu3L/5rty/+a7cv/mu3L/5rty/+a7cv/mu3L/5rty"
+                "/+a7cv/mu3L/5rty/+a7cv/mu3L/5rty/+a7cv/mu3L/5rty/+a7cv+Pckv+"
+                "Z1NE/2dTRP9/dnD1g3p07mlVRf9pVUX/iW5M/uG2bf/htm3/4bZt/+G2bf/h"
+                "tm3/4bZt/+G2bf/htm3/4bZt/+G2bf/htm3/4bZt/+G2bf/htm3/4bZt/+G2"
+                "bf/htm3/4bZt/+G2bf/htm3/4bZt/+G2bf/htm3/4bZt/45xS/5pVUX/aVVF"
+                "/4R6dPWJgHnua1ZH/2tWR/+Jbkv+3bJp/92yaf/dsmn/3bJp/92yaf/dsmn/"
+                "3bJp/92yaf/dsmn/3bJp/92yaf/dsmn/3bJp/92yaf/dsmn/3bJp/92yaf/d"
+                "smn/3bJp/92yaf/dsmn/3bJp/92yaf/dsmn/jnFK/mtWR/9rVkf/iYB59Y6G"
+                "gO5tWEn/bVhJ/4puTP7Zr2f/2a9n/9mvZ//Zr2f/2a9n/9mvZ//Zr2f/2a9n"
+                "/9mvZ//Zr2f/2a9n/9mvZ//Zr2f/2a9n/9mvZ//Zr2f/2a9n/9mvZ//Zr2f/"
+                "2a9n/9mvZ//Zr2f/2a9n/9mvZ/+OcUv+bVhJ/21YSf+Phn/1lIuF7m5aSv9u"
+                "Wkr/fWRL/qWEUf6lhFH+pYRR/qWEUf6lhFH+pYRR/qWEUf6lhFH+pYRR/qWE"
+                "Uf6lhFH+pYRR/qWEUf6lhFH+pYRR/qWEUf6lhFH+pYRR/qWEUf6lhFH+pYRR"
+                "/qWEUf6lhFH+pYRR/n9mSv5uWkr/blpK/5WMhfWZkIrucFtM/3BbTP9wW0z/"
+                "cFtM/3BbTP9wW0z/cFtM/3BbTP9wW0z/cFtM/3BbTP9wW0z/cFtM/3BbTP9w"
+                "W0z/cFtM/3BbTP9wW0z/cFtM/3BbTP9wW0z/cFtM/3BbTP9wW0z/cFtM/3Bb"
+                "TP9wW0z/cFtM/3BbTP9wW0z/mpGK9bezse+zq6b+s6um/rOrpv6zq6b+s6um"
+                "/rOrpv6zq6b+s6um/rOrpv6zq6b+s6um/rOrpv6zq6b+s6um/rOrpv6zq6b+"
+                "s6um/rOrpv6zq6b+s6um/rOrpv6zq6b+s6um/rOrpv6zq6b+s6um/rOrpv6z"
+                "q6b+s6um/rOrpv66trT1r66twr69vOu+vbzrvr286769vOu+vbzrvr286769"
+                "vOu+vbzrvr286769vOu+vbzrvr286769vOu+vbzrvr286769vOu+vbzrvr28"
+                "6769vOu+vbzrvr286769vOu+vbzrvr286769vOu+vbzrvr286769vOu+vbzr"
+                "vr2867KxsMj///8A////AP///wD///8A////AP///wD///8A////AP///wD/"
+                "//8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP//"
+                "/wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////"
+                "AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A"
+                "////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD/"
+                "//8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP//"
+                "/wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////"
+                "AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A"
+                "////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD/"
+                "//8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP//"
+                "/wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////"
+                "AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD///8A"
+                "////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP///wD/"
+                "//8A////AP///wD///8A////AP///wD///8A////AP///wD///8A////AP//"
+                "/wD///8A////AP///wD///8A//////////////////////////8AAAAAAAAA"
+                "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+                "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA////////////"
+                "//////////////8=";
+
+[Device Classification]
+        Class1 = EtherNetIP;
+
+[Port]
+        Port2 =
+                TCP,
+                "Ethernet",
+                "20 F5 24 01",
+                2;
+

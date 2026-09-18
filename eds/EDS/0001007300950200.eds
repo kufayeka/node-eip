@@ -1,0 +1,114 @@
+$ Electronic Data Sheet for Powermonitor 3000 - M6 - ControlNet - Class 0.5 accuracy
+$ Covers bulletin 1404-M6***-CNT devices
+$ ControlNet PM3000 does not support any parameter objects or configuration assemblies
+
+[File]
+   DescText = "EDS for PM3000 - M6 - ControlNet - Class 0.5 accuracy";
+   CreateDate = 03-21-2003;
+   CreateTime = 09:00:00;
+   ModDate = 03-21-2003;
+   ModTime = 09:00:00;
+   Revision = 1.0;              $ revision of this EDS file
+   HomeURL = "http://www.ab.com/networks/eds/EN/0001007300950200.eds";  $ where EDS and other files can be found
+
+[Device]
+   VendCode = 1;
+   VendName = "Rockwell Automation - Allen-Bradley";
+   ProdType = 115;
+   ProdTypeStr = "Rockwell Automation Miscellaneous";
+   ProdCode = 0x95;             $ M6 - ControlNet - Class 0.5 accuracy
+   MajRev = 2;                  $ Device Major Revision
+   MinRev = 46;                 $ Device Minor Revision
+   ProdName = "PM3000 M6 w/ControlNet, Class 0.5";
+   Catalog = "1404-M6xxx-CNT";
+   Icon = "Pm3000IconRev1.ico";
+
+[Device Classification]
+   Class1 = ControlNet;
+
+[Port]
+    Port2 = ControlNet_Redundant,   $ Port type
+            "ControlNet",           $ Port name
+            "20 F0 24 01",          $ Path to Port object, The CNet object for PV
+            2;                      $ Port Number 
+
+[Params]			$ Since the PM3000 does not support the Parameter object, the parameters are listed below
+   Param1 =			$ only for reference by the Assembly section
+   0,				$ reserved
+   ,,				$ link path size in bytes, link path; not used (parameter object not directly addressable)
+   0x30,			$ Descriptor - Read only, updated real-time
+   0xC7,			$ Data type identifier - 16 bit unsigned integer (replaces obsolete data type of 2)
+   2,				$ Data size in bytes
+   "Relay output status",	$ Parameter name
+   " ", " ",			$ Units string, help string
+   0, 3, 0,			$ Min, max, default value
+   ,,,,				$ Scaling multiplier, divider, base, offset not used
+   ,,,,				$ Multiplier, divder, base, offset link not used
+   ;				$ Decimal precision
+
+   Param2 = 0, ,, 0x30, 0xC7,	2, "KYZ output status",	 "", "", 0, 3, 		0, ,,,, ,,,, ;
+   Param3 = 0, ,, 0x30, 0xC7,	2, "Alarm output word",	 "", "", 0, 0xFFFF, 	0, ,,,, ,,,, ;
+   Param4 = 0, ,, 0x30, 0xC7,	2, "Status input state",	 "", "", 0, 3, 		0, ,,,, ,,,, ;
+   Param5 = 0, ,, 0x30, 0xC7,	2, "Status input #1 counter",	 "", "", 0, 29999, 	0, ,,,, ,,,, ;
+   Param6 = 0, ,, 0x30, 0xC7,	2, "Status input #2 counter",	 "", "", 0, 29999, 	0, ,,,, ,,,, ;
+   Param7 = 0, ,, 0x20, 0xC7,	2, "Relay Output",		 "", "", 0, 1, 		0, ,,,, ,,,, ; 
+   Param8 = 0, ,, 0x20, 0xC7,	2, "KYZ output",		 "", "", 0, 1, 		0, ,,,, ,,,, ;
+
+[Assembly]
+   Assem1 =					$ This Assembly Object instance supports unscheduled (Class 3 and UCMM) connections and also
+						$ a maximum of 64 scheduled (Class 1) connections.  By default, this assembly contains 12 bytes of 
+						$ PM3000 discrete result data.  This size and contents of this assembly instance can also
+						$ be changed to contain what you want; refer to publication 1404-UM001 for more info.
+   "PM3000 discrete result data",		$ Name of the assembly
+   "",						$ Logical path to data; null string indicates to point to assembly instance attribute 3
+   12,						$ Size of the assembly in bytes	
+   0,						$ Descriptor; values can not be edited
+   ,,						$ reserved fields
+   16, Param1,					$ Member size in bits, member reference
+   16, Param2,					$ Member size in bits, member reference
+   16, Param3,					$ Member size in bits, member reference
+   16, Param4,					$ Member size in bits, member reference
+   16, Param5,					$ Member size in bits, member reference
+   16, Param6;					$ Member size in bits, member reference
+  
+   Assem2 =					$ This Assembly Object instance supports unscheduled (Class 3 and UCMM) connections and also
+						$ a maximum of one (1) scheduled (Class 1) connections.  You can control the Relay and KYZ outputs
+						$ on the PM3000 by changing values in this assembly if you also have the output control parameter 
+						$ in the PM3000 advanced device config table set properly; refer to publication 1404-UM001 for more info.
+   "Control PM3000 Relay and KYZ output" ,	$ Name of the assembly
+   "",						$ Logical path to data; null string causes path to point to assembly instance attribute 3
+   4,						$ Size of the assembly in bytes	
+   1,						$ Descriptor; values can be edited
+   ,,						$ reserved fields
+   16, Param7,					$ Member size in bits, member reference
+   16, Param8;					$ Member size in bits, member reference
+
+[Connection Manager]
+   Connection1 =
+      0x04010002,  $ class 1, cyclic, exclusive owner
+      0x44660455,  $ O=>T scheduled, p2p or multicast, run/idle header
+                   $ T=>O scheduled, p2p or multicast, 32-bit status header
+      ,4,Assem2,  $ O=>T RPI,Size,Format
+      ,12,Assem1,      $ T=>O RPI,Size,Format
+      ,,          $ config part 1 (not used)
+      ,,          $ config part 2 (not used)
+      "Consume/Produce data", $ connection name
+      "",            $ Help string
+      "20 04 24 03 2C 02 2C 01";
+
+   1_PLC5C_RTD_Format1 = 1_PLC5C_1794_Discrete_RTD_Format;
+
+   Connection2 =
+      0x04010002,  $ class 1, cyclic, redundant owner
+      0x44660455,  $ O=>T scheduled, p2p or multicast, run/idle header
+                   $ T=>O scheduled, p2p or multicast, 32-bit status header
+      ,4,Assem2,      $ O=>T RPI,Size,Format
+      ,12,Assem1,      $ T=>O RPI,Size,Format
+      ,,          $ config part 1 (not used)
+      ,,          $ config part 2 (not used)
+      "Heartbeat", $ connection name
+      "",            $ Help string
+      "20 04 24 03 2C 63 2C 01"; $ inputs only path
+
+     1_PLC5C_RTD_Format2 = 1_PLC5C_1794_Discrete_RTD_Format;
+

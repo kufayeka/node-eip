@@ -125,6 +125,11 @@ const LogixServices = Object.freeze({
     WriteTagFragmented: 0x53
 });
 
+const DeltaServices = Object.freeze({
+    ReadParameter: 0x32,
+    WriteParameter: 0x33
+});
+
 // CIP Vol 1 — well-known class codes referenced by the encapsulation/session
 // and connection-manager layers.
 const CipClassCodes = Object.freeze({
@@ -133,6 +138,9 @@ const CipClassCodes = Object.freeze({
     Assembly: 0x04,
     ConnectionManager: 0x06,
     Parameter: 0x0f,
+    DLR: 0x47,
+    QoS: 0x48,
+    Port: 0xf4,
     TcpIpInterface: 0xf5,
     EthernetLink: 0xf6
 });
@@ -147,5 +155,6 @@ module.exports = {
     CipGeneralStatus,
     CipCommonServices,
     LogixServices,
+    DeltaServices,
     CipClassCodes
 };

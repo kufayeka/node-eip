@@ -1,0 +1,24 @@
+$ Electronic Data Sheet For InView DeviceNet (V2 Version)
+$ 
+
+[File]
+    DescText="InView DeviceNet";
+    CreateDate=02-11-2003;
+    CreateTime=09:00:00;
+    ModDate=02-11-2003;
+    ModTime=09:00:00;
+    Revision=1.0;
+
+[Device]
+	VendCode    = 1;                          $ Vendor Code
+	ProdType    = 24;                         $ Product Type
+	ProdCode    = 23;                         $ Product Code
+
+	MajRev      = 2;                          $ Major Rev 
+	MinRev      = 1;                          $ Minor Rev
+	VendName    = "Allen-Bradley Company";
+	ProdTypeStr = "Human Machine Interface";  
+	ProdName    = "InView DeviceNet";
+	Catalog     = "2706-PDNETX";
+	Icon = "inview.ico";
+

@@ -1,0 +1,125 @@
+[File]
+	DescText = "1756-IB16I 16 Point 10V-30V DC Isolated Input, Sink/Source";
+	CreateDate = 06-09-1999;
+	CreateTime = 16:02:13;
+	ModDate	= 09-26-2002;
+	ModTime	= 22:47:00;
+	Revision = 1.1;
+	HomeURL = "http://www.ab.com/networks/eds/XX/0001000700060100.eds";
+
+[Device]
+	VendCode = 1;
+	VendName = "Allen-Bradley";
+	ProdType = 7;
+	ProdTypeStr = "Digital I/O";
+	ProdCode = 6;
+	MajRev = 1;
+	MinRev = 1;
+	ProdName = "1756-IB16I/A";
+	Catalog = "1756-IB16I/A";
+	Icon = "io_blue.ico";
+
+[Device Classification]
+	Class2 = 1_RSNetWorx_1756,1_RSNetWorx_Not_Connectable_Module;
+
+[Modular]
+	Width  = 1;
+	Rack1  = 1,0x6c,0x16,1,1,,,,0,1,2,3;                                    $1756-A4 Chassis, any slot
+	Rack2  = 1,0x6c,0x17,1,1,,,,0,1,2,3,4,5,6;                              $1756-A7 Chassis, any slot
+	Rack3  = 1,0x6c,0x18,1,1,,,,0,1,2,3,4,5,6,7,8,9;                        $1756-A10 Chassis, any slot
+	Rack4  = 1,0x6c,0x19,1,1,,,,0,1,2,3,4,5,6,7,8,9,10,11,12;               $1756-A13 Chassis, any slot
+	Rack5  = 1,0x6c,0x1A,1,1,,,,0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16;   $1756-A17 Chassis, any slot
+	Rack6  = 1,0x6c,0x16,2,1,,,,0,1,2,3;                                    $1756-A4 Chassis v2.1, any slot
+	Rack7  = 1,0x6c,0x17,2,1,,,,0,1,2,3,4,5,6;                              $1756-A7 Chassis v2.1, any slot
+	Rack8  = 1,0x6c,0x18,2,1,,,,0,1,2,3,4,5,6,7,8,9;                        $1756-A10 Chassis v2.1, any slot
+	Rack9  = 1,0x6c,0x19,2,1,,,,0,1,2,3,4,5,6,7,8,9,10,11,12;               $1756-A13 Chassis v2.1, any slot
+	Rack10 = 1,0x6c,0x1A,2,1,,,,0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16;   $1756-A17 Chassis v2.1, any slot
+
+[Connection Manager] 
+   1_Display_Only_Connection1 =
+      0x02030002,    $ trigger & transport 
+                  $  0-15  = supported transport classes (class 1)
+                  $  16 = cyclic (1 = supported)
+                  $  17 = change of state (1 = supported)
+                  $  18 = on demand (0 = not supported)
+                  $  19-23 = reserved (must be zero)
+                  $  24-27 = input-only
+                  $  28-30 = reserved (must be zero)
+                  $  31 = client 0 (don't care for classes 0 and 1)
+      0x44240355,    $ point/multicast & priority & realtime format
+                        $   0     = O=>T fixed (1 = supported)
+                        $   1     = O=>T variable (0 = not supported)
+                        $   2     = T=>O fixed (1 = supported)
+                        $   3     = T=>O variable (0 = not supported)
+                  $  4-5   = obsolete - value not changed for backwards compatibility
+                  $  6-7   = obsolete - value not changed for backwards compatibility
+                  $  8-10  = O=>T header (heartbeat)
+                  $  11  = reserved (must be zero)
+                  $  12-14 = T=>O header (pure data)
+                  $  15  = reserved (must be zero)
+                  $  16-19 = O=>T point-to-point
+                  $  20-23 = T=>O multicast
+                  $  24-27 = O=>T scheduled
+                  $  28-31 = T=>O scheduled
+      , 0,,       $ O=>T RPI range,default,description (sizes in bytes)
+      , 8,,       $ T=>O RPI range,default,description (sizes in bytes)
+      ,,          $ config part 1 (private configuration)
+      ,,          $ config part 2 (module configuration)
+      "Input Data",                             $ connection name
+      "Direct standard input data connection.", $ Help string
+      "20 04 24 10 2C C5 2C 82";                $ Path
+
+   1_Display_Only_Connection2 =
+      0x02030002,    $ trigger & transport 
+      0x44240355,    $ point/multicast & priority & realtime format
+      , 0,,       $ O=>T RPI range,default,description (sizes in bytes)
+      ,20,,       $ T=>O RPI range,default,description (sizes in bytes)
+      ,,          $ config part 1 (private configuration)
+      ,,          $ config part 2 (module configuration)
+      "CST Timestamped Input Data",             $ connection name
+      "CST Timestamped input data connection.", $ Help string
+      "20 04 24 10 2C C5 2C 83";                $ Path
+
+   1_Display_Only_Connection3 =
+      0x01030002,    $ trigger & transport 
+                  $  0-15  = supported transport classes (class 1)
+                  $  16 = cyclic (1 = supported)
+                  $  17 = change of state (1 = supported)
+                  $  18 = on demand (0 = not supported)
+                  $  19-23 = reserved (must be zero)
+                  $  24-27 = listen-only
+                  $  28-30 = reserved (must be zero)
+                  $  31 = client 0 (don't care for classes 0 and 1)
+      0x44240355,    $ point/multicast & priority & realtime format
+                        $   0     = O=>T fixed (1 = supported)
+                        $   1     = O=>T variable (0 = not supported)
+                        $   2     = T=>O fixed (1 = supported)
+                        $   3     = T=>O variable (0 = not supported)
+                  $  4-5   = obsolete - value not changed for backwards compatibility
+                  $  6-7   = obsolete - value not changed for backwards compatibility
+                  $  8-10  = O=>T header (heartbeat)
+                  $  11  = reserved (must be zero)
+                  $  12-14 = T=>O header (pure data)
+                  $  15  = reserved (must be zero)
+                  $  16-19 = O=>T point-to-point
+                  $  20-23 = T=>O multicast
+                  $  24-27 = O=>T scheduled
+                  $  28-31 = T=>O scheduled
+      , 0,,       $ O=>T RPI range,default,description (sizes in bytes)
+      ,20,,       $ T=>O RPI range,default,description (sizes in bytes)
+      0,,         $ config part 1 (private configuration)
+      ,,          $ config part 2 (module configuration)
+      "Listen Only - CST Timestamped Input Data",      $ Connection name
+      "CST Timestamped input listen only connection.", $ Help string
+      "20 04 24 02 2C C6 2C 83";                       $ Path
+
+   1_Display_Only_Connection4 =
+      0x01030002,    $ trigger & transport 
+      0x44240355,    $ point/multicast & priority & realtime format
+      , 0,,       $ O=>T RPI range,default,description (sizes in bytes)
+      , 8,,       $ T=>O RPI range,default,description (sizes in bytes)
+      ,,          $ config part 1 (private configuration)
+      ,,          $ config part 2 (module configuration)
+      "Listen Only - Input Data",               $ Connection name
+      "Standard input listen only connection.", $ Help string
+      "20 04 24 02 2C C6 2C 82";                $ Path

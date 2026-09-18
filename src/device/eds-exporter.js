@@ -40,8 +40,10 @@ function exportToEds(deviceSpec) {
     const prodType = identity.deviceType !== undefined ? identity.deviceType : 43; // 43 = 0x002B (Generic Device)
     const prodTypeStr = identity.deviceTypeStr || (prodType === 14 ? 'Programmable Logic Controller' : (prodType === 12 ? 'Communications Adapter' : (prodType === 2 ? 'AC Drive' : 'Generic Device')));
     const prodCode = identity.productCode !== undefined ? identity.productCode : 1;
-    const majRev = (identity.revision && identity.revision.major) !== undefined ? identity.revision.major : 1;
-    const minRev = (identity.revision && identity.revision.minor) !== undefined ? identity.revision.minor : 0;
+    const majRev = (identity.revision && identity.revision.major) !== undefined ? Math.max(1, Math.min(255, identity.revision.major)) : 1;
+    // ODVA CIP EDS Specification: MinRev must be an integer between 1 and 255 (cannot be 0)
+    const rawMin = (identity.revision && identity.revision.minor) !== undefined ? identity.revision.minor : 1;
+    const minRev = Math.max(1, Math.min(255, Number(rawMin) || 1));
     const prodName = identity.productName || 'Kufayeka Smart Node';
     const catalog = identity.catalog || deviceSpec.catalog || 'Generic-EIP';
     const descText = deviceSpec.description || `${vendName} ${prodName} Electronic Data Sheet`;
@@ -57,7 +59,7 @@ $ Timestamp: ${now.toISOString()}
         CreateTime = ${formatTime(now)};
         ModDate = ${formatDate(now)};
         ModTime = ${formatTime(now)};
-        Revision = 1.0;
+        Revision = ${majRev}.${minRev};
         HomeURL = "https://github.com/kufayeka/ethernet-ip";
 
 [Device]
@@ -75,29 +77,43 @@ $ Timestamp: ${now.toISOString()}
         Class1 = EtherNetIP;
 `;
 
-    // 1. [Params] Section
+    // 1. [ParamClass] & [Params] Section
     if (params.length > 0) {
+        eds += `\n[ParamClass]
+        MaxInst = ${params.length};
+        Descriptor = 0x0001;
+        CfgAssembly = 0;\n`;
+
         eds += `\n[Params]\n`;
         for (const p of params) {
             const id = p.id;
             const typeInfo = getCipTypeInfo(p.dataType || 'INT');
             const typeCode = typeInfo ? typeInfo.code : CipDataTypeCode.INT;
             const byteSize = p.byteSize || (typeInfo ? typeInfo.size : 2);
-            // Param Descriptor bitmap (CIP Vol 1 Appx C): bit0=Supports Settable
-            // Path, bit1=Enumerated strings supplied, bit4=Read-Only. There is
-            // no dedicated "read-write" bit -- a parameter is writable simply by
-            // NOT setting bit4, matching every real EDS this was checked against
-            // (e.g. a real Rockwell-ecosystem AC drive's writable "Output Size"
-            // param uses descriptor 0x0000, not the 0x0002 this used to emit --
-            // which actually means "enumerated strings", nothing to do with
-            // read/write access).
-            const descriptor = (p.access === 'r') ? '0x0010' : '0x0000';
+
+            // Param Descriptor bitmap (CIP Vol 1 Appx C):
+            // Bit 4 (0x0010): Read-Only parameter per official ODVA specification
+            let descVal = 0x0000;
+            if (p.access === 'r') {
+                descVal |= 0x0010;
+            }
+
+            const hasScaling = p.scaling && (p.scaling.multiplier || p.scaling.divider || p.scaling.base !== undefined || p.scaling.offset !== undefined);
+            if (hasScaling) {
+                descVal |= 0x0004; // Bit 2: Scaling Factors supplied
+            }
+
+            const descriptor = '0x' + descVal.toString(16).padStart(4, '0').toUpperCase();
             const fullName = p.code ? `${p.code} ${p.name}` : p.name;
             const units = p.units || '';
             const help = p.help || '';
             const min = p.min !== undefined ? p.min : 0;
             const max = p.max !== undefined ? p.max : 65535;
             const defVal = p.default !== undefined ? p.default : 0;
+
+            const scalingStr = hasScaling
+                ? `                ${p.scaling.multiplier || 1},${p.scaling.divider || 1},${p.scaling.base !== undefined ? p.scaling.base : 1},${p.scaling.offset || 0},\n                ,,,,\n                ${p.scaling.decimalPlaces !== undefined ? p.scaling.decimalPlaces : 0};`
+                : `                ,,,,\n                ,,,,\n                ;`;
 
             if (p.linkPath && p.linkPath.trim().length > 0) {
                 eds += `        Param${id} =
@@ -110,8 +126,7 @@ $ Timestamp: ${now.toISOString()}
                 ${JSON.stringify(units)},
                 ${JSON.stringify(help)},
                 ${min},${max},${defVal},
-                ,,,,
-                ,,,,;
+${scalingStr}
 `;
             } else {
                 eds += `        Param${id} =
@@ -124,93 +139,203 @@ $ Timestamp: ${now.toISOString()}
                 ${JSON.stringify(units)},
                 ${JSON.stringify(help)},
                 ${min},${max},${defVal},
-                ,,,,
-                ,,,,;
+${scalingStr}
 `;
             }
         }
     }
 
+    const connections = deviceSpec.connections || [];
+
     // 2. [Assembly] Section
+    const inputAssem = assemblies.find(a => a.type === 'input' || a.type === 'produce');
+    const outputAssem = assemblies.find(a => a.type === 'output' || a.type === 'consume');
+
     if (assemblies.length > 0) {
+        const maxInst = assemblies.reduce((max, a) => Math.max(max, a.instance), 1);
+
         eds += `\n[Assembly]
         Object_Name = "Assembly Object";
-        Object_Class_Code = 0x04;\n`;
+        Object_Class_Code = 0x04;
+        Revision = 2;
+        MaxInst = ${maxInst};
+        Number_Of_Static_Instances = ${assemblies.length};
+        Max_Number_Of_Dynamic_Instances = 0;\n\n`;
+
         for (const assem of assemblies) {
             const instHex = assem.instance.toString(16).padStart(2, '0').toUpperCase();
             const assemName = assem.name || `Assembly ${assem.instance}`;
             const assemPath = `"20 04 24 ${instHex} 30 03"`;
+            const sizeBytes = assem.sizeBytes || 4;
 
-            if (Array.isArray(assem.members) && assem.members.length > 0) {
-                eds += `        Assem${assem.instance} =
+            eds += `        Assem${assem.instance} =
                 ${JSON.stringify(assemName)},
                 ${assemPath},
-                ${assem.sizeBytes || 4},
+                ${sizeBytes},
                 0x0000,
                 ,,\n`;
-                const memLines = assem.members.map((m, idx) => {
-                    const isLast = idx === assem.members.length - 1;
-                    return `                ${m.bitLength || 16},Param${m.paramId || m.id}${isLast ? ';' : ','}`;
+
+            // Build member list (essential for Delta EIP Builder Data Exchange table)
+            let members = [];
+            if (Array.isArray(assem.members) && assem.members.length > 0) {
+                let mappedBits = 0;
+                members = assem.members.map(m => {
+                    const p = typeof m.paramId === 'number'
+                        ? params.find(x => x.id === m.paramId)
+                        : (params.find(x => x.code === m.paramId) || params.find(x => x.name === m.paramId));
+                    const bLen = m.bitLength || (m.byteSize ? m.byteSize * 8 : (p ? p.byteSize * 8 : 16));
+                    mappedBits += bLen;
+                    return {
+                        bits: bLen,
+                        paramId: p ? p.id : m.paramId
+                    };
                 });
-                eds += memLines.join('\n') + '\n\n';
+                if (mappedBits < sizeBytes * 8) {
+                    members.push({ bits: (sizeBytes * 8) - mappedBits, paramId: null });
+                }
+            } else if (params.length > 0 && (assem.instance === 100 || assem.instance === 101)) {
+                if (assem.type === 'output') {
+                    // Output (CTRL): Map writable params
+                    const writableParams = params.filter(p => p.access !== 'r');
+                    const targetParams = writableParams.length > 0 ? writableParams : params;
+                    let accumBits = 0;
+                    for (const p of targetParams) {
+                        const typeInfo = getCipTypeInfo(p.dataType || 'INT');
+                        const bSize = p.byteSize || (typeInfo ? typeInfo.size : 2);
+                        const bits = bSize * 8;
+                        if (accumBits + bits <= sizeBytes * 8) {
+                            members.push({ bits, paramId: p.id });
+                            accumBits += bits;
+                        }
+                    }
+                    if (accumBits < sizeBytes * 8) {
+                        members.push({ bits: sizeBytes * 8 - accumBits, paramId: null });
+                    }
+                } else {
+                    // Input (STAT): Map all params
+                    let accumBits = 0;
+                    for (const p of params) {
+                        const typeInfo = getCipTypeInfo(p.dataType || 'INT');
+                        const bSize = p.byteSize || (typeInfo ? typeInfo.size : 2);
+                        const bits = bSize * 8;
+                        if (accumBits + bits <= sizeBytes * 8) {
+                            members.push({ bits, paramId: p.id });
+                            accumBits += bits;
+                        }
+                    }
+                    if (accumBits < sizeBytes * 8) {
+                        members.push({ bits: sizeBytes * 8 - accumBits, paramId: null });
+                    }
+                }
             } else {
-                eds += `        Assem${assem.instance} =
-                ${JSON.stringify(assemName)},
-                ${assemPath},
-                ${assem.sizeBytes || 4},
-                0x0000;\n\n`;
+                members.push({ bits: sizeBytes * 8, paramId: null });
             }
+
+            const memLines = members.map((m, idx) => {
+                const isLast = idx === members.length - 1;
+                const ref = m.paramId ? `Param${m.paramId}` : '0';
+                return `                ${m.bits},${ref}${isLast ? ';' : ','}`;
+            });
+            eds += memLines.join('\n') + '\n\n';
         }
     }
 
-    // 3. [Connection Manager] Section
-    const inputAssem = assemblies.find(a => a.type === 'input' || a.type === 'produce');
-    const outputAssem = assemblies.find(a => a.type === 'output' || a.type === 'consume');
+    // 3. [Connection Manager] Section (Matches Delta EIP Builder & ODVA Standard exactly)
+    if (Array.isArray(connections) && connections.length > 0) {
+        eds += `[Connection Manager]
+        Object_Name = "Connection Manager Object";
+        Object_Class_Code = 0x06;
+        Revision = 1;
+        MaxInst = ${connections.length};
+        Number_Of_Static_Instances = ${connections.length};
+        Max_Number_Of_Dynamic_Instances = 0;\n\n`;
 
-    if (inputAssem || outputAssem) {
-        const toInstHex = (inputAssem ? inputAssem.instance : 100).toString(16).padStart(2, '0').toUpperCase();
-        const otInstHex = (outputAssem ? outputAssem.instance : 101).toString(16).padStart(2, '0').toUpperCase();
-        const toSize = inputAssem ? inputAssem.sizeBytes : 4;
-        const otSize = outputAssem ? outputAssem.sizeBytes : 4;
+        connections.forEach((conn, index) => {
+            const connIdx = index + 1;
+            const otAssem = assemblies.find(a => a.instance === conn.outputAssembly);
+            const toAssem = assemblies.find(a => a.instance === conn.inputAssembly);
+            const otInstHex = otAssem ? otAssem.instance.toString(16).padStart(2, '0').toUpperCase() : '64';
+            const toInstHex = toAssem ? toAssem.instance.toString(16).padStart(2, '0').toUpperCase() : '65';
+            const otRef = otAssem ? `Assem${otAssem.instance}` : '';
+            const toRef = toAssem ? `Assem${toAssem.instance}` : '';
 
-        const otAssemName = outputAssem ? `Assem${outputAssem.instance}` : otSize;
-        const toAssemName = inputAssem ? `Assem${inputAssem.instance}` : toSize;
+            eds += `        Connection${connIdx} =
+                0x04010002,             $ 1. Trigger: cyclic, Transport: Exclusive-Owner Class 1
+                0x44640405,             $ 2. Point-to-Point, 4-byte Run/Idle header
+                ,,${otRef},           $ 3, 4, 5. O->T RPI, Size, Format
+                ,,${toRef},           $ 6, 7, 8. T->O RPI, Size, Format
+                ,,                      $ 9, 10. Proxy Config Size, Proxy Config Format
+                0,,                     $ 11, 12. Target Config Size (0), Target Config Format (none)
+                ${JSON.stringify(conn.name || `Connection ${connIdx}`)},      $ 13. Connection Name
+                ${JSON.stringify(conn.help || conn.name || '')}, $ 14. Help String
+                "20 04 24 01 2C ${otInstHex} 2C ${toInstHex}"; $ 15. Path\n\n`;
+        });
+    } else if (outputAssem && inputAssem) {
+        const otInstHex = outputAssem.instance.toString(16).padStart(2, '0').toUpperCase();
+        const toInstHex = inputAssem.instance.toString(16).padStart(2, '0').toUpperCase();
 
         eds += `[Connection Manager]
         Object_Name = "Connection Manager Object";
         Object_Class_Code = 0x06;
+        Revision = 1;
+        MaxInst = 1;
+        Number_Of_Static_Instances = 1;
+        Max_Number_Of_Dynamic_Instances = 0;
+
         Connection1 =
-                0x04010002,             $ Trigger: cyclic, Transport: Exclusive-Owner Class 1
-                0x44640405,             $ Point-to-Point, Run/Idle header, Real-time transfer formats
-                ,,${otAssemName},       $ O->T RPI, Size / Assembly reference
-                ,,${toAssemName},       $ T->O RPI, Size / Assembly reference
-                ,,                      $ Config 1
-                0,,                     $ Config 2
-                "Exclusive Owner",      $ Connection Name
-                "Bidirectional Real-Time I/O Connection",
-                "20 04 24 01 2C ${otInstHex} 2C ${toInstHex}";\n\n`;
+                0x04010002,             $ 1. Trigger: cyclic, Transport: Exclusive-Owner Class 1
+                0x44640405,             $ 2. Point-to-Point, 4-byte Run/Idle header
+                ,,Assem${outputAssem.instance},           $ 3, 4, 5. O->T RPI, Size, Format
+                ,,Assem${inputAssem.instance},           $ 6, 7, 8. T->O RPI, Size, Format
+                ,,                      $ 9, 10. Proxy Config Size, Proxy Config Format
+                0,,                     $ 11, 12. Target Config Size (0), Target Config Format (none)
+                "Exclusive Owner",      $ 13. Connection Name
+                "Bidirectional Real-Time I/O Connection", $ 14. Help String
+                "20 04 24 01 2C ${otInstHex} 2C ${toInstHex}"; $ 15. Path
 
-        eds += `        Connection2 =
-                0x02010002,             $ Trigger: cyclic, Transport: Input-Only Class 1
-                0x44640305,             $ Point-to-Point, Input-Only transfer formats
-                ,0,,                    $ O->T empty
-                ,,${toAssemName},       $ T->O RPI, Size / Assembly reference
-                ,,                      $ Config 1
-                0,,                     $ Config 2
-                "Input Only",           $ Connection Name
-                "Input Only Cyclic Connection",
-                "20 04 24 01 2C C1 2C ${toInstHex}";\n\n`;
+        Connection2 =
+                0x01010002,             $ 1. Trigger: cyclic, Transport: Listen-Only Class 1
+                0x44240305,             $ 2. Point-to-Point
+                ,0,,                    $ 3, 4, 5. O->T RPI, Size 0, Format none
+                ,,Assem${inputAssem.instance},           $ 6, 7, 8. T->O RPI, Size, Format
+                ,,                      $ 9, 10. Proxy Config Size, Format
+                0,,                     $ 11, 12. Target Config Size (0), Format (none)
+                "Listen Only",          $ 13. Connection Name
+                "Listen-Only Real-Time Connection", $ 14. Help String
+                "20 04 24 01 2C C0 2C ${toInstHex}"; $ 15. Path (0xC0 = Listen Only Heartbeat)
 
-        eds += `        Connection3 =
-                0x01010002,             $ Trigger: cyclic, Transport: Listen-Only Class 1
-                0x44240305,             $ Multicast, Listen-Only transfer formats
-                ,0,,                    $ O->T empty
-                ,,${toAssemName},       $ T->O RPI, Size / Assembly reference
-                ,,                      $ Config 1
-                0,,                     $ Config 2
-                "Listen Only",          $ Connection Name
-                "Listen Only Cyclic Connection",
-                "20 04 24 01 2C C0 2C ${toInstHex}";\n`;
+        Connection3 =
+                0x02010002,             $ 1. Trigger: cyclic, Transport: Input-Only Class 1
+                0x44640305,             $ 2. Point-to-Point, 4-byte Run/Idle header
+                ,0,,                    $ 3, 4, 5. O->T RPI, Size 0, Format none
+                ,,Assem${inputAssem.instance},           $ 6, 7, 8. T->O RPI, Size, Format
+                ,,                      $ 9, 10. Proxy Config Size, Format
+                0,,                     $ 11, 12. Target Config Size (0), Format (none)
+                "Input Only",           $ 13. Connection Name
+                "Input-Only Real-Time Connection", $ 14. Help String
+                "20 04 24 01 2C C1 2C ${toInstHex}"; $ 15. Path (0xC1 = Input Only Heartbeat)
+`;
+    } else if (inputAssem) {
+        const toInstHex = inputAssem.instance.toString(16).padStart(2, '0').toUpperCase();
+        eds += `[Connection Manager]
+        Object_Name = "Connection Manager Object";
+        Object_Class_Code = 0x06;
+        Revision = 1;
+        MaxInst = 1;
+        Number_Of_Static_Instances = 1;
+        Max_Number_Of_Dynamic_Instances = 0;
+
+        Connection1 =
+                0x02010002,             $ 1. Trigger: cyclic, Transport: Input-Only Class 1
+                0x44640305,             $ 2. Point-to-Point, 4-byte Run/Idle header
+                ,0,,                    $ 3, 4, 5. O->T empty
+                ,,Assem${inputAssem.instance},           $ 6, 7, 8. T->O RPI, Size, Format
+                ,,                      $ 9, 10. Proxy Config Size, Format
+                0,,                     $ 11, 12. Target Config Size (0), Format (none)
+                "Input Only",           $ 13. Connection Name
+                "Input Only Real-Time Connection", $ 14. Help String
+                "20 04 24 01 2C C1 2C ${toInstHex}"; $ 15. Path
+`;
     }
 
     // 4. [Capacity] Section
@@ -222,12 +347,16 @@ $ Timestamp: ${now.toISOString()}
         TSpec2 = TxRx, 504, 1500;
 
 [TCP/IP Interface Class]
+        Object_Name = "TCP/IP Interface Object";
+        Object_Class_Code = 0xF5;
         Revision = 4;
         MaxInst = 1;
         Number_Of_Static_Instances = 1;
         Max_Number_Of_Dynamic_Instances = 0;
 
 [Ethernet Link Class]
+        Object_Name = "Ethernet Link Object";
+        Object_Class_Code = 0xF6;
         Revision = 4;
         MaxInst = 1;
         Number_Of_Static_Instances = 1;

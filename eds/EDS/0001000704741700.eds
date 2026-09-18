@@ -1,0 +1,34 @@
+$ Electronic Data Sheet for CompactLogix (1769-L16ER/L18ER/L18ERM)
+
+$ Revision History
+$ Revision	Date		Change
+$ 1.1		26Aug2010	Initial Release
+$ 1.2		31May2011	ProdName,Catalog,IO_Info
+$ 1.3		8July2011	Remove Input1 & Output1 help string
+$ 1.4		29July2011	Remove Modular session
+$ 1.5		23May2012	Replace Catalog from NULL to 1769-L1 IB16XOB16
+$ 1.6		22Jan2014	Remove DeviceNet classification and IO_Info
+$ 1.7		16APR2014	Update ModDate, ModTime, Revision for V23
+
+[File]
+    DescText    = "Embedded Discrete Combo 16PT Input & 16PT Output";
+    CreateDate  = 08-20-2010;
+    CreateTime  = 12:00:00;
+    ModDate     = 04-16-2014;
+    ModTime     = 17:00:00;
+    Revision    = 1.7;
+    HomeURL     = "http://www.ab.com/networks/eds/XX/0001000704741700.eds";
+
+[Device]
+    VendCode = 1;                       $ Vendor Code
+    ProdType = 7;                       $ Product Type
+    ProdCode = 0x0474;                  $ Product Code (0x0474)
+
+    MajRev = 23;  $ Major Rev
+    MinRev = 1;                         $ Minor Rev
+
+    VendName    = "Rockwell Automation/Allen-Bradley";
+    ProdTypeStr = "General Purpose Discrete I/O";
+    ProdName    = "1769-L1y Embedded 16PT Combo I/O";
+    Catalog     = "1769-L1 IB16XOB16";
+    Icon	    = "1769-L1yEIO.ico";

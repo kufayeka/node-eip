@@ -1,0 +1,832 @@
+[File]
+	DescText = "PointIO 1734-IR2/B";
+	CreateDate = 08-03-2000;
+	CreateTime = 06:30:10;
+	ModDate = 03-15-2006;                               
+	ModTime = 06:50:00;                            
+	Revision = 2.4;
+
+[Device]
+	VendCode = 1;
+	VendName = "Allen-Bradley Company, Inc.";
+	ProdType = 115;
+	ProdTypeStr = "Miscellaneous I/O";
+	ProdCode= 50;
+	MajRev = 2;
+	MinRev = 6;
+	ProdName = "PointIO 2pt RTD Input";
+	Catalog = "1734-IR2/B";
+	Icon = "1734brown.ico";
+
+[Params]
+	Param1 = 0,
+		6,"20 0A 24 01 30 03",	$ Link Path Size, Link Path
+		0x0030,	 $ Descriptor
+		3, 2,	$ Data Type, Data Size
+		"Input Value #0",
+		"",
+		"Value of RTD input point scaled to chosen units.\nIf in 'ohms' (default), the value returned will be in tenths of Ohms.\n(i.e. 123 Ohms = 1230)",
+		-32768,32767,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param2 = 0,
+		6,"20 0A 24 02 30 03",	$ Link Path Size, Link Path
+		0x0030,	 $ Descriptor
+		3, 2,	$ Data Type, Data Size
+		"Input Value #1",
+		"",
+		"Value of RTD input point scaled to chosen units.\nIf in 'ohms' (default), the value returned will be in tenths of Ohms.\n(i.e. 123 Ohms = 1230)",
+		-32768,32767,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param3 = 0,
+		6,"20 0A 24 01 30 71",	$ Link Path Size, Link Path
+		0x0002,	 $ Descriptor
+		8, 1,	$ Data Type, Data Size
+		"RTD Type #0",
+		"",
+		"Select the RTD type that the input will be using.\nSome of the types are not valid and saved for future use.\n\nValid types are:\n - 100 Ohm Pt 385\n - 200 Ohm Pt 385\n - 100 Ohm Pt 3916\n - 200 Ohm Pt 3916\n - 10 Ohm Cu 427\n - 120 Ohm Ni 672\n - 100 Ohm Ni 618\n - 120 Ohm Ni 618",
+		0,12,1,
+		,,,,
+		,,,,
+		;
+
+	Param4 = 0,
+		6,"20 0A 24 02 30 71",	$ Link Path Size, Link Path
+		0x0002,	 $ Descriptor
+		8, 1,	$ Data Type, Data Size
+		"RTD Type #1",
+		"",
+		"Select the RTD type that the input will be using.\nSome of the types are not valid and saved for future use.\n\nValid types are:\n - 100 Ohm Pt 385\n - 200 Ohm Pt 385\n - 100 Ohm Pt 3916\n - 200 Ohm Pt 3916\n - 10 Ohm Cu 427\n - 120 Ohm Ni 672\n - 100 Ohm Ni 618\n - 120 Ohm Ni 618",
+		0,12,1,
+		,,,,
+		,,,,
+		;
+
+	Param5 = 0,
+		6,"20 0A 24 01 30 8D",	$ Link Path Size, Link Path
+		0x0002,	 $ Descriptor
+		8, 1,	$ Data Type, Data Size
+		"Temperature Scale #0",
+		"",
+		"Use the Temperature Scale parameter to select a predefined scale or a custom scale.\n'Custom Scale' allows the user to enter the scaling endpoint values.\nIf using 'Ohms' RTD Type, this parameter is ignored\n\nPredefined Scales: Celsius(C), Fahrenheit(F), Kelvin(K), and Rankine(R)\nScaling Endpoints for 'Custom Scale' (low & high):\n Ohms: 100 Ohms & 500 Ohms\n Pt RTDs: 0'C & 500 'C\n Cu RTD: 0'C & 250'C\n Ni RTDs: 0'C & 250'C",
+		0,4,1,
+		,,,,
+		,,,,
+		;
+
+	Param6 = 0,
+		6,"20 0A 24 02 30 8D",	$ Link Path Size, Link Path
+		0x0002,	 $ Descriptor
+		8, 1,	$ Data Type, Data Size
+		"Temperature Scale #1",
+		"",
+		"Use the Temperature Scale parameter to select a predefined scale or a custom scale.\n'Custom Scale' allows the user to enter the scaling endpoint values.\nIf using 'Ohms' RTD Type, this parameter is ignored\n\nPredefined Scales: Celsius(C), Fahrenheit(F), Kelvin(K), and Rankine(R)\nScaling Endpoints for 'Custom Scale' (low & high):\n Ohms: 100 Ohms & 500 Ohms\n Pt RTDs: 0'C & 500 'C\n Cu RTD: 0'C & 250'C\n Ni RTDs: 0'C & 250'C",
+		0,4,1,
+		,,,,
+		,,,,
+		;
+
+	Param7 = 0,
+		6,"20 0A 24 01 30 04",	$ Link Path Size, Link Path
+		0x0032,	 $ Descriptor
+		4, 1,	$ Data Type, Data Size
+		"Status #0",
+		"",
+		"Status of input channel.  This bit is used to indicate a general channel fault.\n\nPossible faults:\n- Over/Under Range\n- Level Alarm violation\n- Bad Calibration\n- Loss of Communications to the A/D.\n- Hardware Fault",
+		0,1,0,
+		,,,,
+		,,,,
+		;
+
+	Param8 = 0,
+		6,"20 0A 24 02 30 04",	$ Link Path Size, Link Path
+		0x0032,	 $ Descriptor
+		4, 1,	$ Data Type, Data Size
+		"Status #1",
+		"",
+		"Status of input channel.  This bit is used to indicate a general channel fault.\n\nPossible faults:\n- Over/Under Range\n- Level Alarm violation\n- Bad Calibration\n- Loss of Communications to the A/D.\n- Hardware Fault",
+		0,1,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param9 = 0,
+		6,"20 0A 24 01 30 74",	$ Link Path Size, Link Path
+		0x0000,	 $ Descriptor
+		2, 2,	$ Data Type, Data Size
+		"Digital Filter #0",
+		"ms",
+		"Filter time constant in milliseconds.  See manual for equation.\nTo disable, enter 0 ms.\nMaximum value is 10,000 ms",
+		0,10000,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param10 = 0,
+		6,"20 0A 24 02 30 74",	$ Link Path Size, Link Path
+		0x0000,	 $ Descriptor
+		2, 2,	$ Data Type, Data Size
+		"Digital Filter #1",
+		"ms",
+		"Filter time constant in milliseconds.  See manual for equation.\nTo disable, enter 0 ms.\nMaximum value is 10,000 ms",
+		0,10000,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param11 = 0,
+		6,"20 0A 24 01 30 6D",	$ Link Path Size, Link Path
+		0x0032,	 $ Descriptor
+		4, 1,	$ Data Type, Data Size
+		"Low Low Alarm Status #0",
+		"",
+		"Indicates channel Value is less than Low Low Alarm value.\n - 'No Fault' = channel Value above Low Low Alarm Value\n - 'Low Low Alarm FAULT' = channel value below Low Low Alarm Value",
+		0,1,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param12 = 0,
+		6,"20 0A 24 02 30 6D",	$ Link Path Size, Link Path
+		0x0032,	 $ Descriptor
+		4, 1,	$ Data Type, Data Size
+		"Low Low Alarm Status #1",
+		"",
+		"Indicates channel Value is less than Low Low Alarm value.\n - 'No Fault' = channel Value above Low Low Alarm Value\n - 'Low Low Alarm FAULT' = channel value below Low Low Alarm Value",
+		0,1,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param13 = 0,
+		6,"20 0A 24 01 30 6B",	$ Link Path Size, Link Path
+		0x0032,	 $ Descriptor
+		4, 1,	$ Data Type, Data Size
+		"Low Alarm Status #0",
+		"",
+		"Indicates channel Value is less than Low Alarm value.\n - 'No Fault' = channel Value above Low Alarm Value\n - 'Low Alarm FAULT' = channel value below Low Alarm Value",
+		0,1,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param14 = 0,
+		6,"20 0A 24 02 30 6B",	$ Link Path Size, Link Path
+		0x0032,	 $ Descriptor
+		4, 1,	$ Data Type, Data Size
+		"Low Alarm Status #1",
+		"",
+		"Indicates channel Value is less than Low Alarm value.\n - 'No Fault' = channel Value above Low Alarm Value\n - 'Low Alarm FAULT' = channel value below Low Alarm Value",
+		0,1,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param15 = 0,
+		6,"20 0A 24 01 30 6C",	$ Link Path Size, Link Path
+		0x0032,	 $ Descriptor
+		4, 1,	$ Data Type, Data Size
+		"High Alarm Status #0",
+		"",
+		"Indicates channel Value is greater than High Alarm value.\n - 'No Fault' = channel Value below High Alarm Value\n - 'High Alarm FAULT' = channel value above High Alarm Value",
+		0,1,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param16 = 0,
+		6,"20 0A 24 02 30 6C",	$ Link Path Size, Link Path
+		0x0032,	 $ Descriptor
+		4, 1,	$ Data Type, Data Size
+		"High Alarm Status #1",
+		"",
+		"Indicates channel Value is greater than High Alarm value.\n - 'No Fault' = channel Value below High Alarm Value\n - 'High Alarm FAULT' = channel value above High Alarm Value",
+		0,1,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param17 = 0,
+		6,"20 0A 24 01 30 6E",	$ Link Path Size, Link Path
+		0x0032,	 $ Descriptor
+		4, 1,	$ Data Type, Data Size
+		"High High Alarm Status #0",
+		"",
+		"Indicates channel Value is greater than High High Alarm value.\n - 'No Fault' = channel Value below High High Alarm Value\n - 'High High Alarm FAULT' = channel value above High High Alarm Value",
+		0,1,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param18 = 0,
+		6,"20 0A 24 02 30 6E",	$ Link Path Size, Link Path
+		0x0032,	 $ Descriptor
+		4, 1,	$ Data Type, Data Size
+		"High High Alarm Status #1",
+		"",
+		"Indicates channel Value is greater than High High Alarm value.\n - 'No Fault' = channel Value below High High Alarm Value\n - 'High High Alarm FAULT' = channel value above High High Alarm Value",
+		0,1,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param19 = 0,
+		6,"20 0A 24 01 30 77",	$ Link Path Size, Link Path
+		0x0000,	 $ Descriptor
+		3, 2,	$ Data Type, Data Size
+		"Low Low Alarm #0",
+		"",
+		"Low Low Alarm Threshold.\nIf input value drops below this value, Low Low Alarm Status will Fault.\nDefault = -32768 (disabled).",
+		-32768,32767,-32768,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param20 = 0,
+		6,"20 0A 24 02 30 77",	$ Link Path Size, Link Path
+		0x0000,	 $ Descriptor
+		3, 2,	$ Data Type, Data Size
+		"Low Low Alarm #1",
+		"",
+		"Low Low Alarm Threshold.\nIf input value drops below this value, Low Low Alarm Status will Fault.\nDefault = -32768 (disabled).",
+		-32768,32767,-32768,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param21 = 0,
+		6,"20 0A 24 01 30 75",	$ Link Path Size, Link Path
+		0x0000,	 $ Descriptor
+		3, 2,	$ Data Type, Data Size
+		"Low Alarm #0",
+		"",
+		"Low Alarm Threshold.\nIf input value drops below this value, Low Alarm Status will Fault./nDefault = -32768 (disabled).",
+		-32768,32767,-32768,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param22 = 0,
+		6,"20 0A 24 02 30 75",	$ Link Path Size, Link Path
+		0x0000,	 $ Descriptor
+		3, 2,	$ Data Type, Data Size
+		"Low Alarm #1",
+		"",
+		"Low Alarm Threshold.\nIf input value drops below this value, Low Alarm Status will Fault./nDefault = -32768 (disabled).",
+		-32768,32767,-32768,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param23 = 0,
+		6,"20 0A 24 01 30 76",	$ Link Path Size, Link Path
+		0x0000,	 $ Descriptor
+		3, 2,	$ Data Type, Data Size
+		"High Alarm #0",
+		"",
+		"High Alarm Threshold.\nIf input value climbs above this value, High Alarm Status will Fault./nDefault = 32767 (disabled).",
+		-32768,32767,32767,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param24 = 0,
+		6,"20 0A 24 02 30 76",	$ Link Path Size, Link Path
+		0x0000,	 $ Descriptor
+		3, 2,	$ Data Type, Data Size
+		"High Alarm #1",
+		"",
+		"High Alarm Threshold.\nIf input value climbs above this value, High Alarm Status will Fault.\nDefault = 32767 (disabled).",
+		-32768,32767,32767,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param25 = 0,
+		6,"20 0A 24 01 30 78",	$ Link Path Size, Link Path
+		0x0000,	 $ Descriptor
+		3, 2,	$ Data Type, Data Size
+		"High High Alarm #0",
+		"",
+		"High High Alarm Threshold.\nIf input value climbs above this value, High High Alarm Status will Fault.\nDefault = 32767 (disabled).",
+		-32768,32767,32767,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param26 = 0,
+		6,"20 0A 24 02 30 78",	$ Link Path Size, Link Path
+		0x0000,	 $ Descriptor
+		3, 2,	$ Data Type, Data Size
+		"High High Alarm #1",
+		"",
+		"High High Alarm Threshold.\nIf input value climbs above this value, High High Alarm Status will Fault.\nDefault = 32767 (disabled).",
+		-32768,32767,32767,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param27 = 0,
+		6,"20 0A 24 01 30 80",	$ Link Path Size, Link Path
+		0x0032,	 $ Descriptor
+		4, 1,	$ Data Type, Data Size
+		"Under Range Alarm Status #0",
+		"",
+		"Indicates channel Value is less than Under Range Alarm value (about 10 Ohms).\n - 'No Fault' = channel Value is above Under Range Alarm value\n - 'Under Range Alarm FAULT' = channel Value is below Under Range Alarm value",
+		0,1,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param28 = 0,
+		6,"20 0A 24 02 30 80",	$ Link Path Size, Link Path
+		0x0032,	 $ Descriptor
+		4, 1,	$ Data Type, Data Size
+		"Under Range Alarm Status #1",
+		"",
+		"Indicates channel Value is less than Under Range Alarm value (about 10 Ohms).\n - 'No Fault' = channel Value is above Under Range Alarm value\n - 'Under Range Alarm FAULT' = channel Value is below Under Range Alarm value",
+		0,1,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param29 = 0,
+		6,"20 0A 24 01 30 81",	$ Link Path Size, Link Path
+		0x0032,	 $ Descriptor
+		4, 1,	$ Data Type, Data Size
+		"Over Range Alarm Status #0",
+		"",
+		"Indicates channel Value is greater than Over Range Alarm value (600 Ohms).\n - 'No Fault' = channel Value is above Over Range Alarm value\n - 'Over Range Alarm FAULT' = channel Value is above Over Range Alarm value",
+		0,1,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param30 = 0,
+		6,"20 0A 24 02 30 81",	$ Link Path Size, Link Path
+		0x0032,	 $ Descriptor
+		4, 1,	$ Data Type, Data Size
+		"Over Range Alarm Status #1",
+		"",
+		"Indicates channel Value is greater than Over Range Alarm value (600 Ohms).\n - 'No Fault' = channel Value is above Over Range Alarm value\n - 'Over Range Alarm FAULT' = channel Value is above Over Range Alarm value",
+		0,1,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param31 = 0,
+		6,"20 0A 24 01 30 69",	$ Link Path Size, Link Path
+		0x0002,	 $ Descriptor
+		4, 1,	$ Data Type, Data Size
+		"Disable Alarms #0",
+		"",
+		"If Alarms are Disabled, all alarms for this channel will show No FAULT.\nThis is useful for un-used channels.",
+		0,1,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param32 = 0,
+		6,"20 0A 24 02 30 69",	$ Link Path Size, Link Path
+		0x0002,	 $ Descriptor
+		4, 1,	$ Data Type, Data Size
+		"Disable Alarms #1",
+		"",
+		"If Alarms are Disabled, all alarms for this channel will show No FAULT.\nThis is useful for un-used channels.",
+		0,1,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param33 = 0,
+		6,"20 0A 24 01 30 68",	$ Link Path Size, Link Path
+		0x0002,	 $ Descriptor
+		4, 1,	$ Data Type, Data Size
+		"Enable Alarm Latch #0",
+		"",
+		"Alarms will latch FAULTED until a 'Latch Reset' command is received\n\nAlarms effected:\n - Input Status (Open wire)\n - Low & High level Alarms\n - Range Alarms\n\nThis is useful in tracking transient or momentary errors.",
+		0,1,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param34 = 0,
+		6,"20 0A 24 02 30 68",	$ Link Path Size, Link Path
+		0x0002,	 $ Descriptor
+		4, 1,	$ Data Type, Data Size
+		"Enable Alarm Latch #1",
+		"",
+		"Alarms will latch FAULTED until a 'Latch Reset' command is received\n\nAlarms effected:\n - Input Status (Open wire)\n - Low & High level Alarms\n - Range Alarms\n\nThis is useful in tracking transient or momentary errors.",
+		0,1,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param35 = 0,
+		6,"20 0A 24 01 30 65",	$ Link Path Size, Link Path
+		0x0000,	 $ Descriptor
+		3, 2,	$ Data Type, Data Size
+		"Low Scaling #0",
+		"",
+		"Value returned when input is 100 Ohms or 0'C.\nAlso known as Low Scaling value or Low Engineering units.\n\nLow Scaling points for each 'RTD type':\n Ohms: 100 Ohms\n Pt RTDs: 0'C\n Cu RTD: 0'C\n Ni RTDs: 0'C",
+		-32768,32767,1000,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param36 = 0,
+		6,"20 0A 24 02 30 65",	$ Link Path Size, Link Path
+		0x0000,	 $ Descriptor
+		3, 2,	$ Data Type, Data Size
+		"Low Scaling #1",
+		"",
+		"Value returned when input is 100 Ohms or 0'C.\nAlso known as Low Scaling value or Low Engineering units.\n\nLow Scaling points for each 'RTD type':\n Ohms: 100 Ohms\n Pt RTDs: 0'C\n Cu RTD: 0'C\n Ni RTDs: 0'C",
+		-32768,32767,1000,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param37 = 0,
+		6,"20 0A 24 01 30 67",	$ Link Path Size, Link Path
+		0x0000,	 $ Descriptor
+		3, 2,	$ Data Type, Data Size
+		"High Scaling #0",
+		"",
+		"Value returned when input is 500 Ohms, 250'C, or 500'C.\nAlso known as High Scaling value or High Engineering units.\n\nHigh Scaling points for each 'RTD type':\n Ohms: 500 Ohms\n Pt RTDs: 500 'C\n Cu RTD: 250'C\n Ni RTDs: 250'C",
+		-32768,32767,5000,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param38 = 0,
+		6,"20 0A 24 02 30 67",	$ Link Path Size, Link Path
+		0x0000,	 $ Descriptor
+		3, 2,	$ Data Type, Data Size
+		"High Scaling #1",
+		"",
+		"Value returned when input is 500 Ohms, 250'C, or 500'C.\nAlso known as High Scaling value or High Engineering units.\n\nHigh Scaling points for each 'RTD type':\n Ohms: 500 Ohms\n Pt RTDs: 500 'C\n Cu RTD: 250'C\n Ni RTDs: 250'C",
+		-32768,32767,5000,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param39 = 0,
+		6,"20 0F 24 03 30 01",	$ Link Path Size, Link Path
+		0x0002,	 $ Descriptor
+		8, 1,	$ Data Type, Data Size
+		"Reset Latched Alarms",
+		"",
+		"This parameter clears any latched alarms in the selected channel(s).\nIf alarm condition still exists, the fault will not be cleared.",
+		0,3,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param40 = 0,
+		6,"20 20 24 01 30 6D",	$ Link Path Size, Link Path
+		0x0002,	 $ Descriptor
+		8, 1,	$ Data Type, Data Size
+		"Notch Filter",
+		"",
+		"This parameter sets the Notch Filter of the A2D converter.\nA faster filter will sample the input faster.\n\nPossible Filter Settings:\n- 50 Hz\n- 60 Hz (default)\n- 100 Hz\n- 120 Hz\n- 200 Hz\n- 240 Hz\n- 300 Hz\n- 400 Hz\n- 480 Hz\n",
+		0,8,1,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param41 = 0,
+		6,"20 0A 24 01 30 73",	$ Link Path Size, Link Path
+		0x0000,	 $ Descriptor
+		3, 2,	$ Data Type, Data Size
+		"Copper RTD Offset #0",
+		"",
+		"This is the error of Copper RTD (10Ohm Cu427) in Ohms.\nEnter value between -250 and 250 in hundredths of Ohms.\n(i.e. 361 = 3.61 Ohms)\n\nThis value will be added to the input reading before linearization.",
+		-25000,25000,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param42 = 0,
+		6,"20 0A 24 02 30 73",	$ Link Path Size, Link Path
+		0x0000,	 $ Descriptor
+		3, 2,	$ Data Type, Data Size
+		"Copper RTD Offset #1",
+		"",
+		"This is the error of Copper RTD (10Ohm Cu427) in Ohms.\nEnter value between -250 and 250 in hundredths of Ohms.\n(i.e. 361 = 3.61 Ohms)\n\nThis value will be added to the input reading before linearization.",
+		-25000,25000,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param43 = 0,
+		6,"20 0A 24 01 30 83",	$ Link Path Size, Link Path
+		0x0032,	 $ Descriptor
+		4, 1,	$ Data Type, Data Size
+		"Bad Cal Status #0",
+		"",
+		"This bit shows the current status of calibration for this channel.\n'Good Calibration' means the data stored in EEPROM is within tolerances.\n'Calibration Fault' means the module is not calibrated and is using default values.\n\nNote:  While in Calibration Mode, the status will be 'Bad Calibration.'",
+		0,1,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param44 = 0,
+		6,"20 0A 24 02 30 83",	$ Link Path Size, Link Path
+		0x0032,	 $ Descriptor
+		4, 1,	$ Data Type, Data Size
+		"Bad Cal Status #1",
+		"",
+		"This bit shows the current status of calibration for this channel.\n'Good Calibration' means the data stored in EEPROM is within tolerances.\n'Calibration Fault' means the module is not calibrated and is using default values.\n\nNote:  While in Calibration Mode, the status will be 'Bad Calibration.'",
+		0,1,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param45 = 0,
+		6,"20 0F 24 02 30 01",	$ Link Path Size, Link Path
+		0x0002,	 $ Descriptor
+		8, 1,	$ Data Type, Data Size
+		"Calibration Command",
+		"",
+		"This command puts the module in different calibration modes.\n\nBegin Calibration - Initializes the module for calibration.\nAccept Low Calibration - The value on the input is a stable 100.0 Ohms.\nAccept High Calibration - The value on the input is a stable 500.0 ohms.\nAbort Calibration - Immediately terminates calibration process and uses previous calibration.\n\nModule must be stand-alone or in Idle/Program mode.\nOnce the 'Accept Low' and 'Accept High' Commands have been sent, the module will exit calibration mode.\nThe module must be in 'ohms' mode.",
+		0,4,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param46 = 0,
+		6,"20 0F 24 01 30 01",	$ Link Path Size, Link Path
+		0x0002,	 $ Descriptor
+		8, 1,	$ Data Type, Data Size
+		"Calibration Channel Select",
+		"",
+		"Choose which channel or channels to calibrate.",
+		0,3,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param47 = 0,
+		6,"20 03 24 01 30 64",	$ Link Path Size, Link Path
+		0x0002,	 $ Descriptor
+		4, 1,	$ Data Type, Data Size
+		"Autobaud",
+		"",
+		"Autobaud allows module to match the baud rate of existing devices on a network.\n\nChanges to this attribute take effect after next powerup.\nIf 'enabled', the Baud Rate Attribute can not be set.",
+		0,1,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param48 = 0,
+		7,"21 12 03 24 01 30 03",	$ Link Path Size, Link Path
+		0x0002,	 $ Descriptor
+		4, 1,	$ Data Type, Data Size
+		"Sequential AutoAddress",
+		"",
+		"Sequential AutoAddress will re-assign the node address of ever module to the right.\nEach module will change it's node address to one greater than then it's neighbor.\n\nMAKE SURE THE NODE ADDRESS OF THIS MODULE IS THE DESIRED VALUE BEFORE ISSUING THIS COMMAND.\n\nWhen this command is set, each module to the right will get a new address one greater than it's neighbor.\nThe address will ripple through a line of Point I/O modules.\n\nSteps to Auto Address a line of Point I/O modules:\n 1.) Set the address of the first module (next to PDN or adapter).\n 2.) Send the Auto Address command to 'Sequential Address.'\n 3.) All modules in line will reset with new sequential addresses.\n\nExample:\nIf there are 5 Point modules in a line, and the address of the first module is 10.\nAfter the 'Sequential Address' command is sent to the first module, the node address of the line will be:\n 10, 11, 12, 13, and 14.",
+		0,1,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param49 = 0,
+		7,"21 12 03 24 01 30 05",	$ Link Path Size, Link Path
+		0x0002,	 $ Descriptor
+		8, 1,	$ Data Type, Data Size
+		"Broadcast Baud Rate",
+		"",
+		"This command will change the baud rate of this and every module to the right\nto the value indicated.\nIf AutoBaud is ENABLED, this command will not change the operation of the module at power up.",
+		0,3,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param50 = 0,
+		7,"21 12 03 24 01 30 06",	$ Link Path Size, Link Path
+		0x0002,	 $ Descriptor
+		8, 1,	$ Data Type, Data Size
+		"Broadcast AutoBaud",
+		"",
+		"This command will change the AutoBaud attribute of this and every module to the right\nto the value indicated.\nIf AutoBaud is 'disabled,' the Baud Rate parameter will set the baud rate next time the module is powered up.",
+		0,2,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+[EnumPar]
+	Param3 =
+ 		"Ohms",
+		"100ohm Pt 385",
+		"200ohm Pt 385",
+		"Not Valid",
+		"Not Valid",
+		"100ohm Pt 3916",
+		"200ohm Pt 3916",
+		"Not Valid",
+		"Not Valid",
+		"10ohm Cu 427",
+		"120ohm Ni 672",
+		"100ohm Ni 618",
+		"120ohm Ni 618";
+	Param4 =
+ 		"Ohms",
+		"100ohm Pt 385",
+		"200ohm Pt 385",
+		"Not Valid",
+		"Not Valid",
+		"100ohm Pt 3916",
+		"200ohm Pt 3916",
+		"Not Valid",
+		"Not Valid",
+		"10ohm Cu 427",
+		"120ohm Ni 672",
+		"100ohm Ni 618",
+		"120ohm Ni 618";
+	Param5 =
+ 		"Custom Scale",
+		"Deg C",
+		"Deg F",
+		"Deg K",
+		"Deg R";
+	Param6 =
+ 		"Custom Scale",
+		"Deg C",
+		"Deg F",
+		"Deg K",
+		"Deg R";
+	Param7 =
+ 		"Normal Operation",
+		"CHANNEL FAULT";
+	Param8 =
+ 		"Normal Operation",
+		"CHANNEL FAULT";
+	Param11 =
+ 		"No Fault",
+		"Low Low Alarm FAULT";
+	Param12 =
+ 		"No Fault",
+		"Low Low Alarm FAULT";
+	Param13 =
+ 		"No Fault",
+		"Low Alarm FAULT";
+	Param14 =
+ 		"No Fault",
+		"Low Alarm FAULT";
+	Param15 =
+ 		"No Fault",
+		"High Alarm FAULT";
+	Param16 =
+ 		"No Fault",
+		"High Alarm FAULT";
+	Param17 =
+ 		"No Fault",
+		"High High Alarm FAULT";
+	Param18 =
+ 		"No Fault",
+		"High High Alarm FAULT";
+	Param27 =
+ 		"No fault",
+		"Under Range FAULT";
+	Param28 =
+ 		"No fault",
+		"Under Range FAULT";
+	Param29 =
+ 		"No fault",
+		"Over Range FAULT";
+	Param30 =
+ 		"No fault",
+		"Over Range FAULT";
+	Param31 =
+ 		"Alarms Enabled",
+		"Alarms Disabled";
+	Param32 =
+ 		"Alarms Enabled",
+		"Alarms Disabled";
+	Param33 =
+ 		"Disable",
+		"Enable Latching Alarms";
+	Param34 =
+ 		"Disable",
+		"Enable Latching Alarms";
+	Param39 =
+ 		"Do Nothing",
+		"Channel 0",
+		"Channel 1",
+		"Both Channels";
+	Param40 =
+ 		"50 Hz",
+		"60 Hz",
+		"100 Hz",
+		"120 Hz",
+		"200 Hz",
+		"240 Hz",
+		"300 Hz",
+		"400 Hz",
+		"480 Hz";
+	Param43 =
+ 		"Good Calibration",
+		"Calibration FAULT";
+	Param44 =
+ 		"Good Calibration",
+		"Calibration FAULT";
+	Param45 =
+ 		"Do Nothing",
+		"Begin Calibration",
+		"Accept Low Calibration",
+		"Accept High Calibration",
+		"Abort Calibration";
+	Param46 =
+ 		"None",
+		"Channel 0",
+		"Channel 1",
+		"Both Channels";
+	Param47 =
+ 		"Enable",
+		"Disable";
+	Param48 =
+ 		"Do Nothing",
+		"Sequential Address";
+	Param49 =
+ 		"Do Nothing",
+		"125 kHz",
+		"250 kHz",
+		"500 kHz";
+	Param50 =
+ 		"Do Nothing",
+		"Enable",
+		"Disable";
+
+[Assembly]
+	Revision = 2;
+
+	Assem101 = "1734-IR2 Produce Assembly","",
+		,,,,
+		16,Param1,
+		16,Param2,
+		1,Param7,
+		1,,
+		1,Param13,
+		1,Param15,
+		1,Param11,
+		1,Param17,
+		1,Param27,
+		1,Param29,
+		1,Param8,
+		1,,
+		1,Param14,
+		1,Param16,
+		1,Param12,
+		1,Param18,
+		1,Param28,
+		1,Param30;
+
+[ParamClass]
+	MaxInst = 50;
+	Descriptor = 0x9;
+	CfgAssembly = 123;
+
+[Groups]
+	Group1 = "I/O - Input Values", 8,
+		1,2,7,8,3,4,5,6;
+	Group2 = "I/O - Input Status", 15,
+		7,8,11,12,13,14,15,16,17,18,27,28,29,30,39;
+	Group3 = "Configuration", 25,
+		3,4,5,6,35,36,37,38,9,10,19,20,21,22,23,24,25,26,31,32,33,34,40,41,42;
+	Group4 = "Calibration", 6,
+		1,2,43,44,45,46;
+	Group5 = "PointBus", 3,
+		48,49,50;
+
+[IO_Info]
+
+	Default = 0x4;
+
+	PollInfo = 0xF,
+		1,
+		0;
+
+	StrobeInfo = 0xF,
+		1,
+		0;
+
+	COSInfo = 0x7,
+		1,
+		0;
+
+	CyclicInfo = 0xB,
+		1,
+		0;
+
+	Input1 = 6,
+		0, 
+		0xF, 
+		"1734-IR2 Produce Connection",
+		6,
+		"20 04 24 65 30 03",
+		"Producing connection contains state of the two inputs and their status. See the Install Instructions for the definitions of each of the 6 bytes. COS: - Change of State is determined by the STATUS data. - Data will be produce cyclic-ly until status changes (like level alarm).";

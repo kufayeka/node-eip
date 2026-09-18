@@ -1,0 +1,81 @@
+$ EDS for Powermonitor 3000
+
+[File]
+		DescText = "Allen-Bradley Powermonitor 3000 DeviceNet Electronic Data Sheet";	
+		CreateDate = 08-04-1999;	$ created
+		CreateTime = 12:45:00;					
+		ModDate = 04-27-2000;		$ last changed
+		ModTime = 13:40:00;
+		Revision = 1.3;			$ Revision of ETC
+[Device]
+		VendCode = 1;
+		VendName = "Allen-Bradley Company"; 
+		ProdType = 115;
+		ProdTypeStr = "Rockwell Automation Miscellaneous";
+		ProdCode = 37;
+		MajRev = 1;				$ Device Major Revision
+		MinRev = 4;				$ Device Minor Revision
+		ProdName = "Powermonitor 3000";
+       		Catalog = "1404-M405A-DNT";
+
+
+[IO_Info]
+  Default = 0x0001;				$ Poll
+						$ Bit mapped (0 = None)
+						$  Bit 0 = Poll
+						$  Bit 1 = Strobe
+						$  Bit 2 = Change of State
+						$  Bit 3 = Cyclic
+
+  PollInfo=
+		0x000d,				$ Cyclic, COS, and Poll
+		1,				$ Default Input = Input1
+		1;				$ Default Output = Output1
+
+
+  COSInfo=
+		0x000d,				$ Cyclic, COS, and Poll
+		1,				$ Default Input = Input1
+		1;				$ Default Output = Output1
+
+  CyclicInfo=
+		0x000d,				$ Cyclic, COS, and Poll
+		1,				$ Default Input = Input1
+		1;				$ Default Output = Output1
+
+ 
+	
+$ -- Input Connections --
+
+  Input1=
+		12,				$ 12 byte
+		0,				$ all bits are significant
+		0x000d,				$ Cyclic, COS, or Poll Connection
+		"Master Input Data",		$ Name String
+		6,				$ Path Size
+		"20 04 24 01 30 03",		$ Class 4, Assy Obj Inst 1, Attr 3
+		"This assembly is reconfigurable."; $ Help String
+
+  
+$ -- Output Connections --
+
+  Output1=
+		4,				$ 4 byte
+		0,				$ all bits are significant
+		0x000d,				$ Cyclic, COS, or Poll Connection
+		"Master Output Data",		$ Name String
+		6,				$ Path Size
+		"20 04 24 02 30 03",		$ Class 4, Assy Obj Inst 2, Attr 3
+		"This assembly is fixed.";	$ Help String
+ 
+
+  
+
+
+
+
+[ParamClass]
+	MaxInst = 0;
+	Descriptor = 0x00;
+	CfgAssembly = 0;
+

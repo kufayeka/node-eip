@@ -137,7 +137,7 @@ class ParameterObject extends EventEmitter {
      */
     getAttributeSingle(instance, attribute) {
         if (instance === 0) {
-            // Class Attributes
+            // Class Attributes (CIP Vol 1 section 5-15.2)
             switch (attribute) {
                 case 1: { // Revision
                     const b = Buffer.alloc(2);
@@ -147,6 +147,21 @@ class ParameterObject extends EventEmitter {
                 case 2: { // Max Instance
                     const b = Buffer.alloc(2);
                     b.writeUInt16LE(this.params.size, 0);
+                    return ok(b);
+                }
+                case 3: { // Number of Instances
+                    const b = Buffer.alloc(2);
+                    b.writeUInt16LE(this.params.size, 0);
+                    return ok(b);
+                }
+                case 8: { // Parameter Class Descriptor (0x000B)
+                    const b = Buffer.alloc(2);
+                    b.writeUInt16LE(0x000b, 0);
+                    return ok(b);
+                }
+                case 9: { // Configuration Assembly Instance
+                    const b = Buffer.alloc(2);
+                    b.writeUInt16LE(0, 0);
                     return ok(b);
                 }
                 default:
@@ -188,9 +203,92 @@ class ParameterObject extends EventEmitter {
                 b.writeUInt8(param.byteSize, 0);
                 return ok(b);
             }
+            case 7: { // Settable Precision (UINT)
+                const b = Buffer.alloc(2);
+                b.writeUInt16LE(0, 0);
+                return ok(b);
+            }
+            case 8: { // Scaling Multiplier (UINT)
+                const b = Buffer.alloc(2);
+                b.writeUInt16LE(1, 0);
+                return ok(b);
+            }
+            case 9: { // Scaling Divisor (UINT)
+                const b = Buffer.alloc(2);
+                b.writeUInt16LE(1, 0);
+                return ok(b);
+            }
+            case 10: { // Scaling Base (UINT)
+                const b = Buffer.alloc(2);
+                b.writeUInt16LE(1, 0);
+                return ok(b);
+            }
+            case 11: { // Scaling Offset (INT)
+                const b = Buffer.alloc(2);
+                b.writeInt16LE(0, 0);
+                return ok(b);
+            }
+            case 12: { // Units (SHORT_STRING)
+                const uBuf = Buffer.from(param.units || '', 'ascii');
+                return ok(Buffer.concat([Buffer.from([uBuf.length]), uBuf]));
+            }
+            case 13: { // Help String (SHORT_STRING)
+                const hBuf = Buffer.from(param.help || '', 'ascii');
+                return ok(Buffer.concat([Buffer.from([hBuf.length]), hBuf]));
+            }
+            case 14: { // Min Value
+                return ok(encodeType(param.dataType, param.min));
+            }
+            case 15: { // Max Value
+                return ok(encodeType(param.dataType, param.max));
+            }
+            case 16: { // Default Value
+                return ok(encodeType(param.dataType, param.default));
+            }
+            case 19: { // Parameter Name (SHORT_STRING)
+                const nBuf = Buffer.from(param.name || `Param${instance}`, 'ascii');
+                return ok(Buffer.concat([Buffer.from([nBuf.length]), nBuf]));
+            }
             default:
                 return { generalStatus: CipGeneralStatus.AttributeNotSupported, data: Buffer.alloc(0) };
         }
+    }
+
+    /**
+     * Handles CIP Get_Attributes_All service (0x01).
+     */
+    getAttributesAll(instance) {
+        if (instance === 0) {
+            // Class Attributes All: Revision(2), MaxInstance(2), NumInstances(2), Descriptor(2), ConfigAssembly(2)
+            const b = Buffer.alloc(10);
+            b.writeUInt16LE(1, 0);
+            b.writeUInt16LE(this.params.size, 2);
+            b.writeUInt16LE(this.params.size, 4);
+            b.writeUInt16LE(0x000b, 6);
+            b.writeUInt16LE(0, 8);
+            return ok(b);
+        }
+
+        const param = this.params.get(instance);
+        if (!param) {
+            return { generalStatus: CipGeneralStatus.PathDestinationUnknown, data: Buffer.alloc(0) };
+        }
+
+        // Standard CIP Vol 1 section 5-15.3 Instance Get_Attributes_All:
+        // Attr 1 (Value) + Attr 2 (Link Path Size) + Attr 3 (Link Path) + Attr 4 (Descriptor) + Attr 5 (Data Type) + Attr 6 (Data Size)
+        const pathBuf = param.linkPath ? Buffer.from(param.linkPath.replace(/\s+/g, ''), 'hex') : Buffer.alloc(0);
+        const linkWords = Math.ceil(pathBuf.length / 2);
+
+        const linkHeader = Buffer.alloc(2);
+        linkHeader.writeUInt16LE(linkWords, 0);
+
+        const tail = Buffer.alloc(5);
+        const descriptor = (param.access === 'r') ? 0x0010 : 0x0000;
+        tail.writeUInt16LE(descriptor, 0);
+        tail.writeUInt16LE(param.typeCode, 2);
+        tail.writeUInt8(param.byteSize, 4);
+
+        return ok(Buffer.concat([param.buffer, linkHeader, pathBuf, tail]));
     }
 
     /**

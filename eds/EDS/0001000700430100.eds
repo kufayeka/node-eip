@@ -1,0 +1,70 @@
+$ Revision History
+$ 1.012  10-21-05  jgm  Updated to support standardization guidelines
+$ 1.013  03-20-06  jgm  Removed Enum per DPI group review
+$ 1.014  05-08-07  pdt  Added entry to prevent usage of RSLogix 5000 EDS AOP
+
+[File]
+	DescText    = "1769-IQ16/A EDS File";
+	CreateDate  = 07-13-2001;
+	CreateTime  = 09:00:00;
+	ModDate     = 05-08-2007;
+	ModTime     = 06:00:00;
+	Revision    = 1.014;
+	HomeURL     = "http://www.ab.com/networks/eds/XX/0001000700430100.eds";
+
+[Device]
+	VendCode    = 1;
+	VendName    = "Rockwell Automation/Allen-Bradley";
+	ProdType    = 7;
+	ProdTypeStr = "General Purpose Discrete I/O";
+	ProdCode    = 67;
+	MajRev      = 1;
+	MinRev      = 1;
+	ProdName    = "1769-16pt 24Vdc Sink/Source Input/A";
+	Catalog     = "1769-IQ16/A";
+	Icon        = "1769-Blue.ico";
+	1_EDS_AOP_Support = "No";
+
+[Modular]
+	Rack1 =  1,108,91,1,1,,,,
+			 1, 2, 3, 4, 5, 6, 7, 8, 9,10, $ Legal slots
+			11,12,13,14,15,16,17,18,19,20,
+			21,22,23,24,25,26,27,28,29,30,
+			31,32,33,34,35,36,37;
+
+	ExternalID = "01 00 07 00 43 00 01";
+
+[1_1769Audit]
+	1_5vdcPwrLoad  = 115;
+	1_24vdcPwrLoad = 0;
+	1_DistRating   = 8;
+
+
+[Params]
+	ProxiedParam4 = ,,,,,,"","","",0,1,1,,,,,,,,,;		$ Input data size
+	ProxiedEnum4 = 0,"No Input Data", 1,"All Input Data (1 Word)";
+
+	ProxiedParam6 = ,,,,,,"","","",0,2,2,,,,,,,,,;		$ Electronic Keying
+	ProxiedEnum6 = 0,"Disable Keying", 1,"Exact Match", 2,"Compatible Module";
+
+	ProxiedParam7 = ,,,,,,"","","",1,255,1,,,,,,,,,;	$ Configured Minor Revision
+
+	ProxiedParam8 = ,,,,,,"","","",1,255,1,,,,,,,,,;	$ Actual Minor Revision
+
+
+	$***********************************
+	$	Input array data
+	$***********************************
+	Param20 =
+			 ,,,0x0010,
+			 0xD2, 2,               $ WORD
+			 "Data","",
+			 "Contains the current state of the field input points.",
+			 0,0xFFFF,0,,,,,,,,,;
+
+
+[Assembly]
+
+	ProxiedAssem101 =
+		"Input Array",,,,,,
+		16,Param20;

@@ -1,0 +1,829 @@
+$ EZ-EDS Version 2.0 Generated Electronic Data Sheet
+
+[File]
+        DescText = "EDS file for MultiSight Vision Sensor 48MS-SN1PF1-M2";
+        CreateDate = 11-30-2007;
+        CreateTime = 16:00:00;
+        ModDate = 07-31-2008;
+        ModTime = 12:00:00;
+        Revision = 1.3;
+        HomeURL = "http://www.rockwellautomation.com";
+
+[Device]
+        VendCode = 1;
+        VendName = "Rockwell Automation";
+        ProdType = 115;
+        ProdTypeStr = "RA Miscellaneous";
+        ProdCode = 269;
+        MajRev = 1;
+        MinRev = 1;
+        ProdName = "48MS-SN1PF1-M2";
+
+[Device Classification]
+        Class1 = EtherNetIP;            $ ,
+                                        $               1_RSNetWorx_Connectable_Module;
+
+[Params]
+        Param1 =
+                0,                      $ reserved, shall equal 0
+                ,,                      $ Link Path Size, Link Path
+                0x0000,                 $ Descriptor
+                0xC8,                   $ Data Type
+                4,                      $ Data Size in bytes
+                "TRG_TriggerCount",     $ name
+                "",                     $ units
+                "Capture image by incrementing TriggerCount",    $ help string
+                0,4294967295,0,         $ min, max, default data values
+                ,,,,                    $ mult, div, base, offset scaling
+                ,,,,                    $ mult, div, base, offset links
+                ;                       $ decimal places
+        Param2 =
+                0,
+                ,,
+                0x0210,
+                0xC7,
+                2,
+                "ORB_ProducingSize",
+                "Byte",
+                "",
+                76,76,76,
+                ,,,,
+                ,,,,
+                ;
+        Param3 =
+                0,
+                ,,
+                0x0210,
+                0xC7,
+                2,
+                "TRG_ConsumingSize",
+                "Byte",
+                "",
+                8,8,8,
+                ,,,,
+                ,,,,
+                ;
+        Param4 =
+                0,
+                ,,
+                0x0210,
+                0xC6,
+                1,
+                "ORB_ProducerID",
+                "",
+                "",
+                103,103,103,
+                ,,,,
+                ,,,,
+                ;
+        Param5 =
+                0,
+                ,,
+                0x0210,
+                0xC6,
+                1,
+                "TRG_ConsumerID",
+                "",
+                "",
+                100,100,100,
+                ,,,,
+                ,,,,
+                ;
+        Param6 =
+                0,                      $ reserved, shall equal 0
+                ,,                      $ Link Path Size, Link Path
+                0x0000,                 $ Descriptor
+                0xC2,                   $ Data Type
+                1,                      $ Data Size in bytes
+                "TRG_StartConfig",      $ name
+                "",                     $ units
+                "StartConfig selects start configuration",    $ help string
+                -1,31,-1,               $ min, max, default data values
+                ,,,,                    $ mult, div, base, offset scaling
+                ,,,,                    $ mult, div, base, offset links
+                ;                       $ decimal places
+        Param7 =
+                0,                      $ reserved, shall equal 0
+                ,,                      $ Link Path Size, Link Path
+                0x0000,                 $ Descriptor
+                0xC8,                   $ Data Type
+                4,                      $ Data Size in bytes
+                "ORB_ImageCount",       $ name
+                "",                     $ units
+                "",                     $ help string
+                0,4294967295,0,         $ min, max, default data values
+                ,,,,                    $ mult, div, base, offset scaling
+                ,,,,                    $ mult, div, base, offset links
+                ;                       $ decimal places
+        Param8 =
+                0,                      $ reserved, shall equal 0
+                ,,                      $ Link Path Size, Link Path
+                0x0000,                 $ Descriptor
+                0xC7,                   $ Data Type
+                2,                      $ Data Size in bytes
+                "ORB_ProcessingTime",   $ name
+                "",                     $ units
+                "",                     $ help string
+                0,65535,0,              $ min, max, default data values
+                ,,,,                    $ mult, div, base, offset scaling
+                ,,,,                    $ mult, div, base, offset links
+                ;                       $ decimal places
+        Param9 =
+                0,                      $ reserved, shall equal 0
+                ,,                      $ Link Path Size, Link Path
+                0x0000,                 $ Descriptor
+                0xC6,                   $ Data Type
+                1,                      $ Data Size in bytes
+                "ORB_OperationMode",    $ name
+                "",                     $ units
+                "",                     $ help string
+                0,255,0,                $ min, max, default data values
+                ,,,,                    $ mult, div, base, offset scaling
+                ,,,,                    $ mult, div, base, offset links
+                ;                       $ decimal places
+        Param10 =
+                0,                      $ reserved, shall equal 0
+                ,,                      $ Link Path Size, Link Path
+                0x0000,                 $ Descriptor
+                0xC2,                   $ Data Type
+                1,                      $ Data Size in bytes
+                "ORB_WinnerConfig",     $ name
+                "",                     $ units
+                "",                     $ help string
+                -1,31,0,                $ min, max, default data values
+                ,,,,                    $ mult, div, base, offset scaling
+                ,,,,                    $ mult, div, base, offset links
+                ;                       $ decimal places
+        Param11 =
+                0,                      $ reserved, shall equal 0
+                ,,                      $ Link Path Size, Link Path
+                0x0000,                 $ Descriptor
+                0xC8,                   $ Data Type
+                4,                      $ Data Size in bytes
+                "ORB_ConfigActive",     $ name
+                "",                     $ units
+                "",                     $ help string
+                0,65535,0,              $ min, max, default data values
+                ,,,,                    $ mult, div, base, offset scaling
+                ,,,,                    $ mult, div, base, offset links
+                ;                       $ decimal places
+        Param12 =
+                0,                      $ reserved, shall equal 0
+                ,,                      $ Link Path Size, Link Path
+                0x0000,                 $ Descriptor
+                0xC8,                   $ Data Type
+                4,                      $ Data Size in bytes
+                "ORB_Assessment1",      $ name
+                "",                     $ units
+                "",                     $ help string
+                0,4294967295,0,         $ min, max, default data values
+                ,,,,                    $ mult, div, base, offset scaling
+                ,,,,                    $ mult, div, base, offset links
+                ;                       $ decimal places
+        Param13 =
+                0,                      $ reserved, shall equal 0
+                ,,                      $ Link Path Size, Link Path
+                0x0000,                 $ Descriptor
+                0xC8,                   $ Data Type
+                4,                      $ Data Size in bytes
+                "ORB_Assessment2",      $ name
+                "",                     $ units
+                "",                     $ help string
+                0,4294967295,0,         $ min, max, default data values
+                ,,,,                    $ mult, div, base, offset scaling
+                ,,,,                    $ mult, div, base, offset links
+                ;                       $ decimal places
+        Param14 =
+                0,                      $ reserved, shall equal 0
+                ,,                      $ Link Path Size, Link Path
+                0x0000,                 $ Descriptor
+                0xC8,                   $ Data Type
+                4,                      $ Data Size in bytes
+                "ORB_MaskAssessment2",  $ name
+                "",                     $ units
+                "",                     $ help string
+                0,4294967295,0,         $ min, max, default data values
+                ,,,,                    $ mult, div, base, offset scaling
+                ,,,,                    $ mult, div, base, offset links
+                ;                       $ decimal places
+        Param15 =
+                0,                      $ reserved, shall equal 0
+                ,,                      $ Link Path Size, Link Path
+                0x0000,                 $ Descriptor
+                0xC6,                   $ Data Type
+                1,                      $ Data Size in bytes
+                "ORB_Score_0",          $ name
+                "",                     $ units
+                "",                     $ help string
+                0,255,0,                $ min, max, default data values
+                ,,,,                    $ mult, div, base, offset scaling
+                ,,,,                    $ mult, div, base, offset links
+                ;                       $ decimal places
+        Param16 =
+                0,                      $ reserved, shall equal 0
+                ,,                      $ Link Path Size, Link Path
+                0x0000,                 $ Descriptor
+                0xC6,                   $ Data Type
+                1,                      $ Data Size in bytes
+                "ORB_Score_1",          $ name
+                "",                     $ units
+                "",                     $ help string
+                0,255,0,                $ min, max, default data values
+                ,,,,                    $ mult, div, base, offset scaling
+                ,,,,                    $ mult, div, base, offset links
+                ;                       $ decimal places
+        Param17 =
+                0,                      $ reserved, shall equal 0
+                ,,                      $ Link Path Size, Link Path
+                0x0000,                 $ Descriptor
+                0xC6,                   $ Data Type
+                1,                      $ Data Size in bytes
+                "ORB_Score_2",          $ name
+                "",                     $ units
+                "",                     $ help string
+                0,255,0,                $ min, max, default data values
+                ,,,,                    $ mult, div, base, offset scaling
+                ,,,,                    $ mult, div, base, offset links
+                ;                       $ decimal places
+        Param18 =
+                0,                      $ reserved, shall equal 0
+                ,,                      $ Link Path Size, Link Path
+                0x0000,                 $ Descriptor
+                0xC6,                   $ Data Type
+                1,                      $ Data Size in bytes
+                "ORB_Score_3",          $ name
+                "",                     $ units
+                "",                     $ help string
+                0,255,0,                $ min, max, default data values
+                ,,,,                    $ mult, div, base, offset scaling
+                ,,,,                    $ mult, div, base, offset links
+                ;                       $ decimal places
+        Param19 =
+                0,                      $ reserved, shall equal 0
+                ,,                      $ Link Path Size, Link Path
+                0x0000,                 $ Descriptor
+                0xC6,                   $ Data Type
+                1,                      $ Data Size in bytes
+                "ORB_GlobalAssessment", $ name
+                "",                     $ units
+                "",                     $ help string
+                0,255,0,                $ min, max, default data values
+                ,,,,                    $ mult, div, base, offset scaling
+                ,,,,                    $ mult, div, base, offset links
+                ;                       $ decimal places
+        Param20 =
+                0,                      $ reserved, shall equal 0
+                ,,                      $ Link Path Size, Link Path
+                0x0000,                 $ Descriptor
+                0xC2,                   $ Data Type
+                1,                      $ Data Size in bytes
+                "ORB_StartConfig",      $ name
+                "",                     $ units
+                "",                     $ help string
+                -1,31,0,                $ min, max, default data values
+                ,,,,                    $ mult, div, base, offset scaling
+                ,,,,                    $ mult, div, base, offset links
+                ;                       $ decimal places
+        Param21 =
+                0,                      $ reserved, shall equal 0
+                ,,                      $ Link Path Size, Link Path
+                0x0000,                 $ Descriptor
+                0xC6,                   $ Data Type
+                1,                      $ Data Size in bytes
+                "ORB_Score_4",          $ name
+                "",                     $ units
+                "",                     $ help string
+                0,255,0,                $ min, max, default data values
+                ,,,,                    $ mult, div, base, offset scaling
+                ,,,,                    $ mult, div, base, offset links
+                ;                       $ decimal places
+        Param22 =
+                0,                      $ reserved, shall equal 0
+                ,,                      $ Link Path Size, Link Path
+                0x0000,                 $ Descriptor
+                0xC6,                   $ Data Type
+                1,                      $ Data Size in bytes
+                "ORB_Score_5",          $ name
+                "",                     $ units
+                "",                     $ help string
+                0,255,0,                $ min, max, default data values
+                ,,,,                    $ mult, div, base, offset scaling
+                ,,,,                    $ mult, div, base, offset links
+                ;                       $ decimal places
+        Param23 =
+                0,                      $ reserved, shall equal 0
+                ,,                      $ Link Path Size, Link Path
+                0x0000,                 $ Descriptor
+                0xC6,                   $ Data Type
+                1,                      $ Data Size in bytes
+                "ORB_Score_6",          $ name
+                "",                     $ units
+                "",                     $ help string
+                0,255,0,                $ min, max, default data values
+                ,,,,                    $ mult, div, base, offset scaling
+                ,,,,                    $ mult, div, base, offset links
+                ;                       $ decimal places
+        Param24 =
+                0,                      $ reserved, shall equal 0
+                ,,                      $ Link Path Size, Link Path
+                0x0000,                 $ Descriptor
+                0xC6,                   $ Data Type
+                1,                      $ Data Size in bytes
+                "ORB_Score_7",          $ name
+                "",                     $ units
+                "",                     $ help string
+                0,255,0,                $ min, max, default data values
+                ,,,,                    $ mult, div, base, offset scaling
+                ,,,,                    $ mult, div, base, offset links
+                ;                       $ decimal places
+        Param25 =
+                0,                      $ reserved, shall equal 0
+                ,,                      $ Link Path Size, Link Path
+                0x0000,                 $ Descriptor
+                0xC6,                   $ Data Type
+                1,                      $ Data Size in bytes
+                "ORB_Score_8",          $ name
+                "",                     $ units
+                "",                     $ help string
+                0,255,0,                $ min, max, default data values
+                ,,,,                    $ mult, div, base, offset scaling
+                ,,,,                    $ mult, div, base, offset links
+                ;                       $ decimal places
+        Param26 =
+                0,                      $ reserved, shall equal 0
+                ,,                      $ Link Path Size, Link Path
+                0x0000,                 $ Descriptor
+                0xC6,                   $ Data Type
+                1,                      $ Data Size in bytes
+                "ORB_Score_9",          $ name
+                "",                     $ units
+                "",                     $ help string
+                0,255,0,                $ min, max, default data values
+                ,,,,                    $ mult, div, base, offset scaling
+                ,,,,                    $ mult, div, base, offset links
+                ;                       $ decimal places
+        Param27 =
+                0,                      $ reserved, shall equal 0
+                ,,                      $ Link Path Size, Link Path
+                0x0000,                 $ Descriptor
+                0xC6,                   $ Data Type
+                1,                      $ Data Size in bytes
+                "ORB_Score_10",         $ name
+                "",                     $ units
+                "",                     $ help string
+                0,255,0,                $ min, max, default data values
+                ,,,,                    $ mult, div, base, offset scaling
+                ,,,,                    $ mult, div, base, offset links
+                ;                       $ decimal places
+        Param28 =
+                0,                      $ reserved, shall equal 0
+                ,,                      $ Link Path Size, Link Path
+                0x0000,                 $ Descriptor
+                0xC6,                   $ Data Type
+                1,                      $ Data Size in bytes
+                "ORB_Score_11",         $ name
+                "",                     $ units
+                "",                     $ help string
+                0,255,0,                $ min, max, default data values
+                ,,,,                    $ mult, div, base, offset scaling
+                ,,,,                    $ mult, div, base, offset links
+                ;                       $ decimal places
+        Param29 =
+                0,                      $ reserved, shall equal 0
+                ,,                      $ Link Path Size, Link Path
+                0x0000,                 $ Descriptor
+                0xC6,                   $ Data Type
+                1,                      $ Data Size in bytes
+                "ORB_Score_12",         $ name
+                "",                     $ units
+                "",                     $ help string
+                0,255,0,                $ min, max, default data values
+                ,,,,                    $ mult, div, base, offset scaling
+                ,,,,                    $ mult, div, base, offset links
+                ;                       $ decimal places
+        Param30 =
+                0,                      $ reserved, shall equal 0
+                ,,                      $ Link Path Size, Link Path
+                0x0000,                 $ Descriptor
+                0xC6,                   $ Data Type
+                1,                      $ Data Size in bytes
+                "ORB_Score_13",         $ name
+                "",                     $ units
+                "",                     $ help string
+                0,255,0,                $ min, max, default data values
+                ,,,,                    $ mult, div, base, offset scaling
+                ,,,,                    $ mult, div, base, offset links
+                ;                       $ decimal places
+        Param31 =
+                0,                      $ reserved, shall equal 0
+                ,,                      $ Link Path Size, Link Path
+                0x0000,                 $ Descriptor
+                0xC6,                   $ Data Type
+                1,                      $ Data Size in bytes
+                "ORB_Score_14",         $ name
+                "",                     $ units
+                "",                     $ help string
+                0,255,0,                $ min, max, default data values
+                ,,,,                    $ mult, div, base, offset scaling
+                ,,,,                    $ mult, div, base, offset links
+                ;                       $ decimal places
+        Param32 =
+                0,                      $ reserved, shall equal 0
+                ,,                      $ Link Path Size, Link Path
+                0x0000,                 $ Descriptor
+                0xC6,                   $ Data Type
+                1,                      $ Data Size in bytes
+                "ORB_Score_15",         $ name
+                "",                     $ units
+                "",                     $ help string
+                0,255,0,                $ min, max, default data values
+                ,,,,                    $ mult, div, base, offset scaling
+                ,,,,                    $ mult, div, base, offset links
+                ;                       $ decimal places
+        Param33 =
+                0,                      $ reserved, shall equal 0
+                ,,                      $ Link Path Size, Link Path
+                0x0000,                 $ Descriptor
+                0xC6,                   $ Data Type
+                1,                      $ Data Size in bytes
+                "ORB_Score_16",         $ name
+                "",                     $ units
+                "",                     $ help string
+                0,255,0,                $ min, max, default data values
+                ,,,,                    $ mult, div, base, offset scaling
+                ,,,,                    $ mult, div, base, offset links
+                ;                       $ decimal places
+        Param34 =
+                0,                      $ reserved, shall equal 0
+                ,,                      $ Link Path Size, Link Path
+                0x0000,                 $ Descriptor
+                0xC6,                   $ Data Type
+                1,                      $ Data Size in bytes
+                "ORB_Score_17",         $ name
+                "",                     $ units
+                "",                     $ help string
+                0,255,0,                $ min, max, default data values
+                ,,,,                    $ mult, div, base, offset scaling
+                ,,,,                    $ mult, div, base, offset links
+                ;                       $ decimal places
+        Param35 =
+                0,                      $ reserved, shall equal 0
+                ,,                      $ Link Path Size, Link Path
+                0x0000,                 $ Descriptor
+                0xC6,                   $ Data Type
+                1,                      $ Data Size in bytes
+                "ORB_Score_18",         $ name
+                "",                     $ units
+                "",                     $ help string
+                0,255,0,                $ min, max, default data values
+                ,,,,                    $ mult, div, base, offset scaling
+                ,,,,                    $ mult, div, base, offset links
+                ;                       $ decimal places
+        Param36 =
+                0,                      $ reserved, shall equal 0
+                ,,                      $ Link Path Size, Link Path
+                0x0000,                 $ Descriptor
+                0xC6,                   $ Data Type
+                1,                      $ Data Size in bytes
+                "ORB_Score_19",         $ name
+                "",                     $ units
+                "",                     $ help string
+                0,255,0,                $ min, max, default data values
+                ,,,,                    $ mult, div, base, offset scaling
+                ,,,,                    $ mult, div, base, offset links
+                ;                       $ decimal places
+        Param37 =
+                0,                      $ reserved, shall equal 0
+                ,,                      $ Link Path Size, Link Path
+                0x0000,                 $ Descriptor
+                0xC6,                   $ Data Type
+                1,                      $ Data Size in bytes
+                "ORB_Score_20",         $ name
+                "",                     $ units
+                "",                     $ help string
+                0,255,0,                $ min, max, default data values
+                ,,,,                    $ mult, div, base, offset scaling
+                ,,,,                    $ mult, div, base, offset links
+                ;                       $ decimal places
+        Param38 =
+                0,                      $ reserved, shall equal 0
+                ,,                      $ Link Path Size, Link Path
+                0x0000,                 $ Descriptor
+                0xC6,                   $ Data Type
+                1,                      $ Data Size in bytes
+                "ORB_Score_21",         $ name
+                "",                     $ units
+                "",                     $ help string
+                0,255,0,                $ min, max, default data values
+                ,,,,                    $ mult, div, base, offset scaling
+                ,,,,                    $ mult, div, base, offset links
+                ;                       $ decimal places
+        Param39 =
+                0,                      $ reserved, shall equal 0
+                ,,                      $ Link Path Size, Link Path
+                0x0000,                 $ Descriptor
+                0xC6,                   $ Data Type
+                1,                      $ Data Size in bytes
+                "ORB_Score_22",         $ name
+                "",                     $ units
+                "",                     $ help string
+                0,255,0,                $ min, max, default data values
+                ,,,,                    $ mult, div, base, offset scaling
+                ,,,,                    $ mult, div, base, offset links
+                ;                       $ decimal places
+        Param40 =
+                0,                      $ reserved, shall equal 0
+                ,,                      $ Link Path Size, Link Path
+                0x0000,                 $ Descriptor
+                0xC6,                   $ Data Type
+                1,                      $ Data Size in bytes
+                "ORB_Score_23",         $ name
+                "",                     $ units
+                "",                     $ help string
+                0,255,0,                $ min, max, default data values
+                ,,,,                    $ mult, div, base, offset scaling
+                ,,,,                    $ mult, div, base, offset links
+                ;                       $ decimal places
+        Param41 =
+                0,                      $ reserved, shall equal 0
+                ,,                      $ Link Path Size, Link Path
+                0x0000,                 $ Descriptor
+                0xC6,                   $ Data Type
+                1,                      $ Data Size in bytes
+                "ORB_Score_24",         $ name
+                "",                     $ units
+                "",                     $ help string
+                0,255,0,                $ min, max, default data values
+                ,,,,                    $ mult, div, base, offset scaling
+                ,,,,                    $ mult, div, base, offset links
+                ;                       $ decimal places
+        Param42 =
+                0,                      $ reserved, shall equal 0
+                ,,                      $ Link Path Size, Link Path
+                0x0000,                 $ Descriptor
+                0xC6,                   $ Data Type
+                1,                      $ Data Size in bytes
+                "ORB_Score_25",         $ name
+                "",                     $ units
+                "",                     $ help string
+                0,255,0,                $ min, max, default data values
+                ,,,,                    $ mult, div, base, offset scaling
+                ,,,,                    $ mult, div, base, offset links
+                ;                       $ decimal places
+        Param43 =
+                0,                      $ reserved, shall equal 0
+                ,,                      $ Link Path Size, Link Path
+                0x0000,                 $ Descriptor
+                0xC6,                   $ Data Type
+                1,                      $ Data Size in bytes
+                "ORB_Score_26",         $ name
+                "",                     $ units
+                "",                     $ help string
+                0,255,0,                $ min, max, default data values
+                ,,,,                    $ mult, div, base, offset scaling
+                ,,,,                    $ mult, div, base, offset links
+                ;                       $ decimal places
+        Param44 =
+                0,                      $ reserved, shall equal 0
+                ,,                      $ Link Path Size, Link Path
+                0x0000,                 $ Descriptor
+                0xC6,                   $ Data Type
+                1,                      $ Data Size in bytes
+                "ORB_Score_27",         $ name
+                "",                     $ units
+                "",                     $ help string
+                0,255,0,                $ min, max, default data values
+                ,,,,                    $ mult, div, base, offset scaling
+                ,,,,                    $ mult, div, base, offset links
+                ;                       $ decimal places
+        Param45 =
+                0,                      $ reserved, shall equal 0
+                ,,                      $ Link Path Size, Link Path
+                0x0000,                 $ Descriptor
+                0xC6,                   $ Data Type
+                1,                      $ Data Size in bytes
+                "ORB_Score_28",         $ name
+                "",                     $ units
+                "",                     $ help string
+                0,255,0,                $ min, max, default data values
+                ,,,,                    $ mult, div, base, offset scaling
+                ,,,,                    $ mult, div, base, offset links
+                ;                       $ decimal places
+        Param46 =
+                0,                      $ reserved, shall equal 0
+                ,,                      $ Link Path Size, Link Path
+                0x0000,                 $ Descriptor
+                0xC6,                   $ Data Type
+                1,                      $ Data Size in bytes
+                "ORB_Score_29",         $ name
+                "",                     $ units
+                "",                     $ help string
+                0,255,0,                $ min, max, default data values
+                ,,,,                    $ mult, div, base, offset scaling
+                ,,,,                    $ mult, div, base, offset links
+                ;                       $ decimal places
+        Param47 =
+                0,                      $ reserved, shall equal 0
+                ,,                      $ Link Path Size, Link Path
+                0x0000,                 $ Descriptor
+                0xC6,                   $ Data Type
+                1,                      $ Data Size in bytes
+                "ORB_Score_30",         $ name
+                "",                     $ units
+                "",                     $ help string
+                0,255,0,                $ min, max, default data values
+                ,,,,                    $ mult, div, base, offset scaling
+                ,,,,                    $ mult, div, base, offset links
+                ;                       $ decimal places
+        Param48 =
+                0,                      $ reserved, shall equal 0
+                ,,                      $ Link Path Size, Link Path
+                0x0000,                 $ Descriptor
+                0xC6,                   $ Data Type
+                1,                      $ Data Size in bytes
+                "ORB_Score_31",         $ name
+                "",                     $ units
+                "",                     $ help string
+                0,255,0,                $ min, max, default data values
+                ,,,,                    $ mult, div, base, offset scaling
+                ,,,,                    $ mult, div, base, offset links
+                ;                       $ decimal places
+        Param49 =
+                0,                      $ reserved, shall equal 0
+                ,,                      $ Link Path Size, Link Path
+                0x0000,                 $ Descriptor
+                0xC8,                   $ Data Type
+                4,                      $ Data Size in bytes
+                "ORB_Fault",            $ name
+                "",                     $ units
+                "",                     $ help string
+                0,4294967295,0,         $ min, max, default data values
+                ,,,,                    $ mult, div, base, offset scaling
+                ,,,,                    $ mult, div, base, offset links
+                ;                       $ decimal places
+
+[Assembly]
+        Assem1 =
+                "ORB_ObjectResultBasic_Producing",
+                ,
+                80,
+                0x0000,
+                ,,
+                32,Param49,
+                32,Param7,
+                16,Param8,
+                8,Param9,
+                8,Param10,
+                32,Param11,
+                32,Param12,
+                32,Param13,
+                32,Param14,
+                8,Param15,
+                8,Param16,
+                8,Param17,
+                8,Param18,
+                8,Param21,
+                8,Param22,
+                8,Param23,
+                8,Param24,
+                8,Param25,
+                8,Param26,
+                8,Param27,
+                8,Param28,
+                8,Param29,
+                8,Param30,
+                8,Param31,
+                8,Param32,
+                8,Param33,
+                8,Param34,
+                8,Param35,
+                8,Param36,
+                8,Param37,
+                8,Param38,
+                8,Param39,
+                8,Param40,
+                8,Param41,
+                8,Param42,
+                8,Param43,
+                8,Param44,
+                8,Param45,
+                8,Param46,
+                8,Param47,
+                8,Param48,
+                8,Param19,
+                8,,
+                8,Param20,
+                136,;
+        Assem2 =
+                "TRG_Trigger_Consuming",
+                ,
+                8,
+                0x0000,
+                ,,
+                32,Param1,
+                8,Param6,
+                24,;
+
+[Connection Manager]
+        Connection1 =
+                0x02010002,             $ trigger & transport
+                                        $  0-15  = supported transport classes (class 1)
+                                        $  16 = cyclic (1 = supported)
+                                        $  17 = change of state (1 = supported)
+                                        $  18 = on demand (1 = supported)
+                                        $  19-23 = reserved (must be zero)
+                                        $  24-27 = input only
+                                        $  28-30 = reserved (must be zero)
+                                        $  31 = client 0 (don't care for classes 0 and 1)
+                0x44240305,             $ connection parameters
+                                        $  0 = O=>T fixed (1 = supported)
+                                        $  1 = O=>T variable (0 = not supported)
+                                        $  2 = T=>O fixed (1 = supported)
+                                        $  3 = T=>O variable (0 = not supported)
+                                        $  4-7 = reserved (must be zero)
+                                        $  8-11  = O=>T header (0 byte heartbeat)
+                                        $  12-15 = T=>O header (4 byte run/idle)
+                                        $  16-19 = O=>T connection type (point-to-point)
+                                        $  20-23 = T=>O connection type (multicast)
+                                        $  24-27 = O=>T priority (scheduled)
+                                        $  28-31 = T=>O priority (scheduled)
+                ,0,,                    $ O=>T RPI,Size,Format
+                ,Param2,Assem1,         $ T=>O RPI,Size,Format
+                ,,                      $ config part 1 (not used)
+                ,,                      $ config part 2 (not used)
+                "Read from MultiSight", $ connection name
+                "",                     $ Help string
+                "20 04 24 01 2C FE 2C 67";    $ inputs only path
+
+        Connection2 =
+                0x01030002,             $ trigger & transport
+                                        $  0-15  = supported transport classes (class 1)
+                                        $  16 = cyclic (1 = supported)
+                                        $  17 = change of state (1 = supported)
+                                        $  18 = on demand (1 = supported)
+                                        $  19-23 = reserved (must be zero)
+                                        $  24-27 = exclusive owner
+                                        $  28-30 = reserved (must be zero)
+                                        $  31 = client 0 (don't care for classes 0 and 1)
+                0x44240305,             $ connection parameters
+                                        $  0 = O=>T fixed (1 = supported)
+                                        $  1 = O=>T variable (0 = not supported)
+                                        $  2 = T=>O fixed (1 = supported)
+                                        $  3 = T=>O variable (0 = not supported)
+                                        $  4-7 = reserved (must be zero)
+                                        $  8-10 = O=>T header (4 byte run/idle)
+                                        $  11	= reserved (must be zero)
+                                        $  12-14 = T=>O header  (0 byte heartbeat)
+                                        $  15	= reserved (must be zero)
+                                        $  16-19 = O=>T connection type (point-to-point)
+                                        $  20-23 = T=>O connection type (point-to-point)
+                                        $  24-27 = O=>T priority (scheduled)
+                                        $  28-31 = T=>O priority (scheduled)
+                ,0,,                    $ O=>T RPI,Size,Format
+                ,Param2,Assem1,         $ T=>O RPI,Size,Format
+                ,,                      $ config part 1 (not used)
+                ,,                      $ config part 2 (not used)
+                "Listen to MulitSight", $ connection name
+                "",                     $ Help string
+                "20 04 24 01 2C FF 2C 67";    $ outputs only path
+
+        Connection3 =
+                0x04010002,             $ trigger & transport
+                                        $ 	0-15	= supported transport classes (class 1)
+                                        $ 	16	= cyclic (1 = supported)
+                                        $ 	17	= change of state (1 = supported)
+                                        $ 	18	= on demand (1 = supported)
+                                        $ 	19-23	= reserved (must be zero)
+                                        $ 	24-27	= exclusive owner
+                                        $ 	28-30	= reserved (must be zero)
+                                        $ 	31	= client 0 (don't care for classes 0 and 1)
+                0x44640405,             $ connection parameters
+                                        $ 	0	= O=>T fixed (1 = supported)
+                                        $ 	1	= O=>T variable (0 = not supported)
+                                        $ 	2	= T=>O fixed (1 = supported)
+                                        $ 	3	= T=>O variable (0 = not supported)
+                                        $ 	4-7	= reserved (must be zero)
+                                        $ 	8-11	= O=>T header (4 byte run/idle)
+                                        $ 	12-15	= T=>O header (4 byte run/idle)
+                                        $ 16-19	= O=>T connection type (point-to-point)
+                                        $ 20-23	= T=>O connection type (multicast)
+                                        $ 24-27	= O=>T priority (scheduled)
+                                        $ 28-31	= T=>O priority (scheduled)
+                ,Param3,Assem2,         $ O=>T RPI,Size,Format
+                ,Param2,Assem1,         $ T=>O RPI,Size,Format
+                ,,                      $ config part 1 (not used)
+                ,,                      $ config part 2 (not used)
+                "Read/Write MulitSight",$ connection name
+                "",                     $ Help string
+                "20 04 24 01 2C 64 2C 67";
+
+[Capacity]
+        ConnOverhead = .01;
+        MaxIOConnections = 5;
+        MaxMsgConnections = 27;
+        TSpec1 = TxRx, 8, 25;
+        TSpec2 = TxRx, 80, 25;
+
+$ [Connection Configuration]
+$        Revision = 2;
+

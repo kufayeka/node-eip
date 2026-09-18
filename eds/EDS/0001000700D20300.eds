@@ -1,0 +1,2758 @@
+$ Electronic Data Sheet for ArmorPoint  (1738-OB8EM23/A)
+$ Copyright 2006 by Rockwell Automation
+$ Universal version for: DeviceNet, ControlNet, and EthernetIP
+
+$ Revision History
+$ Revision	Date		Change
+$	1.1	07Jun2004	Started with revision 1.2 of 1738-OB8EM8/A
+$	1.2	16Aug2004	Updated ExternalID
+$	1.3	30Nov2004	Added Assem124 - Changed CNXNs for 3rd Party
+$	2.1	26Feb2006	Update to new DeviceNet Premier Integration EDS Guidelines
+$				Removed Assem124 from Listen Only Connection
+
+[File]
+	DescText =    "ArmorPoint 1738-OB8EM23/A";                   
+	CreateDate  = 04-23-2003;
+	CreateTime  = 12:00:00;
+	ModDate     = 02-26-2006;
+	ModTime     = 12:00:00;
+	Revision    = 2.1;
+	HomeURL     = "http://www.ab.com/networks/eds/DN/0001000700D20300.eds";
+
+[Device]
+	VendCode    = 1;                                  $ Vendor Code
+	ProdType    = 7;                                  $ Product Type
+	ProdCode    = 210;                                $ Product Code
+
+	MajRev      = 3;                                  $ Major Rev
+	MinRev      = 10;                                 $ Minor Rev
+	VendName    = "Rockwell Automation/Allen-Bradley";
+	ProdTypeStr = "General Purpose Discrete I/O";
+	ProdName    = "ArmorPoint 8pt 24Vdc Source Out Enhd M23";
+	Catalog     = "1738-OB8EM23/A";
+	Icon        = "1738-1M23GREEN.ico";
+	1_RSNetWorx_DNetTool = "RSI.DeviceNet.EDSApplet";
+	1_RSNetWorx_NoAutoEnter = "Yes";
+
+[Device Classification]
+     Class1 =      DeviceNet;
+
+[IO_Info]
+	1_COSetPathNotSupported = 1;                      $ Cnxn Obj does not support direct path setting
+
+	Default =     0X0004;                           $ COS is default
+
+	PollInfo    = 0X000F,                           $ compatable with all
+                    1,                                  $ input 1
+                    1;                                  $ output 1
+
+      StrobeInfo =  0X000F,                             $ Compatable with all
+                    1,                                  $ input 1
+                    0;                                  $ No strobe connection here
+
+      COSInfo =     0X0007,                             $ Compatable with all
+                    1,                                  $ input 1
+                    1;                                  $ output 1
+
+      CyclicInfo =  0X000B,                             $ Compatable with all
+                    1,                                  $ input 1
+                    1;                                  $ output 1
+
+      Input1 =      1,                                  $ size = 1 byte
+                    8,                                  $ 8 significant bits
+                    0X000F,                             $ compatible with all conections
+                    "Status",     $ name string
+                    6,                                  $ path length
+                    "20 04 24 2C 30 03",                $ assy obj(4), inst 44d(0x2C), attr 3
+                    "Producing connection contains the status of the eight outputs";
+
+      Output1 =     1,                                  $ size = 1 byte
+                    8,                                  $ 8 significant bits
+                    0X000D,                             $ compatible with polled connection
+                    "Data",                             $ name string
+                    6,                                  $ path length
+                    "20 04 24 22 30 03",                $ assy obj(4), inst 34d(0x22), attr 3
+                    "Consuming connection contains state of the eight outputs";
+
+[ParamClass]
+	MaxInst =     122;
+	Descriptor =  0x09;                             $ Individual parameters are setable
+                                                      $ Automaticly stored in EERPOM
+	CfgAssembly = 0x7B;                             $ the custom config assembly is 123d(0x7B)
+
+[Assembly]
+        Assem34=    "Data",
+                    "",                                 $ Path is (assy obj.(4), inst 34d(0x22), attr 3)
+                    1,                                  $ total length in bytes
+                    0,,,                                $ no changes, ",,"= reserved
+                    8, Param113;                        $ # bits, Value for Output
+
+        Assem44=    "Status",
+                    "",                                 $ Path is (assy obj(4), inst 44d(0x2C), attr 3)
+                    1,                                  $ total length in bytes
+                    0,,,                                $ no changes, ",,"= reserved
+                    8, Param114;                        $ # bits, Status of Output
+
+        Assem123 =  "1738-OB8EM23 Configuration Assembly",
+                    "",                                 $ Path is (assy obj.(4) inst 123d(0x7B), attr 3)
+                    8,                                  $ total length in bytes
+                    0,,,                                $ no changes, ",,"= reserved
+                    1,Param43,                          $ # bits, Fault State selection for output 0
+                    1,Param45,                          $ # bits, Fault State selection for output 1
+                    1,Param47,                          $ # bits, Fault State selection for output 2
+                    1,Param49,                          $ # bits, Fault State selection for output 3
+                    1,Param51,                          $ # bits, Fault State selection for output 4
+                    1,Param53,                          $ # bits, Fault State selection for output 5
+                    1,Param55,                          $ # bits, Fault State selection for output 6
+                    1,Param57,                          $ # bits, Fault State selection for output 7
+
+                    1,Param44,                          $ # bits, Fault Value selection for output 0
+                    1,Param46,                          $ # bits, Fault Value selection for output 1
+                    1,Param48,                          $ # bits, Fault Value selection for output 2
+                    1,Param50,                          $ # bits, Fault Value selection for output 3
+                    1,Param52,                          $ # bits, Fault Value selection for output 4
+                    1,Param54,                          $ # bits, Fault Value selection for output 5
+                    1,Param56,                          $ # bits, Fault Value selection for output 6
+                    1,Param58,                          $ # bits, Fault Value selection for output 7
+
+                    1,Param59,                          $ # bits, Idle State selection for output 0
+                    1,Param61,                          $ # bits, Idle State selection for output 1
+                    1,Param63,                          $ # bits, Idle State selection for output 2
+                    1,Param65,                          $ # bits, Idle State selection for output 3
+                    1,Param67,                          $ # bits, Idle State selection for output 4
+                    1,Param69,                          $ # bits, Idle State selection for output 5
+                    1,Param71,                          $ # bits, Idle State selection for output 6
+                    1,Param73,                          $ # bits, Idle State selection for output 7
+
+                    1,Param60,                          $ # bits, Idle Value selection for output 0
+                    1,Param62,                          $ # bits, Idle Value selection for output 1
+                    1,Param64,                          $ # bits, Idle Value selection for output 2
+                    1,Param66,                          $ # bits, Idle Value selection for output 3
+                    1,Param68,                          $ # bits, Idle Value selection for output 4
+                    1,Param70,                          $ # bits, Idle Value selection for output 5
+                    1,Param72,                          $ # bits, Idle Value selection for output 6
+                    1,Param74,                          $ # bits, Idle Value selection for output 7
+
+                    1,Param83,                          $ # bits, Enable No Load for output 0
+                    1,Param84,                          $ # bits, Enable No Load for output 1
+                    1,Param85,                          $ # bits, Enable No Load for output 2
+                    1,Param86,                          $ # bits, Enable No Load for output 3
+                    1,Param87,                          $ # bits, Enable No Load for output 4
+                    1,Param88,                          $ # bits, Enable No Load for output 5
+                    1,Param89,                          $ # bits, Enable No Load for output 6
+                    1,Param90,                          $ # bits, Enable No Load for output 7
+
+                    1,Param91,                          $ # bits, Reset Mode for output 0
+                    1,Param92,                          $ # bits, Reset Mode for output 1
+                    1,Param93,                          $ # bits, Reset Mode for output 2
+                    1,Param94,                          $ # bits, Reset Mode for output 3
+                    1,Param95,                          $ # bits, Reset Mode for output 0
+                    1,Param96,                          $ # bits, Reset Mode for output 1
+                    1,Param97,                          $ # bits, Reset Mode for output 2
+                    1,Param98,                          $ # bits, Reset Mode for output 3
+
+                    1,Param75,                          $ # bits, Enable Latched Alarms for output 0
+                    1,Param76,                          $ # bits, Enable Latched Alarms for output 1
+                    1,Param77,                          $ # bits, Enable Latched Alarms for output 2
+                    1,Param78,                          $ # bits, Enable Latched Alarms for output 3
+                    1,Param79,                          $ # bits, Enable Latched Alarms for output 4
+                    1,Param80,                          $ # bits, Enable Latched Alarms for output 5
+                    1,Param81,                          $ # bits, Enable Latched Alarms for output 6
+                    1,Param82,                          $ # bits, Enable Latched Alarms for output 7
+
+                    8,;                                 $ pad byte (for word boundary)
+
+    Assem124 =                  $ Private config in Forward Open, Module
+        "3rd Party Private Assembly",
+        ,                       $ Path
+        ,                       $ Length in bytes
+        ,                       $ descriptor
+        ,,                      $ reserved
+        16,Param101,            $ configuration revision (only valid value is 1)
+        16,;                    $ reserved - zeros
+
+    Assem125 =                  $ Private config in Forward Open, Module
+        "Adapter Config Assembly",
+        ,                       $ Path
+        ,                       $ Length in bytes
+        ,                       $ descriptor
+        ,,                      $ reserved
+        16,Param122,            $ Non-Logix Header (constant 0x7001)
+        16,1_RackSize,          $ number of slots
+        16,Param121,            $ configuration revision (only valid value is 1)
+        16,;                    $ reserved - zeros
+
+    Assem126 =                  $ O2T (output data)
+        "Ouput Data Assembly",
+        ,                       $ Path
+        ,                       $ Length in bytes
+        ,                       $ descriptor
+        ,,                      $ reserved
+        ,Assem34;               $ Assembly sent to module
+
+    Assem127 =                  $ T2O (input data)
+        "Input Data Assembly",
+        ,                       $ Path
+        ,                       $ Length in bytes
+        ,                       $ descriptor
+        ,,                      $ reserved
+        32,,                    $ Fault bits
+        ,Assem44;               $ Assembly passed from module
+
+      ProxiedAssem1 =
+                    "DC Output Rack Configuration Assembly",
+                    "01 SLOT 20 04 24 78 30 03",        $ Path to Assy Obj (4) inst 120d attr 3
+                    ,                                   $ total length in bytes
+                    0x0000,                             $ descriptor
+                    ,,                                  $ ",,"= reserved
+                    1,Param106,                         $ Group Fault Action
+                    1,Param107,                         $ Group Fault Value
+                    1,Param108,                         $ Group Idle Action
+                    1,Param109,                         $ Group Idle Value
+                    1,Param110,                         $ Group No Load Enable
+                    1,Param111,                         $ Group Reset Mode
+                    1,Param112,                         $ Group Latch Alarms
+                    1,;                                 $ Pad bit
+
+      ProxiedAssem3 = 
+                    "Real Time Input Format",
+                    ,                                   $ No Path
+                    ,                                   $ Length
+                    0x0000,                             $ Descriptor
+                    ,,                                  $ ",,"= reserved
+                    8,Assem44;
+
+      ProxiedAssem4 = 
+                    "Real Time Output Format",
+                    ,                                   $ No Path
+                    ,                                   $ Length
+                    0x0000,                             $ Descriptor
+                    ,,                                  $ ",,"= reserved
+                    8,Assem34;
+
+[Params]
+$ Output state
+      Param1 =      $ Value for Output #0
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 09 24 01 30 03",                $ Link Path to DOP object's value attribute.
+                    0x0022,                             $ No support for: settable path, scaling, scaling links.
+                                                        $ Real time update of value.  Value is gettable and Settable.
+                    0xC1,                               $ Data Type - boolean (New data type)
+                    1,                                  $ Data Size
+                    "Output Value #0",                  $ Parameter Name
+                    "",                                 $ Units String
+                    "Value of output point.  'ON' or 'OFF'\nNOT SETTABLE when I/O conection is established.",
+                    0,1,0,                              $ Min, Max (max enumeration #), and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Enum1 =       0,"OFF", 1,"ON";
+
+      Param2 =      $ Value for Output #1
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 09 24 02 30 03",                $ Link Path to DOP object's value attribute.
+                    0x0022,                             $ No support for: settable path, scaling, scaling links.
+                                                        $ Real time update of value.  Value is gettable and Settable.
+                    0xC1,                               $ Data Type - boolean (New data type)
+                    1,                                  $ Data Size
+                    "Output Value #1",                  $ Parameter Name
+                    "",                                 $ Units String
+                    "Value of output point.  'ON' or 'OFF'\nNOT SETTABLE when I/O conection is established.",
+                    0,1,0,                              $ Min, Max (max enumeration #), and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Enum2 =       0,"OFF", 1,"ON";
+
+      Param3 =      $ Value for Output #2
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 09 24 03 30 03",                $ Link Path to DOP object's value attribute.
+                    0x0022,                             $ No support for: settable path, scaling, scaling links.
+                                                        $ Real time update of value.  Value is gettable and Settable.
+                    0xC1,                               $ Data Type - boolean (New data type)
+                    1,                                  $ Data Size
+                    "Output Value #2",                  $ Parameter Name
+                    "",                                 $ Units String
+                    "Value of output point.  'ON' or 'OFF'\nNOT SETTABLE when I/O conection is established.",
+                    0,1,0,                              $ Min, Max (max enumeration #), and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Enum3 =       0,"OFF", 1,"ON";
+
+      Param4 =      $ Value for Output #3
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 09 24 04 30 03",                $ Link Path to DOP object's value attribute.
+                    0x0022,                             $ No support for: settable path, scaling, scaling links.
+                                                        $ Real time update of value.  Value is gettable and Settable.
+                    0xC1,                               $ Data Type - boolean (New data type)
+                    1,                                  $ Data Size
+                    "Output Value #3",                  $ Parameter Name
+                    "",                                 $ Units String
+                    "Value of output point.  'ON' or 'OFF'\nNOT SETTABLE when I/O conection is established.",
+                    0,1,0,                              $ Min, Max (max enumeration #), and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Enum4 =       0,"OFF", 1,"ON";
+
+      Param5 =      $ Value for Output #4
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 09 24 05 30 03",                $ Link Path to DOP object's value attribute.
+                    0x0022,                             $ No support for: settable path, scaling, scaling links.
+                                                        $ Real time update of value.  Value is gettable and Settable.
+                    0xC1,                               $ Data Type - boolean (New data type)
+                    1,                                  $ Data Size
+                    "Output Value #4",                  $ Parameter Name
+                    "",                                 $ Units String
+                    "Value of output point.  'ON' or 'OFF'\nNOT SETTABLE when I/O conection is established.",
+                    0,1,0,                              $ Min, Max (max enumeration #), and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Enum5 =       0,"OFF", 1,"ON";
+
+      Param6 =      $ Value for Output #5
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 09 24 06 30 03",                $ Link Path to DOP object's value attribute.
+                    0x0022,                             $ No support for: settable path, scaling, scaling links.
+                                                        $ Real time update of value.  Value is gettable and Settable.
+                    0xC1,                               $ Data Type - boolean (New data type)
+                    1,                                  $ Data Size
+                    "Output Value #5",                  $ Parameter Name
+                    "",                                 $ Units String
+                    "Value of output point.  'ON' or 'OFF'\nNOT SETTABLE when I/O conection is established.",
+                    0,1,0,                              $ Min, Max (max enumeration #), and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Enum6 =       0,"OFF", 1,"ON";
+
+      Param7 =      $ Value for Output #6
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 09 24 07 30 03",                $ Link Path to DOP object's value attribute.
+                    0x0022,                             $ No support for: settable path, scaling, scaling links.
+                                                        $ Real time update of value.  Value is gettable and Settable.
+                    0xC1,                               $ Data Type - boolean (New data type)
+                    1,                                  $ Data Size
+                    "Output Value #6",                  $ Parameter Name
+                    "",                                 $ Units String
+                    "Value of output point.  'ON' or 'OFF'\nNOT SETTABLE when I/O conection is established.",
+                    0,1,0,                              $ Min, Max (max enumeration #), and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Enum7 =       0,"OFF", 1,"ON";
+
+      Param8 =      $ Value for Output #7
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 09 24 08 30 03",                $ Link Path to DOP object's value attribute.
+                    0x0022,                             $ No support for: settable path, scaling, scaling links.
+                                                        $ Real time update of value.  Value is gettable and Settable.
+                    0xC1,                               $ Data Type - boolean (New data type)
+                    1,                                  $ Data Size
+                    "Output Value #7",                  $ Parameter Name
+                    "",                                 $ Units String
+                    "Value of output point.  'ON' or 'OFF'\nNOT SETTABLE when I/O conection is established.",
+                    0,1,0,                              $ Min, Max (max enumeration #), and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Enum8 =       0,"OFF", 1,"ON";
+
+$ Output status
+      Param9 =      $ Status of Output 0
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 09 24 01 30 04",                $ Link Path to DOP object's status attribute.
+                    0x0032,                             $ No support for: settable path, scaling, scaling links.
+                                                        $ Real time update of value.  Value is gettable only.
+                    0xC1,                               $ Data Type - boolean
+                    1,                                  $ Data Size
+                    "Status of Output #0",              $ Parameter Name
+                    "",                                 $ Units String
+                    "This Status bit is the OR of all possible faults for this channel.\n\nPossible Faults:\n - open load\n - short circuit\n - over current\n - no field power\n\nNote: Status could be 'latched' in fault state.",
+                    0,1,0,                              $ Min, Max (max enumeration #), and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Enum9 =       0,"No Fault", 1,"FAULT";
+
+      Param10 =     $ Status of Output 1
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 09 24 02 30 04",                $ Link Path to DOP object's status attribute.
+                    0x0032,                             $ No support for: settable path, scaling, scaling links.
+                                                        $ Real time update of value.  Value is gettable only.
+                    0xC1,                               $ Data Type - boolean (New data type)
+                    1,                                  $ Data Size
+                    "Status of Output #1",              $ Parameter Name
+                    "",                                 $ Units String
+                    "This Status bit is the OR of all possible faults for this channel.\n\nPossible Faults:\n - open load\n - short circuit\n - over current\n - no field power\n\nNote: Status could be 'latched' in fault state.",
+                    0,1,0,                              $ Min, Max (max enumeration #), and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Enum10 =      0,"No Fault", 1,"FAULT";
+
+      Param11 =     $ Status of Output 2
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 09 24 03 30 04",                $ Link Path to DOP object's status attribute.
+                    0x0032,                             $ No support for: settable path, scaling, scaling links.
+                                                        $ Real time update of value.  Value is gettable only.
+                    0xC1,                               $ Data Type - boolean (New data type)
+                    1,                                  $ Data Size
+                    "Status of Output #2",              $ Parameter Name
+                    "",                                 $ Units String
+                    "This Status bit is the OR of all possible faults for this channel.\n\nPossible Faults:\n - open load\n - short circuit\n - over current\n - no field power\n\nNote: Status could be 'latched' in fault state.",
+                    0,1,0,                              $ Min, Max (max enumeration #), and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Enum11 =      0,"No Fault", 1,"FAULT";
+
+      Param12 =     $ Status of Output 3
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 09 24 04 30 04",                $ Link Path to DOP object's status attribute.
+                    0x0032,                             $ No support for: settable path, scaling, scaling links.
+                                                        $ Real time update of value.  Value is gettable only.
+                    0xC1,                               $ Data Type - boolean
+                    1,                                  $ Data Size
+                    "Status of Output #3",              $ Parameter Name
+                    "",                                 $ Units String
+                    "This Status bit is the OR of all possible faults for this channel.\n\nPossible Faults:\n - open load\n - short circuit\n - over current\n - no field power\n\nNote: Status could be 'latched' in fault state.",
+                    0,1,0,                              $ Min, Max (max enumeration #), and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Enum12 =      0,"No Fault", 1,"FAULT";
+
+      Param13 =     $ Status of Output 4
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 09 24 05 30 04",                $ Link Path to DOP object's status attribute.
+                    0x0032,                             $ No support for: settable path, scaling, scaling links.
+                                                        $ Real time update of value.  Value is gettable only.
+                    0xC1,                               $ Data Type - boolean (New data type)
+                    1,                                  $ Data Size
+                    "Status of Output #4",              $ Parameter Name
+                    "",                                 $ Units String
+                    "This Status bit is the OR of all possible faults for this channel.\n\nPossible Faults:\n - open load\n - short circuit\n - over current\n - no field power\n\nNote: Status could be 'latched' in fault state.",
+                    0,1,0,                              $ Min, Max (max enumeration #), and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Enum13 =      0,"No Fault", 1,"FAULT";
+
+      Param14 =     $ Status of Output 5
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 09 24 06 30 04",                $ Link Path to DOP object's status attribute.
+                    0x0032,                             $ No support for: settable path, scaling, scaling links.
+                                                        $ Real time update of value.  Value is gettable only.
+                    0xC1,                               $ Data Type - boolean (New data type)
+                    1,                                  $ Data Size
+                    "Status of Output #5",              $ Parameter Name
+                    "",                                 $ Units String
+                    "This Status bit is the OR of all possible faults for this channel.\n\nPossible Faults:\n - open load\n - short circuit\n - over current\n - no field power\n\nNote: Status could be 'latched' in fault state.",
+                    0,1,0,                              $ Min, Max (max enumeration #), and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Enum14 =      0,"No Fault", 1,"FAULT";
+
+      Param15 =     $ Status of Output 6
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 09 24 07 30 04",                $ Link Path to DOP object's status attribute.
+                    0x0032,                             $ No support for: settable path, scaling, scaling links.
+                                                        $ Real time update of value.  Value is gettable only.
+                    0xC1,                               $ Data Type - boolean (New data type)
+                    1,                                  $ Data Size
+                    "Status of Output #6",              $ Parameter Name
+                    "",                                 $ Units String
+                    "This Status bit is the OR of all possible faults for this channel.\n\nPossible Faults:\n - open load\n - short circuit\n - over current\n - no field power\n\nNote: Status could be 'latched' in fault state.",
+                    0,1,0,                              $ Min, Max (max enumeration #), and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Enum15 =      0,"No Fault", 1,"FAULT";
+
+      Param16 =     $ Status of Output 7
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 09 24 08 30 04",                $ Link Path to DOP object's status attribute.
+                    0x0032,                             $ No support for: settable path, scaling, scaling links.
+                                                        $ Real time update of value.  Value is gettable only.
+                    0xC1,                               $ Data Type - boolean (New data type)
+                    1,                                  $ Data Size
+                    "Status of Output #7",              $ Parameter Name
+                    "",                                 $ Units String
+                    "This Status bit is the OR of all possible faults for this channel.\n\nPossible Faults:\n - open load\n - short circuit\n - over current\n - no field power\n\nNote: Status could be 'latched' in fault state.",
+                    0,1,0,                              $ Min, Max (max enumeration #), and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Enum16 =      0,"No Fault", 1,"FAULT";
+
+$ No Load Diagnostic
+      Param17 =     $ No load status of 0
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 09 24 01 30 6B",                $ Link Path to DOP object's No Load attribute.
+                    0x0032,                             $ No support for: settable path, scaling, scaling links.
+                                                        $ Real time update of value.  Value is gettable only.
+                    0xC1,                               $ Data Type - boolean (New data type)
+                    1,                                  $ Data Size
+                    "No Load Status #0",                $ Parameter Name
+                    "",                                 $ Units String
+                    "No Load or Open Wire status bit.\nNo load can only be detected when the channel is in the OFF state.\nField power is required to detect Open Load.\nNo Load status must be enabled.",
+                    0,1,0,                              $ Min, Max (max enumeration #), and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Enum17 =      0,"No Fault", 1,"No Load Detected";
+
+      Param18 =     $ No load status of 1
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 09 24 02 30 6B",                $ Link Path to DOP object's No Load attribute.
+                    0x0032,                             $ No support for: settable path, scaling, scaling links.
+                                                        $ Real time update of value.  Value is gettable only.
+                    0xC1,                               $ Data Type - boolean (New data type)
+                    1,                                  $ Data Size
+                    "No Load Status #1",                $ Parameter Name
+                    "",                                 $ Units String
+                    "No Load or Open Wire status bit.\nNo load can only be detected when the channel is in the OFF state.\nField power is required to detect Open Load.\nNo Load status must be enabled.",
+                    0,1,0,                              $ Min, Max (max enumeration #), and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Enum18 =      0,"No Fault", 1,"No Load Detected";
+
+      Param19 =     $ No load status of 2
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 09 24 03 30 6B",                $ Link Path to DOP object's No Load attribute.
+                    0x0032,                             $ No support for: settable path, scaling, scaling links.
+                                                        $ Real time update of value.  Value is gettable only.
+                    0xC1,                               $ Data Type - boolean (New data type)
+                    1,                                  $ Data Size
+                    "No Load Status #2",                $ Parameter Name
+                    "",                                 $ Units String
+                    "No Load or Open Wire status bit.\nNo load can only be detected when the channel is in the OFF state.\nField power is required to detect Open Load.\nNo Load status must be enabled.",
+                    0,1,0,                              $ Min, Max (max enumeration #), and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Enum19 =      0,"No Fault", 1,"No Load Detected";
+
+      Param20 =     $ No load status of 3
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 09 24 04 30 6B",                $ Link Path to DOP object's No Load attribute.
+                    0x0032,                             $ No support for: settable path, scaling, scaling links.
+                                                        $ Real time update of value.  Value is gettable only.
+                    0xC1,                               $ Data Type - boolean (New data type)
+                    1,                                  $ Data Size
+                    "No Load Status #3",                $ Parameter Name
+                    "",                                 $ Units String
+                    "No Load or Open Wire status bit.\nNo load can only be detected when the channel is in the OFF state.\nField power is required to detect Open Load.\nNo Load status must be enabled.",
+                    0,1,0,                              $ Min, Max (max enumeration #), and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Enum20 =      0,"No Fault", 1,"No Load Detected";
+
+      Param21 =     $ No load status of 4
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 09 24 05 30 6B",                $ Link Path to DOP object's No Load attribute.
+                    0x0032,                             $ No support for: settable path, scaling, scaling links.
+                                                        $ Real time update of value.  Value is gettable only.
+                    0xC1,                               $ Data Type - boolean (New data type)
+                    1,                                  $ Data Size
+                    "No Load Status #4",                $ Parameter Name
+                    "",                                 $ Units String
+                    "No Load or Open Wire status bit.\nNo load can only be detected when the channel is in the OFF state.\nField power is required to detect Open Load.\nNo Load status must be enabled.",
+                    0,1,0,                              $ Min, Max (max enumeration #), and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Enum21 =      0,"No Fault", 1,"No Load Detected";
+
+      Param22 =     $ No load status of 5
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 09 24 06 30 6B",                $ Link Path to DOP object's No Load attribute.
+                    0x0032,                             $ No support for: settable path, scaling, scaling links.
+                                                        $ Real time update of value.  Value is gettable only.
+                    0xC1,                               $ Data Type - boolean (New data type)
+                    1,                                  $ Data Size
+                    "No Load Status #5",                $ Parameter Name
+                    "",                                 $ Units String
+                    "No Load or Open Wire status bit.\nNo load can only be detected when the channel is in the OFF state.\nField power is required to detect Open Load.\nNo Load status must be enabled.",
+                    0,1,0,                              $ Min, Max (max enumeration #), and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Enum22 =      0,"No Fault", 1,"No Load Detected";
+
+      Param23 =     $ No load status of 6
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 09 24 07 30 6B",                $ Link Path to DOP object's No Load attribute.
+                    0x0032,                             $ No support for: settable path, scaling, scaling links.
+                                                        $ Real time update of value.  Value is gettable only.
+                    0xC1,                               $ Data Type - boolean (New data type)
+                    1,                                  $ Data Size
+                    "No Load Status #6",                $ Parameter Name
+                    "",                                 $ Units String
+                    "No Load or Open Wire status bit.\nNo load can only be detected when the channel is in the OFF state.\nField power is required to detect Open Load.\nNo Load status must be enabled.",
+                    0,1,0,                              $ Min, Max (max enumeration #), and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Enum23 =      0,"No Fault", 1,"No Load Detected";
+
+      Param24 =     $ No load status of 7
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 09 24 08 30 6B",                $ Link Path to DOP object's No Load attribute.
+                    0x0032,                             $ No support for: settable path, scaling, scaling links.
+                                                        $ Real time update of value.  Value is gettable only.
+                    0xC1,                               $ Data Type - boolean (New data type)
+                    1,                                  $ Data Size
+                    "No Load Status #7",                $ Parameter Name
+                    "",                                 $ Units String
+                    "No Load or Open Wire status bit.\nNo load can only be detected when the channel is in the OFF state.\nField power is required to detect Open Load.\nNo Load status must be enabled.",
+                    0,1,0,                              $ Min, Max (max enumeration #), and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Enum24 =      0,"No Fault", 1,"No Load Detected";
+
+$ Short/Overload Diagnostic
+      Param25 =     $ Short/Overload status of 0
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 09 24 01 30 70",                $ Link Path to DOP object's Short attribute.
+                    0x0032,                             $ No support for: settable path, scaling, scaling links.
+                                                        $ Real time update of value.  Value is gettable only.
+                    0xC1,                               $ Data Type - boolean (New data type)
+                    1,                                  $ Data Size
+                    "Short/Overload Status #0",         $ Parameter Name
+                    "",                                 $ Units String
+                    "Short circuit or Overload status bit.\nError only detected in the ON state.\n\nPossible faults:\n - short circuit (0 ohm load)\n - too much current (greater than rated output current)\n - no field power\n\nError may be latched by Reset Mode ('latched off') or latching of alarms",
+                    0,1,0,                              $ Min, Max (max enumeration #), and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Enum25 =      0,"No Fault", 1,"Short/Overload Fault";
+
+      Param26 =     $ Short/Overload status of 1
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 09 24 02 30 70",                $ Link Path to DOP object's Short attribute.
+                    0x0032,                             $ No support for: settable path, scaling, scaling links.
+                                                        $ Real time update of value.  Value is gettable only.
+                    0xC1,                               $ Data Type - boolean (New data type)
+                    1,                                  $ Data Size
+                    "Short/Overload Status #1",         $ Parameter Name
+                    "",                                 $ Units String
+                    "Short circuit or Overload status bit.\nError only detected in the ON state.\n\nPossible faults:\n - short circuit (0 ohm load)\n - too much current (greater than rated output current)\n - no field power\n\nError may be latched by Reset Mode ('latched off') or latching of alarms",
+                    0,1,0,                              $ Min, Max (max enumeration #), and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Enum26 =      0,"No Fault", 1,"Short/Overload Fault";
+
+      Param27 =     $ Short/Overload status of 2
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 09 24 03 30 70",                $ Link Path to DOP object's Short attribute.
+                    0x0032,                             $ No support for: settable path, scaling, scaling links.
+                                                        $ Real time update of value.  Value is gettable only.
+                    0xC1,                               $ Data Type - boolean (New data type)
+                    1,                                  $ Data Size
+                    "Short/Overload Status #2",         $ Parameter Name
+                    "",                                 $ Units String
+                    "Short circuit or Overload status bit.\nError only detected in the ON state.\n\nPossible faults:\n - short circuit (0 ohm load)\n - too much current (greater than rated output current)\n - no field power\n\nError may be latched by Reset Mode ('latched off') or latching of alarms",
+                    0,1,0,                              $ Min, Max (max enumeration #), and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Enum27 =      0,"No Fault", 1,"Short/Overload Fault";
+
+      Param28 =     $ Short/Overload status of 3
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 09 24 04 30 70",                $ Link Path to DOP object's Short attribute.
+                    0x0032,                             $ No support for: settable path, scaling, scaling links.
+                                                        $ Real time update of value.  Value is gettable only.
+                    0xC1,                               $ Data Type - boolean (New data type)
+                    1,                                  $ Data Size
+                    "Short/Overload Status #3",         $ Parameter Name
+                    "",                                 $ Units String
+                    "Short circuit or Overload status bit.\nError only detected in the ON state.\n\nPossible faults:\n - short circuit (0 ohm load)\n - too much current (greater than rated output current)\n - no field power\n\nError may be latched by Reset Mode ('latched off') or latching of alarms",
+                    0,1,0,                              $ Min, Max (max enumeration #), and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Enum28 =      0,"No Fault", 1,"Short/Overload Fault";
+
+      Param29 =     $ Short/Overload status of 4
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 09 24 05 30 70",                $ Link Path to DOP object's Short attribute.
+                    0x0032,                             $ No support for: settable path, scaling, scaling links.
+                                                        $ Real time update of value.  Value is gettable only.
+                    0xC1,                               $ Data Type - boolean (New data type)
+                    1,                                  $ Data Size
+                    "Short/Overload Status #4",         $ Parameter Name
+                    "",                                 $ Units String
+                    "Short circuit or Overload status bit.\nError only detected in the ON state.\n\nPossible faults:\n - short circuit (0 ohm load)\n - too much current (greater than rated output current)\n - no field power\n\nError may be latched by Reset Mode ('latched off') or latching of alarms",
+                    0,1,0,                              $ Min, Max (max enumeration #), and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Enum29 =      0,"No Fault", 1,"Short/Overload Fault";
+
+      Param30 =     $ Short/Overload status of 5
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 09 24 06 30 70",                $ Link Path to DOP object's Short attribute.
+                    0x0032,                             $ No support for: settable path, scaling, scaling links.
+                                                        $ Real time update of value.  Value is gettable only.
+                    0xC1,                               $ Data Type - boolean (New data type)
+                    1,                                  $ Data Size
+                    "Short/Overload Status #5",         $ Parameter Name
+                    "",                                 $ Units String
+                    "Short circuit or Overload status bit.\nError only detected in the ON state.\n\nPossible faults:\n - short circuit (0 ohm load)\n - too much current (greater than rated output current)\n - no field power\n\nError may be latched by Reset Mode ('latched off') or latching of alarms",
+                    0,1,0,                              $ Min, Max (max enumeration #), and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Enum30 =      0,"No Fault", 1,"Short/Overload Fault";
+
+      Param31 =     $ Short/Overload status of 6
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 09 24 07 30 70",                $ Link Path to DOP object's Short attribute.
+                    0x0032,                             $ No support for: settable path, scaling, scaling links.
+                                                        $ Real time update of value.  Value is gettable only.
+                    0xC1,                               $ Data Type - boolean (New data type)
+                    1,                                  $ Data Size
+                    "Short/Overload Status #6",         $ Parameter Name
+                    "",                                 $ Units String
+                    "Short circuit or Overload status bit.\nError only detected in the ON state.\n\nPossible faults:\n - short circuit (0 ohm load)\n - too much current (greater than rated output current)\n - no field power\n\nError may be latched by Reset Mode ('latched off') or latching of alarms",
+                    0,1,0,                              $ Min, Max (max enumeration #), and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Enum31 =      0,"No Fault", 1,"Short/Overload Fault";
+
+      Param32 =     $ Short/Overload status of 7
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 09 24 08 30 70",                $ Link Path to DOP object's Short attribute.
+                    0x0032,                             $ No support for: settable path, scaling, scaling links.
+                                                        $ Real time update of value.  Value is gettable only.
+                    0xC1,                               $ Data Type - boolean (New data type)
+                    1,                                  $ Data Size
+                    "Short/Overload Status #7",         $ Parameter Name
+                    "",                                 $ Units String
+                    "Short circuit or Overload status bit.\nError only detected in the ON state.\n\nPossible faults:\n - short circuit (0 ohm load)\n - too much current (greater than rated output current)\n - no field power\n\nError may be latched by Reset Mode ('latched off') or latching of alarms",
+                    0,1,0,                              $ Min, Max (max enumeration #), and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Enum32 =      0,"No Fault", 1,"Short/Overload Fault";
+
+$ Group Status
+      Param33 =     $ Status of Output Group
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 1E 24 01 30 05",                $ Link Path to DOG object's status attribute.
+                    0x0032,                             $ No support for: settable path, scaling, scaling links.
+                                                        $ Real time update of value.  Value is gettable only.
+                    0xC1,                               $ Data Type - boolean (New data type)
+                    1,                                  $ Data Size
+                    "Output Group Status",              $ Parameter Name
+                    "",                                 $ Units String
+                    "This Status bit is the OR of all possible faults for ALL channels.\n\nPossible Faults:\n - open load\n - short circuit\n - over current\n - no field power\n\nNote: Status could be 'latched' in fault state.",
+                    0,1,0,                              $ Min, Max (max enumeration #), and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Enum33 =      0,"No Fault", 1,"FAULT";
+
+$ Clear Latched Alarm
+      Param34 =     $ Clear latached alarms 0
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 09 24 01 30 67",                $ Link Path to DOP object's Clear Latched alarm Attribute.
+                    0x0002,                             $ No support for: settable path, scaling, scaling links, or
+                                                        $ real time update of value.  Value is gettable and 
+                                                        $ Settable.  Enumerated strings are supported.
+                    0xC1,                               $ Data Type - boolean (New data type)
+                    1,                                  $ Data Size
+                    "Clear Latched Alarms #0",          $ Parameter Name
+                    "",                                 $ Units String
+                    "This service will clear all latched alarms in the output point.\nIf Latching of Alarms is not enabled for this channel, this service will have no effect.\nIf the fault still exists, it will be latched again.",
+                    0,1,1,                              $ Min, Max (max enumeration #), and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Enum34 =      0,"Do Nothing", 1,"Clear Alarms";
+
+      Param35 =     $ Clear latached alarms 1
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 09 24 02 30 67",                $ Link Path to DOP object's Clear Latched alarm Attribute.
+                    0x0002,                             $ No support for: settable path, scaling, scaling links, or
+                                                        $ real time update of value.  Value is gettable and 
+                                                        $ Settable.  Enumerated strings are supported.
+                    0xC1,                               $ Data Type - boolean (New data type)
+                    1,                                  $ Data Size
+                    "Clear Latched Alarms #1",          $ Parameter Name
+                    "",                                 $ Units String
+                    "This service will clear all latched alarms in the output point.\nIf Latching of Alarms is not enabled for this channel, this service will have no effect.\nIf the fault still exists, it will be latched again.",
+                    0,1,1,                              $ Min, Max (max enumeration #), and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Enum35 =      0,"Do Nothing", 1,"Clear Alarms";
+
+      Param36 =     $ Clear latached alarms 2
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 09 24 03 30 67",                $ Link Path to DOP object's Clear Latched alarm Attribute.
+                    0x0002,                             $ No support for: settable path, scaling, scaling links, or
+                                                        $ real time update of value.  Value is gettable and 
+                                                        $ Settable.  Enumerated strings are supported.
+                    0xC1,                               $ Data Type - boolean (New data type)
+                    1,                                  $ Data Size
+                    "Clear Latched Alarms #2",          $ Parameter Name
+                    "",                                 $ Units String
+                    "This service will clear all latched alarms in the output point.\nIf Latching of Alarms is not enabled for this channel, this service will have no effect.\nIf the fault still exists, it will be latched again.",
+                    0,1,1,                              $ Min, Max (max enumeration #), and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Enum36 =      0,"Do Nothing", 1,"Clear Alarms";
+
+      Param37 =     $ Clear latached alarms 3
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 09 24 04 30 67",                $ Link Path to DOP object's Clear Latched alarm Attribute.
+                    0x0002,                             $ No support for: settable path, scaling, scaling links, or
+                                                        $ real time update of value.  Value is gettable and 
+                                                        $ Settable.  Enumerated strings are supported.
+                    0xC1,                               $ Data Type - boolean (New data type)
+                    1,                                  $ Data Size
+                    "Clear Latched Alarms #3",          $ Parameter Name
+                    "",                                 $ Units String
+                    "This service will clear all latched alarms in the output point.\nIf Latching of Alarms is not enabled for this channel, this service will have no effect.\nIf the fault still exists, it will be latched again.",
+                    0,1,1,                              $ Min, Max (max enumeration #), and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Enum37 =      0,"Do Nothing", 1,"Clear Alarms";
+
+      Param38 =     $ Clear latached alarms 4
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 09 24 05 30 67",                $ Link Path to DOP object's Clear Latched alarm Attribute.
+                    0x0002,                             $ No support for: settable path, scaling, scaling links, or
+                                                        $ real time update of value.  Value is gettable and 
+                                                        $ Settable.  Enumerated strings are supported.
+                    0xC1,                               $ Data Type - boolean (New data type)
+                    1,                                  $ Data Size
+                    "Clear Latched Alarms #4",          $ Parameter Name
+                    "",                                 $ Units String
+                    "This service will clear all latched alarms in the output point.\nIf Latching of Alarms is not enabled for this channel, this service will have no effect.\nIf the fault still exists, it will be latched again.",
+                    0,1,1,                              $ Min, Max (max enumeration #), and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Enum38 =      0,"Do Nothing", 1,"Clear Alarms";
+
+      Param39 =     $ Clear latached alarms 5
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 09 24 06 30 67",                $ Link Path to DOP object's Clear Latched alarm Attribute.
+                    0x0002,                             $ No support for: settable path, scaling, scaling links, or
+                                                        $ real time update of value.  Value is gettable and 
+                                                        $ Settable.  Enumerated strings are supported.
+                    0xC1,                               $ Data Type - boolean (New data type)
+                    1,                                  $ Data Size
+                    "Clear Latched Alarms #5",          $ Parameter Name
+                    "",                                 $ Units String
+                    "This service will clear all latched alarms in the output point.\nIf Latching of Alarms is not enabled for this channel, this service will have no effect.\nIf the fault still exists, it will be latched again.",
+                    0,1,1,                              $ Min, Max (max enumeration #), and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Enum39 =      0,"Do Nothing", 1,"Clear Alarms";
+
+      Param40 =     $ Clear latached alarms 6
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 09 24 07 30 67",                $ Link Path to DOP object's Clear Latched alarm Attribute.
+                    0x0002,                             $ No support for: settable path, scaling, scaling links, or
+                                                        $ real time update of value.  Value is gettable and 
+                                                        $ Settable.  Enumerated strings are supported.
+                    0xC1,                               $ Data Type - boolean (New data type)
+                    1,                                  $ Data Size
+                    "Clear Latched Alarms #6",          $ Parameter Name
+                    "",                                 $ Units String
+                    "This service will clear all latched alarms in the output point.\nIf Latching of Alarms is not enabled for this channel, this service will have no effect.\nIf the fault still exists, it will be latched again.",
+                    0,1,1,                              $ Min, Max (max enumeration #), and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Enum40 =      0,"Do Nothing", 1,"Clear Alarms";
+
+      Param41 =     $ Clear latached alarms 7
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 09 24 08 30 67",                $ Link Path to DOP object's Clear Latched alarm Attribute.
+                    0x0002,                             $ No support for: settable path, scaling, scaling links, or
+                                                        $ real time update of value.  Value is gettable and 
+                                                        $ Settable.  Enumerated strings are supported.
+                    0xC1,                               $ Data Type - boolean (New data type)
+                    1,                                  $ Data Size
+                    "Clear Latched Alarms #7",          $ Parameter Name
+                    "",                                 $ Units String
+                    "This service will clear all latched alarms in the output point.\nIf Latching of Alarms is not enabled for this channel, this service will have no effect.\nIf the fault still exists, it will be latched again.",
+                    0,1,1,                              $ Min, Max (max enumeration #), and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Enum41 =      0,"Do Nothing", 1,"Clear Alarms";
+
+$ Group Run/Idle Command
+      Param42 =     $ Group Run/Idle Command
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 1E 24 01 30 06",                $ Link Path to DOG object's Command Attribute.
+                    0x0002,                             $ No support for: settable path, scaling, scaling links, or
+                                                        $ real time update of value.  Value is gettable and 
+                                                        $ Settable.  Enumerated strings are supported.
+                    0xC1,                               $ Data Type - boolean (New data type)
+                    1,                                  $ Data Size
+                    "Group Run/Idle Command",           $ Parameter Name
+                    "",                                 $ Units String
+                    "Puts all outputs in Idle mode.\nOutput state will be determined by the Idle State parameter. \nNote: Only works when NOT in a scanner's scanlist.",
+                    0,1,1,                              $ Min, Max (max enumeration #), and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Enum42 =      0,"Idle", 1,"Run";
+
+$ Fault Values
+      Param43 =     $ Fault State selection for output 0
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 09 24 01 30 05",                $ Link Path to DOP object's fault action attribute.
+                    0x0002,                             $ No support for: settable path, scaling, scaling links, or
+                                                        $ real time update of value.  Value is gettable and 
+                                                        $ Settable.  Enumerated strings are supported.
+                    0xC1,                               $ Data Type - boolean (New data type)
+                    1,                                  $ Data Size
+                    "Fault Action #0",                  $ Parameter Name
+                    "",                                 $ Units String
+                    "Fault Action defines output behavior in the event of a communication fault.\n\nPossible States:\n - goto Fault Value (defined in Fault Value parameter)\n - Hold Last State (state of output is uneffected by fault)",
+                    0,1,0,                              $ Min, Max (max enumeration #), and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Enum43 =      0,"Fault Value", 1,"Hold Last State";
+
+      Param44 =     $ Fault Value selection for output 0
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 09 24 01 30 06",                $ Link Path to DOP object's fault value attribute.
+                    0x0002,                             $ No support for: settable path, scaling, scaling links, or
+                                                        $ real time update of value.  Value is gettable and 
+                                                        $ Settable.  Enumerated strings are supported.
+                    0xC1,                               $ Data Type - boolean (New data type)
+                    1,                                  $ Data Size
+                    "Fault Value #0",                   $ Parameter Name
+                    "",                                 $ Units String
+                    "If 'Fault Value' is selected for this channel (in Fault Action parameter),\nthis field defines the output value during a fault.\n - ON\n - OFF",
+                    0,1,0,                              $ Min, Max (max enumeration #), and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Enum44 =      0,"OFF", 1,"ON";
+
+      Param45 =     $ Fault State selection for output 1
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 09 24 02 30 05",                $ Link Path to DOP object's fault action attribute.
+                    0x0002,                             $ No support for: settable path, scaling, scaling links, or
+                                                        $ real time update of value.  Value is gettable and 
+                                                        $ Settable.  Enumerated strings are supported.
+                    0xC1,                               $ Data Type - boolean (New data type)
+                    1,                                  $ Data Size
+                    "Fault Action #1",                  $ Parameter Name
+                    "",                                 $ Units String
+                    "Fault Action defines output behavior in the event of a communication fault.\n\nPossible States:\n - goto Fault Value (defined in Fault Value parameter)\n - Hold Last State (state of output is uneffected by fault)",
+                    0,1,0,                              $ Min, Max (max enumeration #), and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Enum45 =      0,"Fault Value", 1,"Hold Last State";
+
+      Param46 =     $ Fault Value selection for output 1
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 09 24 02 30 06",                $ Link Path to DOP object's fault value attribute.
+                    0x0002,                             $ No support for: settable path, scaling, scaling links, or
+                                                        $ real time update of value.  Value is gettable and 
+                                                        $ Settable.  Enumerated strings are supported.
+                    0xC1,                               $ Data Type - boolean (New data type)
+                    1,                                  $ Data Size
+                    "Fault Value #1",                   $ Parameter Name
+                    "",                                 $ Units String
+                    "If 'Fault Value' is selected for this channel (in Fault Action parameter),\nthis field defines the output value during a fault.\n - ON\n - OFF",
+                    0,1,0,                              $ Min, Max (max enumeration #), and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Enum46 =      0,"OFF", 1,"ON";
+
+      Param47 =     $ Fault State selection for output 2
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 09 24 03 30 05",                $ Link Path to DOP object's fault action attribute.
+                    0x0002,                             $ No support for: settable path, scaling, scaling links, or
+                                                        $ real time update of value.  Value is gettable and 
+                                                        $ Settable.  Enumerated strings are supported.
+                    0xC1,                                  $ Data Type - boolean
+                    1,                                  $ Data Size
+                    "Fault Action #2",                  $ Parameter Name
+                    "",                                 $ Units String
+                    "Fault Action defines output behavior in the event of a communication fault.\n\nPossible States:\n - goto Fault Value (defined in Fault Value parameter)\n - Hold Last State (state of output is uneffected by fault)",
+                    0,1,0,                              $ Min, Max (max enumeration #), and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Enum47 =      0,"Fault Value", 1,"Hold Last State";
+
+      Param48 =     $ Fault Value selection for output 2
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 09 24 03 30 06",                $ Link Path to DOP object's fault value attribute.
+                    0x0002,                             $ No support for: settable path, scaling, scaling links, or
+                                                        $ real time update of value.  Value is gettable and 
+                                                        $ Settable.  Enumerated strings are supported.
+                    0xC1,                               $ Data Type - boolean (New data type)
+                    1,                                  $ Data Size
+                    "Fault Value #2",                   $ Parameter Name
+                    "",                                 $ Units String
+                    "If 'Fault Value' is selected for this channel (in Fault Action parameter),\nthis field defines the output value during a fault.\n - ON\n - OFF",
+                    0,1,0,                              $ Min, Max (max enumeration #), and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Enum48 =      0,"OFF", 1,"ON";
+
+      Param49 =     $ Fault State selection for output 3
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 09 24 04 30 05",                $ Link Path to DOP object's fault action attribute.
+                    0x0002,                             $ No support for: settable path, scaling, scaling links, or
+                                                        $ real time update of value.  Value is gettable and 
+                                                        $ Settable.  Enumerated strings are supported.
+                    0xC1,                               $ Data Type - boolean (New data type)
+                    1,                                  $ Data Size
+                    "Fault Action #3",                  $ Parameter Name
+                    "",                                 $ Units String
+                    "Fault Action defines output behavior in the event of a communication fault.\n\nPossible States:\n - goto Fault Value (defined in Fault Value parameter)\n - Hold Last State (state of output is uneffected by fault)",
+                    0,1,0,                              $ Min, Max (max enumeration #), and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Enum49 =      0,"Fault Value", 1,"Hold Last State";
+
+      Param50 =     $ Fault Value selection for output 3
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 09 24 04 30 06",                $ Link Path to DOP object's fault value attribute.
+                    0x0002,                             $ No support for: settable path, scaling, scaling links, or
+                                                        $ real time update of value.  Value is gettable and 
+                                                        $ Settable.  Enumerated strings are supported.
+                    0xC1,                               $ Data Type - boolean (New data type)
+                    1,                                  $ Data Size
+                    "Fault Value #3",                   $ Parameter Name
+                    "",                                 $ Units String
+                    "If 'Fault Value' is selected for this channel (in Fault Action parameter),\nthis field defines the output value during a fault.\n - ON\n - OFF",
+                    0,1,0,                              $ Min, Max (max enumeration #), and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Enum50 =      0,"OFF", 1,"ON";
+
+      Param51 =     $ Fault State selection for output 4
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 09 24 05 30 05",                $ Link Path to DOP object's fault action attribute.
+                    0x0002,                             $ No support for: settable path, scaling, scaling links, or
+                                                        $ real time update of value.  Value is gettable and 
+                                                        $ Settable.  Enumerated strings are supported.
+                    0xC1,                               $ Data Type - boolean (New data type)
+                    1,                                  $ Data Size
+                    "Fault Action #4",                  $ Parameter Name
+                    "",                                 $ Units String
+                    "Fault Action defines output behavior in the event of a communication fault.\n\nPossible States:\n - goto Fault Value (defined in Fault Value parameter)\n - Hold Last State (state of output is uneffected by fault)",
+                    0,1,0,                              $ Min, Max (max enumeration #), and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Enum51 =      0,"Fault Value", 1,"Hold Last State";
+
+      Param52 =     $ Fault Value selection for output 4
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 09 24 05 30 06",                $ Link Path to DOP object's fault value attribute.
+                    0x0002,                             $ No support for: settable path, scaling, scaling links, or
+                                                        $ real time update of value.  Value is gettable and 
+                                                        $ Settable.  Enumerated strings are supported.
+                    0xC1,                               $ Data Type - boolean (New data type)
+                    1,                                  $ Data Size
+                    "Fault Value #4",                   $ Parameter Name
+                    "",                                 $ Units String
+                    "If 'Fault Value' is selected for this channel (in Fault Action parameter),\nthis field defines the output value during a fault.\n - ON\n - OFF",
+                    0,1,0,                              $ Min, Max (max enumeration #), and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Enum52 =      0,"OFF", 1,"ON";
+
+      Param53 =     $ Fault State selection for output 5
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 09 24 06 30 05",                $ Link Path to DOP object's fault action attribute.
+                    0x0002,                             $ No support for: settable path, scaling, scaling links, or
+                                                        $ real time update of value.  Value is gettable and 
+                                                        $ Settable.  Enumerated strings are supported.
+                    0xC1,                               $ Data Type - boolean (New data type)
+                    1,                                  $ Data Size
+                    "Fault Action #5",                  $ Parameter Name
+                    "",                                 $ Units String
+                    "Fault Action defines output behavior in the event of a communication fault.\n\nPossible States:\n - goto Fault Value (defined in Fault Value parameter)\n - Hold Last State (state of output is uneffected by fault)",
+                    0,1,0,                              $ Min, Max (max enumeration #), and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Enum53 =      0,"Fault Value", 1,"Hold Last State";
+
+      Param54 =     $ Fault Value selection for output 5
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 09 24 06 30 06",                $ Link Path to DOP object's fault value attribute.
+                    0x0002,                             $ No support for: settable path, scaling, scaling links, or
+                                                        $ real time update of value.  Value is gettable and 
+                                                        $ Settable.  Enumerated strings are supported.
+                    0xC1,                               $ Data Type - boolean (New data type)
+                    1,                                  $ Data Size
+                    "Fault Value #5",                   $ Parameter Name
+                    "",                                 $ Units String
+                    "If 'Fault Value' is selected for this channel (in Fault Action parameter),\nthis field defines the output value during a fault.\n - ON\n - OFF",
+                    0,1,0,                              $ Min, Max (max enumeration #), and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Enum54 =      0,"OFF", 1,"ON";
+
+      Param55 =     $ Fault State selection for output 6
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 09 24 07 30 05",                $ Link Path to DOP object's fault action attribute.
+                    0x0002,                             $ No support for: settable path, scaling, scaling links, or
+                                                        $ real time update of value.  Value is gettable and 
+                                                        $ Settable.  Enumerated strings are supported.
+                    0xC1,                                  $ Data Type - boolean
+                    1,                                  $ Data Size
+                    "Fault Action #6",                  $ Parameter Name
+                    "",                                 $ Units String
+                    "Fault Action defines output behavior in the event of a communication fault.\n\nPossible States:\n - goto Fault Value (defined in Fault Value parameter)\n - Hold Last State (state of output is uneffected by fault)",
+                    0,1,0,                              $ Min, Max (max enumeration #), and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Enum55 =      0,"Fault Value", 1,"Hold Last State";
+
+      Param56 =     $ Fault Value selection for output 6
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 09 24 07 30 06",                $ Link Path to DOP object's fault value attribute.
+                    0x0002,                             $ No support for: settable path, scaling, scaling links, or
+                                                        $ real time update of value.  Value is gettable and 
+                                                        $ Settable.  Enumerated strings are supported.
+                    0xC1,                               $ Data Type - boolean (New data type)
+                    1,                                  $ Data Size
+                    "Fault Value #6",                   $ Parameter Name
+                    "",                                 $ Units String
+                    "If 'Fault Value' is selected for this channel (in Fault Action parameter),\nthis field defines the output value during a fault.\n - ON\n - OFF",
+                    0,1,0,                              $ Min, Max (max enumeration #), and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Enum56 =      0,"OFF", 1,"ON";
+
+      Param57 =     $ Fault State selection for output 7
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 09 24 08 30 05",                $ Link Path to DOP object's fault action attribute.
+                    0x0002,                             $ No support for: settable path, scaling, scaling links, or
+                                                        $ real time update of value.  Value is gettable and 
+                                                        $ Settable.  Enumerated strings are supported.
+                    0xC1,                               $ Data Type - boolean (New data type)
+                    1,                                  $ Data Size
+                    "Fault Action #7",                  $ Parameter Name
+                    "",                                 $ Units String
+                    "Fault Action defines output behavior in the event of a communication fault.\n\nPossible States:\n - goto Fault Value (defined in Fault Value parameter)\n - Hold Last State (state of output is uneffected by fault)",
+                    0,1,0,                              $ Min, Max (max enumeration #), and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Enum57 =      0,"Fault Value", 1,"Hold Last State";
+
+      Param58 =     $ Fault Value selection for output 7
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 09 24 08 30 06",                $ Link Path to DOP object's fault value attribute.
+                    0x0002,                             $ No support for: settable path, scaling, scaling links, or
+                                                        $ real time update of value.  Value is gettable and 
+                                                        $ Settable.  Enumerated strings are supported.
+                    0xC1,                               $ Data Type - boolean (New data type)
+                    1,                                  $ Data Size
+                    "Fault Value #7",                   $ Parameter Name
+                    "",                                 $ Units String
+                    "If 'Fault Value' is selected for this channel (in Fault Action parameter),\nthis field defines the output value during a fault.\n - ON\n - OFF",
+                    0,1,0,                              $ Min, Max (max enumeration #), and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Enum58 =      0,"OFF", 1,"ON";
+
+$ Idle Values
+      Param59 =     $ Idle State selection for output 0
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 09 24 01 30 07",                $ Link Path to DOP object's idle action attribute.
+                    0x0002,                             $ No support for: settable path, scaling, scaling links, or
+                                                        $ real time update of value.  Value is gettable and 
+                                                        $ Settable.  Enumerated strings are supported.
+                    0xC1,                               $ Data Type - boolean (New data type)
+                    1,                                  $ Data Size
+                    "Idle Action #0",                   $ Parameter Name
+                    "",                                 $ Units String
+                    "Idle Action defines output behavior during program or idle mode.\n\nPossible States:\n - goto Idle Value (defined in Idle Value parameter)\n - Hold Last State (state of output is uneffected by fault)",
+
+                    0,1,0,                              $ Min, Max (max enumeration #), and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Enum59 =      0,"Idle Value", 1,"Hold Last State";
+
+      Param60 =     $ Idle Value selection for output 0
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 09 24 01 30 08",                $ Link Path to DOP object's idle value attribute.
+                    0x0002,                             $ No support for: settable path, scaling, scaling links, or
+                                                        $ real time update of value.  Value is gettable and 
+                                                        $ Settable.  Enumerated strings are supported.
+                    0xC1,                               $ Data Type - boolean (New data type)
+                    1,                                  $ Data Size
+                    "Idle Value #0",                    $ Parameter Name
+                    "",                                 $ Units String
+                    "If 'Idle Value' is selected for this channel (in Idle Action parameter),\nthis field defines the output value during a Idle or Program mode.\n - ON\n - OFF",
+                    0,1,0,                              $ Min, Max (max enumeration #), and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Enum60 =      0,"OFF", 1,"ON";
+
+      Param61 =     $ Idle State selection for output 1
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 09 24 02 30 07",                $ Link Path to DOP object's idle action attribute.
+                    0x0002,                             $ No support for: settable path, scaling, scaling links, or
+                                                        $ real time update of value.  Value is gettable and 
+                                                        $ Settable.  Enumerated strings are supported.
+                    0xC1,                               $ Data Type - boolean (New data type)
+                    1,                                  $ Data Size
+                    "Idle Action #1",                   $ Parameter Name
+                    "",                                 $ Units String
+                    "Idle Action defines output behavior during program or idle mode.\n\nPossible States:\n - goto Idle Value (defined in Idle Value parameter)\n - Hold Last State (state of output is uneffected by fault)",
+                    0,1,0,                              $ Min, Max (max enumeration #), and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Enum61 =      0,"Idle Value", 1,"Hold Last State";
+
+      Param62 =     $ Idle Value selection for output 1
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 09 24 02 30 08",                $ Link Path to DOP object's idle value attribute.
+                    0x0002,                             $ No support for: settable path, scaling, scaling links, or
+                                                        $ real time update of value.  Value is gettable and 
+                                                        $ Settable.  Enumerated strings are supported.
+                    0xC1,                               $ Data Type - boolean (New data type)
+                    1,                                  $ Data Size
+                    "Idle Value #1",                    $ Parameter Name
+                    "",                                 $ Units String
+                    "If 'Idle Value' is selected for this channel (in Idle Action parameter),\nthis field defines the output value during a Idle or Program mode.\n - ON\n - OFF",
+                    0,1,0,                              $ Min, Max (max enumeration #), and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Enum62 =      0,"OFF", 1,"ON";
+
+      Param63 =     $ Idle State selection for output 2
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 09 24 03 30 07",                $ Link Path to DOP object's idle action attribute.
+                    0x0002,                             $ No support for: settable path, scaling, scaling links, or
+                                                        $ real time update of value.  Value is gettable and 
+                                                        $ Settable.  Enumerated strings are supported.
+                    0xC1,                               $ Data Type - boolean (New data type)
+                    1,                                  $ Data Size
+                    "Idle Action #2",                   $ Parameter Name
+                    "",                                 $ Units String
+                    "Idle Action defines output behavior during program or idle mode.\n\nPossible States:\n - goto Idle Value (defined in Idle Value parameter)\n - Hold Last State (state of output is uneffected by fault)",
+                    0,1,0,                              $ Min, Max (max enumeration #), and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Enum63 =      0,"Idle Value", 1,"Hold Last State";
+
+      Param64 =     $ Idle Value selection for output 2
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 09 24 03 30 08",                $ Link Path to DOP object's idle value attribute.
+                    0x0002,                             $ No support for: settable path, scaling, scaling links, or
+                                                        $ real time update of value.  Value is gettable and 
+                                                        $ Settable.  Enumerated strings are supported.
+                    0xC1,                               $ Data Type - boolean (New data type)
+                    1,                                  $ Data Size
+                    "Idle Value #2",                    $ Parameter Name
+                    "",                                 $ Units String
+                    "If 'Idle Value' is selected for this channel (in Idle Action parameter),\nthis field defines the output value during a Idle or Program mode.\n - ON\n - OFF",
+                    0,1,0,                              $ Min, Max (max enumeration #), and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Enum64 =      0,"OFF", 1,"ON";
+
+      Param65 =     $ Idle State selection for output 3
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 09 24 04 30 07",                $ Link Path to DOP object's idle action attribute.
+                    0x0002,                             $ No support for: settable path, scaling, scaling links, or
+                                                        $ real time update of value.  Value is gettable and 
+                                                        $ Settable.  Enumerated strings are supported.
+                    0xC1,                               $ Data Type - boolean (New data type)
+                    1,                                  $ Data Size
+                    "Idle Action #3",                   $ Parameter Name
+                    "",                                 $ Units String
+                    "Idle Action defines output behavior during program or idle mode.\n\nPossible States:\n - goto Idle Value (defined in Idle Value parameter)\n - Hold Last State (state of output is uneffected by fault)",
+                    0,1,0,                              $ Min, Max (max enumeration #), and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Enum65 =      0,"Idle Value", 1,"Hold Last State";
+
+      Param66 =     $ Idle Value selection for output 3
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 09 24 04 30 08",                $ Link Path to DOP object's idle value attribute.
+                    0x0002,                             $ No support for: settable path, scaling, scaling links, or
+                                                        $ real time update of value.  Value is gettable and 
+                                                        $ Settable.  Enumerated strings are supported.
+                    0xC1,                               $ Data Type - boolean (New data type)
+                    1,                                  $ Data Size
+                    "Idle Value #3",                    $ Parameter Name
+                    "",                                 $ Units String
+                    "If 'Idle Value' is selected for this channel (in Idle Action parameter),\nthis field defines the output value during a Idle or Program mode.\n - ON\n - OFF",
+                    0,1,0,                              $ Min, Max (max enumeration #), and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Enum66 =      0,"OFF", 1,"ON";
+
+      Param67 =     $ Idle State selection for output 4
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 09 24 05 30 07",                $ Link Path to DOP object's idle action attribute.
+                    0x0002,                             $ No support for: settable path, scaling, scaling links, or
+                                                        $ real time update of value.  Value is gettable and 
+                                                        $ Settable.  Enumerated strings are supported.
+                    0xC1,                               $ Data Type - boolean (New data type)
+                    1,                                  $ Data Size
+                    "Idle Action #4",                   $ Parameter Name
+                    "",                                 $ Units String
+                    "Idle Action defines output behavior during program or idle mode.\n\nPossible States:\n - goto Idle Value (defined in Idle Value parameter)\n - Hold Last State (state of output is uneffected by fault)",
+
+                    0,1,0,                              $ Min, Max (max enumeration #), and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Enum67 =      0,"Idle Value", 1,"Hold Last State";
+
+      Param68 =     $ Idle Value selection for output 4
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 09 24 05 30 08",                $ Link Path to DOP object's idle value attribute.
+                    0x0002,                             $ No support for: settable path, scaling, scaling links, or
+                                                        $ real time update of value.  Value is gettable and 
+                                                        $ Settable.  Enumerated strings are supported.
+                    0xC1,                               $ Data Type - boolean (New data type)
+                    1,                                  $ Data Size
+                    "Idle Value #4",                    $ Parameter Name
+                    "",                                 $ Units String
+                    "If 'Idle Value' is selected for this channel (in Idle Action parameter),\nthis field defines the output value during a Idle or Program mode.\n - ON\n - OFF",
+                    0,1,0,                              $ Min, Max (max enumeration #), and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Enum68 =      0,"OFF", 1,"ON";
+
+      Param69 =     $ Idle State selection for output 5
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 09 24 06 30 07",                $ Link Path to DOP object's idle action attribute.
+                    0x0002,                             $ No support for: settable path, scaling, scaling links, or
+                                                        $ real time update of value.  Value is gettable and 
+                                                        $ Settable.  Enumerated strings are supported.
+                    0xC1,                               $ Data Type - boolean (New data type)
+                    1,                                  $ Data Size
+                    "Idle Action #5",                   $ Parameter Name
+                    "",                                 $ Units String
+                    "Idle Action defines output behavior during program or idle mode.\n\nPossible States:\n - goto Idle Value (defined in Idle Value parameter)\n - Hold Last State (state of output is uneffected by fault)",
+                    0,1,0,                              $ Min, Max (max enumeration #), and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Enum69 =      0,"Idle Value", 1,"Hold Last State";
+
+      Param70 =     $ Idle Value selection for output 5
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 09 24 06 30 08",                $ Link Path to DOP object's idle value attribute.
+                    0x0002,                             $ No support for: settable path, scaling, scaling links, or
+                                                        $ real time update of value.  Value is gettable and 
+                                                        $ Settable.  Enumerated strings are supported.
+                    0xC1,                               $ Data Type - boolean (New data type)
+                    1,                                  $ Data Size
+                    "Idle Value #5",                    $ Parameter Name
+                    "",                                 $ Units String
+                    "If 'Idle Value' is selected for this channel (in Idle Action parameter),\nthis field defines the output value during a Idle or Program mode.\n - ON\n - OFF",
+                    0,1,0,                              $ Min, Max (max enumeration #), and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Enum70 =      0,"OFF", 1,"ON";
+
+      Param71 =     $ Idle State selection for output 6
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 09 24 07 30 07",                $ Link Path to DOP object's idle action attribute.
+                    0x0002,                             $ No support for: settable path, scaling, scaling links, or
+                                                        $ real time update of value.  Value is gettable and 
+                                                        $ Settable.  Enumerated strings are supported.
+                    0xC1,                               $ Data Type - boolean (New data type)
+                    1,                                  $ Data Size
+                    "Idle Action #6",                   $ Parameter Name
+                    "",                                 $ Units String
+                    "Idle Action defines output behavior during program or idle mode.\n\nPossible States:\n - goto Idle Value (defined in Idle Value parameter)\n - Hold Last State (state of output is uneffected by fault)",
+                    0,1,0,                              $ Min, Max (max enumeration #), and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Enum71 =      0,"Idle Value", 1,"Hold Last State";
+
+      Param72 =     $ Idle Value selection for output 6
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 09 24 07 30 08",                $ Link Path to DOP object's idle value attribute.
+                    0x0002,                             $ No support for: settable path, scaling, scaling links, or
+                                                        $ real time update of value.  Value is gettable and 
+                                                        $ Settable.  Enumerated strings are supported.
+                    0xC1,                               $ Data Type - boolean (New data type)
+                    1,                                  $ Data Size
+                    "Idle Value #6",                    $ Parameter Name
+                    "",                                 $ Units String
+                    "If 'Idle Value' is selected for this channel (in Idle Action parameter),\nthis field defines the output value during a Idle or Program mode.\n - ON\n - OFF",
+                    0,1,0,                              $ Min, Max (max enumeration #), and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Enum72 =      0,"OFF", 1,"ON";
+
+      Param73 =     $ Idle State selection for output 7
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 09 24 08 30 07",                $ Link Path to DOP object's idle action attribute.
+                    0x0002,                             $ No support for: settable path, scaling, scaling links, or
+                                                        $ real time update of value.  Value is gettable and 
+                                                        $ Settable.  Enumerated strings are supported.
+                    0xC1,                               $ Data Type - boolean (New data type)
+                    1,                                  $ Data Size
+                    "Idle Action #7",                   $ Parameter Name
+                    "",                                 $ Units String
+                    "Idle Action defines output behavior during program or idle mode.\n\nPossible States:\n - goto Idle Value (defined in Idle Value parameter)\n - Hold Last State (state of output is uneffected by fault)",
+                    0,1,0,                              $ Min, Max (max enumeration #), and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Enum73 =      0,"Idle Value", 1,"Hold Last State";
+
+      Param74 =     $ Idle Value selection for output 7
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 09 24 08 30 08",                $ Link Path to DOP object's idle value attribute.
+                    0x0002,                             $ No support for: settable path, scaling, scaling links, or
+                                                        $ real time update of value.  Value is gettable and 
+                                                        $ Settable.  Enumerated strings are supported.
+                    0xC1,                               $ Data Type - boolean (New data type)
+                    1,                                  $ Data Size
+                    "Idle Value #7",                    $ Parameter Name
+                    "",                                 $ Units String
+                    "If 'Idle Value' is selected for this channel (in Idle Action parameter),\nthis field defines the output value during a Idle or Program mode.\n - ON\n - OFF",
+                    0,1,0,                              $ Min, Max (max enumeration #), and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Enum74 =      0,"OFF", 1,"ON";
+
+$ Enable Latched Alarms
+      Param75 =     $ Enable Latched Alarms for output 0
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 09 24 01 30 68",                $ Link Path to DOP object's latch alarm enable attribute.
+                    0x0002,                             $ No support for: settable path, scaling, scaling links, or
+                                                        $ real time update of value.  Value is gettable and 
+                                                        $ Settable.  Enumerated strings are supported.
+                    0xC1,                               $ Data Type - boolean (New data type)
+                    1,                                  $ Data Size
+                    "Enable Latching Alarms #0",        $ Parameter Name
+                    "",                                 $ Units String
+                    "This parameter selects how a status bit acts after the cause of the fault is removed.\nIf 'Latching Enabled,' alarm bits will stay FAULTed if an alarm occurs.\nThe FAULT can only be cleared using the Clear Latched Alarm service for this point.\nLatching is useful for tracking transient or momentary faults.\nIf 'Latching Disabled,' alarms will refect the present state.\n\nNote:  LEDs don't reflect latched Alarms.",
+                    0,1,0,                              $ Min, Max (max enumeration #), and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Enum75 =      0,"Latching Disabled", 1,"Latching Enabled";
+
+      Param76 =     $ Enable Latched Alarms for output 1
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 09 24 02 30 68",                $ Link Path to DOP object's latch alarm enable attribute.
+                    0x0002,                             $ No support for: settable path, scaling, scaling links, or
+                                                        $ real time update of value.  Value is gettable and 
+                                                        $ Settable.  Enumerated strings are supported.
+                    0xC1,                               $ Data Type - boolean (New data type)
+                    1,                                  $ Data Size
+                    "Enable Latching Alarms #1",        $ Parameter Name
+                    "",                                 $ Units String
+                    "This parameter selects how a status bit acts after the cause of the fault is removed.\nIf 'Latching Enabled,' alarm bits will stay FAULTed if an alarm occurs.\nThe FAULT can only be cleared using the Clear Latched Alarm service for this point.\nLatching is useful for tracking transient or momentary faults.\nIf 'Latching Disabled,' alarms will refect the present state.\n\nNote:  LEDs don't reflect latched Alarms.",
+                    0,1,0,                              $ Min, Max (max enumeration #), and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Enum76 =      0,"Latching Disabled", 1,"Latching Enabled";
+
+      Param77 =     $ Enable Latched Alarms for output 2
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 09 24 03 30 68",                $ Link Path to DOP object's latch alarm enable attribute.
+                    0x0002,                             $ No support for: settable path, scaling, scaling links, or
+                                                        $ real time update of value.  Value is gettable and 
+                                                        $ Settable.  Enumerated strings are supported.
+                    0xC1,                               $ Data Type - boolean (New data type)
+                    1,                                  $ Data Size
+                    "Enable Latching Alarms #2",        $ Parameter Name
+                    "",                                 $ Units String
+                    "This parameter selects how a status bit acts after the cause of the fault is removed.\nIf 'Latching Enabled,' alarm bits will stay FAULTed if an alarm occurs.\nThe FAULT can only be cleared using the Clear Latched Alarm service for this point.\nLatching is useful for tracking transient or momentary faults.\nIf 'Latching Disabled,' alarms will refect the present state.\n\nNote:  LEDs don't reflect latched Alarms.",
+                    0,1,0,                              $ Min, Max (max enumeration #), and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Enum77 =      0,"Latching Disabled", 1,"Latching Enabled";
+
+      Param78 =     $ Enable Latched Alarms for output 3
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 09 24 04 30 68",                $ Link Path to DOP object's latch alarm enable attribute.
+                    0x0002,                             $ No support for: settable path, scaling, scaling links, or
+                                                        $ real time update of value.  Value is gettable and 
+                                                        $ Settable.  Enumerated strings are supported.
+                    0xC1,                               $ Data Type - boolean (New data type)
+                    1,                                  $ Data Size
+                    "Enable Latching Alarms #3",        $ Parameter Name
+                    "",                                 $ Units String
+                    "This parameter selects how a status bit acts after the cause of the fault is removed.\nIf 'Latching Enabled,' alarm bits will stay FAULTed if an alarm occurs.\nThe FAULT can only be cleared using the Clear Latched Alarm service for this point.\nLatching is useful for tracking transient or momentary faults.\nIf 'Latching Disabled,' alarms will refect the present state.\n\nNote:  LEDs don't reflect latched Alarms.",
+                    0,1,0,                              $ Min, Max (max enumeration #), and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Enum78 =      0,"Latching Disabled", 1,"Latching Enabled";
+
+      Param79 =     $ Enable Latched Alarms for output 4
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 09 24 05 30 68",                $ Link Path to DOP object's latch alarm enable attribute.
+                    0x0002,                             $ No support for: settable path, scaling, scaling links, or
+                                                        $ real time update of value.  Value is gettable and 
+                                                        $ Settable.  Enumerated strings are supported.
+                    0xC1,                               $ Data Type - boolean (New data type)
+                    1,                                  $ Data Size
+                    "Enable Latching Alarms #4",        $ Parameter Name
+                    "",                                 $ Units String
+                    "This parameter selects how a status bit acts after the cause of the fault is removed.\nIf 'Latching Enabled,' alarm bits will stay FAULTed if an alarm occurs.\nThe FAULT can only be cleared using the Clear Latched Alarm service for this point.\nLatching is useful for tracking transient or momentary faults.\nIf 'Latching Disabled,' alarms will refect the present state.\n\nNote:  LEDs don't reflect latched Alarms.",
+                    0,1,0,                              $ Min, Max (max enumeration #), and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Enum79 =      0,"Latching Disabled", 1,"Latching Enabled";
+
+      Param80 =     $ Enable Latched Alarms for output 5
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 09 24 06 30 68",                $ Link Path to DOP object's latch alarm enable attribute.
+                    0x0002,                             $ No support for: settable path, scaling, scaling links, or
+                                                        $ real time update of value.  Value is gettable and 
+                                                        $ Settable.  Enumerated strings are supported.
+                    0xC1,                               $ Data Type - boolean (New data type)
+                    1,                                  $ Data Size
+                    "Enable Latching Alarms #5",        $ Parameter Name
+                    "",                                 $ Units String
+                    "This parameter selects how a status bit acts after the cause of the fault is removed.\nIf 'Latching Enabled,' alarm bits will stay FAULTed if an alarm occurs.\nThe FAULT can only be cleared using the Clear Latched Alarm service for this point.\nLatching is useful for tracking transient or momentary faults.\nIf 'Latching Disabled,' alarms will refect the present state.\n\nNote:  LEDs don't reflect latched Alarms.",
+                    0,1,0,                              $ Min, Max (max enumeration #), and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Enum80 =      0,"Latching Disabled", 1,"Latching Enabled";
+
+      Param81 =     $ Enable Latched Alarms for output 6
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 09 24 07 30 68",                $ Link Path to DOP object's latch alarm enable attribute.
+                    0x0002,                             $ No support for: settable path, scaling, scaling links, or
+                                                        $ real time update of value.  Value is gettable and 
+                                                        $ Settable.  Enumerated strings are supported.
+                    0xC1,                               $ Data Type - boolean (New data type)
+                    1,                                  $ Data Size
+                    "Enable Latching Alarms #6",        $ Parameter Name
+                    "",                                 $ Units String
+                    "This parameter selects how a status bit acts after the cause of the fault is removed.\nIf 'Latching Enabled,' alarm bits will stay FAULTed if an alarm occurs.\nThe FAULT can only be cleared using the Clear Latched Alarm service for this point.\nLatching is useful for tracking transient or momentary faults.\nIf 'Latching Disabled,' alarms will refect the present state.\n\nNote:  LEDs don't reflect latched Alarms.",
+                    0,1,0,                              $ Min, Max (max enumeration #), and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Enum81 =      0,"Latching Disabled", 1,"Latching Enabled";
+
+      Param82 =     $ Enable Latched Alarms for output 7
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 09 24 08 30 68",                $ Link Path to DOP object's latch alarm enable attribute.
+                    0x0002,                             $ No support for: settable path, scaling, scaling links, or
+                                                        $ real time update of value.  Value is gettable and 
+                                                        $ Settable.  Enumerated strings are supported.
+                    0xC1,                               $ Data Type - boolean (New data type)
+                    1,                                  $ Data Size
+                    "Enable Latching Alarms #7",        $ Parameter Name
+                    "",                                 $ Units String
+                    "This parameter selects how a status bit acts after the cause of the fault is removed.\nIf 'Latching Enabled,' alarm bits will stay FAULTed if an alarm occurs.\nThe FAULT can only be cleared using the Clear Latched Alarm service for this point.\nLatching is useful for tracking transient or momentary faults.\nIf 'Latching Disabled,' alarms will refect the present state.\n\nNote:  LEDs don't reflect latched Alarms.",
+                    0,1,0,                              $ Min, Max (max enumeration #), and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Enum82 =      0,"Latching Disabled", 1,"Latching Enabled";
+
+$ Enable No Load
+      Param83 =     $ Enable No Load for output 0
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 09 24 01 30 6A",                $ Link Path to DOP object's Enable No Load attribute.
+                    0x0002,                             $ No support for: settable path, scaling, scaling links, or
+                                                        $ real time update of value.  Value is gettable and 
+                                                        $ Settable.  Enumerated strings are supported.
+                    0xC1,                               $ Data Type - boolean (New data type)
+                    1,                                  $ Data Size
+                    "Enable No Load #0",                $ Parameter Name
+                    "",                                 $ Units String
+                    "This parameter turns on and off No Load Detection.\nDisabling the No Load diagnostic is useful for unused channels.",
+                    0,1,1,                              $ Min, Max (max enumeration #), and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Enum83 =      0,"No Load Disabled", 1,"No Load Enabled";
+
+      Param84 =     $ Enable No Load for output 1
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 09 24 02 30 6A",                $ Link Path to DOP object's Enable No Load attribute.
+                    0x0002,                             $ No support for: settable path, scaling, scaling links, or
+                                                        $ real time update of value.  Value is gettable and 
+                                                        $ Settable.  Enumerated strings are supported.
+                    0xC1,                               $ Data Type - boolean (New data type)
+                    1,                                  $ Data Size
+                    "Enable No Load #1",                $ Parameter Name
+                    "",                                 $ Units String
+                    "This parameter turns on and off No Load Detection.\nDisabling the No Load diagnostic is useful for unused channels.",
+                    0,1,1,                              $ Min, Max (max enumeration #), and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Enum84 =      0,"No Load Disabled", 1,"No Load Enabled";
+
+      Param85 =     $ Enable No Load for output 2
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 09 24 03 30 6A",                $ Link Path to DOP object's Enable No Load attribute.
+                    0x0002,                             $ No support for: settable path, scaling, scaling links, or
+                                                        $ real time update of value.  Value is gettable and 
+                                                        $ Settable.  Enumerated strings are supported.
+                    0xC1,                               $ Data Type - boolean (New data type)
+                    1,                                  $ Data Size
+                    "Enable No Load #2",                $ Parameter Name
+                    "",                                 $ Units String
+                    "This parameter turns on and off No Load Detection.\nDisabling the No Load diagnostic is useful for unused channels.",
+                    0,1,1,                              $ Min, Max (max enumeration #), and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Enum85 =      0,"No Load Disabled", 1,"No Load Enabled";
+
+      Param86 =     $ Enable No Load for output 3
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 09 24 04 30 6A",                $ Link Path to DOP object's Enable No Load attribute.
+                    0x0002,                             $ No support for: settable path, scaling, scaling links, or
+                                                        $ real time update of value.  Value is gettable and 
+                                                        $ Settable.  Enumerated strings are supported.
+                    0xC1,                               $ Data Type - boolean (New data type)
+                    1,                                  $ Data Size
+                    "Enable No Load #3",                $ Parameter Name
+                    "",                                 $ Units String
+                    "This parameter turns on and off No Load Detection.\nDisabling the No Load diagnostic is useful for unused channels.",
+                    0,1,1,                              $ Min, Max (max enumeration #), and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Enum86 =      0,"No Load Disabled", 1,"No Load Enabled";
+
+      Param87 =     $ Enable No Load for output 4
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 09 24 05 30 6A",                $ Link Path to DOP object's Enable No Load attribute.
+                    0x0002,                             $ No support for: settable path, scaling, scaling links, or
+                                                        $ real time update of value.  Value is gettable and 
+                                                        $ Settable.  Enumerated strings are supported.
+                    0xC1,                               $ Data Type - boolean (New data type)
+                    1,                                  $ Data Size
+                    "Enable No Load #4",                $ Parameter Name
+                    "",                                 $ Units String
+                    "This parameter turns on and off No Load Detection.\nDisabling the No Load diagnostic is useful for unused channels.",
+                    0,1,1,                              $ Min, Max (max enumeration #), and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Enum87 =      0,"No Load Disabled", 1,"No Load Enabled";
+
+      Param88 =     $ Enable No Load for output 5
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 09 24 06 30 6A",                $ Link Path to DOP object's Enable No Load attribute.
+                    0x0002,                             $ No support for: settable path, scaling, scaling links, or
+                                                        $ real time update of value.  Value is gettable and 
+                                                        $ Settable.  Enumerated strings are supported.
+                    0xC1,                               $ Data Type - boolean (New data type)
+                    1,                                  $ Data Size
+                    "Enable No Load #5",                $ Parameter Name
+                    "",                                 $ Units String
+                    "This parameter turns on and off No Load Detection.\nDisabling the No Load diagnostic is useful for unused channels.",
+                    0,1,1,                              $ Min, Max (max enumeration #), and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Enum88 =      0,"No Load Disabled", 1,"No Load Enabled";
+
+      Param89 =     $ Enable No Load for output 6
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 09 24 07 30 6A",                $ Link Path to DOP object's Enable No Load attribute.
+                    0x0002,                             $ No support for: settable path, scaling, scaling links, or
+                                                        $ real time update of value.  Value is gettable and 
+                                                        $ Settable.  Enumerated strings are supported.
+                    0xC1,                               $ Data Type - boolean (New data type)
+                    1,                                  $ Data Size
+                    "Enable No Load #6",                $ Parameter Name
+                    "",                                 $ Units String
+                    "This parameter turns on and off No Load Detection.\nDisabling the No Load diagnostic is useful for unused channels.",
+                    0,1,1,                              $ Min, Max (max enumeration #), and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Enum89 =      0,"No Load Disabled", 1,"No Load Enabled";
+
+      Param90 =     $ Enable No Load for output 7
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 09 24 08 30 6A",                $ Link Path to DOP object's Enable No Load attribute.
+                    0x0002,                             $ No support for: settable path, scaling, scaling links, or
+                                                        $ real time update of value.  Value is gettable and 
+                                                        $ Settable.  Enumerated strings are supported.
+                    0xC1,                               $ Data Type - boolean (New data type)
+                    1,                                  $ Data Size
+                    "Enable No Load #7",                $ Parameter Name
+                    "",                                 $ Units String
+                    "This parameter turns on and off No Load Detection.\nDisabling the No Load diagnostic is useful for unused channels.",
+                    0,1,1,                              $ Min, Max (max enumeration #), and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Enum90 =      0,"No Load Disabled", 1,"No Load Enabled";
+
+$ Reset Mode
+      Param91 =     $ Reset Mode for output 0
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 09 24 01 30 76",                $ Link Path to DOP object's reset mode attribute.
+                    0x0002,                             $ No support for: settable path, scaling, scaling links, or
+                                                        $ real time update of value.  Value is gettable and 
+                                                        $ Settable.  Enumerated strings are supported.
+                    0xC1,                               $ Data Type - boolean (New data type)
+                    1,                                  $ Data Size
+                    "Reset Mode #0",                    $ Parameter Name
+                    "",                                 $ Units String
+                    "Reset Mode defines the action of the output during a short circuit or overload.\n\nSelect:\n - Latch Off = the output will shut OFF\n - Auto Restart = the output will continually try to turn ON\n\nNote:  Turning ON an output with no field power will cause a fault.",
+                    0,1,0,                              $ Min, Max (max enumeration #), and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Enum91 =      0,"Latch Off", 1,"Auto Restart";
+
+      Param92 =     $ Reset Mode for output 1
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 09 24 02 30 76",                $ Link Path to DOP object's reset mode attribute.
+                    0x0002,                             $ No support for: settable path, scaling, scaling links, or
+                                                        $ real time update of value.  Value is gettable and 
+                                                        $ Settable.  Enumerated strings are supported.
+                    0xC1,                               $ Data Type - boolean (New data type)
+                    1,                                  $ Data Size
+                    "Reset Mode #1",                    $ Parameter Name
+                    "",                                 $ Units String
+                    "Reset Mode defines the action of the output during a short circuit or overload.\n\nSelect:\n - Latch Off = the output will shut OFF\n - Auto Restart = the output will continually try to turn ON\n\nNote:  Turning ON an output with no field power will cause a fault.",
+                    0,1,0,                              $ Min, Max (max enumeration #), and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Enum92 =      0,"Latch Off", 1,"Auto Restart";
+
+      Param93 =     $ Reset Mode for output 2
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 09 24 03 30 76",                $ Link Path to DOP object's reset mode attribute.
+                    0x0002,                             $ No support for: settable path, scaling, scaling links, or
+                                                        $ real time update of value.  Value is gettable and 
+                                                        $ Settable.  Enumerated strings are supported.
+                    0xC1,                               $ Data Type - boolean (New data type)
+                    1,                                  $ Data Size
+                    "Reset Mode #2",                    $ Parameter Name
+                    "",                                 $ Units String
+                    "Reset Mode defines the action of the output during a short circuit or overload.\n\nSelect:\n - Latch Off = the output will shut OFF\n - Auto Restart = the output will continually try to turn ON\n\nNote:  Turning ON an output with no field power will cause a fault.",
+                    0,1,0,                              $ Min, Max (max enumeration #), and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Enum93 =      0,"Latch Off", 1,"Auto Restart";
+
+      Param94 =     $ Reset Mode for output 3
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 09 24 04 30 76",                $ Link Path to DOP object's reset mode attribute.
+                    0x0002,                             $ No support for: settable path, scaling, scaling links, or
+                                                        $ real time update of value.  Value is gettable and 
+                                                        $ Settable.  Enumerated strings are supported.
+                    0xC1,                               $ Data Type - boolean (New data type)
+                    1,                                  $ Data Size
+                    "Reset Mode #3",                    $ Parameter Name
+                    "",                                 $ Units String
+                    "Reset Mode defines the action of the output during a short circuit or overload.\n\nSelect:\n - Latch Off = the output will shut OFF\n - Auto Restart = the output will continually try to turn ON\n\nNote:  Turning ON an output with no field power will cause a fault.",
+                    0,1,0,                              $ Min, Max (max enumeration #), and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Enum94 =      0,"Latch Off", 1,"Auto Restart";
+
+      Param95 =     $ Reset Mode for output 4
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 09 24 05 30 76",                $ Link Path to DOP object's reset mode attribute.
+                    0x0002,                             $ No support for: settable path, scaling, scaling links, or
+                                                        $ real time update of value.  Value is gettable and 
+                                                        $ Settable.  Enumerated strings are supported.
+                    0xC1,                               $ Data Type - boolean (New data type)
+                    1,                                  $ Data Size
+                    "Reset Mode #4",                    $ Parameter Name
+                    "",                                 $ Units String
+                    "Reset Mode defines the action of the output during a short circuit or overload.\n\nSelect:\n - Latch Off = the output will shut OFF\n - Auto Restart = the output will continually try to turn ON\n\nNote:  Turning ON an output with no field power will cause a fault.",
+                    0,1,0,                              $ Min, Max (max enumeration #), and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Enum95 =      0,"Latch Off", 1,"Auto Restart";
+
+      Param96 =     $ Reset Mode for output 5
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 09 24 06 30 76",                $ Link Path to DOP object's reset mode attribute.
+                    0x0002,                             $ No support for: settable path, scaling, scaling links, or
+                                                        $ real time update of value.  Value is gettable and 
+                                                        $ Settable.  Enumerated strings are supported.
+                    0xC1,                               $ Data Type - boolean (New data type)
+                    1,                                  $ Data Size
+                    "Reset Mode #5",                    $ Parameter Name
+                    "",                                 $ Units String
+                    "Reset Mode defines the action of the output during a short circuit or overload.\n\nSelect:\n - Latch Off = the output will shut OFF\n - Auto Restart = the output will continually try to turn ON\n\nNote:  Turning ON an output with no field power will cause a fault.",
+                    0,1,0,                              $ Min, Max (max enumeration #), and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Enum96 =      0,"Latch Off", 1,"Auto Restart";
+
+      Param97 =     $ Reset Mode for output 6
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 09 24 07 30 76",                $ Link Path to DOP object's reset mode attribute.
+                    0x0002,                             $ No support for: settable path, scaling, scaling links, or
+                                                        $ real time update of value.  Value is gettable and 
+                                                        $ Settable.  Enumerated strings are supported.
+                    0xC1,                               $ Data Type - boolean (New data type)
+                    1,                                  $ Data Size
+                    "Reset Mode #6",                    $ Parameter Name
+                    "",                                 $ Units String
+                    "Reset Mode defines the action of the output during a short circuit or overload.\n\nSelect:\n - Latch Off = the output will shut OFF\n - Auto Restart = the output will continually try to turn ON\n\nNote:  Turning ON an output with no field power will cause a fault.",
+                    0,1,0,                              $ Min, Max (max enumeration #), and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Enum97 =      0,"Latch Off", 1,"Auto Restart";
+
+      Param98 =     $ Reset Mode for output 7
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 09 24 08 30 76",                $ Link Path to DOP object's reset mode attribute.
+                    0x0002,                             $ No support for: settable path, scaling, scaling links, or
+                                                        $ real time update of value.  Value is gettable and 
+                                                        $ Settable.  Enumerated strings are supported.
+                    0xC1,                               $ Data Type - boolean (New data type)
+                    1,                                  $ Data Size
+                    "Reset Mode #7",                    $ Parameter Name
+                    "",                                 $ Units String
+                    "Reset Mode defines the action of the output during a short circuit or overload.\n\nSelect:\n - Latch Off = the output will shut OFF\n - Auto Restart = the output will continually try to turn ON\n\nNote:  Turning ON an output with no field power will cause a fault.",
+                    0,1,0,                              $ Min, Max (max enumeration #), and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Enum98 =      0,"Latch Off", 1,"Auto Restart";
+
+$ Autobaud
+      Param99 =     $ Disable Autobaud
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 03 24 01 30 64",                $ Link Path to disable autobaud attribute.
+                    0x0002,                             $ No support for: settable path, scaling, scaling links, or
+                                                        $ real time update of value.  Value is gettable and 
+                                                        $ Settable.  Enumerated strings are supported.
+                    0xC1,                               $ Data Type - boolean (New data type)
+                    1,                                  $ Data Size
+                    "Autobaud",                         $ Parameter Name
+                    "",                                 $ Units String
+                    "Autobaud allows module to match the baud rate of existing devices on a network.\n\nChanges to this attribute take effect after next powerup.\nIf 'enabled', the Baud Rate Attribute can not be set.",
+                    0,1,0,                              $ Min, Max, and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Enum99 =      0,"Enable", 1,"Disable";
+
+$reset service
+      Param100 =    $ Reset Output Service
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 0F 24 01 30 01",                $ Link Path to reset service.
+                    0x0002,                             $ No support for: settable path, scaling, scaling links, or
+                                                        $ real time update of value.  Value is gettable and 
+                                                        $ Settable.  Enumerated strings are supported.
+                    0xC6,                               $ Data Type - byte (New data type)
+                    1,                                  $ Data Size
+                    "Reset Output Service",             $ Parameter Name
+                    "",                                 $ Units String
+                    "When an output is faulted (due to a short circuit) and Latch-off mode is selected,\nthis service allows the output point to be reset.\nSelect which output to reset from a short-circuit fault.\nIf output is ON, it will turn on after reset.",
+                    0,8,0,                              $ Min, Max, and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Enum100 =     0,"Do Nothing",
+                    1,"Output #0",  2,"Output #1",
+                    3,"Output #2",  4,"Output #3",
+                    5,"Output #4",  6,"Output #5",
+                    7,"Output #6",  8,"Output #7";
+
+$Point Object stuff
+      Param101 =    $ AutoAddress
+                    0,                                  $ reserved
+                    7,                                  $ Link Path Size
+                    "21 12 03 24 01 30 03",             $ Link Path to AutoAddress attribute.
+                    0x0002,                             $ No support for: settable path, scaling, scaling links, or
+                                                        $ real time update of value.  Value is gettable and 
+                                                        $ Settable.  Enumerated strings are supported.
+                    0xC1,                               $ Data Type - boolean (New data type)
+                    1,                                  $ Data Size
+                    "Sequential AutoAddress",           $ Parameter Name
+                    "",                                 $ Units String
+                    "Sequential AutoAddress will re-assign the node address of ever module to the right.\nEach module will change it's node address to one greater than then it's neighbor.\n\nMAKE SURE THE NODE ADDRESS OF THIS MODULE IS THE DESIRED VALUE BEFORE ISSUING THIS COMMAND.\n\nWhen this command is set, each module to the right will get a new address one greater than it's neighbor.\nThe address will ripple through a line of Point I/O modules.\n\nSteps to Auto Address a line of Point I/O modules:\n 1.) Set the address of the first module (next to PDN or adapter).\n 2.) Send the Auto Address command to 'Sequential Address.'\n 3.) All modules in line will reset with new sequential addresses.\n\nExample:\nIf there are 5 Point modules in a line, and the address of the first module is 10.\nAfter the 'Sequential Address' command is sent to the first module, the node address of the line will be:\n 10, 11, 12, 13, and 14.",
+                    0,1,0,                              $ Min, Max, and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Enum101 =     0,"Do Nothing", 1,"Sequential Address";
+
+      Param102 =    $ Baud Rate
+                    0,                                  $ reserved
+                    7,                                  $ Link Path Size
+                    "21 12 03 24 01 30 05",             $ Link Path to Baud Rate attribute.
+                    0x0002,                             $ No support for: settable path, scaling, scaling links, or
+                                                        $ real time update of value.  Value is gettable and 
+                                                        $ Settable.  Enumerated strings are supported.
+                    0xC6,                                  $ Data Type - byte (New data type)
+                    1,                                  $ Data Size
+                    "Broadcast Baud Rate",              $ Parameter Name
+                    "",                                 $ Units String
+                    "This command will change the baud rate of this and every module to the right\nto the value indicated.\nIf AutoBaud is ENABLED, this command will not change the operation of the module at power up.",
+                    0,3,0,                              $ Min, Max, and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Enum102 =     0,"Do Nothing",
+                    1,"125 kHz",
+                    2,"250 kHz",
+                    3,"500 kHz";
+
+      Param103 =    $ Set Disable AutoBaud
+                    0,                                  $ reserved
+                    7,                                  $ Link Path Size
+                    "21 12 03 24 01 30 06",             $ Link Path to Disable AutoBaud attribute.
+                    0x0002,                             $ No support for: settable path, scaling, scaling links, or
+                                                        $ real time update of value.  Value is gettable and 
+                                                        $ Settable.  Enumerated strings are supported.
+                    0xC6,                                  $ Data Type - byte (New data type)
+                    1,                                  $ Data Size
+                    "Broadcast AutoBaud",               $ Parameter Name
+                    "",                                 $ Units String
+                    "This command will change the AutoBaud attribute of this and every module to the right\nto the value indicated.\nIf AutoBaud is 'disabled,' the Baud Rate parameter will set the baud rate next time the module is powered up.",
+                    0,2,0,                              $ Min, Max, and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Enum103 =     0,"Do Nothing",
+                    1,"Enable",
+                    2,"Disable";
+
+$ Group Parameters for Rack Connection Configuration
+      Param106 =    $ Group Fault State selection
+                    0,                                  $ reserved
+                    ,                                   $ Link Path Size
+                    ,                                   $ No Path.
+                    0x0002,                             $ Non-display and enums
+                    0xC1,                               $ Data Type - boolean
+                    1,                                  $ Data Size
+                    "Group Fault Action",               $ Parameter Name
+                    "",                                 $ Units String
+                    "Fault Action defines output behavior in the event of a communication fault.\n\nPossible States:\n - goto Fault Value (defined in Fault Value parameter)\n - Hold Last State (state of output is uneffected by fault)",
+                    0,1,0,                              $ Min, Max (max enumeration #), and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Enum106 =     0,"Fault Value", 1,"Hold Last State";
+
+      Param107 =    $ Group Fault Value selection
+                    0,                                  $ reserved
+                    ,                                   $ Link Path Size
+                    ,                                   $ No Path.
+                    0x0002,                             $ Non-display and enums
+                    0xC1,                               $ Data Type - boolean
+                    1,                                  $ Data Size
+                    "Group Fault Value",                $ Parameter Name
+                    "",                                 $ Units String
+                    "If 'Fault Value' is selected (in Fault Action parameter),\nthis field defines the output value during a fault.\n - ON\n - OFF",
+                    0,1,0,                              $ Min, Max (max enumeration #), and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Enum107 =     0,"OFF", 1,"ON";
+
+      Param108 =    $ Group Idle State selection 
+                    0,                                  $ reserved
+                    ,                                   $ Link Path Size
+                    ,                                   $ No Path.
+                    0x0002,                             $ non-display and Enums
+                    0xC1,                               $ Data Type - boolean
+                    1,                                  $ Data Size
+                    "Group Idle Action",                $ Parameter Name
+                    "",                                 $ Units String
+                    "Idle Action defines output behavior during program or idle mode.\n\nPossible States:\n - goto Idle Value (defined in Idle Value parameter)\n - Hold Last State (state of output is uneffected by fault)",
+                    0,1,0,                              $ Min, Max (max enumeration #), and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Enum108 =     0,"Idle Value", 1,"Hold Last State";
+
+      Param109 =    $ Group Idle Value selection
+                    0,                                  $ reserved
+                    ,                                   $ Link Path Size
+                    ,                                   $ No Path.
+                    0x0002,                             $ non-display and enums.
+                    0xC1,                               $ Data Type - boolean
+                    1,                                  $ Data Size
+                    "Group Idle Value",                 $ Parameter Name
+                    "",                                 $ Units String
+                    "If 'Idle Value' is selected (in Idle Action parameter),\nthis field defines the output value during a Idle or Program mode.\n - ON\n - OFF",
+                    0,1,0,                              $ Min, Max (max enumeration #), and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Enum109 =     0,"OFF", 1,"ON";
+
+      Param110 =    $ Group Enable No Load
+                    0,                                  $ reserved
+                    ,                                   $ Link Path Size
+                    ,                                   $ no path.
+                    0x0002,                             $ non-display, enums.
+                    0xC1,                               $ Data Type - boolean
+                    1,                                  $ Data Size
+                    "Group Enable No Load",             $ Parameter Name
+                    "",                                 $ Units String
+                    "This parameter turns on and off No Load Detection.\nDisabling the No Load diagnostic is useful for unused channels.",
+                    0,1,1,                              $ Min, Max (max enumeration #), and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Enum110 =     0,"No Load Disabled", 1,"No Load Enabled";
+
+      Param111 =    $ Group Reset Mode
+                    0,                                  $ reserved
+                    ,                                   $ Link Path Size
+                    ,                                   $ no path
+                    0x0002,                             $ non-display and enums.
+                    0xC1,                               $ Data Type - boolean
+                    1,                                  $ Data Size
+                    "Group Reset Mode",                 $ Parameter Name
+                    "",                                 $ Units String
+                    "Reset Mode defines the action of the output during a short circuit or overload.\n\nSelect:\n - Latch Off = the output will shut OFF\n - Auto Restart = the output will continually try to turn ON\n\nNote:  Turning ON an output with no field power will cause a fault.",
+                    0,1,0,                              $ Min, Max (max enumeration #), and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Enum111 =     0,"Latch Off", 1,"Auto Restart";
+
+      Param112 =    $ Group Enable Latched Alarms
+                    0,                                  $ reserved
+                    ,                                   $ Link Path Size
+                    ,                                   $ No Path
+                    0x0002,                             $ Non-display, enum
+                    0xC1,                               $ Data Type - boolean
+                    1,                                  $ Data Size
+                    "Group Enable Latching Alarms",     $ Parameter Name
+                    "",                                 $ Units String
+                    "This parameter selects how a status bit acts after the cause of the fault is removed.\nIf 'Latching Enabled,' alarm bits will stay FAULTed if an alarm occurs.\nThe FAULT can only be cleared using the Clear Latched Alarm service for this point.\nLatching is useful for tracking transient or momentary faults.\nIf 'Latching Disabled,' alarms will refect the present state.\n\nNote:  LEDs don't reflect latched Alarms.",
+                    0,1,0,                              $ Min, Max (max enumeration #), and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Enum112 =     0,"Latching Disabled", 1,"Latching Enabled";
+
+$ DeviceNet Premier Integration 
+      Param113 =    $ Special Hidden IO Data
+                    0,                                  $ reserved
+                    0,                                  $ Link Path Size
+                    ,                                   $ No path - internal parameter
+                    0x0200,                             $ 
+                    0xD1,                               $ Data Type - 8 bit string
+                    1,                                  $ Data Size - bytes
+                    "Data",                             $ Parameter Name
+                    "",                                 $ Units String
+                    "The current command state of each of the Output./nBit 0 = Channel 0.  0 = OFF; 1 = ON",
+                    0,255,0,                            $ Min, Max, and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Param114 =    $ Special Hidden IO Status
+                    0,                                  $ reserved
+                    0,                                  $ Link Path Size
+                    ,                                   $ No path - internal parameter
+                    0x0200,                             $ 
+                    0xD1,                               $ Data Type - 8 bit string
+                    1,                                  $ Data Size - bytes
+                    "Status",                           $ Parameter Name
+                    "",                                 $ Units String
+                    "Displays the current status of each of the outputs./nBit 0 = Channel 0.  0 = OK; 1 = Fault\nFault could be open load, no power, or over current",
+                    0,255,0,                            $ Min, Max, and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Param121 =                    $ Revision of Configuration Assembly
+        0,                          $ first field shall equal 0
+        ,,                          $ path size,path
+        0x0210,                     $ descriptor (readonly, no display)
+        0xC7,                       $ data type : 16-bit Unsigned Integer
+        2,                          $ data size in bytes
+        "Configuration revision",   $ name
+        "",                         $ units
+        "",                         $ help string
+        1,1,1,                      $ min,max,default data values
+        0,0,0,0,                    $ mult,dev,base,offset scaling not used
+        0,0,0,0,                    $ mult,dev,base,offset link not used
+        0;                          $ decimal places not used
+
+      Param122 =                    $ non-Logix header
+        0,                          $ first field shall equal 0
+        ,,                          $ path size,path
+        0x0210,                     $ descriptor (readonly, no display)
+        0xC7,                       $ data type : 16-bit Unsigned Integer
+        2,                          $ data size in bytes
+        "Non-Logix Header",         $ name
+        "",                         $ units
+        "",                         $ help string
+        0x7001,0x7001,0x7001,       $ min,max,default data values
+        0,0,0,0,                    $ mult,dev,base,offset scaling not used
+        0,0,0,0,                    $ mult,dev,base,offset link not used
+        0;                          $ decimal places not used
+
+[Groups]
+      Group1 =      "I/O - output value", 8, 1,2,3,4,5,6,7,8;   $ input value
+      Group2 =      "I/O - output status", 25, 9,10,11,12, $ output, noload, short, group status
+                    13,14,15,16, 17,18,19,20,21,22,23,24,
+                    25,26,27,28,29,30,31,32, 33;
+      Group3 =      "Reset Services", 10, 34,35,36,37,   $ reset latch, run/idle (faulted outs)
+                    38,39,40,41,42, 100;
+      Group4 =      "Configuration", 57,                $ fault, idle, latch, noload, mode, autobaud
+                    43,44,45,46,47,48,49,50, 
+                    51,52,53,54,55,56,57,58,
+                    59,60,61,62,63,64,65,66,
+                    67,68,69,70,71,72,73,74,75,
+                    76,77,78,79,80,81, 82,83,
+                    84,85,86,87,88,89,90,91,
+                    92,93,94,95,96,97,98, 99;
+      Group5 =      "PointBus", 3, 101,102,103;            $dup mac, qc, autoaddr, brate, auto baud
+
+[Connection Manager]
+    Connection9 =       $ Exclusive Owner (Direct to Module)
+                        $ Catalogs        1734-OB8E, OV8E	
+                        $ Config Assem    123	
+                        $ Consume Assem   34	
+                        $ Produce Assem   44	
+        0x04030002,     $ trigger & transport
+        0x44240405,     $ point/multicast & priority & realtime format
+        ,,Assem126,     $ O=>T default,description
+        ,,Assem127,     $ T=>O default,description
+        ,Assem124,      $ config part 1
+        ,Assem123,      $ config part 2 (module configuration)
+        "Direct Exclusive Owner",             $ connection name
+        "Direct Exclusive Owner Connection - Output data controls the state of each of the outputs. Input data contains status of each of the outputs.",   $ Help string
+        "20 04 24 7B 2C 22 2C 2C";
+
+$   Connection29 =      $ There is NO Input Only (Direct to Module)
+
+    Connection49 =      $ Listen Only (Direct to Module)
+                        $ Catalogs        1734-OB8E, OV8E	
+                        $ Config Assem    123	
+                        $ Consume Assem   0xBF (Listen Only)	
+                        $ Produce Assem   44	
+        0x01030002,     $ trigger & transport
+        0x44240305,     $ point/multicast & priority & realtime format
+        ,0,,            $ O=>T default,description
+        ,,Assem127,     $ T=>O default,description
+        ,,              $ config part 1
+        ,,              $ config part 2 (module configuration)
+        "Direct Listen Only",                 $ connection name
+        "Direct Listen Only Connection - Input data contains the STATUS of each of the outputs.  There is NO output data.",   $ Help string
+        "20 04 24 7B 2C BF 2C 2C";
+
+[Port]
+      Port1 =       DeviceNet,                          $ or maybe 1_Virtual_Backplane
+                    "PointIO Backplane",                $ Name of backplane
+                    "20 03 24 01",                      $ Path to DeviceNet Object Instance 1
+                    1;                                  $ Port number 1
+[Modular]
+      Width =       1;
+
+$ I/O Module EDS
+$ Number of slots in rack = Product Code - 199
+$ Number of I/O modules in rack = Product Code - 200
+$ Note Rack# does not match in Adapter EDS, Adapter EDS includes one for Slot 0
+
+	Rack1 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 201,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+            1;                $ Legal Slots
+
+	Rack2 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 202,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+            1,2;              $ Legal Slots
+
+	Rack3 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 203,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+            1,2,3;            $ Legal Slots
+
+	Rack4 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 204,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+            1,2,3,4;          $ Legal Slots
+
+	Rack5 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 205,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+            1,2,3,4,5;        $ Legal Slots
+
+	Rack6 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 206,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+            1,2,3,4,5,6;      $ Legal Slots
+
+	Rack7 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 207,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+            1,2,3,4,5,6,7;    $ Legal Slots
+
+	Rack8 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 208,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+            1,2,3,4,5,6,7,8,9;$ Legal Slots
+
+	Rack9 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 209,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10;
+                              $ Legal Slots
+
+	Rack10 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 210,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11;
+                              $ Legal Slots
+
+	Rack11 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 211,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12;
+                              $ Legal Slots
+
+	Rack12 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 212,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13;
+                              $ Legal Slots
+
+	Rack13 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 213,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14;
+                              $ Legal Slots
+
+	Rack14 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 214,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15;
+                              $ Legal Slots
+
+	Rack15 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 215,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16;
+                              $ Legal Slots
+
+	Rack16 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 216,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17;
+                              $ Legal Slots
+
+	Rack17 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 217,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18;
+                              $ Legal Slots
+
+	Rack18 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 218,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19;
+                              $ Legal Slots
+
+	Rack19 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 219,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20;
+                              $ Legal Slots
+
+	Rack20 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 220,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21;               $ Legal Slots
+
+	Rack21 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 221,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22;            $ Legal Slots
+
+	Rack22 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 222,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23;         $ Legal Slots
+
+	Rack23 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 223,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24;      $ Legal Slots
+
+	Rack24 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 224,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25;   $ Legal Slots
+
+	Rack25 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 225,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26;
+                              $ Legal Slots
+
+	Rack26 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 226,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27;
+                              $ Legal Slots
+
+	Rack27 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 227,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28;
+                              $ Legal Slots
+
+	Rack28 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 228,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29;
+                              $ Legal Slots
+
+	Rack29 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 229,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30;
+                              $ Legal Slots
+
+	Rack30 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 230,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31;
+                              $ Legal Slots
+
+	Rack31 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 231,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32;
+                              $ Legal Slots
+
+	Rack32 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 232,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33;
+                              $ Legal Slots
+
+	Rack33 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 233,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34;
+                              $ Legal Slots
+
+	Rack34 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 234,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35;
+                              $ Legal Slots
+
+	Rack35 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 235,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36;
+                              $ Legal Slots
+
+	Rack36 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 236,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37;
+                              $ Legal Slots
+
+	Rack37 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 237,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38;
+                              $ Legal Slots
+
+	Rack38 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 238,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39;
+                              $ Legal Slots
+
+	Rack39 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 239,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40;
+                              $ Legal Slots
+
+	Rack40 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 240,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,
+            41;               $ Legal Slots
+
+	Rack41 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 241,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,
+            41,42;            $ Legal Slots
+
+	Rack42 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 242,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,
+            41,42,43;         $ Legal Slots
+
+	Rack43 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 243,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,
+            41,42,43,44;      $ Legal Slots
+
+	Rack44 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 244,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,
+            41,42,43,44,45;   $ Legal Slots
+
+	Rack45 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 245,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,
+            41,42,43,44,45,46;
+                              $ Legal Slots
+
+	Rack46 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 246,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,
+            41,42,43,44,45,46,47;
+                              $ Legal Slots
+
+	Rack47 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 247,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,
+            41,42,43,44,45,46,47,48;
+                              $ Legal Slots
+
+	Rack48 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 248,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,
+            41,42,43,44,45,46,47,48,49;
+                              $ Legal Slots
+
+	Rack49 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 249,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,
+            41,42,43,44,45,46,47,48,49,50;
+                              $ Legal Slots
+
+	Rack50 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 250,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,
+            41,42,43,44,45,46,47,48,49,50,51;
+                              $ Legal Slots
+
+	Rack51 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 251,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,
+            41,42,43,44,45,46,47,48,49,50,51,52;
+                              $ Legal Slots
+
+	Rack52 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 252,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,
+            41,42,43,44,45,46,47,48,49,50,51,52,53;
+                              $ Legal Slots
+
+	Rack53 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 253,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,
+            41,42,43,44,45,46,47,48,49,50,51,52,53,54;
+                              $ Legal Slots
+
+	Rack54 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 254,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,
+            41,42,43,44,45,46,47,48,49,50,51,52,53,54,55;
+                              $ Legal Slots
+
+	Rack55 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 255,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,
+            41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56;
+                              $ Legal Slots
+
+	Rack56 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 256,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,
+            41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57;
+                              $ Legal Slots
+
+	Rack57 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 257,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,
+            41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58;
+                              $ Legal Slots
+
+	Rack58 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 258,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,
+            41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59;
+                              $ Legal Slots
+
+	Rack59 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 259,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,
+            41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60;
+                              $ Legal Slots
+
+	Rack60 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 260,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,
+            41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,
+            61;               $ Legal Slots
+
+	Rack61 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 261,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,
+            41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,
+            61,62;            $ Legal Slots
+
+	Rack62 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 262,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,
+            41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,
+            61,62,63;         $ Legal Slots
+
+
+	Rack63 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 263,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,
+            41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,
+            61,62,63,64;      $ Legal Slots
+
+      ExternalID = "D2 00 83 0A";        $ Product Code (Low, High), Compatable bit (8),Maj Rev, Min Rev
+

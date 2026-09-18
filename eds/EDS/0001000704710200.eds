@@ -1,0 +1,384 @@
+$ Electronic Data Sheet for CompactBlock LDX 1790D-T16BV16B
+ 
+[File]
+	DescText	= "1790D-T16BV16B CompactBlock LDX EDS File";
+	CreateDate	= 03-25-2007;
+	CreateTime	= 13:00:00;
+	ModDate		= 02-19-2009;
+	ModTime		= 21:36:00;
+	Revision	= 2.006;		$ EDS revision.
+	HomeURL		= "http://www.ab.com/networks/eds/DN/0001000704710200.eds";
+
+
+[Device]
+	VendCode	= 1;
+	VendName	= "Rockwell Automation/Allen-Bradley";
+	ProdType	= 7;
+	ProdTypeStr 	= "General Purpose Discrete I/O";
+	ProdCode	= 1137;		$0x471
+	MajRev		= 2;
+	MinRev		= 2;
+	ProdName	= "1790D-T16BV16B 16 Univ In/16 Source Out";
+	Catalog		= "1790D-T16BV16B";
+	1_RSNetWorx_DNetTool = "RSI.DeviceNet.ChassisApplet.2";
+	Icon		= "compactblkLDX.ico";
+ 
+[Modular]
+   Width = 	1,0;
+   Rack1 = 	1,	$ Chassis Vendor ID
+   		108,	$ Chassis Product Type
+   		78,	$ Chassis Product Code (the same as 1790D-T8BV8B)
+   		1,	$ Chassis Major Revision
+   		1,	$ Chassis Minor Revision
+   		 , , ,0;
+   Query = 	"20 01 24 01 30 64", 0x0E, 1, "00";
+
+
+ [Device Classification]
+   Class1 = DeviceNet;
+ 
+ 
+ [IO_Info]
+ 	Default    = 0x01;
+ 	PollInfo   = 0x000D, 1, 1;
+	StrobeInfo = 0x0002, 1, 0;
+ 	COSInfo    = 0x0005, 1, 1;
+ 	CyclicInfo = 0x0009, 1, 1;
+			
+
+	1_Input1 =  ,0,0x000F,"Produced Connection" ,,Assem4,;
+	1_Output1=  ,0,0x000D,"Consumed Connnection",,Assem5,;
+
+	InputExa1 =  ,,0x000F,"Produced Connection",,VariantExa1,"";
+
+	OutputExa1=  ,,0x000D,"Consumed Connnection",,AssemExa3,""; 
+ 
+ 			 
+ [ParamClass]
+	MaxInst = 15;		    $ Parameters.
+   Descriptor =  0x08;     $ Stub param instances in eeprom.
+   CfgAssembly = 0x00;     $ Config assembly.      
+
+ [Params]
+$================================== auto baud-rate setting ==================================================
+   $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+   Param1 =                $ Autobaud
+   0,                      $ reserved
+   6,                      $ Link Path Size
+   "20 03 24 01 30 64",    $ Link Path to disable autobaud attribute.
+   $   ----- ----- -----
+   $   class ins.  attr.
+   $   code  code  code
+   0x0000,                 $ No support for settable path, scaling, scaling links, enumerated
+                           $ strings, or real time update of value.  Value is Get/Set.
+   0xC1,                   $ Data Type - boolean
+   1,                      $ Data Size
+   "Autobaud",             $ Parameter Name
+   "",                     $ Units String
+ 				    $$$$$$$$$$ Help string $$$$$$$$$$$
+ 	    "This parameter Disables or Enables the Autobaud feature in the block. The change occures after the next power up. The default is Enabled.",
+   0,1,0,                  $ Min, Max, and Default values
+   ,,,,,,,,;               $ Not Used
+            
+$================================== Output Fault State (group) ==================================================
+    Param2 =                          $ Output Fault State (group)
+            0,                        $ reserved
+            6,                        $ Link Path Size
+            "20 1E 24 01 30 07",	   $ Link Path to DOG object's fault state attribute. (class code : 0x1E / Instance 0x01 / Attribute 0x07).
+        $    ----- ----- -----
+        $    class ins.  attr.
+        $    code  code  code
+            0x0002,                    $ No support for settable path, scaling, or scaling links.
+                                       $ Value is gettable and settable. Enumerated strings are supported.
+            0xC1,                      $ Data Type - unsigned short int
+            1,                         $ Data Size - (in bytes)
+            "Output Fault State",      $ Parameter Name
+            "",                        $ Units String
+            "Selecting Hold Last State causes the outputs to maintain their last state during a communications fault. Selecting Use Fault Value lets parameter Output Fault Value determine whether the outputs should be forced ON or OFF during a communications fault.",
+            0,1,0,                     $ Min, Max (max enumeration #), and Default values
+            ,,,,,,,,;                  $ Not Used
+            
+$================================== Output Fault Value (group) ==================================================
+    Param3 =                           $ Output Fault Value (group)
+            0,                         $ reserved
+            6,                         $ Link Path Size
+            "20 1E 24 01 30 08",	    $ Link Path to DOG object's fault value attribute. (class code : 0x1E / Instance 0x01 / Attribute 0x08).
+        $    ----- ----- -----
+        $    class ins.  attr.
+        $    code  code  code
+            0x0002,                    $ No support for settable path, scaling, scaling links, or
+                                       $ real time update of value.  Value is gettable and 
+                                       $ Settable.  Enumerated strings are supported.
+            0xC1,                      $ Data Type - unsigned short int
+            1,                         $ Data Size - (in bytes)
+            "Output Fault Value",      $ Parameter Name
+            "",                        $ Units String
+            "If Use Fault Value is selected for Output Fault State, then Turn Outputs ON causes outputs to be forced ON during a communications fault. Selecting Reset Outputs forces them OFF during a communications fault.",
+            0,1,0,                     $ Min, Max (max enumeration #), and Default values
+            ,,,,,,,,;                  $ Not Used
+            
+$================================== Output Idle State (group) ==================================================
+    Param4 =                           $ Output Idle State (group)
+            0,                         $ reserved
+            6,                         $ Link Path Size
+            "20 1E 24 01 30 09",	    $ Link Path to DOG object's idle state attribute. (class code : 0x1E / Instance 0x01 / Attribute 0x09).
+        $    ----- ----- -----
+        $    class ins.  attr.
+        $    code  code  code
+           0x0002,                     $ No support for settable path, scaling, scaling links, or
+                                       $ real time update of value.  Value is gettable and 
+                                       $ Settable.  Enumerated strings are supported.
+            0xC1,                      $ Data Type - unsigned short int
+            1,                         $ Data Size - (in bytes)
+            "Output Idle State",       $ Parameter Name
+            "",                        $ Units String
+            "Selecting Hold Last State causes the outputs to maintain their last state when the PLC is in program mode (idle). Selecting Use Idle Value lets parameter Output Idle Value determine whether the outputs should be forced ON or OFF when the PLC is in program mode (idle).",
+            0,1,0,                     $ Min, Max (max enumeration #), and Default values
+            ,,,,,,,,;                  $ Not Used
+            
+$================================== Output Idle Value (group) ==================================================
+    Param5 =                           $ Output Idle Value (group)
+            0,                         $ reserved
+            6,                         $ Link Path Size
+            "20 1E 24 01 30 0A",	    $ Link Path to DOG object's idle value attribute. (class code : 0x1E / Instance 0x01 / Attribute 0x0A).
+        $    ----- ----- -----
+        $    class ins.  attr.
+        $    code  code  code
+            0x0002,                    $ No support for settable path, scaling, scaling links, or
+                                       $ real time update of value.  Value is gettable and 
+                                       $ Settable.  Enumerated strings are supported.
+            0xC1,                      $ Data Type - unsigned short int
+            1,                         $ Data Size - (in bytes)
+            "Output Idle Value",       $ Parameter Name
+            "",                        $ Units String
+            "If Use Idle Value is selected for Output Idle State, then Turn Outputs ON causes outputs to be forced ON when the PLC is in program mode (idle). Selecting Reset Outputs forces them OFF when the PLC is in program mode (idle).",
+            0,1,0,                     $ Min, Max (max enumeration #), and Default values
+            ,,,,,,,,;                  $ Not Used
+            
+$================================== Produced I/O assembly selection ==================================================
+    Param6 =                          	$ Produced I/O assembly selection
+            0,                         $ reserved
+            6,                         $ Link Path Size
+            "20 01 24 01 30 80",	    $ Link Path to param instance. 		(class code : 0x01 / Instance 0x01 / Attribute 0x80).
+        $    ----- ----- -----
+        $    class ins.  attr.
+        $    code  code  code
+            0x0002,                    $ No support for settable path, scaling, scaling links,
+                                       $ or real time update of value.  Value is gettable and
+                                       $ Settable.  Enumerated strings are supported.
+            0xC1,                      $ Data Type - boolean
+            1,                         $ Data Size - (in bytes)
+            "Produced I/O Assembly",   $ Parameter Name
+            "",                        $ Units String
+            "Choose the I/O assembly that you would like this module to produce.  The assemblies are defined in the user's guide. Note!  You must change the scanner's consumed (Rx) data size for this module to match the assembly that you have chosen.  This can be done by selecting 'Edit I/O parameters' from the scanner's scanlist tab.",
+            0,1,0,                     $ Min, Max (max enumeration #), and Default values
+            ,,,,,,,,;                  $ Not Used
+            
+$================================== Module status ==================================================
+    Param7 =                           $ Module status
+            0,                         $ reserved
+            6,                         $ Link Path Size
+            "20 01 24 01 30 65",       $ Link Path to module status attribute.         (class code : 0x09 / Instance 0x01 / Attribute 0x0C).
+        $    ----- ----- -----
+        $    class ins.  attr.
+        $    code  code  code
+            0x0032,                    $ Read only parameter
+            0xC6,                      $ Data Type - unsigned short int
+            1,                         $ Data Size - (in bytes)
+            "Module Status",           $ Parameter Name
+            "",                        $ Units String
+            "Reflects the current status of products.",
+            0,7,0,                     $ Min, Max (max enumeration #), and Default values
+            ,,,,,,,,;                  $ Not Used
+    	    Enum7 =	0, "No Fault", $in decimal
+	    		1, "EEPROM Checksum Fault",
+			2, "Too Many Expansions", 
+			3, "EEPROM not initialized", 
+			4, "1st Expansion Changed", 
+			5, "2nd Expansion Changed", 
+			6, "3rd Expansion Changed",
+			17, "Rotary switch changed";	$ Support this from 2.002. The value is 17 in decimal and 11 in hex.
+
+$================================== Device Fault Count ==================================================
+    Param8 =                           $ Device Fault Count
+            0,                         $ reserved
+            6,                         $ Link Path Size
+            "20 01 24 01 30 6C",       $ Link Path to module status attribute.         (class code : 0x01 / Instance 0x01 / Attribute 0x6C).
+        $    ----- ----- -----
+        $    class ins.  attr.
+        $    code  code  code
+            0x0010,                    $ Read only parameter
+            0xC6,                      $ Data Type - unsigned short int
+            1,                         $ Data Size - (in bytes)
+            "Device Fault Count",      $ Parameter Name
+            "",                        $ Units String
+            "Reflects the current module's fault count. Using this, user can check what this module is happenning",
+            0,6,0,                     $ Min, Max (max enumeration #), and Default values
+            ,,,,,,,,;                  $ Not Used
+            
+$================================== Module Reset Count ==================================================
+    Param9 =                           $ Module Reset Count
+            0,                         $ reserved
+            6,                         $ Link Path Size
+            "20 01 24 01 30 6F",       $ Link Path to module status attribute.         (class code : 0x01 / Instance 0x01 / Attribute 0x6F).
+        $    ----- ----- -----
+        $    class ins.  attr.
+        $    code  code  code
+            0x0010,                    $ Read only parameter
+            0xC7,                      $ Data Type - unsigned int
+            2,                         $ Data Size - (in bytes)
+            "Device Reset Count",      $ Parameter Name
+            "",                        $ Units String
+            "Reflects the current module's reset count. Using this, user can guess what happen to this module before",
+            0,6,0,                     $ Min, Max (max enumeration #), and Default values
+            ,,,,,,,,;                  $ Not Used
+            
+$================================== Input Data  ==================================================            
+    Param10 =                          $ Input Data 
+            0,                         $ reserved
+            0,                         $ Link Path Size
+            "",                        $ Link Path
+            0x0010,                    $ Read only parameter
+            0xD1,                      $ Data Type - byte Data
+            1,                         $ Data Size - (in bytes)
+            "Data",                    $ Parameter Name
+            "",                        $ Units String
+            "Input data.",
+            0,255,0,                   $ Min, Max (max enumeration #), and Default values
+            ,,,,,,,,;                  $ Not Used
+
+$================================== Produced Input Byte Size ==================================================
+    Param11 =                          $ Produced Input Byte Size
+            0,                         $ reserved
+            6,                         $ Link Path Size
+            "20 01 24 01 30 70",       $ Link Path to module status attribute.         (class code : 0x01 / Instance 0x01 / Attribute 0x70).
+        $    ----- ----- -----
+        $    class ins.  attr.
+        $    code  code  code
+            0x0010,                    $ Read only parameter
+            0xC7,                      $ Data Type - unsigned int
+            2,                         $ Data Size - (in bytes)
+            "Input Image Size",        $ Parameter Name
+            "",                        $ Units String
+            "Reflects the input image size. If the param6 is 'Input data with Expansion Presence detect', user can see one more input image",
+            0,6,0,                     $ Min, Max (max enumeration #), and Default values
+            ,,,,,,,,;                  $ Not Used
+
+$================================== Produced Output Byte Size ==================================================
+    Param12 =                          $ Produced Output Byte Size
+            0,                         $ reserved
+            6,                         $ Link Path Size
+            "20 01 24 01 30 71",       $ Link Path to module status attribute.         (class code : 0x01 / Instance 0x01 / Attribute 0x71).
+        $    ----- ----- -----
+        $    class ins.  attr.
+        $    code  code  code
+            0x0010,                    $ Read only parameter
+            0xC7,                      $ Data Type - unsigned int
+            2,                         $ Data Size - (in bytes)
+            "Output Image Size",       $ Parameter Name
+            "",                        $ Units String
+            "Reflects the output image size.",
+            0,6,0,                     $ Min, Max (max enumeration #), and Default values
+            ,,,,,,,,;                  $ Not Used
+
+$================================== Disable Fault Recovery ==================================================
+    Param13 =                          $ Disable Fault Recovery
+            0,                         $ reserved
+            6,                         $ Link Path Size
+            "20 01 24 01 30 81",       $ Link Path to param instance.      (class code : 0x01 / Instance 0x01 / Attribute 0x81).
+        $    ----- ----- -----
+        $    class ins.  attr.
+        $    code  code  code
+            0x0002,                    $ No support for settable path, scaling, scaling links,
+                                       $ or real time update of value.  Value is gettable and
+                                       $ Settable.  Enumerated strings are supported.
+            0xC1,                      $ Data Type - boolean
+            1,                         $ Data Size - (in bytes)
+            "Fault Recovery",          $ Parameter Name
+            "",                        $ Units String
+            "Disable Auto Fault Recovery",
+            0,1,0,                     $ Min, Max (max enumeration #), and Default values
+            ,,,,,,,,;                  $ Not Used
+            
+$================================== Status ==================================================
+    Param14 =                          $ Status
+            0,                         $ reserved
+            0,                         $ Link Path Size
+            "",                        $ Link Path 
+            0x0210,                    $ Non-displayed. Read only parameter  Enumerated strings are supported.
+            0xC6,                      $ Data Type - USINT
+            1,                         $ Data Size - (in bytes)
+            "Status",                  $ Parameter Name
+            "",                        $ Units String
+            "",
+            0,255,0,                   $ Min, Max (max enumeration #), and Default values
+            ,,,,,,,,;                  $ Not Used
+            
+$================================== Output Data ==================================================
+    Param15 =                          $ output
+            0,                         $ reserved
+            0,                         $ Link Path Size
+            "",                        $ Link Path
+            0x0010,                    $ Non-displayed parameter
+            0xD1,                      $ Data Type - Byte 8 Bits data
+            1,                         $ Data Size - (in bytes)
+            "Data",                    $ Parameter Name
+            "",                        $ Units String
+            "Output Data",
+            0,255,0,                   $ Min, Max (max enumeration #), and Default values
+            ,,,,,,,,;                  $ Not Used
+
+ 
+ [EnumPar]
+   Param1  = "Enabled","Disabled";
+   Param2  = "Use Fault Value","Hold Last State";      $Output Fault State
+   Param3  = "Reset Outputs","Turn Outputs On";        $Output Fault Value
+   Param4  = "Use Idle Value","Hold Last State";       $Output Idle State
+   Param5  = "Reset Outputs","Turn Outputs On";        $Output Idle Value
+   Param6  = "Input data ONLY", "Input data with exp status";  $ Produced I/O assembly selection
+   Param13 = "Auto Recovery","Stay at Fault State";     $ Disable Fault Recovery
+
+ [Groups]
+   Group1="DeviceNet Configuration",1,1;
+   Group2="Input Assembly Configuration",1,6;
+   Group3="Output Configuration",4,2,3,4,5;
+   Group4="Monitoring",5,7,8,9,11,12;
+   Group5="Module Fault Configuration",1,13;
+ 
+ [Assembly]
+ 
+   Revision = 1;
+ 
+   ProxyAssem1 = "Expansion Module Input Data",,,0b110,,,
+                    ,ModuleMemberList;
+   ProxyAssem2 = "Expansion Module Output Data",,,0b110,,,
+                    ,ModuleMemberList;
+
+   AssemExa1 = "Input data ONLY"      $ 2 Byte Input
+               ,,,,,,
+               8,Param10,    $ 1st Input Byte
+               8,Param10,    $ 2nd Input Byte
+                ,ProxyAssem1;
+
+   AssemExa2 = "Input data with exp status"    $ 3 Byte Input
+               ,,,,,,
+               8,Param14,	$ 1st Status Input Byte
+               8,Param10,	$ 2nd Input Byte
+               8,Param10,	$ 3th Input Byte
+                ,ProxyAssem1;
+                
+   VariantExa1 = "Input data"
+               ,,,,,
+               Param6,
+               0x00, AssemExa1,
+               0x01, AssemExa2;
+
+   AssemExa3 = "Output Data" 	$ 2 Byte Output
+    		,,,,,,
+		8,Param15,	$ 1st Output Byte
+		8,Param15,	$ 2nd Output Byte
+        ,ProxyAssem2;
+
+
+   Assem4 = "Input Data Size" ,,,,,,16,,,ProxyAssem1;
+	Assem5 = "Output Data Size",,,,,,16,,,ProxyAssem2;

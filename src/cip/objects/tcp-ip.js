@@ -151,6 +151,30 @@ class TcpIpInterfaceObject {
                 // Host Name (STRING)
                 return ok(encodeCipString(this.hostName));
             }
+            case 7: {
+                // Safety Network Number (ARRAY[6] of BYTE)
+                return ok(Buffer.alloc(6));
+            }
+            case 8: {
+                // TTL Value (USINT)
+                return ok(Buffer.from([1]));
+            }
+            case 9: {
+                // Mcast Config (STRUCT: Alloc_Control USINT, Reserved USINT, Num_Mcast UINT, Mcast_Start_Addr UDINT)
+                return ok(Buffer.alloc(8));
+            }
+            case 10: {
+                // Select ACD (BOOL)
+                return ok(Buffer.from([0]));
+            }
+            case 11: {
+                // Last Conflict Detected (STRUCT, 35 bytes)
+                return ok(Buffer.alloc(35));
+            }
+            case 12: {
+                // Quick Connect (BOOL)
+                return ok(Buffer.from([0]));
+            }
             case 13: {
                 // Encapsulation Inactivity Timeout (UINT - 16-bit, seconds)
                 const b = Buffer.alloc(2);
@@ -178,8 +202,12 @@ class TcpIpInterfaceObject {
 
         const ifConfig = this._buildInterfaceConfigBuffer();
         const hostName = encodeCipString(this.hostName);
+        const safetyNetNum = Buffer.alloc(6);
+        const ttlVal = Buffer.from([1]);
+        const mcastConfig = Buffer.alloc(8);
+        const remainBytes = Buffer.alloc(9);
 
-        return ok(Buffer.concat([b, linkObj, ifConfig, hostName]));
+        return ok(Buffer.concat([b, linkObj, ifConfig, hostName, safetyNetNum, ttlVal, mcastConfig, remainBytes]));
     }
 
     setAttributeSingle(instance, attribute, data) {

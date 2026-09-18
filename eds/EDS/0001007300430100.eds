@@ -1,0 +1,291 @@
+$ Electronic Data Sheet for CompactBlock LDX 1790D-4R0
+$ Copyright 2001 by Rockwell Automation and the author
+
+[File]
+   DescText = "1790D-4R0 CompactBlock LDX EDS file";
+   CreateDate = 08-31-2001;
+   CreateTime = 08:40:00;
+   ModDate = 03-16-2009;
+   ModTime = 08:40:00;
+   Revision = 1.3;
+   HomeURL     = "http://www.ab.com/networks/eds/DN/0001007300430100.eds";
+
+[Device]
+   VendCode = 1;
+   VendName = "Rockwell Automation/Allen-Bradley";
+   ProdType = 115;
+   ProdTypeStr = "Miscellaneous I/O";
+   ProdCode= 67;
+   MajRev = 1;
+   MinRev = 1;
+   ProdName = "1790D-4R0 4RTD In";
+   Catalog = "1790D-4R0";
+   Icon = "compactblkLDX.ico";
+
+[Device Classification]
+Class1 = DeviceNet;
+
+
+[Params]
+   Param1 = 0,
+       6,"20 0A 24 01 30 03",  $ Link Path Size, Link Path
+       0x0074,         $ Descriptor
+       0xC3, 2,        $ Data Type, Data Size
+       "Input Value #0",
+       "",
+       "Value of RTD input point scaled to chosen units.\nIf you are using the 'Ohms 10 milli' scale, the value returned will be in tenths of Ohms (i.e. 123 Ohms = 1230).",
+       -32768,32767,0,
+       1,1,1,0,0,0,0,0,1;
+
+   Param2 = 0,
+       6,"20 0A 24 02 30 03",  $ Link Path Size, Link Path
+       0x0074,         $ Descriptor
+       0xC3, 2,        $ Data Type, Data Size
+       "Input Value #1",
+       "",
+       "Value of RTD input point scaled to chosen units.\nIf you are using the 'Ohms 10 milli' scale, the value returned will be in tenths of Ohms (i.e. 123 Ohms = 1230).",
+       -32768,32767,0,
+       1,1,1,0,0,0,0,0,1;
+
+   Param3 = 0,
+       6,"20 0A 24 03 30 03",  $ Link Path Size, Link Path
+       0x0074,         $ Descriptor
+       0xC3, 2,        $ Data Type, Data Size
+       "Input Value #2",
+       "",
+       "Value of RTD input point scaled to chosen units.\nIf you are using the 'Ohms 10 milli' scale, the value returned will be in tenths of Ohms (i.e. 123 Ohms = 1230).",
+       -32768,32767,0,
+       1,1,1,0,0,0,0,0,1;
+
+   Param4 = 0,
+       6,"20 0A 24 04 30 03",  $ Link Path Size, Link Path
+       0x0074,         $ Descriptor
+       0xC3, 2,        $ Data Type, Data Size
+       "Input Value #3",
+       "",
+       "Value of RTD input point scaled to chosen units.\nIf you are using the 'Ohms 10 milli' scale, the value returned will be in tenths of Ohms (i.e. 123 Ohms = 1230).",
+       -32768,32767,0,
+       1,1,1,0,0,0,0,0,1;
+
+   Param5 = 0,
+       6,"20 0A 24 01 30 04",  $ Link Path Size, Link Path
+       0x0032,         $ Descriptor
+       0xC1, 1,        $ Data Type, Data Size
+       "Status #0",
+       "",
+       "Status of input channel.  This bit is used to indicate a general channel fault.",
+       0,1,0,
+       ,,,,,,,,;
+
+   Param6 = 0,
+       6,"20 0A 24 02 30 04",  $ Link Path Size, Link Path
+       0x0032,         $ Descriptor
+       0xC1, 1,        $ Data Type, Data Size
+       "Status #1",
+       "",
+       "Status of input channel.  This bit is used to indicate a general channel fault.",
+       0,1,0,
+       ,,,,,,,,;
+
+   Param7 = 0,
+       6,"20 0A 24 03 30 04",  $ Link Path Size, Link Path
+       0x0032,         $ Descriptor
+       0xC1, 1,        $ Data Type, Data Size
+       "Status #2",
+       "",
+       "Status of input channel.  This bit is used to indicate a general channel fault.",
+       0,1,0,
+       ,,,,,,,,;
+
+   Param8 = 0,
+       6,"20 0A 24 04 30 04",  $ Link Path Size, Link Path
+       0x0032,         $ Descriptor
+       0xC1, 1,        $ Data Type, Data Size
+       "Status #3",
+       "",
+       "Status of input channel.  This bit is used to indicate a general channel fault.",
+       0,1,0,
+       ,,,,,,,,;
+
+   Param9 = 0,
+       6,"20 0A 24 00 30 64",  $ Link Path Size, Link Path
+       0x0082,         $ Descriptor
+       0xC6, 1,        $ Data Type, Data Size
+       "Temp Units/Notch Filter",
+       "",
+       "This parameter sets the temperature units (either degrees C or degrees F) and the notch filter selection.\nPick the combination of temperature units and notch filter that you require.\nKeep in mind that higher notch filter settings allow more noise and hence lower accuracy.\nSee the User Manual for more details.",
+       0,97,0,
+       1,1,1,0,0,0,0,0,0;
+
+   Enum9 = 0,"Deg C/10Hz", 1,"Deg F/10Hz", 16,"Deg C/25Hz", 17,"Deg F/25Hz", 32,"Deg C/50Hz", 
+       33,"Deg F/50Hz", 48,"Deg C/60Hz", 49,"Deg F/60Hz", 64,"Deg C/100Hz", 65,"Deg F/100Hz", 
+       80,"Deg C/250Hz", 81,"Deg F/250Hz", 96,"Deg C/500Hz", 97,"Deg F/500Hz";
+
+   Param10 = 0,
+       6,"20 0A 24 01 30 64",  $ Link Path Size, Link Path
+       0x0002,         $ Descriptor
+       0xC6, 1,        $ Data Type, Data Size
+       "RTD Type #0",
+       "",
+       "Select the RTD type that the input will be using.",
+       0,11,0,
+       ,,,,,,,,;
+
+   Param11 = 0,
+       6,"20 0A 24 02 30 64",  $ Link Path Size, Link Path
+       0x0002,         $ Descriptor
+       0xC6, 1,        $ Data Type, Data Size
+       "RTD Type #1",
+       "",
+       "Select the RTD type that the input will be using.",
+       0,11,0,
+       ,,,,,,,,;
+
+   Param12 = 0,
+       6,"20 0A 24 03 30 64",  $ Link Path Size, Link Path
+       0x0002,         $ Descriptor
+       0xC6, 1,        $ Data Type, Data Size
+       "RTD Type #2",
+       "",
+       "Select the RTD type that the input will be using.",
+       0,11,0,
+       ,,,,,,,,;
+
+   Param13 = 0,
+       6,"20 0A 24 04 30 64",  $ Link Path Size, Link Path
+       0x0002,         $ Descriptor
+       0xC6, 1,        $ Data Type, Data Size
+       "RTD Type #3",
+       "",
+       "Select the RTD type that the input will be using.",
+       0,11,0,
+       ,,,,,,,,;
+
+   Param14 = 0,
+       6,"20 03 24 01 30 64",  $ Link Path Size, Link Path
+       0x0002,         $ Descriptor
+       0xC1, 1,        $ Data Type, Data Size
+       "Autobaud",
+       "",
+       "This parameter Disables or Enables the Autobaud feature in the block. The change occurs after the next power up. The default is enabled.",
+       0,1,0,
+       1,1,1,0,0,0,0,0,0;
+
+
+[EnumPar]
+   Param5 =
+       "Good",
+       "Alarm State";
+   Param6 =
+       "Good",
+       "Alarm State";
+   Param7 =
+       "Good",
+       "Alarm State";
+   Param8 =
+       "Good",
+       "Alarm State";
+   Param10 =
+       "Ohms 100 milli",
+       "Ohms 10 milli",
+       "100ohm Pt 385",
+       "200ohm Pt 385",
+       "500ohm Pt 385",
+       "100ohm Pt 3916",
+       "200ohm Pt 3916",
+       "500ohm Pt 3916",
+       "100ohm Nickel",
+       "120ohm Nickel",
+       "200ohm Nickel",
+       "500ohm Nickel";
+   Param11 =
+       "Ohms 100 milli",
+       "Ohms 10 milli",
+       "100ohm Pt 385",
+       "200ohm Pt 385",
+       "500ohm Pt 385",
+       "100ohm Pt 3916",
+       "200ohm Pt 3916",
+       "500ohm Pt 3916",
+       "100ohm Nickel",
+       "120ohm Nickel",
+       "200ohm Nickel",
+       "500ohm Nickel";
+   Param12 =
+       "Ohms 100 milli",
+       "Ohms 10 milli",
+       "100ohm Pt 385",
+       "200ohm Pt 385",
+       "500ohm Pt 385",
+       "100ohm Pt 3916",
+       "200ohm Pt 3916",
+       "500ohm Pt 3916",
+       "100ohm Nickel",
+       "120ohm Nickel",
+       "200ohm Nickel",
+       "500ohm Nickel";
+   Param13 =
+       "Ohms 100 milli",
+       "Ohms 10 milli",
+       "100ohm Pt 385",
+       "200ohm Pt 385",
+       "500ohm Pt 385",
+       "100ohm Pt 3916",
+       "200ohm Pt 3916",
+       "500ohm Pt 3916",
+       "100ohm Nickel",
+       "120ohm Nickel",
+       "200ohm Nickel",
+       "500ohm Nickel";
+   Param14 =
+       "Enable",
+       "Disable";
+
+[ParamClass]
+   MaxInst = 14;
+   Descriptor = 0x8;
+   CfgAssembly = 0;
+
+[Groups]
+   Group1 = "I/O - Input Values", 4,
+       1,2,3,4;
+   Group2 = "I/O - Input Status", 4,
+       5,6,7,8;
+   Group3 = "I/O - Input Config", 5,
+       9,10,11,12,13;
+   Group4 = "DeviceNet Config", 1,14;
+
+[IO_Info]
+   1_COSetPathNotSupported = 1;    $Paths not settable.
+   1_COSetSizeNotSupported = 1;    $Paths not settable.
+
+   Default     = 0x01;
+   PollInfo    = 0x000D,1,0;
+   COSInfo     = 0x0005,1,0;
+   CyclicInfo  = 0x0009,1,0;
+
+   Input1 = 10,
+       0, 
+       0x000D, 
+       "Data - with Status",           $ Name of Connection.
+       6,                              $ Path length.
+       "20 04 24 6E 30 03",            $ Path to I/O Produced Assembly.
+       "Producing connection contains state of the four inputs and their status.";
+
+[Assembly]
+   Revision = 1;
+
+      
+   Assem110 = 
+   "Data",                    $ Name of Connection.
+   "20 04 24 6E 30 03",       $ Path to I/O Production Assembly.
+   10,                        $ The size in bytes that this connection produces.
+   0, , ,                     $ Not editable, not modular.
+   16, Param1,                $ Input values 
+   16, Param2,                $ Input values
+   16, Param3,                $ Input values
+   16, Param4,                $ Input values
+   8, Param5,                 $ Input values
+   8, Param6,                 $ Input status
+   8, Param7,                 $ Input status
+   8, Param8;                 $ Input status

@@ -1,0 +1,984 @@
+$      Revision 3.016 supports 1791D-N4CV2X Analog Conbination Module
+
+[File]
+    DescText    = "1791D-4B4P EDS file.";
+    CreateDate  = 04-18-2003;
+    CreateTime  = 18:14:35;
+    ModDate     = 02-02-2009;
+    ModTime     = 16:25:00;
+    Revision    = 3.021;
+    HomeURL     = "http://www.ab.com/networks/eds/DN/0001000704600300.eds";
+
+[Device]
+    VendCode    = 0x01;                 $ Vendor Code
+    VendName    = "Rockwell Automation - Allen-Bradley";
+    ProdType    = 0x07;                 $ Product Type
+    ProdTypeStr = "General Purpose Discrete I/O";
+    ProdCode    = 1120;                 $ Product Code
+    MajRev      = 0x03;                 $ Major Rev
+    MinRev      = 0x02;                 $ Minor Rev
+    ProdName    = "1791D-4B4P 4 Sink In/4 Source Out";
+    Catalog     = "1791D-4B4P";
+    Icon        = "CompactBlk.ico";
+
+    DNetQC      = 0b0000000000000001, 200;  $ Quick Connect supported at power up. 200ms powerup time
+    1_Allow_Offline_Only_Switch_Selectors = Yes;
+
+[Device Classification]
+Class1 = DeviceNet;
+
+[IO_Info]
+1_COSetPathNotSupported = 1;   $Paths not settable.
+1_COSetSizeNotSupported = 1;   $Paths not settable.
+
+    Default     = 0x04;     $ Default I/OConnection is COS
+
+    PollInfo    = 0x0D,     $ Cyclic and COS can be combined with
+                  1,        $ Default Input  = Input1
+                  1;        $ Default Output = Output1
+
+    COSInfo     = 0x05,     $ Cyclic and POLL can be combined with
+                  1,        $ Default Input  = Input1
+                  1;        $ Default Output = Output1
+
+    CyclicInfo  = 0x09,     $ COS and POLL can be combined with
+                  1,        $ Default Input  = Input1
+                  1;        $ Default Output = Output1
+
+Input1 =
+   1,                      $ Size from AssemN
+   0,                      $ Bits determined by AssemN member list
+   0x000D,                 $ Poll, COS, Cyclic
+   "Input Data",           $ Name String from AssemN
+   7,                      $ Path Size 
+   "21 04 00 24 07 30 03", $ Input Assem Path
+   "";                     $ Help string not applicable
+
+
+InputExa1 =
+   ,               $ Size from AssemN
+   0,              $ Bits determined by AssemN member list
+   0x000D,         $ Poll, COS, Cyclic
+   ,               $ Name String from AssemN
+   ,               $ Path Size not applicable
+   VariantExa1,    $ Variant for choosing Input Assem
+   "";             $ Help string not applicable
+
+Output1 =
+   1,                      $ Size from AssemN
+   0,                      $ Bits determined by AssemN member list
+   0x000D,                 $ Poll, COS, Cyclic
+   "Output Data",          $ Name String from AssemN
+   7,                      $ Path Size 
+   "21 04 00 24 25 30 03", $ Output Assem Path
+   "";                     $ Help string not applicable
+
+OutputExa1 =
+   ,               $ Size from AssemN
+   0,              $ Bits determined by AssemN member list
+   0x000D,         $ Poll, COS, Cyclic
+   ,               $ Name String from AssemN
+   ,               $ Path Size not applicable
+   VariantExa2,    $ Variant for choosing Input Assem
+   "";             $ Help string not applicable
+
+[ParamClass]
+    MaxInst     = 84;      $ max Parameters
+    Descriptor  = 0x09;    $ Params support Parameter Instances and are stored in Non-Volatile strage.
+    CfgAssembly = 0x0;	    $ Config assembly.		
+    1_CfgAssembly = 0xA9;	$ Config assembly.
+
+[Params]
+    Param1  =                           $ Disable Autobaud
+            0,                          $ reserved
+            7,                          $ Link Path Size
+            "21 0F 00 24 01 30 01", $ Link Path to disable autobaud attribute.
+            0x0002,                     $ No support for settable path, scaling, scaling links, or
+                                        $ real time update of value.  Value is gettable and 
+                                        $ Settable.  Enumerated strings are supported.
+            0xC1,                       $ Data Type - boolean
+            1,                          $ Data Size
+            "Autobaud",                 $ Parameter Name
+            "",                         $ Units String
+            "If Enabled, the module adjusts to the current network baud rate. If Disabled, the baud rate can be set to a fixed value. When Disabling, no power cycle is\nrequired. When Enabling, change takes effect after the next power up.",
+            0,1,0,                      $ Min, Max, and Default values
+            1,1,1,0,0,0,0,0,0;          $ Not Used
+
+    Param2  =                           $ Input filter Off_to_On Delay selection
+            0,                          $ reserved
+            7,                          $ Link Path Size
+            "21 0F 00 24 02 30 01",     $ Link Path to disable autobaud attribute.
+            0x0002,                     $ No support for settable path, scaling, scaling links,
+                                        $ or real time update of value.  Value is gettable and
+                                        $ Settable.  Enumerated strings are supported.
+            0xC6,                       $ Data Type - unsigned short int
+            1,                          $ Data Size - (in bytes)
+            "Off-to-On Delay",          $ Parameter Name
+            "ms",                       $ Units String
+            "The signal must be present on the input for this delay period before the module detects a change in the input state.",
+            0,4,1,                      $ Min, Max, and Default values
+            1,1,1,0,0,0,0,0,0;          $ Not Used
+
+    Param3  =                           $ Input filter On_to_Off Delay selection
+            0,                          $ reserved
+            7,                          $ Link Path Size
+            "21 0F 00 24 03 30 01",     $ Link Path to disable autobaud attribute.
+            0x0002,                     $ No support for settable path, scaling, scaling links,
+                                        $ or real time update of value.  Value is gettable and
+                                        $ Settable.  Enumerated strings are supported.
+            0xC6,                       $ Data Type - unsigned short int
+            1,                          $ Data Size - (in bytes)
+            "On-to-Off Delay",          $ Parameter Name
+            "ms",                       $ Units String
+            "The signal must be absent from the input for this delay period before the module detects a change in the input state.",
+            0,4,1,                      $ Min, Max, and Default values
+            1,1,1,0,0,0,0,0,0;          $ Not Used
+
+    Param4 =                            $ Input Values (0-7)
+            0,                          $ reserved
+            7,                          $ Link Path Size
+            "21 0F 00 24 04 30 01",     $ Link Path to Input Values attribute.
+            0x0030,                     $ No support for settable path, scaling, or scaling links.
+                                        $ Value is gettable only. Enumerated strings are not
+                                        $ supported.
+            0xD1,                       $ Data Type - 8 bit string
+            1,                          $ Data Size - (in bytes)
+            "Input Values (7-0)",       $ Parameter Name
+            "",                         $ Units String
+            "This parameter is the current value of Inputs 0-7, either ON (1) or OFF (0).",
+            0,0xFF,0,                   $ Min, Max, and Default values
+            1,1,1,0,0,0,0,0,0;          $ Not Used
+
+    Param5 =                            $ Input Values (8-15)
+            0,                          $ reserved
+            7,                          $ Link Path Size
+            "21 0F 00 24 0E 30 01",     $ Link Path to Input Values attribute.
+            0x0030,                     $ No support for settable path, scaling, or scaling links.
+                                        $ Value is gettable only. Enumerated strings are not
+                                        $ supported.
+            0xD1,                       $ Data Type - 8 bit string
+            1,                          $ Data Size - (in bytes)
+            "Input Values (15-8)",      $ Parameter Name
+            "",                         $ Units String
+            "This parameter is the current value of expansion Inputs 8-15, either ON (1) or OFF (0).",
+            0,0xFF,0,                   $ Min, Max, and Default values
+            1,1,1,0,0,0,0,0,0;          $ Not Used
+
+    Param6 =                            $ Input Values (16-19)
+            0,                          $ reserved
+            7,                          $ Link Path Size
+            "21 0F 00 24 0F 30 01",     $ Link Path to Input Values attribute.
+            0x0030,                     $ No support for settable path, scaling, or scaling links.
+                                        $ Value is gettable only. Enumerated strings are not
+                                        $ supported.
+            0xD1,                       $ Data Type - 8 bit string
+            1,                          $ Data Size - (in bytes)
+            "Input Values (19-16)",     $ Parameter Name
+            "",                         $ Units String
+            "This parameter is the current value of expansion Inputs (16-19), either ON (1) or OFF (0).",
+            0,0xF,0,                    $ Min, Max, and Default values
+            1,1,1,0,0,0,0,0,0;          $ Not Used
+
+    Param7 =                            $ Output Fault State (group)
+            0,                          $ reserved
+            7,                          $ Link Path Size
+            "21 0F 00 24 05 30 01",     $ Link Path to DOG status attribute.
+            0x0002,                     $ No support for settable path, scaling, or scaling links.
+                                        $ Value is gettable and settable. Enumerated strings are supported.
+            0xC6,                       $ Data Type - unsigned short int
+            1,                          $ Data Size - (in bytes)
+            "Output Fault State",       $ Parameter Name
+            "",                         $ Units String
+            "Selecting Hold Last State causes the outputs to maintain their last state during a communications fault. Selecting Use Fault Value lets parameter Output Fault Value determine whether the outputs should be forced ON or OFF during a communications fault.",
+            0,1,0,                      $ Min, Max (max enumeration #), and Default values
+            1,1,1,0,0,0,0,0,0;          $ Not Used
+
+    Param8 =                            $ Output Fault Value (group)
+            0,                          $ reserved
+            7,                          $ Link Path Size
+            "21 0F 00 24 06 30 01",     $ Link Path to DOG object's fault value attribute.
+            0x0002,                     $ No support for settable path, scaling, scaling links, or
+                                        $ real time update of value.  Value is gettable and 
+                                        $ Settable.  Enumerated strings are supported.
+            0xC6,                       $ Data Type - unsigned short int
+            1,                          $ Data Size - (in bytes)
+            "Output Fault Value",       $ Parameter Name
+            "",                         $ Units String
+            "If Use Fault Value is selected for Output Fault State, then Turn Outputs ON causes outputs to be forced ON during a communications fault. Selecting Reset Outputs forces them OFF during a communications fault.",
+            0,1,0,                      $ Min, Max (max enumeration #), and Default values
+            1,1,1,0,0,0,0,0,0;          $ Not Used
+
+    Param9  =                           $ Output Idle State (group)
+            0,                          $ reserved
+            7,                          $ Link Path Size
+            "21 0F 00 24 07 30 01",     $ Link Path to DOG object's idle state attribute.
+            0x0002,                     $ No support for settable path, scaling, scaling links, or
+                                        $ real time update of value.  Value is gettable and 
+                                        $ Settable.  Enumerated strings are supported.
+            0xC6,                       $ Data Type - unsigned short int
+            1,                          $ Data Size - (in bytes)
+            "Output Idle State",        $ Parameter Name
+            "",                         $ Units String
+            "Selecting Hold Last State causes the outputs to maintain their last state when the PLC is in program mode (idle). Selecting Use Idle Value lets parameter Output Idle Value determine whether the outputs should be forced ON or OFF when the PLC is in program mode (idle).",
+            0,1,0,                      $ Min, Max (max enumeration #), and Default values
+            1,1,1,0,0,0,0,0,0;          $ Not Used
+
+    Param10 =                           $ Output Idle Value (group)
+            0,                          $ reserved
+            7,                          $ Link Path Size
+            "21 0F 00 24 08 30 01",     $ Link Path to DOG object's idle value attribute.
+            0x0002,                     $ No support for settable path, scaling, scaling links, or
+                                        $ real time update of value.  Value is gettable and 
+                                        $ Settable.  Enumerated strings are supported.
+            0xC6,                       $ Data Type - unsigned short int
+            1,                          $ Data Size - (in bytes)
+            "Output Idle Value",        $ Parameter Name
+            "",                         $ Units String
+            "If Use Idle Value is selected for Output Idle State, then Turn Outputs ON causes outputs to be forced ON when the PLC is in program mode (idle). Selecting Reset Outputs forces them OFF when the PLC is in program mode (idle).",
+            0,1,0,                      $ Min, Max (max enumeration #), and Default values
+            1,1,1,0,0,0,0,0,0;          $ Not Used
+
+    Param11 =                           $ Expansion Module Status
+            0,                          $ reserved
+            7,                          $ Link Path Size
+            "21 0F 00 24 09 30 01",     $ Link Path to Expansion Module Status attribute.
+            0x0032,                     $ No support for settable path, scaling, scaling links, or
+                                        $ real time update of value.  Value is gettable only.
+                                        $ Enumerated strings are supported.
+            0xC6,                       $ Data Type - unsigned short int
+            1,                          $ Data Size - (in bytes)
+            "Expansion Module Status",  $ Parameter Name
+            "",                         $ Units String
+            "Reflects the current status of communications with the expansion module (No expansion present, OK or fault).",
+            0,3,0,                      $ Min, Max, and Default values
+            1,1,1,0,0,0,0,0,0;          $ Not Used
+
+    Param12 =                           $ Produced I/O assembly selection
+            0,                          $ reserved
+            7,                          $ Link Path Size
+            "21 0F 00 24 0A 30 01",     $ Link Path to param instance.  
+            0x0002,                     $ No support for settable path, scaling, scaling links,
+                                        $ or real time update of value.  Value is gettable and
+                                        $ Settable.  Enumerated strings are supported.
+            0xC6,                       $ Data Type - unsigned short int
+            1,                          $ Data Size - (in bytes)
+            "Produced I/O Assembly",    $ Parameter Name
+            "",                         $ Units String
+            "Choose the I/O produced assembly.  The assemblies are defined in the user's guide. Note!  Verify the scanner's consumed (Rx) data size for this module matches the chosen assembly.  This can be done by selecting 'Edit I/O parameters' from the scanner's scanlist tab.",
+            0,1,0,                      $ Min, Max (max enumeration #), and Default values
+            1,1,1,0,0,0,0,0,0;          $ Not Used
+
+    $ Parameters for N4CV2X
+    Param13 =                           $ Analog Input Status (0)
+            0,                          $ reserved
+            7,                          $ Link Path Size
+            "21 0A 00 24 01 30 04",     $ Link Path to param instance.
+            0x0032,                     $ No support for settable path, scaling, scaling links, or
+                                        $ real time update of value.  Value is gettable only.
+                                        $ Enumerated strings are supported.
+            0xC1,                       $ Data Type - boolean
+            1,                          $ Data Size - (in bytes)
+            "Analog Input Status (0)",  $ Parameter Name
+            "",                         $ Units String
+            "Reflects the current status of analog module input(0). This parameter shows \"Normal Operation\" when analog module is unconnected.",
+            0,1,0,                      $ Min, Max (max enumeration #), and Default values
+            1,1,1,0,0,0,0,0,0;          $ Not Used
+
+    Param14 =                           $ Analog Input Status (1)
+            0,                          $ reserved
+            7,                          $ Link Path Size
+            "21 0A 00 24 02 30 04",     $ Link Path to param instance.
+            0x0032,                     $ No support for settable path, scaling, scaling links, or
+                                        $ real time update of value.  Value is gettable only.
+                                        $ Enumerated strings are supported.
+            0xC1,                       $ Data Type - boolean
+            1,                          $ Data Size - (in bytes)
+            "Analog Input Status (1)",  $ Parameter Name
+            "",                         $ Units String
+            "Reflects the current status of analog module input(1). This parameter shows \"Normal Operation\" when analog module is unconnected.",
+            0,1,0,                      $ Min, Max (max enumeration #), and Default values
+            1,1,1,0,0,0,0,0,0;          $ Not Used
+
+    Param15 =                           $ Analog Input Status (2)
+            0,                          $ reserved
+            7,                          $ Link Path Size
+            "21 0A 00 24 03 30 04",     $ Link Path to param instance.
+            0x0032,                     $ No support for settable path, scaling, scaling links, or
+                                        $ real time update of value.  Value is gettable only.
+                                        $ Enumerated strings are supported.
+            0xC1,                       $ Data Type - boolean
+            1,                          $ Data Size - (in bytes)
+            "Analog Input Status (2)",  $ Parameter Name
+            "",                         $ Units String
+            "Reflects the current status of analog module input(2). This parameter shows \"Normal Operation\" when analog module is unconnected.",
+            0,1,0,                      $ Min, Max (max enumeration #), and Default values
+            1,1,1,0,0,0,0,0,0;          $ Not Used
+
+    Param16 =                           $ Analog Input Status (3)
+            0,                          $ reserved
+            7,                          $ Link Path Size
+            "21 0A 00 24 04 30 04",     $ Link Path to param instance.
+            0x0032,                     $ No support for settable path, scaling, scaling links, or
+                                        $ real time update of value.  Value is gettable only.
+                                        $ Enumerated strings are supported.
+            0xC1,                       $ Data Type - boolean
+            1,                          $ Data Size - (in bytes)
+            "Analog Input Status (3)",  $ Parameter Name
+            "",                         $ Units String
+            "Reflects the current status of analog module input(3). This parameter shows \"Normal Operation\" when analog module is unconnected.",
+            0,1,0,                      $ Min, Max (max enumeration #), and Default values
+            1,1,1,0,0,0,0,0,0;          $ Not Used
+
+    Param17 =                           $ Analog Input Value (0)
+            0,                          $ reserved
+            7,                          $ Link Path Size
+            "21 0A 00 24 01 30 03",     $ Link Path to param instance.
+            0x0030,                     $ No support for settable path, scaling, or scaling links.
+                                        $ Value is gettable only. Enumerated strings are not
+                                        $ supported.
+            0xC7,                       $ Data Type - unsigned int
+            2,                          $ Data Size - (in bytes)
+            "Analog Input Value (0)",   $ Parameter Name
+            "",                         $ Units String
+            "This parameter is the current value of analog module input(0), from 0 to 4095. This parameter is zero when analog module is unconnected.",
+            0,0x0FFF,0,                 $ Min, Max (max enumeration #), and Default values
+            1,1,1,0,0,0,0,0,0;          $ Not Used
+
+    Param18 =                           $ Analog Input Value (1)
+            0,                          $ reserved
+            7,                          $ Link Path Size
+            "21 0A 00 24 02 30 03",     $ Link Path to param instance.
+            0x0030,                     $ No support for settable path, scaling, or scaling links.
+                                        $ Value is gettable only. Enumerated strings are not
+                                        $ supported.
+            0xC7,                       $ Data Type - unsigned int
+            2,                          $ Data Size - (in bytes)
+            "Analog Input Value (1)",   $ Parameter Name
+            "",                         $ Units String
+            "This parameter is the current value of analog module input(1), from 0 to 4095. This parameter is zero when analog module is unconnected.",
+            0,0x0FFF,0,                 $ Min, Max (max enumeration #), and Default values
+            1,1,1,0,0,0,0,0,0;          $ Not Used
+
+    Param19 =                           $ Analog Input Value (2)
+            0,                          $ reserved
+            7,                          $ Link Path Size
+            "21 0A 00 24 03 30 03",     $ Link Path to param instance.
+            0x0030,                     $ No support for settable path, scaling, or scaling links.
+                                        $ Value is gettable only. Enumerated strings are not
+                                        $ supported.
+            0xC7,                       $ Data Type - unsigned int
+            2,                          $ Data Size - (in bytes)
+            "Analog Input Value (2)",   $ Parameter Name
+            "",                         $ Units String
+            "This parameter is the current value of analog module input(2), from 0 to 4095. This parameter is zero when analog module is unconnected.",
+            0,0x0FFF,0,                 $ Min, Max (max enumeration #), and Default values
+            1,1,1,0,0,0,0,0,0;          $ Not Used
+
+    Param20 =                           $ Analog Input Value (3)
+            0,                          $ reserved
+            7,                          $ Link Path Size
+            "21 0A 00 24 04 30 03",     $ Link Path to param instance.
+            0x0030,                     $ No support for settable path, scaling, or scaling links.
+                                        $ Value is gettable only. Enumerated strings are not
+                                        $ supported.
+            0xC7,                       $ Data Type - unsigned int
+            2,                          $ Data Size - (in bytes)
+            "Analog Input Value (3)",   $ Parameter Name
+            "",                         $ Units String
+            "This parameter is the current value of analog module input(3), from 0 to 4095. This parameter is zero when analog module is unconnected.",
+            0,0x0FFF,0,                 $ Min, Max (max enumeration #), and Default values
+            1,1,1,0,0,0,0,0,0;          $ Not Used
+
+    Param21 =                           $ Analog Output Status (0)
+            0,                          $ reserved
+            7,                          $ Link Path Size
+            "21 0B 00 24 01 30 04",     $ Link Path to param instance.
+            0x0032,                     $ No support for settable path, scaling, scaling links, or
+                                        $ real time update of value.  Value is gettable only.
+                                        $ Enumerated strings are supported.
+            0xC1,                       $ Data Type - boolean
+            1,                          $ Data Size - (in bytes)
+            "Analog Output Status (0)", $ Parameter Name
+            "",                         $ Units String
+            "Reflects the current status of analog module output(0). This parameter shows \"Normal Operation\" when analog module is unconnected.",
+            0,1,0,                      $ Min, Max (max enumeration #), and Default values
+            1,1,1,0,0,0,0,0,0;          $ Not Used
+
+    Param22 =                           $ Analog Output Status (1)
+            0,                          $ reserved
+            7,                          $ Link Path Size
+            "21 0B 00 24 02 30 04",     $ Link Path to param instance.
+            0x0032,                     $ No support for settable path, scaling, scaling links, or
+                                        $ real time update of value.  Value is gettable only.
+                                        $ Enumerated strings are supported.
+            0xC1,                       $ Data Type - boolean
+            1,                          $ Data Size - (in bytes)
+            "Analog Output Status (1)", $ Parameter Name
+            "",                         $ Units String
+            "Reflects the current status of analog module output(1). This parameter shows \"Normal Operation\" when analog module is unconnected.",
+            0,1,0,                      $ Min, Max (max enumeration #), and Default values
+            1,1,1,0,0,0,0,0,0;          $ Not Used
+
+    Param23 =                           $ Analog Output Value (0)
+            0,                          $ reserved
+            7,                          $ Link Path Size
+            "21 0B 00 24 01 30 03",     $ Link Path to param instance.
+            0x0010,                     $ No support for settable path, scaling, scaling links,
+                                        $ or real time update of value.  Value is gettable and
+                                        $ Not Settable.
+            0xC7,                       $ Data Type - unsigned int
+            2,                          $ Data Size - (in bytes)
+            "Analog Output Value (0)",  $ Parameter Name
+            "",                         $ Units String
+            "This parameter is the current value of analog module output(0), from 0 to 4095. This parameter is invalid when analog module is unconnected, even though it's changeable.",
+            0,0x0FFF,0,                 $ Min, Max (max enumeration #), and Default values
+            1,1,1,0,0,0,0,0,0;          $ Not Used
+
+    Param24 =                           $ Analog Output Value (1)
+            0,                          $ reserved
+            7,                          $ Link Path Size
+            "21 0B 00 24 02 30 03",     $ Link Path to param instance.
+            0x0010,                     $ No support for settable path, scaling, scaling links,
+                                        $ or real time update of value.  Value is gettable and
+                                        $ Not Settable.
+            0xC7,                       $ Data Type - unsigned int
+            2,                          $ Data Size - (in bytes)
+            "Analog Output Value (1)",  $ Parameter Name
+            "",                         $ Units String
+            "This parameter is the current value of analog module output(1), from 0 to 4095. This parameter is invalid when analog module is unconnected, even though it's changeable.",
+            0,0x0FFF,0,                 $ Min, Max (max enumeration #), and Default values
+            1,1,1,0,0,0,0,0,0;          $ Not Used
+
+    Param25 =                           $ Analog Outputs Hold Last State / Reset (group)
+            0,                          $ reserved
+            7,                          $ Link Path Size
+            "21 21 00 24 01 30 64",     $ Link Path to param instance.
+            0x0002,                     $ No support for settable path, scaling, scaling links,
+                                        $ or real time update of value.  Value is gettable and
+                                        $ Settable.  Enumerated strings are supported.
+            0xC6,                       $ Data Type - unsigned short int
+            1,                          $ Data Size - (in bytes)
+            "Analog Outputs HLS/Reset", $ Parameter Name
+            "",                         $ Units String
+            "Selecting Hold Last State causes the analog outputs group to maintain their last state when the PLC is in program mode (idle) or in fault mode (fault). Selecting Reset Outputs makes analog outputs group reset to 0V(0mA) when the PLC is in program mode (idle) or in fault mode (fault).",
+            0,1,0,                      $ Min, Max (max enumeration #), and Default values
+            1,1,1,0,0,0,0,0,0;          $ Not Used
+
+    Param26 =                           $ Analog Inputs Filter Frequency (group)
+            0,                          $ reserved
+            7,                          $ Link Path Size
+            "21 20 00 24 01 30 64",     $ Link Path to param instance.
+            0x0002,                     $ No support for settable path, scaling, scaling links,
+                                        $ or real time update of value.  Value is gettable and
+                                        $ Settable.  Enumerated strings are supported.
+            0xC1,                       $ Data Type - boolean
+            1,                          $ Data Size - (in bytes)
+            "Analog Inputs Filter Frequency",$ Parameter Name
+            "",                         $ Units String
+            "This parameter determines the input noise filter frequency (for analog inputs group) either 50Hz or 60Hz.",
+            0,1,0,                      $ Min, Max (max enumeration #), and Default values
+            1,1,1,0,0,0,0,0,0;          $ Not Used
+
+    Param27 =                           $ Analog Input Range (0)
+            0,                          $ reserved
+            7,                          $ Link Path Size
+            "21 0A 00 24 01 30 07",     $ Link Path to param instance.
+            0x0002,                     $ No support for settable path, scaling, scaling links,
+                                        $ or real time update of value.  Value is gettable and
+                                        $ Settable.  Enumerated strings are supported.
+            0xC6,                       $ Data Type - unsigned short int
+            1,                          $ Data Size - (in bytes)
+            "Analog Input Range (0)",   $ Parameter Name
+            "",                         $ Units String
+            "Choose the range setting that you would like this input(0) to perform.\n Note! Range settings,\"-15 - 75mA\",\"-15 - 30mA\",\"-5 - 5V\" and \"1 - 5V\" are currently invalid.",
+            2,8,2,                      $ Min, Max (max enumeration #), and Default values
+            1,1,1,0,0,0,0,0,0;          $ Not Used
+    Enum27  = 2,"0-10V",3,"4-20mA",8,"0-20mA";
+
+    Param28 =                           $ Analog Input Range (1)
+            0,                          $ reserved
+            7,                          $ Link Path Size
+            "21 0A 00 24 02 30 07",     $ Link Path to param instance.
+            0x0002,                     $ No support for settable path, scaling, scaling links,
+                                        $ or real time update of value.  Value is gettable and
+                                        $ Settable.  Enumerated strings are supported.
+            0xC6,                       $ Data Type - unsigned short int
+            1,                          $ Data Size - (in bytes)
+            "Analog Input Range (1)",   $ Parameter Name
+            "",                         $ Units String
+            "Choose the range setting that you would like this input(1) to perform.\n Note! Range settings,\"-15 - 75mA\",\"-15 - 30mA\",\"-5 - 5V\" and \"1 - 5V\" are currently invalid.",
+            2,8,2,                      $ Min, Max (max enumeration #), and Default values
+            1,1,1,0,0,0,0,0,0;          $ Not Used
+    Enum28  = 2,"0-10V",3,"4-20mA",8,"0-20mA";
+
+    Param29 =                           $ Analog Input Range (2)
+            0,                          $ reserved
+            7,                          $ Link Path Size
+            "21 0A 00 24 03 30 07",     $ Link Path to param instance.
+            0x0002,                     $ No support for settable path, scaling, scaling links,
+                                        $ or real time update of value.  Value is gettable and
+                                        $ Settable.  Enumerated strings are supported.
+            0xC6,                       $ Data Type - unsigned short int
+            1,                          $ Data Size - (in bytes)
+            "Analog Input Range (2)",   $ Parameter Name
+            "",                         $ Units String
+            "Choose the range setting that you would like this input(2) to perform.\n Note! Range settings,\"-15 - 75mA\",\"-15 - 30mA\",\"-5 - 5V\" and \"1 - 5V\" are currently invalid.",
+            2,8,2,                      $ Min, Max (max enumeration #), and Default values
+            1,1,1,0,0,0,0,0,0;          $ Not Used
+    Enum29  = 2,"0-10V",3,"4-20mA",8,"0-20mA";
+
+    Param30 =                           $ Analog Input Range (3)
+            0,                          $ reserved
+            7,                          $ Link Path Size
+            "21 0A 00 24 04 30 07",     $ Link Path to param instance.
+            0x0002,                     $ No support for settable path, scaling, scaling links,
+                                        $ or real time update of value.  Value is gettable and
+                                        $ Settable.  Enumerated strings are supported.
+            0xC6,                       $ Data Type - unsigned short int
+            1,                          $ Data Size - (in bytes)
+            "Analog Input Range (3)",   $ Parameter Name
+            "",                         $ Units String
+            "Choose the range setting that you would like this input(3) to perform.\n Note! Range settings,\"-15-75mA\",\"-15-30mA\",\"-5-5V\" and \"1-5V\" are currently invalid.",
+            2,8,2,                      $ Min, Max (max enumeration #), and Default values
+            1,1,1,0,0,0,0,0,0;          $ Not Used
+    Enum30  = 2,"0-10V",3,"4-20mA",8,"0-20mA";
+
+    Param31 =                           $ Analog Output Range (0)
+            0,                          $ reserved
+            7,                          $ Link Path Size
+            "21 0B 00 24 01 30 07",     $ Link Path to param instance.
+            0x0002,                     $ No support for settable path, scaling, scaling links,
+                                        $ or real time update of value.  Value is gettable and
+                                        $ Settable.  Enumerated strings are supported.
+            0xC6,                       $ Data Type - unsigned short int
+            1,                          $ Data Size - (in bytes)
+            "Analog Output Range (0)",  $ Parameter Name
+            "",                         $ Units String
+            "Choose the range setting that you would like this output(0) to perform.\n Note! Range settings,\"-10 - 10V\",\"0 - 5V\",\"-5 - 5V\" and \"1 - 5V\" are currently invalid.",
+            0,2,1,                      $ Min, Max (max enumeration #), and Default values
+            1,1,1,0,0,0,0,0,0;          $ Not Used
+
+    Param32 =                           $ Analog Output Range (1)
+            0,                          $ reserved
+            7,                          $ Link Path Size
+            "21 0B 00 24 02 30 07",     $ Link Path to param instance.
+            0x0002,                     $ No support for settable path, scaling, scaling links,
+                                        $ or real time update of value.  Value is gettable and
+                                        $ Settable.  Enumerated strings are supported.
+            0xC6,                       $ Data Type - unsigned short int
+            1,                          $ Data Size - (in bytes)
+            "Analog Output Range (1)",  $ Parameter Name
+            "",                         $ Units String
+            "Choose the range setting that you would like this output(1) to perform.\n Note! Range settings,\"-10 - 10V\",\"0 - 5V\",\"-5 - 5V\" and \"1 - 5V\" are currently invalid.",
+            0,2,1,                      $ Min, Max (max enumeration #), and Default values
+            1,1,1,0,0,0,0,0,0;          $ Not Used
+
+$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+
+$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+Param61 =		    $ Expansion Select
+    0,				$ reserved
+    0,				$ Link Path Size
+    ,	            $ Link Path to param instance.  
+    0x0002,		$ No support for settable path, scaling, scaling links,
+                   $ or real time update of value.  Value is gettable and
+                   $ Settable.  Enumerated strings are supported.
+    0xC6,			$ Data Type - unsigned short int
+    1,				$ Data Size - (in bytes)
+    "Expansion Select",$ Parameter Name
+    "",				$ Units String
+           $$$$$$$$$$ Help string $$$$$$$$$$$
+    "Select the Expansion used at this node. This selection only afffects data size for scanner and RSLogix. This parameter is not stored in the module because the module automatically detects the expansion.",
+    0,2,0,			$ Min, Max (max enumeration #), and Default values
+    ,,,,,,,,; 		$ Not Used
+
+Enum61 =0,"No Expansion",1,"w/ 16 in exp",2,"w/ 16 out exp",3,"w/ analog exp";
+
+
+Param62 =      
+ 0,0,"",0x200,
+  0xC1,1,
+  "Expansion fault"
+  ,"",""
+  ,0,1,0,,,,,,,,,,,,;
+
+Param63 =          $ Output Data
+    0,0,"",0x200,
+    0xC6,1,
+    "Output Data"
+    ,"",""
+    ,0,255,0,,,,,,,,,,,,;
+
+Param64 =      $ Analog Data
+    0,0,"",0x200,
+    0xC7,2,
+    "Analog Channel Data"
+    ,"",""
+    ,0,255,0,,,,,,,,,,,,;
+
+
+Param65 =		                $ Enable Quick Connect
+    0,			                $ reserved
+    7,			                $ Link Path Size
+    "21 03 00 24 01 30 66",	$ Link Path .
+    0x0002,			
+    0xC1,			            $ Data Type - boolean
+    1,			                $ Data Size
+    "Quick Connect",           $ Parameter Name
+    "","",
+    0,1,0,,,,,,,,,,,,;
+Enum65 = 0,"Disabled",1,"Enabled";
+
+
+Param66 =          $ Output Data 4 bits
+    0,0,"",0x200,
+    0xC6,1,
+    "Output Data 4 bits"
+    ,"",""
+    ,0,15,0,,,,,,,,,,,,;
+
+Param67 =          $ Input Data 4 bits
+    0,0,"",0x200,
+    0xC6,1,
+    "Input Data 4 bits"
+    ,"",""
+    ,0,15,0,,,,,,,,,,,,;
+
+
+Param71 =      
+ 0,0,"",0x200,
+  0xC1,1,
+  "R fault"
+  ,"",""
+  ,0,1,0,,,,,,,,,,,,;
+
+Param72 =      
+ 0,0,"",0x200,
+  0xC1,1,
+  "U fault"
+  ,"",""
+  ,0,1,0,,,,,,,,,,,,;
+
+
+Param73 =      
+ 0,0,"",0x200,
+  0xC1,1,
+  "In 0 over range"
+  ,"",""
+  ,0,1,0,,,,,,,,,,,,;
+
+
+Param74 =      
+ 0,0,"",0x200,
+  0xC1,1,
+  "In 1 over range"
+  ,"",""
+  ,0,1,0,,,,,,,,,,,,;
+
+
+Param75 =      
+ 0,0,"",0x200,
+  0xC1,1,
+  "In 2 over range"
+  ,"",""
+  ,0,1,0,,,,,,,,,,,,;
+
+Param76 =      
+ 0,0,"",0x200,
+  0xC1,1,
+  "In 3 over range"
+  ,"",""
+  ,0,1,0,,,,,,,,,,,,;
+
+Param77 =      
+ 0,0,"",0x200,
+  0xC1,1,
+  "In 0 open wire"
+  ,"",""
+  ,0,1,0,,,,,,,,,,,,;
+
+Param78 =      
+ 0,0,"",0x200,
+  0xC1,1,
+  "In 1 open wire"
+  ,"",""
+  ,0,1,0,,,,,,,,,,,,;
+
+Param79 =      
+ 0,0,"",0x200,
+  0xC1,1,
+  "In 2 open wire"
+  ,"",""
+  ,0,1,0,,,,,,,,,,,,;
+
+Param80 =      
+ 0,0,"",0x200,
+  0xC1,1,
+  "In 3 open wire"
+  ,"",""
+  ,0,1,0,,,,,,,,,,,,;
+
+Param81 =      
+ 0,0,"",0x200,
+  0xC1,1,
+  "Out 0 over range"
+  ,"",""
+  ,0,1,0,,,,,,,,,,,,;
+
+Param82 =      
+ 0,0,"",0x200,
+  0xC1,1,
+  "Out 1 over range"
+  ,"",""
+  ,0,1,0,,,,,,,,,,,,;
+
+Param83 =      
+ 0,0,"",0x200,
+  0xC1,1,
+  "Out 0 under range"
+  ,"",""
+  ,0,1,0,,,,,,,,,,,,;
+
+Param84 =      
+ 0,0,"",0x200,
+  0xC1,1,
+  "Out 1 under range"
+  ,"",""
+  ,0,1,0,,,,,,,,,,,,;
+
+
+$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+
+
+[Groups]
+    Group1  = "DeviceNet Configuration",            3,1,12,65;
+    Group2  = "Input Configuration",                2,2,3;
+    Group3  = "Output Configuration",               4,7,8,9,10;
+    Group4  = "Expansion Data Configure",           1,61;
+    Group5  = "Monitor",                            4,4,5,6,11;
+
+    $ Groups for N4CV2X
+    Group6  = "Analog Exp. Input Configuration",    5,26,27,28,29,30;
+    Group7  = "Analog Exp. Output Configuration",   3,25,31,32;
+    Group8  = "Analog Exp. Monitor",                12,13,14,15,16,17,18,19,20,21,22,23,24;
+
+[EnumPar]
+    Param1  = "Enabled","Disabled";
+    Param2  = "0 ms","2 ms","4 ms","8 ms","16 ms";
+    Param3  = "0 ms","2 ms","4 ms","8 ms","16 ms";
+    Param7  = "Use Fault Value","Hold Last State";
+    Param8  = "Reset Outputs","Turn Outputs On";
+    Param9  = "Use Idle Value","Hold Last State";
+    Param10 = "Reset Outputs","Turn Outputs On";
+    Param11 = "No Expansion Present","Discrete Expansion OK","Analog Expansion OK","Fault";
+    Param12 = "Data with Exp Status","Input data ONLY";
+
+    $ Parameters for N4CV2X
+    Param13 = "Normal Operation","Fault";
+    Param14 = "Normal Operation","Fault";
+    Param15 = "Normal Operation","Fault";
+    Param16 = "Normal Operation","Fault";
+    Param21 = "Normal Operation","Fault";
+    Param22 = "Normal Operation","Fault";
+    Param25 = "Reset Outputs","Hold Last State";
+    Param26 = "50Hz","60Hz";
+    Param31 = "4-20mA","0-10V","0-20mA";
+    Param32 = "4-20mA","0-10V","0-20mA";
+
+
+
+
+$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+
+
+[Assembly]
+Revision = 1;
+
+$ INPUT ASSEMBLIES
+
+Assem111 =                     $  returns input assembly selection expansion combined with assembly type  
+    "Selected Input Assembly", $ Name of Connection.
+     ,                          $ Path to Assembly.
+    1,                         $ The size in bytes.
+    0, , ,                     $ Not editable, not modular.
+    2, Param12,                $ 0-default,1-inputs only,2-devicelogix
+    2, Param61,                $ 0-no expansion,1-16in exp,2-16out exp,3-analog exp
+    4, ;                       $ pad
+
+
+Assem7 =                       $ Default Assembly
+    "Input Data only",         $ Name of Connection.
+    "21 04 00 24 07 30 03",    $ Path to Assembly.
+    1,                         $ The size in bytes.
+    0, , ,                     $ Not editable, not modular.
+    4, Param67,                $ 4 input values (byte 0)
+    4,;
+
+Assem100 =                     $ 16 in Expansion Assembly Inputs only
+    "Inputs only w/ 16 in Exp",$ Name of Connection.
+    "21 04 00 24 07 30 03",    $ Path to Assembly.
+    3,                         $ The size in bytes.
+    0, , ,                     $ Not editable, not modular.
+    8, Param4,                 $ 8 input values (byte 0)
+    8, Param5,                 $ 8 input values (byte 1)
+    4, Param6,                 $ 4 input values (byte 2)
+    4,;
+
+Assem101 =                     $ 16 in Expansion Assembly
+    "Inputs w/ 16 in Exp,status",     $ Name of Connection.
+    "21 04 00 24 11 30 03",    $ Path to Assembly.
+    3,                         $ The size in bytes.
+    0, , ,                     $ Not editable, not modular.
+    8, Param4,                 $ 8 input values (byte 0)
+    8, Param5,                 $ 8 input values (byte 1)
+    4, Param6,                 $ 8 input values (byte 2)
+    3,,                       
+    1, Param62;                $ Expansion Status
+
+Assem102 =                     $ 16 out Expansion Assembly
+    "Inputs w/ 16 out Exp,status",     $ Name of Connection.
+    "21 04 00 24 11 30 03",    $ Path to Assembly.
+    1,                         $ The size in bytes.
+    0, , ,                     $ Not editable, not modular.
+    4, Param67,                 $ 8 input values (byte 0)
+    3,,
+    1, Param62;                $ Expansion Status
+
+Assem103 =                     $ analog Expansion Assembly  +
+   "Inputs with Ana & Status", $ Name of Connection.
+   "21 04 00 24 6B 30 03",     $ Path to Assembly.
+   12,                         $ The size in bytes.
+   0, , ,                      $ Not editable, not modular.
+   4, Param67,                  $ 8 input values (byte 0)
+   3,,
+   1, Param62,                 $ Expansion Status
+   8,,
+   16, Param64,                $ Analog channel data
+   16, Param64,                $ Analog channel data
+   16, Param64,                $ Analog channel data
+   16, Param64,                $ Analog channel data
+   1, Param71,                 $ Analog Expansion Status
+   1, Param72,                 $ Analog Expansion Status
+   2,,
+   1, Param73,                 $ Analog Expansion Status
+   1, Param74,                 $ Analog Expansion Status
+   1, Param75,                 $ Analog Expansion Status
+   1, Param76,                 $ Analog Expansion Status
+   1, Param77,                 $ Analog Expansion Status
+   1, Param78,                 $ Analog Expansion Status
+   1, Param79,                 $ Analog Expansion Status
+   1, Param80,                 $ Analog Expansion Status
+   1, Param81,                 $ Analog Expansion Status
+   1, Param82,                 $ Analog Expansion Status
+   1, Param83,                 $ Analog Expansion Status
+   1, Param84;                 $ Analog Expansion Status
+   
+
+Assem104 =                     $ analog Expansion Assembly
+   "Inputs only with Ana",     $ Name of Connection.
+   "21 04 00 24 6B 30 03",     $ Path to Assembly.
+   12,                         $ The size in bytes.
+   0, , ,                      $ Not editable, not modular.
+   4, Param67,                  $ 8 input values (byte 0)
+   4,,
+   8, ,
+   16, Param64,                $ Analog channel data
+   16, Param64,                $ Analog channel data
+   16, Param64,                $ Analog channel data
+   16, Param64,                $ Analog channel data               
+   1, Param71,                 $ Analog Expansion Status
+   1, Param72,                 $ Analog Expansion Status
+   2,,
+   1, Param73,                 $ Analog Expansion Status
+   1, Param74,                 $ Analog Expansion Status
+   1, Param75,                 $ Analog Expansion Status
+   1, Param76,                 $ Analog Expansion Status
+   1, Param77,                 $ Analog Expansion Status
+   1, Param78,                 $ Analog Expansion Status
+   1, Param79,                 $ Analog Expansion Status
+   1, Param80,                 $ Analog Expansion Status
+   1, Param81,                 $ Analog Expansion Status
+   1, Param82,                 $ Analog Expansion Status
+   1, Param83,                 $ Analog Expansion Status
+   1, Param84;                 $ Analog Expansion Status
+
+
+
+$ OUTPUT ASSEMBLIES
+Assem37 =                      $0x22   base outputs only
+    "Default Output Data",     $ Name of Connection.
+    "20 04 24 25 30 03",       $ Path to I/O Assembly.
+    1,                         $ The size in bytes that this connection consumes.
+    0, , ,                     $ Not editable, not modular.
+    4, Param66,                $ 4 output values (byte 0)
+    4,;
+
+Assem137 =                     $16 output expansion2
+    "Outputs w/ 16 out Exp",                   $ Name of Connection.
+    "20 04 24 25 30 03",       $ Path to I/O Assembly.
+    3,                         $ The size in bytes that this connection consumes.
+    0, , ,                     $ Not editable, not modular.
+    8, Param63,                $ 8 output values (byte 0)
+    8, Param63,                $ 8 output values (byte 1)
+    4, Param66,                $ 4 output values (byte 2)
+    4,;
+
+Assem138 =                     $analog expansion2
+    "Outputs w/ ana Exp",      $ Name of Connection.
+    "20 04 24 6F 30 03",       $ Path to I/O Assembly.
+    6,                         $ The size in bytes that this connection consumes.
+    0, , ,                     $ Not editable, not modular.
+    4, Param66,                $ 4 output values (byte 0)
+    4, ,
+    8, ,
+    16, Param64,               $ Analog channel data
+    16, Param64;               $ Analog channel data
+
+
+Assem169 =                 $0xA9
+    "Configuration Data",  $ Name of Connection.
+     ,                     $ Path to Assembly.
+    4,                     $ The size in bytes.
+    0, , ,                 $ Not editable, not modular.
+    1,Param1,              $ Autobaud                  
+    1,Param65,             $ Quick Connect             
+    2, ,                   $ pad bits              
+    1,Param7,              $ Fault State               
+    1,Param8,              $ Fault Value               
+    1,Param9,              $ Idle State 0              
+    1,Param10,             $ Idle Value 0
+    8,Param2,              $ Off to On Input filter    (byte 1,2)
+    8,Param3,              $ On to Off Input filter    (byte 3,4)
+    4,Param12,             $ Input assembly select         
+    4,;                    $ Output assembly select                
+                
+$ IO Produced Assembly Matrix
+$   Expansion    None  16in   16out   analog
+$------------------------------------------
+$   Assemblies        
+$   default       0      4     8       12
+$   in only       1      5     9       13
+$   dlgx          2      6     10      14
+
+
+VariantExa1 =
+    ,,,,,
+    Assem111,
+    0, Assem7,
+    1, Assem7,
+    4, Assem101,
+    5, Assem100,
+    8, Assem102,
+    9, Assem7,
+    12, Assem103,
+    13, Assem104;
+
+
+
+VariantExa2 =
+    ,,,,,
+    Param61,
+    0x00, Assem37,
+    0x01, Assem37,
+    0x02, Assem137,
+    0x03, Assem138;

@@ -1,0 +1,103 @@
+[File]
+	DescText = "1715-OB8DE 8 Point Digital Output Module";
+	CreateDate = 08-12-2009;
+	CreateTime = 11:45:00;
+	ModDate	= 04-26-2011;
+	ModTime	= 09:30:00;
+	Revision = 1.5;
+	HomeURL = "http://www.ab.com/networks/eds/XX/00010007017D0100.eds";
+
+[Device]
+	VendCode = 1;
+	VendName = "Allen-Bradley";
+	ProdType = 7;
+	ProdTypeStr = "Digital I/O";
+	ProdCode = 381;
+	MajRev = 1;
+	MinRev = 5;
+	ProdName = "1715-OB8DE";
+	Catalog = "1715-OB8DE";
+	Icon = "1715OBDE.ico";
+
+[Device Classification]
+	Class2 = 1_RSNetWorx_1756,1_RSNetWorx_Not_Connectable_Module;
+
+[Modular]
+	Width  = 1;
+	Rack1  = 1,0x6c,0xAB,1,1,,,,2,3,4;                                    $1715-A5 Chassis, any slot  > 1
+	Rack2  = 1,0x6c,0xAC,1,1,,,,2,3,4,5,6,7;                              $1715-A8 Chassis, any slot  > 1
+	Rack3  = 1,0x6c,0xAD,1,1,,,,2,3,4,5,6,7,8,9,10;                       $1715-A11 Chassis, any slot > 1
+	Rack4  = 1,0x6c,0xAE,1,1,,,,2,3,4,5,6,7,8,9,10,11,12,13;              $1715-A14 Chassis, any slot > 1
+	Rack5  = 1,0x6c,0xAF,1,1,,,,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16;     $1715-A17 Chassis, any slot > 1
+	Rack6  = 1,0x6c,0xB0,1,1,,,,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19;  			$1715-A20 Chassis, any slot > 1
+	Rack7  = 1,0x6c,0xB1,1,1,,,,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22;  		$1715-A23 Chassis, any slot > 1
+	Rack8  = 1,0x6c,0xB2,1,1,,,,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25;  	$1715-A26 Chassis, any slot > 1
+
+
+[Connection Manager]
+   1_Display_Only_Connection1 =
+      0x02030002,    $ trigger & transport
+                  $  0-15  = supported transport classes (class 1)
+                  $  16 = cyclic (1 = supported)
+                  $  17 = change of state (1 = supported)
+                  $  18 = on demand (0 = not supported)
+                  $  19-23 = reserved (must be zero)
+                  $  24-27 = input-only
+                  $  28-30 = reserved (must be zero)
+                  $  31 = client 0 (don't care for classes 0 and 1)
+      0x44240355,    $ point/multicast & priority & realtime format
+                        $   0     = O=>T fixed (1 = supported)
+                        $   1     = O=>T variable (0 = not supported)
+                        $   2     = T=>O fixed (1 = supported)
+                        $   3     = T=>O variable (0 = not supported)
+                  $  4-5   = obsolete - value not changed for backwards compatibility
+                  $  6-7   = obsolete - value not changed for backwards compatibility
+                  $  8-10  = O=>T header (heartbeat)
+                  $  11  = reserved (must be zero)
+                  $  12-14 = T=>O header (pure data)
+                  $  15  = reserved (must be zero)
+                  $  16-19 = O=>T point-to-point
+                  $  20-23 = T=>O multicast
+                  $  24-27 = O=>T scheduled
+                  $  28-31 = T=>O scheduled
+      , 0,,       $ O=>T RPI range,default,description (sizes in bytes)
+      ,32,,       $ T=>O RPI range,default,description (sizes in bytes)
+      ,,          $ config part 1 (private configuration)
+      ,,          $ config part 2 (module configuration)
+      "Full Diagnostics - Input Data",     $ connection name
+      "Output data connection.", $ Help string
+      "20 04 24 79 2C 7B 2C 7C";           $ Path
+
+   1_Display_Only_Connection2 =
+      0x01030002,    $ trigger & transport
+                  $  0-15  = supported transport classes (class 1)
+                  $  16 = cyclic (1 = supported)
+                  $  17 = change of state (1 = supported)
+                  $  18 = on demand (0 = not supported)
+                  $  19-23 = reserved (must be zero)
+                  $  24-27 = listen-only
+                  $  28-30 = reserved (must be zero)
+                  $  31 = client 0 (don't care for classes 0 and 1)
+      0x44240355,    $ point/multicast & priority & realtime format
+                        $   0     = O=>T fixed (1 = supported)
+                        $   1     = O=>T variable (0 = not supported)
+                        $   2     = T=>O fixed (1 = supported)
+                        $   3     = T=>O variable (0 = not supported)
+                  $  4-5   = obsolete - value not changed for backwards compatibility
+                  $  6-7   = obsolete - value not changed for backwards compatibility
+                  $  8-10  = O=>T header (heartbeat)
+                  $  11  = reserved (must be zero)
+                  $  12-14 = T=>O header (pure data)
+                  $  15  = reserved (must be zero)
+                  $  16-19 = O=>T point-to-point
+                  $  20-23 = T=>O multicast
+                  $  24-27 = O=>T scheduled
+                  $  28-31 = T=>O scheduled
+      , 0,,       $ O=>T RPI range,default,description (sizes in bytes)
+      ,32,,       $ T=>O RPI range,default,description (sizes in bytes)
+      0,,         $ config part 1 (private configuration)
+      ,,          $ config part 2 (module configuration)
+      "Listen Only - Full Diagnostics - Input Data", $ connection name
+      "Diagnostic input listen only connection.",    $ Help string
+      "20 04 24 65 2C C7 2C 7C";                     $ Path
+

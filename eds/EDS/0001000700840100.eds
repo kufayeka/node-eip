@@ -1,0 +1,312 @@
+$ Electronic Data Sheet for Point I/O  (1734-IV4)
+
+[File]
+	DescText    = "PointIO 1734-IV4";                    
+	CreateDate  = 06-30-1999;                            
+	CreateTime  = 16:09:35;                         
+	ModDate     = 03-15-2006;
+	ModTime     = 06:50:00;                            
+	Revision    = 1.4;                              
+
+[Device]
+	VendCode    = 1;                                  $ Vendor Code
+	ProdType    = 7;                                  $ Product Type
+	ProdCode    = 132;                                $ Product Code
+
+	MajRev      = 1;                                  $ Major Rev
+	MinRev      = 3;                                  $ Minor Rev
+	VendName    = "Allen-Bradley Company, Inc.";
+	ProdTypeStr = "General Purpose Discrete I/O";
+	ProdName    = "PointIO 4pt 24Vdc Source Input";
+	Catalog     = "1734-IV4";
+
+[IO_Info]
+	Default =     0X0001;                             $ Poll is default
+
+	PollInfo =    0X000F,                             $ Compatable with all
+                    1,                                  $ input 1
+                    0;                                  $ no consumed connection
+
+      StrobeInfo =  0X000F,                             $ Compatable with all
+                    1,                                  $ input 1
+                    0;                                  $ no consumed connection
+
+      COSInfo =     0X0007,                             $ Compatable with all
+                    1,                                  $ input 1
+                    0;                                  $ no consumed connection
+
+      CyclicInfo =  0X000B,                             $ Compatable with all
+                    1,                                  $ input 1
+                    0;                                  $ no consumed connection
+
+
+	Input1 =      1,                                  $ size = 1 byte
+                    4,                                  $ 4 significant bits
+                    0X000F,                             $ compatible with all conections
+                    "1734-IV4 Produce Connection",      $ name string
+                    6,                                  $ path length
+                    "20 04 24 03 30 03",                $ assy obj, inst 3, attr 3
+                    "Producing connection contains state of the four inputs";
+
+[ParamClass]
+	MaxInst     = 16;
+	Descriptor  = 0x09;                               $ Individual parameters are setable
+                                                        $ Automaticly stored in EERPOM
+	CfgAssembly = 0x67;                               $ the custom config assembly is 103d
+
+[Params]
+$ Input Values
+      Param1 =      $ Value for Input #0
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 08 24 01 30 03",                $ Link Path to DIP object's value attribute.
+                    0x0032,                             $ No support for: settable path, scaling, scaling links.
+                                                        $ Real time update of value.  Value is gettable only.
+                    4,                                  $ Data Type - boolean
+                    1,                                  $ Data Size
+                    "Input Value #0",                   $ Parameter Name
+                    "",                                 $ Units String
+                    "Value of input point.  ON or OFF.",
+                    0,1,0,                              $ Min, Max (max enumeration #), and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Param2 =      $ Value for Input #1
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 08 24 02 30 03",                $ Link Path to DOP object's value attribute.
+                    0x0032,                             $ No support for: settable path, scaling, scaling links.
+                                                        $ Real time update of value.  Value is gettable only.
+                    4,                                  $ Data Type - boolean
+                    1,                                  $ Data Size
+                    "Input Value #1",                   $ Parameter Name
+                    "",                                 $ Units String
+                    "Value of input point.  ON or OFF.",
+                    0,1,0,                              $ Min, Max (max enumeration #), and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Param3 =      $ Value for Input #2
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 08 24 03 30 03",                $ Link Path to DIP object's value attribute.
+                    0x0032,                             $ No support for: settable path, scaling, scaling links.
+                                                        $ Real time update of value.  Value is gettable only.
+                    4,                                  $ Data Type - boolean
+                    1,                                  $ Data Size
+                    "Input Value #2",                   $ Parameter Name
+                    "",                                 $ Units String
+                    "Value of input point.  ON or OFF.",
+                    0,1,0,                              $ Min, Max (max enumeration #), and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Param4 =      $ Value for Input #3
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 08 24 04 30 03",                $ Link Path to DOP object's value attribute.
+                    0x0032,                             $ No support for: settable path, scaling, scaling links.
+                                                        $ Real time update of value.  Value is gettable only.
+                    4,                                  $ Data Type - boolean
+                    1,                                  $ Data Size
+                    "Input Value #3",                   $ Parameter Name
+                    "",                                 $ Units String
+                    "Value of input point.  ON or OFF.",
+                    0,1,0,                              $ Min, Max (max enumeration #), and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+$ Filter Values
+      Param5 =      $ Off2On Filter 0
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 08 24 01 30 05",                $ Link Path to DOP object's fault action attribute.
+                    0x0000,                             $ No support for: settable path, scaling, scaling links, or
+                                                        $ real time update of value.  Value is gettable and 
+                                                        $ Settable.  Enumerated strings are NOT supported.
+                    2,                                  $ Data Type - unsigned int
+                    2,                                  $ Data Size - bytes
+                    "Off-to-On Filter 0",               $ Parameter Name
+                    "us",                               $ Units String
+                    "OFF to ON transition filter constant.\nA high signal must be present for this amount of time\nbefore the module will report an ON.\nValue entered in microseconds (us).\nDefault is 1 ms (1000 us).",
+                    0,65535,1000,                       $ Min, Max, and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Param6 =      $ On2Off Filter 0
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 08 24 01 30 06",                $ Link Path to DOP object's fault action attribute.
+                    0x0000,                             $ No support for: settable path, scaling, scaling links, or
+                                                        $ real time update of value.  Value is gettable and 
+                                                        $ Settable.  Enumerated strings are NOT supported.
+                    2,                                  $ Data Type - unsigned int
+                    2,                                  $ Data Size - bytes
+                    "On-to-Off Filter 0",               $ Parameter Name
+                    "us",                               $ Units String
+                    "ON to OFF transition filter constant.\nA low signal must be present for this amount of time\nbefore the module will report an OFF.\nValue entered in microseconds (us).\nDefault is 1 ms (1000 us).",
+                    0,65535,1000,                       $ Min, Max, and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Param7 =      $ Off2On Filter 1
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 08 24 02 30 05",                $ Link Path to DOP object's fault action attribute.
+                    0x0000,                             $ No support for: settable path, scaling, scaling links, or
+                                                        $ real time update of value.  Value is gettable and 
+                                                        $ Settable.  Enumerated strings are NOT supported.
+                    2,                                  $ Data Type - unsigned int
+                    2,                                  $ Data Size - bytes
+                    "Off-to-On Filter 1",               $ Parameter Name
+                    "us",                               $ Units String
+                    "OFF to ON transition filter constant.\nA high signal must be present for this amount of time\nbefore the module will report an ON.\nValue entered in microseconds (us).\nDefault is 1 ms (1000 us).",
+                    0,65535,1000,                       $ Min, Max, and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Param8 =      $ On2Off Filter 1
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 08 24 02 30 06",                $ Link Path to DOP object's fault action attribute.
+                    0x0000,                             $ No support for: settable path, scaling, scaling links, or
+                                                        $ real time update of value.  Value is gettable and 
+                                                        $ Settable.  Enumerated strings are NOT supported.
+                    2,                                  $ Data Type - unsigned int
+                    2,                                  $ Data Size - bytes
+                    "On-to-Off Filter 1",               $ Parameter Name
+                    "us",                               $ Units String
+                    "ON to OFF transition filter constant.\nA low signal must be present for this amount of time\nbefore the module will report an OFF.\nValue entered in microseconds (us).\nDefault is 1 ms (1000 us).",
+                    0,65535,1000,                       $ Min, Max, and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Param9 =      $ Off2On Filter 2
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 08 24 03 30 05",                $ Link Path to DOP object's fault action attribute.
+                    0x0000,                             $ No support for: settable path, scaling, scaling links, or
+                                                        $ real time update of value.  Value is gettable and 
+                                                        $ Settable.  Enumerated strings are NOT supported.
+                    2,                                  $ Data Type - unsigned int
+                    2,                                  $ Data Size - bytes
+                    "Off-to-On Filter 2",               $ Parameter Name
+                    "us",                               $ Units String
+                    "OFF to ON transition filter constant.\nA high signal must be present for this amount of time\nbefore the module will report an ON.\nValue entered in microseconds (us).\nDefault is 1 ms (1000 us).",
+                    0,65535,1000,                       $ Min, Max, and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Param10 =     $ On2Off Filter 2
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 08 24 03 30 06",                $ Link Path to DOP object's fault action attribute.
+                    0x0000,                             $ No support for: settable path, scaling, scaling links, or
+                                                        $ real time update of value.  Value is gettable and 
+                                                        $ Settable.  Enumerated strings are NOT supported.
+                    2,                                  $ Data Type - unsigned int
+                    2,                                  $ Data Size - bytes
+                    "On-to-Off Filter 2",               $ Parameter Name
+                    "us",                               $ Units String
+                    "ON to OFF transition filter constant.\nA low signal must be present for this amount of time\nbefore the module will report an OFF.\nValue entered in microseconds (us).\nDefault is 1 ms (1000 us).",
+                    0,65535,1000,                       $ Min, Max, and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Param11 =     $ Off2On Filter 3
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 08 24 04 30 05",                $ Link Path to DOP object's fault action attribute.
+                    0x0000,                             $ No support for: settable path, scaling, scaling links, or
+                                                        $ real time update of value.  Value is gettable and 
+                                                        $ Settable.  Enumerated strings are NOT supported.
+                    2,                                  $ Data Type - unsigned int
+                    2,                                  $ Data Size - bytes
+                    "Off-to-On Filter 3",               $ Parameter Name
+                    "us",                               $ Units String
+                    "OFF to ON transition filter constant.\nA high signal must be present for this amount of time\nbefore the module will report an ON.\nValue entered in microseconds (us).\nDefault is 1 ms (1000 us).",
+                    0,65535,1000,                       $ Min, Max, and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Param12 =     $ On2Off Filter 3
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 08 24 04 30 06",                $ Link Path to DOP object's fault action attribute.
+                    0x0000,                             $ No support for: settable path, scaling, scaling links, or
+                                                        $ real time update of value.  Value is gettable and 
+                                                        $ Settable.  Enumerated strings are NOT supported.
+                    2,                                  $ Data Type - unsigned int
+                    2,                                  $ Data Size - bytes
+                    "On-to-Off Filter 3",               $ Parameter Name
+                    "us",                               $ Units String
+                    "ON to OFF transition filter constant.\nA low signal must be present for this amount of time\nbefore the module will report an OFF.\nValue entered in microseconds (us).\nDefault is 1 ms (1000 us).",
+                    0,65535,1000,                       $ Min, Max, and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+$ Autobaud
+      Param13 =     $ Disable Autobaud
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 03 24 01 30 64",                $ Link Path to disable autobaud attribute.
+                    0x0002,                             $ No support for: settable path, scaling, scaling links, or
+                                                        $ real time update of value.  Value is gettable and 
+                                                        $ Settable.  Enumerated strings are supported.
+                    4,                                  $ Data Type - boolean
+                    1,                                  $ Data Size
+                    "Autobaud",                         $ Parameter Name
+                    "",                                 $ Units String
+                    "Autobaud allows module to match the baud rate of existing devices on a network.\n\nChanges to this attribute take effect after next powerup.\nIf 'enabled', the Baud Rate Attribute can not be set.",
+                    0,1,1,                              $ Min, Max, and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+$Point Object stuff
+      Param14 =     $ AutoAddress
+                    0,                                  $ reserved
+                    7,                                  $ Link Path Size
+                    "21 12 03 24 01 30 03",             $ Link Path to AutoAddress attribute.
+                    0x0002,                             $ No support for: settable path, scaling, scaling links, or
+                                                        $ real time update of value.  Value is gettable and 
+                                                        $ Settable.  Enumerated strings are supported.
+                    4,                                  $ Data Type - boolean
+                    1,                                  $ Data Size
+                    "Sequential AutoAddress",           $ Parameter Name
+                    "",                                 $ Units String
+                    "Sequential AutoAddress will re-assign the node address of ever module to the right.\nEach module will change it's node address to one greater than then it's neighbor.\n\nMAKE SURE THE NODE ADDRESS OF THIS MODULE IS THE DESIRED VALUE BEFORE ISSUING THIS COMMAND.\n\nWhen this command is set, each module to the right will get a new address one greater than it's neighbor.\nThe address will ripple through a line of Point I/O modules.\n\nSteps to Auto Address a line of Point I/O modules:\n 1.) Set the address of the first module (next to PDN or adapter).\n 2.) Send the Auto Address command to 'Sequential Address.'\n 3.) All modules in line will reset with new sequential addresses.\n\nExample:\nIf there are 5 Point modules in a line, and the address of the first module is 10.\nAfter the 'Sequential Address' command is sent to the first module, the node address of the line will be:\n 10, 11, 12, 13, and 14.",
+                    0,1,0,                              $ Min, Max, and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Param15 =     $ Baud Rate
+                    0,                                  $ reserved
+                    7,                                  $ Link Path Size
+                    "21 12 03 24 01 30 05",             $ Link Path to Baud Rate attribute.
+                    0x0002,                             $ No support for: settable path, scaling, scaling links, or
+                                                        $ real time update of value.  Value is gettable and 
+                                                        $ Settable.  Enumerated strings are supported.
+                    8,                                  $ Data Type - byte
+                    1,                                  $ Data Size
+                    "Broadcast Baud Rate",              $ Parameter Name
+                    "",                                 $ Units String
+                    "This command will change the baud rate of this and every module to the right\nto the value indicated.\nIf AutoBaud is ENABLED, this command will not change the operation of the module at power up.",
+                    0,2,0,                              $ Min, Max, and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Param16 =     $ Set Disable AutoBaud
+                    0,                                  $ reserved
+                    7,                                  $ Link Path Size
+                    "21 12 03 24 01 30 06",             $ Link Path to Disable AutoBaud attribute.
+                    0x0002,                             $ No support for: settable path, scaling, scaling links, or
+                                                        $ real time update of value.  Value is gettable and 
+                                                        $ Settable.  Enumerated strings are supported.
+                    8,                                  $ Data Type - byte
+                    1,                                  $ Data Size
+                    "Broadcast AutoBaud",               $ Parameter Name
+                    "",                                 $ Units String
+                    "This command will change the AutoBaud attribute of this and every module to the right\nto the value indicated.\nIf AutoBaud is 'disabled,' the Baud Rate parameter will set the baud rate next time the module is powered up.",
+                    0,1,0,                              $ Min, Max, and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+[EnumPar]
+      Param1 =      "OFF","ON";                         $ output value 0
+      Param2 =      "OFF","ON";                         $ output value 1
+      Param3 =      "OFF","ON";                         $ output value 2
+      Param4 =      "OFF","ON";                         $ output value 3
+      Param13 =     "Enable","Disable";                 $ Autobaud
+      Param14 =     "Do Nothing","Sequential Address";  $ Auto address
+      Param15 =     "125 kHz","250 kHz","500 kHz";      $ baud rate
+      Param16 =     "Enable","Disable";                 $ Autobaud
+
+[Groups]
+      Group1 =      "I/O", 4, 1, 2, 3, 4;               $ input value
+      Group2 =      "Configuration", 9, 5,6, 7,8,       $ filters and autobaud
+                    9,10, 11,12, 13;
+      Group3 =      "PointBus", 3, 14,15,16;            $dup mac, qc, autoaddr, brate, auto baud

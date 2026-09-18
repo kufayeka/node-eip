@@ -1,0 +1,69 @@
+$ Electronic Data Sheet for CompactBlock LDX 1790D-16BV0
+
+[File]
+	DescText	= "1790D-16BV0 CompactBlock LDX EDS File";
+	CreateDate	= 09-06-2000;
+	CreateTime	= 14:30:00;
+	ModDate		= 06-12-2002;
+	ModTime		= 12:30:00;
+	Revision	= 1.004;		$ EDS revision.
+
+[Device]
+	VendCode	= 1;
+	VendName	= "Allen-Bradley Company, Inc.";
+	ProdType	= 7;
+	ProdTypeStr = "General Purpose Discrete I/O";
+	ProdCode	= 144;
+	MajRev		= 1;
+	MinRev		= 1;
+	ProdName	= "1790D-16BV0 16 Universal Input";
+	Catalog		= "1790D-16BV0";
+	1_RSNetWorx_DNetTool = "RSI.DeviceNet.ChassisApplet.2";
+	Icon		= "compactblkLDX.ico";
+
+[Modular]
+	Rack1 = 1,108,64,1,1, , , ,0;
+	Query = "20 01 24 01 30 64", 0x0E, 1, "00";
+
+
+[IO_Info]
+	Default    = 0x01;
+	PollInfo   = 0x000D, 1, 1;
+	StrobeInfo = 0x0002, 1, 1;
+	COSInfo    = 0x0005, 1, 1;
+	CyclicInfo = 0x0009, 1, 1;
+
+	1_Input1 = ,0,0x000D,"Produced Connection" ,,Assem1,;
+	1_Output1= ,0,0x000D,"Consumed Connnection",,ProxyAssem2,;
+
+[ParamClass]
+	MaxInst = 1;		$ 1 configurable parameter.
+	Descriptor =  0x08;	$ Stub param instances in eeprom.
+	CfgAssembly = 0;	$ Config assembly.		
+
+[Params]
+	$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+	Param1 =	$ Autobaud
+	0,			$ reserved
+	6,			$ Link Path Size
+	"20 03 24 01 30 64",	$ Link Path to disable autobaud attribute.
+	0x0000,		$ No support for settable path, scaling, scaling links, enumerated
+				$ strings, or real time update of value.  Value is Get/Set.
+	0xC1,		$ Data Type - boolean
+	1,			$ Data Size
+	"Autobaud",	$ Parameter Name
+	"",			$ Units String
+				$$$$$$$$$$ Help string $$$$$$$$$$$
+	"This parameter Disables or Enables the Autobaud feature in the block. The change occures after the next power up. The default is Enabled.",
+	0,1,0,		$ Min, Max, and Default values
+	1,1,1,0,0,0,0,0,0;	$ Not Used
+
+
+[EnumPar]
+	Param1="Enabled","Disabled";
+
+[Assembly]
+	Assem1 = "Input Data Size",,,,,,16,,,ProxyAssem1;
+
+	ProxyAssem1	= "Expansion Module Input Data",,,0b110,,,ModuleMemberList;
+	ProxyAssem2	= "Expansion Module Output Data",,,0b110,,,ModuleMemberList;

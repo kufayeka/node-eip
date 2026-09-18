@@ -1,0 +1,2165 @@
+$ Electronic Data Sheet for ArmorPoint I/O  (1738-OE4CM12/A)
+$ Copyright 2008 by Rockwell Automation
+$ Universal version for: DeviceNet, ControlNet, and EthernetIP
+$ Note: This version was originally done with EzEDS - now hand edit
+$       Therefore, limited comments
+
+$ Revision History
+$ Revision	Date		Change
+$	1.2	26Jul2002	Neal's release to RSI for Series C
+$	2.1	14Aug2002	Begin changes to make CIP version
+$				Added 1_RSNetWorx_DNetTool and 1_RSNetWorx_NoAutoEnter to [Device]
+$				Added [Device Classification]
+$				Changed all Param data types to the new numbers
+$				Chaned to inline Enums and deleted [ENUM PAR]
+$				Added ProxiedAssems 2-4 (and modified)
+$				Added ProxiedParam 1-3 (and modified)
+$				Added [Connection Manager] section (picked correct connection #'s)
+$				Added [Port] and [Modular] Section (Hid ExtrnID - only for Rack)
+$	2.2	15Aug2002	Added ExcludeFromAdapterRackConnection keyword (PDT)
+$				Changed ProxyConnects to Connects and filled in
+$				Added Assem125,126,127
+$				Added Param101,102,103,104
+$	2.3	30Sep2002	Returned [Groups] section (RSNetworx is fixed)
+$	2.4	29Jan2003	Fix up for RSNetworx4.11 - 'Display Only' Logix connections
+$	2.5	30Jan2003	Removed Header in Assem126/127 and Param103/104
+$	3.1	23Dec2003	PLC/SLC support for CNet and ENet.  Changes to
+$				Assem125,126,127, Connections
+$	3.2	11Jan2003	Updated Device Revision to 3.3
+$	4.1	30Nov2004	Added Assem124 - Changed CNXNs for 3rd Party
+$	5.1	25Jan2006	Update to new DeviceNet Premier Integration EDS Guidelines
+$				Removed Assem124 from Listen Only Connection
+$	5.3	15Jul2011	Changed Product code to 200
+$	5.4	10Sep2012	Changed Assembly 123 string name
+$ NOTE: may be able to play with ENUMs so (invalid) does not show up
+
+[File]
+	DescText = "ArmorPoint 1738-OE4CM12/A";
+	CreateDate = 01-30-2007;
+	CreateTime = 15:00:00;
+	ModDate    = 10-09-2012;  $mm-dd-yyyy
+	ModTime    = 10:00:00;
+	Revision   = 5.4;
+	HomeURL    = "http://www.ab.com/networks/eds/DN/0001007300d80101.eds";
+
+[Device]
+	VendCode = 1;
+	VendName = "Rockwell Automation/Allen-Bradley";
+	ProdType = 115;
+	ProdTypeStr = "Rockwell Automation Miscellaneous";
+	ProdCode = 216;
+	MajRev = 3;
+	MinRev = 1;
+	ProdName = "ArmorPoint 4pt Analog Current Output M12";
+	Catalog = "1738-OE4CM12/A";
+	Icon = "1738-4M12YELLOW.ico";
+	1_RSNetWorx_DNetTool = "RSI.DeviceNet.EDSApplet";
+	1_RSNetWorx_NoAutoEnter = "Yes";
+	ExcludeFromAdapterRackConnection = Yes;
+
+[Device Classification]
+     Class1 =      DeviceNet;
+
+[Params]
+	Param1 = 0,
+		6,"20 21 24 01 30 09",	$ Link Path Size, Link Path
+		0x0002,	 $ Descriptor
+		0xC1, 1,	$ Data Type, Data Size
+		"Group Run/Idle Command",
+		"",
+		"Sets outputs to the Idle State.",
+		0,1,1,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Enum1 = 0,"Idle", 1,"Run";
+
+	Param2 = 0,
+		6,"20 0B 24 01 30 03",	$ Link Path Size, Link Path
+		0x0020,	 $ Descriptor
+		0xC3, 2,	$ Data Type, Data Size
+		"Output Value #0",
+		"",
+		"Value of analog output point.",
+		-32768,32767,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param3 = 0,
+		6,"20 0B 24 02 30 03",	$ Link Path Size, Link Path
+		0x0020,	 $ Descriptor
+		0xC3, 2,	$ Data Type, Data Size
+		"Output Value #1",
+		"",
+		"Value of analog output point.",
+		-32768,32767,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param4 = 0,
+		6,"20 0B 24 01 30 04",	$ Link Path Size, Link Path
+		0x0032,	 $ Descriptor
+		0xC1, 1,	$ Data Type, Data Size
+		"Status #0",
+		"",
+		"Status of output channel.  This bit is the OR of all possible channel faults.\n\nPossible Errors:\n - Open Wire\n - No Field Power\n - Clamp Alarms.\n\nIf alarms are 'Latched,' the 'Reset Latched Alarm' parameter is needed to clear it.",
+		0,1,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Enum4 = 0,"Normal Operation", 1,"FAULT";
+
+	Param5 = 0,
+		6,"20 0B 24 02 30 04",	$ Link Path Size, Link Path
+		0x0032,	 $ Descriptor
+		0xC1, 1,	$ Data Type, Data Size
+		"Status #1",
+		"",
+		"Status of output channel.  This bit is the OR of all possible channel faults.\n\nPossible Errors:\n - Open Wire\n - No Field Power\n - Clamp Alarms.\n\nIf alarms are 'Latched,' the 'Reset Latched Alarm' parameter is needed to clear it.",
+		0,1,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Enum5 = 0,"Normal Operation", 1,"FAULT";
+
+	Param6 = 0,
+		6,"20 0B 24 01 30 07",	$ Link Path Size, Link Path
+		0x0002,	 $ Descriptor
+		0xC6, 1,	$ Data Type, Data Size
+		"Output Range #0",
+		"",
+		"Defines type and range of output signal.",
+		0,9,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Enum6 =	0,"4mA to 20mA",
+		$1,"0 V to 10 V (Invalid)",
+		2,"0mA to 20mA";
+		$3,"-10 V to 10 V (Invalid)",
+		$4,"0 V to  5 V (Invalid)",
+		$5,"-5 V to  5 V (Invalid)",
+		$6,"1 V to  5 V (Invalid)",
+		$7,"-15mV to 75mV (Invalid)",
+		$8,"-15mV to 30mV (Invalid)",
+		$9,"0mA to 50mA (Invalid)";
+
+	Param7 = 0,
+		6,"20 0B 24 02 30 07",	$ Link Path Size, Link Path
+		0x0002,	 $ Descriptor
+		0xC6, 1,	$ Data Type, Data Size
+		"Output Range #1",
+		"",
+		"Defines type and range of output signal.",
+		0,9,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Enum7 =	0,"4mA to 20mA",
+		$1,"0 V to 10 V (Invalid)",
+		2,"0mA to 20mA";
+		$3,"-10 V to 10 V (Invalid)",
+		$4,"0 V to  5 V (Invalid)",
+		$5,"-5 V to  5 V (Invalid)",
+		$6,"1 V to  5 V (Invalid)",
+		$7,"-15mV to 75mV (Invalid)",
+		$8,"-15mV to 30mV (Invalid)",
+		$9,"0mA to 50mA (Invalid)";
+
+	Param8 = 0,
+		6,"20 0B 24 01 30 08",	$ Link Path Size, Link Path
+		0x0012,	 $ Descriptor
+		0xC6, 1,	$ Data Type, Data Size
+		"Value Data Type #0",
+		"",
+		"Data type of Output Value.  It is not settable.",
+		0,2,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Enum8 =	0,"Signed Integer",
+		1,"Real",
+		2,"Unsigned Integer";
+
+	Param9 = 0,
+		6,"20 0B 24 02 30 08",	$ Link Path Size, Link Path
+		0x0012,	 $ Descriptor
+		0xC6, 1,	$ Data Type, Data Size
+		"Value Data Type #1",
+		"",
+		"Data type of Output Value.  It is not settable.",
+		0,2,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Enum9 =	0,"Signed Integer",
+			1,"Real",
+			2,"Unsigned Integer";
+
+	Param10 = 0,
+		6,"20 0B 24 01 30 09",	$ Link Path Size, Link Path
+		0x0002,	 $ Descriptor
+		0xC6, 1,	$ Data Type, Data Size
+		"Fault State #0",
+		"",
+		"The output will go to this state during a communication fault.\n\nPossible choices are:\n - Hold Last State\n - Go to Low Clamp Value\n - Go to High Clamp Value\n - Go to Fault Value",
+		0,3,1,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Enum10 =	0,"Hold Last State",
+			1,"Go to Low Clamp",
+			2,"Go to High Clamp",
+			3,"Go to Fault Value";
+
+	Param11 = 0,
+		6,"20 0B 24 02 30 09",	$ Link Path Size, Link Path
+		0x0002,	 $ Descriptor
+		0xC6, 1,	$ Data Type, Data Size
+		"Fault State #1",
+		"",
+		"The output will go to this state during a communication fault.\n\nPossible choices are:\n - Hold Last State\n - Go to Low Clamp Value\n - Go to High Clamp Value\n - Go to Fault Value",
+		0,3,1,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Enum11 =	0,"Hold Last State",
+			1,"Go to Low Clamp",
+			2,"Go to High Clamp",
+			3,"Go to Fault Value";
+
+	Param12 = 0,
+		6,"20 0B 24 01 30 0a",	$ Link Path Size, Link Path
+		0x0002,	 $ Descriptor
+		0xC6, 1,	$ Data Type, Data Size
+		"Idle State #0",
+		"",
+		"The output will go to this state during idle or program mode.\n\nPossible choices are:\n - Hold Last State\n - Go to Low Clamp Value\n - Go to High Clamp Value\n - Go to Idle Value",
+		0,3,1,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Enum12 =	0,"Hold Last State",
+			1,"Go to Low Clamp",
+			2,"Go to High Clamp",
+			3,"Go to Idle Value";
+
+	Param13 = 0,
+		6,"20 0B 24 02 30 0a",	$ Link Path Size, Link Path
+		0x0002,	 $ Descriptor
+		0xC6, 1,	$ Data Type, Data Size
+		"Idle State #1",
+		"",
+		"The output will go to this state during idle or program mode.\n\nPossible choices are:\n - Hold Last State\n - Go to Low Clamp Value\n - Go to High Clamp Value\n - Go to Idle Value",
+		0,3,1,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Enum13 =	0,"Hold Last State",
+			1,"Go to Low Clamp",
+			2,"Go to High Clamp",
+			3,"Go to Idle Value";
+
+	Param14 = 0,
+		6,"20 0B 24 01 30 0B",	$ Link Path Size, Link Path
+		0x0000,	 $ Descriptor
+		0xC3, 2,	$ Data Type, Data Size
+		"Fault Value #0",
+		"",
+		"When the Fault State is set to 'Fault Value', this is the value the output will go to during a communication fault.\nThe value is bounded by the high and low clamp.",
+		-32768,32767,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param15 = 0,
+		6,"20 0B 24 02 30 0B",	$ Link Path Size, Link Path
+		0x0000,	 $ Descriptor
+		0xC3, 2,	$ Data Type, Data Size
+		"Fault Value #1",
+		"",
+		"When the Fault State is set to 'Fault Value', this is the value the output will go to during a communication fault.\nThe value is bounded by the high and low clamp.",
+		-32768,32767,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param16 = 0,
+		6,"20 0B 24 01 30 0C",	$ Link Path Size, Link Path
+		0x0000,	 $ Descriptor
+		0xC3, 2,	$ Data Type, Data Size
+		"Idle Value #0",
+		"",
+		"When the Idle State is set to 'Idle Value,' this is the value the output will go to during idle or program mode.\nThe value is bounded by the high and low clamp.",
+		-32768,32767,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param17 = 0,
+		6,"20 0B 24 02 30 0C",	$ Link Path Size, Link Path
+		0x0000,	 $ Descriptor
+		0xC3, 2,	$ Data Type, Data Size
+		"Idle Value #1",
+		"",
+		"When the Idle State is set to 'Idle Value,' this is the value the output will go to during idle or program mode.\nThe value is bounded by the high and low clamp.",
+		-32768,32767,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param18 = 0,
+		6,"20 0B 24 01 30 65",	$ Link Path Size, Link Path
+		0x0000,	 $ Descriptor
+		0xC3, 2,	$ Data Type, Data Size
+		"Low Scaling #0",
+		"",
+		"Value to apply 0 mA or 4 mA (depending on range selected) to the output.\nAlso known as Low Scaling value or Low Engineering units.",
+		-32768,32767,1638,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param19 = 0,
+		6,"20 0B 24 02 30 65",	$ Link Path Size, Link Path
+		0x0000,	 $ Descriptor
+		0xC3, 2,	$ Data Type, Data Size
+		"Low Scaling #1",
+		"",
+		"Value to apply 0 mA or 4 mA (depending on range selected) to the output.\nAlso known as Low Scaling value or Low Engineering units.",
+		-32768,32767,1638,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param20 = 0,
+		6,"20 0B 24 01 30 67",	$ Link Path Size, Link Path
+		0x0000,	 $ Descriptor
+		0xC3, 2,	$ Data Type, Data Size
+		"High Scaling #0",
+		"",
+		"Value to apply 20 mA to the output.\nAlso known as High Scaling value or High Engineering units.",
+		-32768,32767,8191,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param21 = 0,
+		6,"20 0B 24 02 30 67",	$ Link Path Size, Link Path
+		0x0000,	 $ Descriptor
+		0xC3, 2,	$ Data Type, Data Size
+		"High Scaling #1",
+		"",
+		"Value to apply 20 mA to the output.\nAlso known as High Scaling value or High Engineering units.",
+		-32768,32767,8191,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param22 = 0,
+		6,"20 0B 24 01 30 68",	$ Link Path Size, Link Path
+		0x0000,	 $ Descriptor
+		0xC3, 2,	$ Data Type, Data Size
+		"Low Clamp #0",
+		"",
+		"Lowest value of the output.  If the Output Value is set below this value, the output will set to the Low Clamp Value.\nIf the Low Clamp value is violated, the 'Low Clamp Status' bit will FAULT.\nTo disable, set to -32768.",
+		-32768,32767,-32768,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param23 = 0,
+		6,"20 0B 24 02 30 68",	$ Link Path Size, Link Path
+		0x0000,	 $ Descriptor
+		0xC3, 2,	$ Data Type, Data Size
+		"Low Clamp #1",
+		"",
+		"Lowest value of the output.  If the Output Value is set below this value, the output will be the Low Clamp Value.\nIf the Low Clamp value is violated, the 'Low Clamp Status' bit will FAULT.\nTo disable, set to -32768.",
+		-32768,32767,-32768,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param24 = 0,
+		6,"20 0B 24 01 30 69",	$ Link Path Size, Link Path
+		0x0000,	 $ Descriptor
+		0xC3, 2,	$ Data Type, Data Size
+		"High Clamp #0",
+		"",
+		"Highest value of the output.  If the Output Value is set above this value, the output will be the High Clamp Value.\nIf the High Clamp value is violated, the 'High Clamp Status' bit will FAULT.\nTo disable, set to 32767.",
+		-32768,32767,32767,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param25 = 0,
+		6,"20 0B 24 02 30 69",	$ Link Path Size, Link Path
+		0x0000,	 $ Descriptor
+		0xC3, 2,	$ Data Type, Data Size
+		"High Clamp #1",
+		"",
+		"Highest value of the output.  If the Output Value is set above this value, the output will be the High Clamp Value.\nIf the High Clamp value is violated, the 'High Clamp Status' bit will FAULT.\nTo disable, set to 32767.",
+		-32768,32767,32767,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param26 = 0,
+		6,"20 0B 24 01 30 6C",	$ Link Path Size, Link Path
+		0x0002,	 $ Descriptor
+		0xC1, 1,	$ Data Type, Data Size
+		"Enable Alarm Latch #0",
+		"",
+		"Alarms will latch FAULTED until a 'Latch Reset' command is received.\n\nAlarms effected:\n - Output Status (Open wire and no field power)\n - Low Clamp Alarm\n - High Clamp Alarm\n\nThis is useful in tracking transient or momentary errors.",
+		0,1,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Enum26 = 0,"Disable", 1,"Enable Latching Alarms";
+
+	Param27 = 0,
+		6,"20 0B 24 02 30 6C",	$ Link Path Size, Link Path
+		0x0002,	 $ Descriptor
+		0xC1, 1,	$ Data Type, Data Size
+		"Enable Alarm Latch #1",
+		"",
+		"Alarms will latch FAULTED until a 'Latch Reset' command is received.\n\nAlarms effected:\n - Output Status (Open wire and no field power)\n - Low Clamp Alarm\n - High Clamp Alarm\n\nThis is useful in tracking transient or momentary errors.",
+		0,1,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Enum27 = 0,"Disable", 1,"Enable Latching Alarms";
+
+	Param28 = 0,
+		6,"20 0B 24 01 30 6D",	$ Link Path Size, Link Path
+		0x0002,	 $ Descriptor
+		0xC1, 1,	$ Data Type, Data Size
+		"Disable Alarms #0",
+		"",
+		"If Alarms are Disabled, all alarms for this channel will show No FAULT.\nThis is useful for un-used channels.\n\nNote:  High and Low Clamps are not disabled.",
+		0,1,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Enum28 = 0,"Alarms Enabled", 1,"Alarms Disabled";
+
+	Param29 = 0,
+		6,"20 0B 24 02 30 6D",	$ Link Path Size, Link Path
+		0x0002,	 $ Descriptor
+		0xC1, 1,	$ Data Type, Data Size
+		"Disable Alarms #1",
+		"",
+		"If Alarms are Disabled, all alarms for this channel will show No FAULT.\nThis is useful for un-used channels.\n\nNote:  High and Low Clamps are not disabled.",
+		0,1,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Enum29 = 0,"Alarms Enabled", 1,"Alarms Disabled";
+
+	Param30 = 0,
+		6,"20 0B 24 01 30 6E",	$ Link Path Size, Link Path
+		0x0032,	 $ Descriptor
+		0xC1, 1,	$ Data Type, Data Size
+		"Low Clamp Status #0",
+		"",
+		"If Low Clamp Staus is FAULTED, the requested Output Value is below the Clamp Value.\nConsequently, the output is set to the Low Clamp Value.",
+		0,1,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Enum30 = 0,"No Fault", 1,"Low Clamp FAULT";
+
+	Param31 = 0,
+		6,"20 0B 24 02 30 6E",	$ Link Path Size, Link Path
+		0x0032,	 $ Descriptor
+		0xC1, 1,	$ Data Type, Data Size
+		"Low Clamp Status #1",
+		"",
+		"If Low Clamp Staus is FAULTED, the requested Output Value is below the Clamp Value.\nConsequently, the output is set to the Low Clamp Value.",
+		0,1,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Enum31 = 0,"No Fault", 1,"Low Clamp FAULT";
+
+	Param32 = 0,
+		6,"20 0B 24 01 30 6F",	$ Link Path Size, Link Path
+		0x0032,	 $ Descriptor
+		0xC1, 1,	$ Data Type, Data Size
+		"High Clamp Status #0",
+		"",
+		"If High Clamp Status if FAULTED, the requested Output Value is above the Clamp Value.\nConsequently, the output is set to the High Clamp Value.",
+		0,1,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Enum32 = 0,"No Fault", 1,"High Clamp FAULT";
+
+	Param33 = 0,
+		6,"20 0B 24 02 30 6F",	$ Link Path Size, Link Path
+		0x0032,	 $ Descriptor
+		0xC1, 1,	$ Data Type, Data Size
+		"High Clamp Status #1",
+		"",
+		"If High Clamp Status if FAULTED, the requested Output Value is above the Clamp Value.\nConsequently, the output is set to the High Clamp Value.",
+		0,1,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Enum33 = 0,"No Fault", 1,"High Clamp FAULT";
+
+	Param34 = 0,
+		6,"20 0B 24 01 30 7C",	$ Link Path Size, Link Path
+		0x0032,	 $ Descriptor
+		0xC1, 1,	$ Data Type, Data Size
+		"Bad Cal Status #0",
+		"",
+		"This bit shows the current status of calibration for this channel.\n'Good Calibration' means the data stored in EEPROM is within tollerances.\n'Calibration Fault' means the module is not calibrated and is using default values.\n\nNote:  While in Calibration Mode, the status will be 'Bad Calibration.'",
+		0,1,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Enum34 = 0,"Good Calibration", 1,"Calibration FAULT";
+
+	Param35 = 0,
+		6,"20 0B 24 02 30 7C",	$ Link Path Size, Link Path
+		0x0032,	 $ Descriptor
+		0xC1, 1,	$ Data Type, Data Size
+		"Bad Cal Status #1",
+		"",
+		"This bit shows the current status of calibration for this channel.\n'Good Calibration' means the data stored in EEPROM is within tollerances.\n'Calibration Fault' means the module is not calibrated and is using default values.\n\nNote:  While in Calibration Mode, the status will be 'Bad Calibration.'",
+		0,1,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Enum35 = 0,"Good Calibration", 1,"Calibration FAULT";
+
+	Param36 = 0,
+		6,"20 03 24 01 30 64",	$ Link Path Size, Link Path
+		0x0002,	 $ Descriptor
+		0xC1, 1,	$ Data Type, Data Size
+		"Autobaud",
+		"",
+		"Autobaud allows module to match the baud rate of existing devices on a network.\n\nChanges to this attribute take effect after next powerup.\nIf 'enabled', the Baud Rate Attribute can not be set.",
+		0,1,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Enum36 = 0,"Enable", 1,"Disable";
+
+	Param37 = 0,
+		6,"20 0F 24 01 30 01",	$ Link Path Size, Link Path
+		0x0002,	 $ Descriptor
+		0xC6, 1,	$ Data Type, Data Size
+		"Calibration Channel Select",
+		"",
+		"Choose which channel or channels to calibrate.",
+		0,5,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Enum37 =	0,"None",
+			1,"Channel 0",
+			2,"Channel 1",
+			3,"Channel 2",
+			4,"Channel 3",
+			5,"All Channels";
+
+	Param38 = 0,
+		6,"20 0F 24 02 30 01",	$ Link Path Size, Link Path
+		0x0000,	 $ Descriptor
+		0xCA, 4,	$ Data Type, Data Size
+		"Channel 0 Low Value",
+		"mA",
+		"Enter the measured value at the output terminal after issuing the 'Ouput Low Reference' command.\nEnter the value in milliamps (e.g. 4.041).",
+		-3.402823E+38,3.402823E+38,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param39 = 0,
+		6,"20 0F 24 03 30 01",	$ Link Path Size, Link Path
+		0x0000,	 $ Descriptor
+		0xCA, 4,	$ Data Type, Data Size
+		"Channel 0 High Value",
+		"mA",
+		"Enter the measured value at the output terminal after issuing the 'Ouput High Reference' command.\nEnter the value in milliamps (e.g. 20.022).",
+		-3.402823E+38,3.402823E+38,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param40 = 0,
+		6,"20 0F 24 04 30 01",	$ Link Path Size, Link Path
+		0x0000,	 $ Descriptor
+		0xCA, 4,	$ Data Type, Data Size
+		"Channel 1 Low Value",
+		"mA",
+		"Enter the measured value at the output terminal after issuing the 'Ouput Low Reference' command.\nEnter the value in milliamps (e.g. 4.041).",
+		-3.402823E+38,3.402823E+38,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param41 = 0,
+		6,"20 0F 24 05 30 01",	$ Link Path Size, Link Path
+		0x0000,	 $ Descriptor
+		0xCA, 4,	$ Data Type, Data Size
+		"Channel 1 High Value",
+		"mA",
+		"Enter the measured value at the output terminal after issuing the 'Ouput High Reference' command.\nEnter the value in milliamps (e.g. 20.022).",
+		-3.402823E+38,3.402823E+38,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param96 = 0,
+		6,"20 0F 24 06 30 01",	$ Link Path Size, Link Path
+		0x0002,	 $ Descriptor
+		0xC6, 1,	$ Data Type, Data Size
+		"Calibration Command",
+		"",
+		"This command puts the module in different calibration modes.\n\nBegin Calibration - Initializes the module for calibration.\nOutput Low Reference - Generates approximately 4 mA at the selected output(s).\nOutput High Reference - Generates approximately 20 mA at the selected output(s).\nFinish Calibration - Uses the measured values to compensate the output(s).\nAbort Calibration - Immeadately terminates calibration process and uses previous calibration.\n\nNote: Module must be stand-alone or in Idle/Program mode.\nFurther Note: The Low and High measured values must be sent to the module before issuing the 'Finish Calibration' command.",
+		0,5,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Enum96 =	0,"Do Nothing",
+			1,"Begin Calibration",
+			2,"Output Low Reference",
+			3,"Output High Reference",
+			4,"Finish Calibration",
+			5,"Abort Calibration";
+
+	Param43 = 0,
+		6,"20 0F 24 07 30 01",	$ Link Path Size, Link Path
+		0x0002,	 $ Descriptor
+		0xC6, 1,	$ Data Type, Data Size
+		"Reset Latched Alarms",
+		"",
+		"This parameter clears any latched alarms in the selected channel(s).\nIf alarm condition still exists, the fault will not be cleared.",
+		0,5,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Enum43 =	0,"Do Nothing",
+			1,"Channel 0",
+			2,"Channel 1",
+			3,"Channel 2",
+			4,"Channel 3",
+			5,"All Channels";
+
+	Param44 = 0,
+		7,"21 12 03 24 01 30 03",	$ Link Path Size, Link Path
+		0x0002,	 $ Descriptor
+		0xC1, 1,	$ Data Type, Data Size
+		"Sequential AutoAddress",
+		"",
+		"Sequential AutoAddress will re-assign the node address of ever module to the right.\nEach module will change it's node address to one greater than then it's neighbor.\n\nMAKE SURE THE NODE ADDRESS OF THIS MODULE IS THE DESIRED VALUE BEFORE ISSUING THIS COMMAND.\n\nWhen this command is set, each module to the right will get a new address one greater than it's neighbor.\nThe address will ripple through a line of Point I/O modules.\n\nSteps to Auto Address a line of Point I/O modules:\n 1.) Set the address of the first module (next to PDN or adapter).\n 2.) Send the Auto Address command to 'Sequential Address.'\n 3.) All modules in line will reset with new sequential addresses.\n\nExample:\nIf there are 5 Point modules in a line, and the address of the first module is 10.\nAfter the 'Sequential Address' command is sent to the first module, the node address of the line will be:\n 10, 11, 12, 13, and 14.",
+		0,1,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Enum44 = 0,"Do Nothing", 1,"Sequential Address";
+
+	Param45 = 0,
+		7,"21 12 03 24 01 30 05",	$ Link Path Size, Link Path
+		0x0002,	 $ Descriptor
+		0xC6, 1,	$ Data Type, Data Size
+		"Broadcast Baud Rate",
+		"",
+		"This command will change the baud rate of this and every module to the right\nto the value indicated.\nIf AutoBaud is ENABLED, this command will not change the operation of the module at power up.",
+		0,3,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Enum45 =	0,"Do Nothing",
+			1,"125 kHz",
+			2,"250 kHz",
+			3,"500 kHz";
+
+	Param46 = 0,
+		7,"21 12 03 24 01 30 06",	$ Link Path Size, Link Path
+		0x0002,	 $ Descriptor
+		0xC6, 1,	$ Data Type, Data Size
+		"Broadcast AutoBaud",
+		"",
+		"This command will change the AutoBaud attribute of this and every module to the right\nto the value indicated.\nIf AutoBaud is 'disabled,' the Baud Rate parameter will set the baud rate next time the module is powered up.",
+		0,2,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Enum46 =	0,"Do Nothing",
+			1,"Enable",
+			2,"Disable";
+
+$ DeviceNet Premier Integration
+	Param47 = 0,
+		0,"",		$ No Path, Internal Parameter
+		0x0220,	 $ Descriptor
+		0xC3, 2,	$ Data Type, Data Size
+		"Ch0Data",
+		"",
+		"Value of analog output point.",
+		-32768,32767,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param48 = 0,
+		0,"",	$ No Path, Internal Parameter
+		0x0220,	 $ Descriptor
+		0xC3, 2,	$ Data Type, Data Size
+		"Ch1Data",
+		"",
+		"Value of analog output point.",
+		-32768,32767,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param52 = 0,
+		0,,          $ No Path, Internal Parameter
+		0x0232,	 $ Descriptor
+		0xD1, 1,	$ Data Type, Data Size
+		"Ch0Status",
+		"",
+		"Status of output channel.  This bit is the OR of all possible channel faults.\n\nPossible Errors:\n - Open Wire\n - No Field Power\n - Clamp Alarms.\n\nIf alarms are 'Latched,' the 'Reset Latched Alarm' parameter is needed to clear it.",
+		0,15,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Enum52 =	0,"Ch0Fault", 
+			1,"Ch0Calibration",
+			2,"Ch0LAlarm",
+			3,"Ch0HAlarm";
+
+	Param53 = 0,
+		0,,          $ No Path, Internal Parameter
+		0x0232,	 $ Descriptor
+		0xD1, 1,	$ Data Type, Data Size
+		"Ch1Status",
+		"",
+		"Status of output channel.  This bit is the OR of all possible channel faults.\n\nPossible Errors:\n - Open Wire\n - No Field Power\n - Clamp Alarms.\n\nIf alarms are 'Latched,' the 'Reset Latched Alarm' parameter is needed to clear it.",
+		0,15,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Enum53 =	0,"Ch1Fault", 
+			1,"Ch1Calibration",
+			2,"Ch1LAlarm",
+			3,"Ch1HAlarm";
+
+	Param54 = 0,
+		6,"20 0B 24 03 30 03",	$ Link Path Size, Link Path
+		0x0020,	 $ Descriptor
+		0xC3, 2,	$ Data Type, Data Size
+		"Output Value #2",
+		"",
+		"Value of analog output point.",
+		-32768,32767,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param91 = 0,
+		6,"20 0B 24 04 30 03",	$ Link Path Size, Link Path
+		0x0020,	 $ Descriptor
+		0xC3, 2,	$ Data Type, Data Size
+		"Output Value #3",
+		"",
+		"Value of analog output point.",
+		-32768,32767,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param55 = 0,
+		6,"20 0B 24 03 30 04",	$ Link Path Size, Link Path
+		0x0032,	 $ Descriptor
+		0xC1, 1,	$ Data Type, Data Size
+		"Status #2",
+		"",
+		"Status of output channel.  This bit is the OR of all possible channel faults.\n\nPossible Errors:\n - Open Wire\n - No Field Power\n - Clamp Alarms.\n\nIf alarms are 'Latched,' the 'Reset Latched Alarm' parameter is needed to clear it.",
+		0,1,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Enum55 = 0,"Normal Operation", 1,"FAULT";
+
+	Param56 = 0,
+		6,"20 0B 24 04 30 04",	$ Link Path Size, Link Path
+		0x0032,	 $ Descriptor
+		0xC1, 1,	$ Data Type, Data Size
+		"Status #3",
+		"",
+		"Status of output channel.  This bit is the OR of all possible channel faults.\n\nPossible Errors:\n - Open Wire\n - No Field Power\n - Clamp Alarms.\n\nIf alarms are 'Latched,' the 'Reset Latched Alarm' parameter is needed to clear it.",
+		0,1,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Enum56 = 0,"Normal Operation", 1,"FAULT";
+
+	Param57 = 0,
+		6,"20 0B 24 03 30 07",	$ Link Path Size, Link Path
+		0x0002,	 $ Descriptor
+		0xC6, 1,	$ Data Type, Data Size
+		"Output Range #2",
+		"",
+		"Defines type and range of output signal.",
+		0,9,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Enum57 =0,"4mA to 20mA",
+		$1,"0 V to 10 V (Invalid)",
+		2,"0mA to 20mA";
+		$3,"-10 V to 10 V (Invalid)",
+		$4,"0 V to  5 V (Invalid)",
+		$5,"-5 V to  5 V (Invalid)",
+		$6,"1 V to  5 V (Invalid)",
+		$7,"-15mV to 75mV (Invalid)",
+		$8,"-15mV to 30mV (Invalid)",
+		$9,"0mA to 50mA (Invalid)";
+
+	Param58 = 0,
+		6,"20 0B 24 04 30 07",	$ Link Path Size, Link Path
+		0x0002,	 $ Descriptor
+		0xC6, 1,	$ Data Type, Data Size
+		"Output Range #3",
+		"",
+		"Defines type and range of output signal.",
+		0,9,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Enum58 =0,"4mA to 20mA",
+		$1,"0 V to 10 V (Invalid)",
+		2,"0mA to 20mA";
+		$3,"-10 V to 10 V (Invalid)",
+		$4,"0 V to  5 V (Invalid)",
+		$5,"-5 V to  5 V (Invalid)",
+		$6,"1 V to  5 V (Invalid)",
+		$7,"-15mV to 75mV (Invalid)",
+		$8,"-15mV to 30mV (Invalid)",
+		$9,"0mA to 50mA (Invalid)";
+
+	Param59 = 0,
+		6,"20 0B 24 03 30 08",	$ Link Path Size, Link Path
+		0x0012,	 $ Descriptor
+		0xC6, 1,	$ Data Type, Data Size
+		"Value Data Type #2",
+		"",
+		"Data type of Output Value.  It is not settable.",
+		0,2,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Enum59 =	0,"Signed Integer",
+			1,"Real",
+			2,"Unsigned Integer";
+
+	Param60 = 0,
+		6,"20 0B 24 04 30 08",	$ Link Path Size, Link Path
+		0x0012,	 $ Descriptor
+		0xC6, 1,	$ Data Type, Data Size
+		"Value Data Type #3",
+		"",
+		"Data type of Output Value.  It is not settable.",
+		0,2,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Enum60 =	0,"Signed Integer",
+			1,"Real",
+			2,"Unsigned Integer";
+
+	Param61 = 0,
+		6,"20 0B 24 03 30 09",	$ Link Path Size, Link Path
+		0x0002,	 $ Descriptor
+		0xC6, 1,	$ Data Type, Data Size
+		"Fault State #2",
+		"",
+		"The output will go to this state during a communication fault.\n\nPossible choices are:\n - Hold Last State\n - Go to Low Clamp Value\n - Go to High Clamp Value\n - Go to Fault Value",
+		0,3,1,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Enum61 =	0,"Hold Last State",
+			1,"Go to Low Clamp",
+			2,"Go to High Clamp",
+			3,"Go to Fault Value";
+
+	Param62 = 0,
+		6,"20 0B 24 04 30 09",	$ Link Path Size, Link Path
+		0x0002,	 $ Descriptor
+		0xC6, 1,	$ Data Type, Data Size
+		"Fault State #3",
+		"",
+		"The output will go to this state during a communication fault.\n\nPossible choices are:\n - Hold Last State\n - Go to Low Clamp Value\n - Go to High Clamp Value\n - Go to Fault Value",
+		0,3,1,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Enum62 =	0,"Hold Last State",
+			1,"Go to Low Clamp",
+			2,"Go to High Clamp",
+			3,"Go to Fault Value";
+
+	Param63 = 0,
+		6,"20 0B 24 03 30 0a",	$ Link Path Size, Link Path
+		0x0002,	 $ Descriptor
+		0xC6, 1,	$ Data Type, Data Size
+		"Idle State #2",
+		"",
+		"The output will go to this state during idle or program mode.\n\nPossible choices are:\n - Hold Last State\n - Go to Low Clamp Value\n - Go to High Clamp Value\n - Go to Idle Value",
+		0,3,1,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Enum63 =	0,"Hold Last State",
+			1,"Go to Low Clamp",
+			2,"Go to High Clamp",
+			3,"Go to Idle Value";
+
+	Param64 = 0,
+		6,"20 0B 24 04 30 0a",	$ Link Path Size, Link Path
+		0x0002,	 $ Descriptor
+		0xC6, 1,	$ Data Type, Data Size
+		"Idle State #3",
+		"",
+		"The output will go to this state during idle or program mode.\n\nPossible choices are:\n - Hold Last State\n - Go to Low Clamp Value\n - Go to High Clamp Value\n - Go to Idle Value",
+		0,3,1,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Enum64 =	0,"Hold Last State",
+			1,"Go to Low Clamp",
+			2,"Go to High Clamp",
+			3,"Go to Idle Value";
+
+	Param65 = 0,
+		6,"20 0B 24 03 30 0B",	$ Link Path Size, Link Path
+		0x0000,	 $ Descriptor
+		0xC3, 2,	$ Data Type, Data Size
+		"Fault Value #2",
+		"",
+		"When the Fault State is set to 'Fault Value', this is the value the output will go to during a communication fault.\nThe value is bounded by the high and low clamp.",
+		-32768,32767,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param66 = 0,
+		6,"20 0B 24 04 30 0B",	$ Link Path Size, Link Path
+		0x0000,	 $ Descriptor
+		0xC3, 2,	$ Data Type, Data Size
+		"Fault Value #3",
+		"",
+		"When the Fault State is set to 'Fault Value', this is the value the output will go to during a communication fault.\nThe value is bounded by the high and low clamp.",
+		-32768,32767,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param67 = 0,
+		6,"20 0B 24 03 30 0C",	$ Link Path Size, Link Path
+		0x0000,	 $ Descriptor
+		0xC3, 2,	$ Data Type, Data Size
+		"Idle Value #2",
+		"",
+		"When the Idle State is set to 'Idle Value,' this is the value the output will go to during idle or program mode.\nThe value is bounded by the high and low clamp.",
+		-32768,32767,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param68 = 0,
+		6,"20 0B 24 04 30 0C",	$ Link Path Size, Link Path
+		0x0000,	 $ Descriptor
+		0xC3, 2,	$ Data Type, Data Size
+		"Idle Value #3",
+		"",
+		"When the Idle State is set to 'Idle Value,' this is the value the output will go to during idle or program mode.\nThe value is bounded by the high and low clamp.",
+		-32768,32767,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param69 = 0,
+		6,"20 0B 24 03 30 65",	$ Link Path Size, Link Path
+		0x0000,	 $ Descriptor
+		0xC3, 2,	$ Data Type, Data Size
+		"Low Scaling #2",
+		"",
+		"Value to apply 0 mA or 4 mA (depending on range selected) to the output.\nAlso known as Low Scaling value or Low Engineering units.",
+		-32768,32767,1638,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param70 = 0,
+		6,"20 0B 24 04 30 65",	$ Link Path Size, Link Path
+		0x0000,	 $ Descriptor
+		0xC3, 2,	$ Data Type, Data Size
+		"Low Scaling #3",
+		"",
+		"Value to apply 0 mA or 4 mA (depending on range selected) to the output.\nAlso known as Low Scaling value or Low Engineering units.",
+		-32768,32767,1638,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param71 = 0,
+		6,"20 0B 24 03 30 67",	$ Link Path Size, Link Path
+		0x0000,	 $ Descriptor
+		0xC3, 2,	$ Data Type, Data Size
+		"High Scaling #2",
+		"",
+		"Value to apply 20 mA to the output.\nAlso known as High Scaling value or High Engineering units.",
+		-32768,32767,8191,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param72 = 0,
+		6,"20 0B 24 04 30 67",	$ Link Path Size, Link Path
+		0x0000,	 $ Descriptor
+		0xC3, 2,	$ Data Type, Data Size
+		"High Scaling #3",
+		"",
+		"Value to apply 20 mA to the output.\nAlso known as High Scaling value or High Engineering units.",
+		-32768,32767,8191,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param73 = 0,
+		6,"20 0B 24 03 30 68",	$ Link Path Size, Link Path
+		0x0000,	 $ Descriptor
+		0xC3, 2,	$ Data Type, Data Size
+		"Low Clamp #2",
+		"",
+		"Lowest value of the output.  If the Output Value is set below this value, the output will set to the Low Clamp Value.\nIf the Low Clamp value is violated, the 'Low Clamp Status' bit will FAULT.\nTo disable, set to -32768.",
+		-32768,32767,-32768,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param74 = 0,
+		6,"20 0B 24 04 30 68",	$ Link Path Size, Link Path
+		0x0000,	 $ Descriptor
+		0xC3, 2,	$ Data Type, Data Size
+		"Low Clamp #3",
+		"",
+		"Lowest value of the output.  If the Output Value is set below this value, the output will be the Low Clamp Value.\nIf the Low Clamp value is violated, the 'Low Clamp Status' bit will FAULT.\nTo disable, set to -32768.",
+		-32768,32767,-32768,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param75 = 0,
+		6,"20 0B 24 03 30 69",	$ Link Path Size, Link Path
+		0x0000,	 $ Descriptor
+		0xC3, 2,	$ Data Type, Data Size
+		"High Clamp #2",
+		"",
+		"Highest value of the output.  If the Output Value is set above this value, the output will be the High Clamp Value.\nIf the High Clamp value is violated, the 'High Clamp Status' bit will FAULT.\nTo disable, set to 32767.",
+		-32768,32767,32767,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param76 = 0,
+		6,"20 0B 24 04 30 69",	$ Link Path Size, Link Path
+		0x0000,	 $ Descriptor
+		0xC3, 2,	$ Data Type, Data Size
+		"High Clamp #3",
+		"",
+		"Highest value of the output.  If the Output Value is set above this value, the output will be the High Clamp Value.\nIf the High Clamp value is violated, the 'High Clamp Status' bit will FAULT.\nTo disable, set to 32767.",
+		-32768,32767,32767,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param77 = 0,
+		6,"20 0B 24 03 30 6C",	$ Link Path Size, Link Path
+		0x0002,	 $ Descriptor
+		0xC1, 1,	$ Data Type, Data Size
+		"Enable Alarm Latch #2",
+		"",
+		"Alarms will latch FAULTED until a 'Latch Reset' command is received.\n\nAlarms effected:\n - Output Status (Open wire and no field power)\n - Low Clamp Alarm\n - High Clamp Alarm\n\nThis is useful in tracking transient or momentary errors.",
+		0,1,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Enum77 = 0,"Disable", 1,"Enable Latching Alarms";
+
+	Param78 = 0,
+		6,"20 0B 24 04 30 6C",	$ Link Path Size, Link Path
+		0x0002,	 $ Descriptor
+		0xC1, 1,	$ Data Type, Data Size
+		"Enable Alarm Latch #3",
+		"",
+		"Alarms will latch FAULTED until a 'Latch Reset' command is received.\n\nAlarms effected:\n - Output Status (Open wire and no field power)\n - Low Clamp Alarm\n - High Clamp Alarm\n\nThis is useful in tracking transient or momentary errors.",
+		0,1,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Enum78 = 0,"Disable", 1,"Enable Latching Alarms";
+
+	Param79 = 0,
+		6,"20 0B 24 03 30 6D",	$ Link Path Size, Link Path
+		0x0002,	 $ Descriptor
+		0xC1, 1,	$ Data Type, Data Size
+		"Disable Alarms #2",
+		"",
+		"If Alarms are Disabled, all alarms for this channel will show No FAULT.\nThis is useful for un-used channels.\n\nNote:  High and Low Clamps are not disabled.",
+		0,1,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Enum79 = 0,"Alarms Enabled", 1,"Alarms Disabled";
+
+	Param80 = 0,
+		6,"20 0B 24 04 30 6D",	$ Link Path Size, Link Path
+		0x0002,	 $ Descriptor
+		0xC1, 1,	$ Data Type, Data Size
+		"Disable Alarms #3",
+		"",
+		"If Alarms are Disabled, all alarms for this channel will show No FAULT.\nThis is useful for un-used channels.\n\nNote:  High and Low Clamps are not disabled.",
+		0,1,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Enum80 = 0,"Alarms Enabled", 1,"Alarms Disabled";
+
+	Param81 = 0,
+		6,"20 0B 24 03 30 6E",	$ Link Path Size, Link Path
+		0x0032,	 $ Descriptor
+		0xC1, 1,	$ Data Type, Data Size
+		"Low Clamp Status #2",
+		"",
+		"If Low Clamp Staus is FAULTED, the requested Output Value is below the Clamp Value.\nConsequently, the output is set to the Low Clamp Value.",
+		0,1,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Enum81 = 0,"No Fault", 1,"Low Clamp FAULT";
+
+	Param82 = 0,
+		6,"20 0B 24 04 30 6E",	$ Link Path Size, Link Path
+		0x0032,	 $ Descriptor
+		0xC1, 1,	$ Data Type, Data Size
+		"Low Clamp Status #3",
+		"",
+		"If Low Clamp Staus is FAULTED, the requested Output Value is below the Clamp Value.\nConsequently, the output is set to the Low Clamp Value.",
+		0,1,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Enum82 = 0,"No Fault", 1,"Low Clamp FAULT";
+
+	Param83 = 0,
+		6,"20 0B 24 03 30 6F",	$ Link Path Size, Link Path
+		0x0032,	 $ Descriptor
+		0xC1, 1,	$ Data Type, Data Size
+		"High Clamp Status #2",
+		"",
+		"If High Clamp Status if FAULTED, the requested Output Value is above the Clamp Value.\nConsequently, the output is set to the High Clamp Value.",
+		0,1,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Enum83 = 0,"No Fault", 1,"High Clamp FAULT";
+
+	Param84 = 0,
+		6,"20 0B 24 04 30 6F",	$ Link Path Size, Link Path
+		0x0032,	 $ Descriptor
+		0xC1, 1,	$ Data Type, Data Size
+		"High Clamp Status #3",
+		"",
+		"If High Clamp Status if FAULTED, the requested Output Value is above the Clamp Value.\nConsequently, the output is set to the High Clamp Value.",
+		0,1,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Enum84 = 0,"No Fault", 1,"High Clamp FAULT";
+
+	Param85 = 0,
+		6,"20 0B 24 03 30 7C",	$ Link Path Size, Link Path
+		0x0032,	 $ Descriptor
+		0xC1, 1,	$ Data Type, Data Size
+		"Bad Cal Status #2",
+		"",
+		"This bit shows the current status of calibration for this channel.\n'Good Calibration' means the data stored in EEPROM is within tollerances.\n'Calibration Fault' means the module is not calibrated and is using default values.\n\nNote:  While in Calibration Mode, the status will be 'Bad Calibration.'",
+		0,1,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Enum85= 0,"Good Calibration", 1,"Calibration FAULT";
+
+	Param86 = 0,
+		6,"20 0B 24 04 30 7C",	$ Link Path Size, Link Path
+		0x0032,	 $ Descriptor
+		0xC1, 1,	$ Data Type, Data Size
+		"Bad Cal Status #3",
+		"",
+		"This bit shows the current status of calibration for this channel.\n'Good Calibration' means the data stored in EEPROM is within tollerances.\n'Calibration Fault' means the module is not calibrated and is using default values.\n\nNote:  While in Calibration Mode, the status will be 'Bad Calibration.'",
+		0,1,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Enum86 = 0,"Good Calibration", 1,"Calibration FAULT";
+
+
+$ DeviceNet Premier Integration
+	Param87 = 0,
+		0,"",		$ No Path, Internal Parameter
+		0x0220,	 $ Descriptor
+		0xC3, 2,	$ Data Type, Data Size
+		"Ch2Data",
+		"",
+		"Value of analog output point.",
+		-32768,32767,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param88 = 0,
+		0,"",	$ No Path, Internal Parameter
+		0x0220,	 $ Descriptor
+		0xC3, 2,	$ Data Type, Data Size
+		"Ch3Data",
+		"",
+		"Value of analog output point.",
+		-32768,32767,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param89 = 0,
+		0,,          $ No Path, Internal Parameter
+		0x0232,	 $ Descriptor
+		0xD1, 1,	$ Data Type, Data Size
+		"Ch2Status",
+		"",
+		"Status of output channel.  This bit is the OR of all possible channel faults.\n\nPossible Errors:\n - Open Wire\n - No Field Power\n - Clamp Alarms.\n\nIf alarms are 'Latched,' the 'Reset Latched Alarm' parameter is needed to clear it.",
+		0,15,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Enum89 =	0,"Ch2Fault", 
+			1,"Ch2Calibration",
+			2,"Ch2LAlarm",
+			3,"Ch2HAlarm";
+
+	Param90 = 0,
+		0,,          $ No Path, Internal Parameter
+		0x0232,	 $ Descriptor
+		0xD1, 1,	$ Data Type, Data Size
+		"Ch3Status",
+		"",
+		"Status of output channel.  This bit is the OR of all possible channel faults.\n\nPossible Errors:\n - Open Wire\n - No Field Power\n - Clamp Alarms.\n\nIf alarms are 'Latched,' the 'Reset Latched Alarm' parameter is needed to clear it.",
+		0,15,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Enum90 =	0,"Ch3Fault", 
+			1,"Ch3Calibration",
+			2,"Ch3LAlarm",
+			3,"Ch3HAlarm";
+
+	Param92 = 0,
+		6,"20 0F 24 08 30 01",	$ Link Path Size, Link Path
+		0x0000,	 $ Descriptor
+		0xCA, 4,	$ Data Type, Data Size
+		"Channel 2 Low Value",
+		"mA",
+		"Enter the measured value at the output terminal after issuing the 'Ouput Low Reference' command.\nEnter the value in milliamps (e.g. 4.041).",
+		-3.402823E+38,3.402823E+38,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param93 = 0,
+		6,"20 0F 24 09 30 01",	$ Link Path Size, Link Path
+		0x0000,	 $ Descriptor
+		0xCA, 4,	$ Data Type, Data Size
+		"Channel 2 High Value",
+		"mA",
+		"Enter the measured value at the output terminal after issuing the 'Ouput High Reference' command.\nEnter the value in milliamps (e.g. 20.022).",
+		-3.402823E+38,3.402823E+38,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param94 = 0,
+		6,"20 0F 24 0A 30 01",	$ Link Path Size, Link Path
+		0x0000,	 $ Descriptor
+		0xCA, 4,	$ Data Type, Data Size
+		"Channel 3 Low Value",
+		"mA",
+		"Enter the measured value at the output terminal after issuing the 'Ouput Low Reference' command.\nEnter the value in milliamps (e.g. 4.041).",
+		-3.402823E+38,3.402823E+38,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param95 = 0,
+		6,"20 0F 24 0B 30 01",	$ Link Path Size, Link Path
+		0x0000,	 $ Descriptor
+		0xCA, 4,	$ Data Type, Data Size
+		"Channel 3 High Value",
+		"mA",
+		"Enter the measured value at the output terminal after issuing the 'Ouput High Reference' command.\nEnter the value in milliamps (e.g. 20.022).",
+		-3.402823E+38,3.402823E+38,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+
+      Param101 =                    $ Revision of Configuration Assembly
+        0,                          $ first field shall equal 0
+        ,,                          $ path size,path
+        0x0210,                     $ descriptor (readonly, no display)
+        0xC7,                       $ data type : 16-bit Unsigned Integer
+        2,                          $ data size in bytes
+        "Configuration revision",   $ name
+        "",                         $ units
+        "",                         $ help string
+        1,1,1,                      $ min,max,default data values
+        0,0,0,0,                    $ mult,dev,base,offset scaling not used
+        0,0,0,0,                    $ mult,dev,base,offset link not used
+        0;                          $ decimal places not used
+
+      Param102 =                    $ non-Logix header
+        0,                          $ first field shall equal 0
+        ,,                          $ path size,path
+        0x0210,                     $ descriptor (readonly, no display)
+        0xC7,                       $ data type : 16-bit Unsigned Integer
+        2,                          $ data size in bytes
+        "Non-Logix Header",         $ name
+        "",                         $ units
+        "",                         $ help string
+        0x7001,0x7001,0x7001,       $ min,max,default data values
+        0,0,0,0,                    $ mult,dev,base,offset scaling not used
+        0,0,0,0,                    $ mult,dev,base,offset link not used
+        0;                          $ decimal places not used
+
+[Assembly]
+	Revision = 2;
+
+	Assem101 = "Status","",
+		,,,,
+		8,Param52,
+		8,Param53,
+		8,Param89,
+		8,Param90;
+
+	Assem102 = "Data","",
+		,0x0000,,,
+		16,Param47,
+		16,Param48,
+		16,Param87,
+		16,Param88;
+
+	Assem123 = "1738-OE4C Configuration Assembly","",
+		,0x0000,,,				$18 bytes *4 = 72bytes
+			
+		16,Param14,	$Fault Value #0
+		16,Param16,	$Idle Value #0
+		16,Param18,	$Low Scaling #0
+		16,Param20,	$High Scaling #0
+		16,Param22,	$Low Clamp #0
+		16,Param24,	$High Clamp #0
+		8,Param6,	$Output Range #0
+		8,Param10,	$Fault State #0
+		8,Param12,	$Idle State #0			
+		8,Param26,	$Enable Alarm Latch #0
+		8,Param28,	$Disable Alarms #0
+		8,,
+		16,Param15,	$Fault Value #1
+		16,Param17,	$Idle Value #1
+		16,Param19,	$Low Scaling #1
+		16,Param21,	$High Scaling #1
+		16,Param23,	$Low Clamp #1
+		16,Param25,	$High Clamp #1
+		8,Param7,	$Output Range #1
+		8,Param11,	$Fault State #1
+		8,Param13,	$Idle State #1
+		8,Param27,	$Enable Alarm Latch #1
+		8,Param29,	$Disable Alarms #1
+		8,,		
+		16,Param65,	$Fault Value #2
+		16,Param67,	$Idle Value #2
+		16,Param69,	$Low Scaling #2
+		16,Param71,	$High Scaling #2
+		16,Param73,	$Low Clamp #2
+		16,Param75,	$High Clamp #2
+		8,Param57,	$Output Range #2
+		8,Param61,	$Fault State #2
+		8,Param63,	$Idle State #2
+		8,Param77,	$Enable Alarm Latch #2
+		8,Param79,	$Disable Alarms #2
+		8,,
+		16,Param66,	$Fault Value #3
+		16,Param68,	$Idle Value #3
+		16,Param70,	$Low Scaling #3
+		16,Param72,	$High Scaling #3
+		16,Param74,	$Low Clamp #3
+		16,Param76,	$High Clamp #
+		8,Param58,	$Output Range #3
+		8,Param62,	$Fault State #3
+		8,Param64,	$Idle State #3
+		8,Param78,	$Enable Alarm Latch #3
+		8,Param80,	$Disable Alarms #3
+		8,;
+    Assem124 =                  $ Private config in Forward Open, Module
+        "3rd Party Private Assembly",
+        ,                       $ Path
+        ,                       $ Length in bytes
+        ,                       $ descriptor
+        ,,                      $ reserved
+        16,Param101,            $ configuration revision (only valid value is 1)
+        16,;                    $ reserved - zeros
+
+    Assem125 =                  $ Private config in Forward Open, Module
+        "Adapter Config Assembly",
+        ,                       $ Path
+        ,                       $ Length in bytes
+        ,                       $ descriptor
+        ,,                      $ reserved
+        16,Param102,            $ Non-Logix Header (constant 0x7001)
+        16,1_RackSize,          $ number of slots
+        16,Param101,            $ configuration revision (only valid value is 1)
+        16,;                    $ reserved - zeros
+
+    Assem126 =                  $ O2T (output data)
+        "Ouput Data Assembly",
+        ,                       $ Path
+        ,                       $ Length in bytes
+        ,                       $ descriptor
+        ,,                      $ reserved
+        ,Assem102;              $ Assembly sent to module
+
+    Assem127 =                  $ T2O (input data)
+        "Input Data Assembly",
+        ,                       $ Path
+        ,                       $ Length in bytes
+        ,                       $ descriptor
+        ,,                      $ reserved
+        32,,                    $ Fault bits
+        ,Assem101;              $ Assembly passed from module
+
+[ParamClass]
+	MaxInst = 102;
+	Descriptor  = 0x09;       $ Bit 0: 1= parameter instances exist
+                                $ Bit 1: 0= not full
+                                $ Bit 2: 0= NVS command not needed
+                                $ Bit 3: 1= Automaticly stored in EERPOM
+	CfgAssembly = 123;
+
+[Groups]
+	Group1 = "I/O - Output Values", 4,
+		2,3,54,91;
+	Group2 = "I/O - Output Status", 13,
+		4,5,55,56,30,31,81,82,32,33,83,84,43;
+	Group3 = "Configuration", 50,
+		1,6,7,57,58,8,9,59,60,10,11,61,62,12,13,63,64,14,15,65,66,16,17,67,68,18,19,69,70,20,21,71,72,22,23,73,74,24,25,75,76,26,27,77,78,28,29,79,80,36;
+	Group4 = "Calibration", 14,
+		34,35,85,86,37,38,39,40,41,92,93,94,95,96;
+	Group5 = "PointBus", 3,
+		44,45,46;
+
+[IO_Info]
+	1_COSetPathNotSupported = 1;                      $ Cnxn Obj does not support direct path setting
+
+	Default = 0x4;
+
+	PollInfo = 0xF,
+		1,
+		1;
+
+	StrobeInfo = 0xF,
+		1,
+		0;
+
+	COSInfo = 0x7,
+		1,
+		1;
+
+	CyclicInfo = 0xB,
+		1,
+		1;
+
+	Input1 = 4,
+		0, 
+		0xF, 
+		"Status",
+		6,
+		"20 04 24 65 30 03",
+		"Producing connection contains status of the four outputs.";
+
+	Output1 = 8,
+		0, 
+		0xD, 
+		"Data",
+		6,
+		"20 04 24 66 30 03",
+		"Consume connection contains value of the four outputs.";
+
+[Connection Manager]
+    Connection7 =       $ Exclusive Owner (Direct to Module)
+                        $ Catalogs        1738-OE4C, OE4V	
+                        $ Config Assem    123	
+                        $ Consume Assem   102	
+                        $ Produce Assem   101	
+        0x04030002,     $ trigger & transport
+        0x44240405,     $ point/multicast & priority & realtime format
+        ,,Assem126,     $ O=>T default,description
+        ,,Assem127,     $ T=>O default,description
+        ,Assem124,      $ config part 1
+        ,Assem123,      $ config part 2
+        "Direct Exclusive Owner",  $ connection name
+        "Direct Exclusive Owner Connection - Output data controls the state (analog level) of each of the outputs. Input data contains status of each of the outputs.",   $ Help string
+        "20 04 24 7B 2C 66 2C 65";
+
+$   Connection27 =      $ No Input Only Connection
+
+    Connection47 =      $ Listen Only (non-Logix Direct to Module)
+                        $ Catalogs        1738-OE4C, OE4V	
+                        $ Config Assem    123	
+                        $ Consume Assem   0xBF (Listen Only)	
+                        $ Produce Assem   101	
+        0x01030002,     $ trigger & transport
+        0x44240305,     $ point/multicast & priority & realtime format
+        ,0,,            $ O=>T default,description
+        ,,Assem127,     $ T=>O default,description
+        ,,              $ config part 1
+        ,,              $ config part 2
+        "Direct Listen Only",  $ connection name
+        "Direct Listen Only Connection - Input data contains the STATUS of each of the outputs. There is NO output data.",   $ Help string
+        "20 04 24 7B 2C BF 2C 65";
+
+[Port]
+      Port1 =       DeviceNet,                          $ or maybe 1_Virtual_Backplane
+                    "PointIO Backplane",                $ Name of backplane
+                    "20 03 24 01",                      $ Path to DeviceNet Object Instance 1
+                    1;                                  $ Port number 1
+
+[Modular]
+      Width =       1;
+
+$ I/O Module EDS
+$ Number of slots in rack = Product Code - 199
+$ Number of I/O modules in rack = Product Code - 200
+$ Note Rack# does not match in Adapter EDS, Adapter EDS includes one for Slot 0
+
+	Rack1 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 201,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+            1;                $ Legal Slots
+
+	Rack2 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 202,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+            1,2;              $ Legal Slots
+
+	Rack3 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 203,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+            1,2,3;            $ Legal Slots
+
+	Rack4 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 204,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+            1,2,3,4;          $ Legal Slots
+
+	Rack5 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 205,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+            1,2,3,4,5;        $ Legal Slots
+
+	Rack6 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 206,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+            1,2,3,4,5,6;      $ Legal Slots
+
+	Rack7 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 207,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+            1,2,3,4,5,6,7;    $ Legal Slots
+
+	Rack8 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 208,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+            1,2,3,4,5,6,7,8,9;$ Legal Slots
+
+	Rack9 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 209,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10;
+                              $ Legal Slots
+
+	Rack10 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 210,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11;
+                              $ Legal Slots
+
+	Rack11 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 211,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12;
+                              $ Legal Slots
+
+	Rack12 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 212,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13;
+                              $ Legal Slots
+
+	Rack13 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 213,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14;
+                              $ Legal Slots
+
+	Rack14 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 214,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15;
+                              $ Legal Slots
+
+	Rack15 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 215,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16;
+                              $ Legal Slots
+
+	Rack16 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 216,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17;
+                              $ Legal Slots
+
+	Rack17 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 217,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18;
+                              $ Legal Slots
+
+	Rack18 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 218,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19;
+                              $ Legal Slots
+
+	Rack19 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 219,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20;
+                              $ Legal Slots
+
+	Rack20 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 220,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21;               $ Legal Slots
+
+	Rack21 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 221,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22;            $ Legal Slots
+
+	Rack22 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 222,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23;         $ Legal Slots
+
+	Rack23 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 223,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24;      $ Legal Slots
+
+	Rack24 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 224,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25;   $ Legal Slots
+
+	Rack25 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 225,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26;
+                              $ Legal Slots
+
+	Rack26 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 226,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27;
+                              $ Legal Slots
+
+	Rack27 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 227,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28;
+                              $ Legal Slots
+
+	Rack28 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 228,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29;
+                              $ Legal Slots
+
+	Rack29 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 229,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30;
+                              $ Legal Slots
+
+	Rack30 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 230,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31;
+                              $ Legal Slots
+
+	Rack31 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 231,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32;
+                              $ Legal Slots
+
+	Rack32 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 232,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33;
+                              $ Legal Slots
+
+	Rack33 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 233,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34;
+                              $ Legal Slots
+
+	Rack34 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 234,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35;
+                              $ Legal Slots
+
+	Rack35 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 235,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36;
+                              $ Legal Slots
+
+	Rack36 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 236,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37;
+                              $ Legal Slots
+
+	Rack37 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 237,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38;
+                              $ Legal Slots
+
+	Rack38 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 238,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39;
+                              $ Legal Slots
+
+	Rack39 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 239,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40;
+                              $ Legal Slots
+
+	Rack40 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 240,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,
+            41;               $ Legal Slots
+
+	Rack41 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 241,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,
+            41,42;            $ Legal Slots
+
+	Rack42 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 242,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,
+            41,42,43;         $ Legal Slots
+
+	Rack43 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 243,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,
+            41,42,43,44;      $ Legal Slots
+
+	Rack44 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 244,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,
+            41,42,43,44,45;   $ Legal Slots
+
+	Rack45 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 245,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,
+            41,42,43,44,45,46;
+                              $ Legal Slots
+
+	Rack46 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 246,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,
+            41,42,43,44,45,46,47;
+                              $ Legal Slots
+
+	Rack47 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 247,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,
+            41,42,43,44,45,46,47,48;
+                              $ Legal Slots
+
+	Rack48 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 248,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,
+            41,42,43,44,45,46,47,48,49;
+                              $ Legal Slots
+
+	Rack49 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 249,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,
+            41,42,43,44,45,46,47,48,49,50;
+                              $ Legal Slots
+
+	Rack50 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 250,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,
+            41,42,43,44,45,46,47,48,49,50,51;
+                              $ Legal Slots
+
+	Rack51 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 251,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,
+            41,42,43,44,45,46,47,48,49,50,51,52;
+                              $ Legal Slots
+
+	Rack52 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 252,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,
+            41,42,43,44,45,46,47,48,49,50,51,52,53;
+                              $ Legal Slots
+
+	Rack53 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 253,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,
+            41,42,43,44,45,46,47,48,49,50,51,52,53,54;
+                              $ Legal Slots
+
+	Rack54 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 254,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,
+            41,42,43,44,45,46,47,48,49,50,51,52,53,54,55;
+                              $ Legal Slots
+
+	Rack55 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 255,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,
+            41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56;
+                              $ Legal Slots
+
+	Rack56 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 256,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,
+            41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57;
+                              $ Legal Slots
+
+	Rack57 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 257,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,
+            41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58;
+                              $ Legal Slots
+
+	Rack58 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 258,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,
+            41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59;
+                              $ Legal Slots
+
+	Rack59 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 259,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,
+            41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60;
+                              $ Legal Slots
+
+	Rack60 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 260,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,
+            41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,
+            61;               $ Legal Slots
+
+	Rack61 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 261,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,
+            41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,
+            61,62;            $ Legal Slots
+
+	Rack62 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 262,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,
+            41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,
+            61,62,63;         $ Legal Slots
+
+	Rack63 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 263,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,
+            41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,
+            61,62,63,64;      $ Legal Slots

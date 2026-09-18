@@ -344,6 +344,44 @@ describe('Universal EtherNet/IP Device Builder & EDS Exporter', () => {
             assert.strictEqual(events[2].instance, 101);
             assert.strictEqual(events[2].hex, 'aabbccdd');
         });
+
+        it('syncs output assembly writes into mapped parameters and updates input assembly when syncIoParams is enabled', async () => {
+            builder.syncIoParams(true);
+
+            // 1. Scanner writes into Output Assembly 101: bytes 0..1 (Param1 TargetFrequency INT)
+            // Value 4200 (0x1068 in LE = 0x68, 0x10)
+            const outBuf = Buffer.from([0x68, 0x10, 0x00, 0x00]);
+            await device.scanner.setAttribute({ classId: 0x04, instance: 101, attribute: 3, data: outBuf });
+
+            // Verify parameter 01-00 was unpacked and updated!
+            assert.strictEqual(builder.getParamValue('01-00'), 4200);
+
+            // 2. Virtual device updates parameter 01-00 to 5500 (0x157C)
+            builder.setParam('01-00', 5500);
+
+            // Verify Input Assembly 100 was automatically packed with new value
+            const inAssemBuf = builder.adapter.assembly.getData(100);
+            assert.strictEqual(inAssemBuf.readInt16LE(0), 5500);
+        });
+
+        it('accepts Class 3 Connected Explicit Messaging Forward_Open (Path 20 02 24 01)', () => {
+            const path20022401 = Buffer.from([0x20, 0x02, 0x24, 0x01]);
+            const res = builder.adapter.connectionHandler.openConnection({
+                connectionPath: path20022401,
+                toNetworkConnectionId: 0x12345678,
+                connectionSerialNumber: 0x9999,
+                originatorVendorId: 799,
+                originatorSerialNumber: 0xABCDEF,
+                otRpiUs: 20000,
+                toRpiUs: 20000,
+                otSize: 0,
+                toSize: 0
+            }, { remoteAddress: '192.168.68.250' });
+
+            assert.strictEqual(res.ok, true);
+            assert(res.response.otNetworkConnectionId > 0);
+            assert.strictEqual(res.response.toNetworkConnectionId, 0x12345678);
+        });
     });
 });
 

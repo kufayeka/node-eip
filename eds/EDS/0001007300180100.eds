@@ -1,0 +1,846 @@
+$ Electronic Data Sheet for Point I/O  (1734-IE2C)
+
+[File]
+	DescText    = "PointIO 1734-IE2C";                    
+	CreateDate  = 06-30-1999;                            
+	CreateTime  = 16:09:35;                         
+	ModDate     = 03-15-2006;                               
+	ModTime     = 06:50:00;                            
+	Revision    = 1.3;                              
+
+[Device]
+	VendCode    = 1;                                  $ Vendor Code
+	ProdType    = 115;                                $ Product Type
+	ProdCode    = 24;                                 $ Product Code
+
+	MajRev      = 1;                                  $ Major Rev
+	MinRev      = 2;                                  $ Minor Rev
+	VendName    = "Allen-Bradley Company, Inc.";
+	ProdTypeStr = "General Purpose Discrete I/O";
+	ProdName    = "PointIO 2pt Analog Current Input";
+	Catalog     = "1734-IE2C";
+
+[IO_Info]
+	Default =     0X0001;                             $ Poll is default
+
+	PollInfo =    0X000F,                             $ Compatable with all
+                    1,                                  $ input 1
+                    0;                                  $ no consumed connection
+
+      StrobeInfo =  0X000F,                             $ Compatable with all
+                    1,                                  $ input 1
+                    0;                                  $ no consumed connection
+
+      COSInfo =     0X0007,                             $ Compatable with all but Cyclic
+                    1,                                  $ input 1
+                    0;                                  $ no consumed connection
+
+      CyclicInfo =  0X000B,                             $ Compatable with all but COS
+                    1,                                  $ input 1
+                    0;                                  $ no consumed connection
+
+
+	Input1 =      6,                                  $ size = 6 bytes
+                    0,                                  $ All significant bits
+                    0X000F,                             $ compatible with all connections
+                    "1734-IE2C Produce Connection",     $ name string
+                    6,                                  $ path length
+                    "20 04 24 65 30 03",                $ assy obj, inst 101d, attr 3
+                    "Producing connection contains state of the two inputs and their status";
+
+[ParamClass]
+	MaxInst     = 49;
+	Descriptor  = 0x09;                               $ Individual parameters are setable
+                                                        $ Automaticly stored in EERPOM
+	CfgAssembly = 0x67;                               $ the custom config assembly is 103d
+
+[Params]
+$ Group Notch Filter
+      Param1 =      $ Update Rate
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 20 24 01 30 6E",                $ Link Path to Update Rate attribute.
+                    0x0000,                             $ No support for: settable path, scaling, scaling links, or
+                                                        $ real time update of value.  Value is gettable and Settable.
+                    2,                                  $ Data Type - Unsigned Int
+                    2,                                  $ Data Size
+                    "Update Rate",                      $ Parameter Name
+                    "ms",                               $ Units String
+                    "The Update Rate is used to assign the rate at which the inputs are sampled.\nValid values are from 0 to 10,000 ms.\n\nThe Notch Filter parameter is used to select the fastest rate possible.\nThe Update Rate will add delay to meet system needs.",
+                    0,10000,100,                        $ Min, Max, and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+$ Group Notch Filter
+      Param2 =      $ Notch Filter Select
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 20 24 01 30 6D",                $ Link Path to Notch filter attribute.
+                    0x0002,                             $ No support for: settable path, scaling, scaling links, or
+                                                        $ real time update of value.  Value is gettable and 
+                                                        $ Settable.  Enumerated strings are supported.
+                    8,                                  $ Data Type - Unsigned Short Int
+                    1,                                  $ Data Size
+                    "Notch Filter",                     $ Parameter Name
+                    "",                                 $ Units String
+                    "Select notch filter for both inputs.\n\nValid settings:\n - 50 Hz   (120 ms update rate)\n - 60 Hz   (100 ms)\n - 250 Hz  (24 ms)\n - 500 Hz  (12 ms)\n\nThe update rate changes for each filter setting.\nThe rate shown is the fastest time to update both channels.\nThe trade-off must be made between noise rejection and speed.",
+                    0,6,2,                              $ Min, Max, and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+$ Input Value
+      Param3 =      $ Value for Input #0
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 0A 24 01 30 03",                $ Link Path to AIP object's value attribute.
+                    0x0030,                             $ No support for: settable path, scaling, scaling links.
+                                                        $ Real time update of value.  Value is gettable only.
+                    3,                                  $ Data Type - int
+                    2,                                  $ Data Size
+                    "Input Value #0",                   $ Parameter Name
+                    "",                                 $ Units String
+                    "Value of analog input point scaled to chosen units.",
+                    -32768,32767,0,                     $ Min, Max (max enumeration #), and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Param4 =      $ Value for Input #1
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 0A 24 02 30 03",                $ Link Path to AIP object's value attribute.
+                    0x0030,                             $ No support for: settable path, scaling, scaling links.
+                                                        $ Real time update of value.  Value is gettable only.
+                    3,                                  $ Data Type - int
+                    2,                                  $ Data Size
+                    "Input Value #1",                   $ Parameter Name
+                    "",                                 $ Units String
+                    "Value of analog input point scaled to chosen units.",
+                    -32768,32767,0,                     $ Min, Max (max enumeration #), and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+
+$ Input Status
+      Param5 =      $ Status for Input #0
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 0A 24 01 30 04",                $ Link Path to AIP object's status attribute.
+                    0x0032,                             $ No support for: settable path, scaling, scaling links.
+                                                        $ Real time update of value.  Value is gettable only.
+                    4,                                  $ Data boolean
+                    1,                                  $ Data Size
+                    "Status #0",                        $ Parameter Name
+                    "",                                 $ Units String
+                    "Status of input channel.  This bit is the OR of all channel faults.\n\nPossible faults:\n - High & Low level alarms\n - Range Alarms\n - Open wire\n - No Field Power\n",
+                    0,1,0,                              $ Min, Max (max enumeration #), and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Param6 =      $ Status for Input #1
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 0A 24 02 30 04",                $ Link Path to AIP object's status attribute.
+                    0x0032,                             $ No support for: settable path, scaling, scaling links.
+                                                        $ Real time update of value.  Value is gettable only.
+                    4,                                  $ Data boolean
+                    1,                                  $ Data Size
+                    "Status #1",                        $ Parameter Name
+                    "",                                 $ Units String
+                    "Status of input channel.  This bit is the OR of all channel faults.\n\nPossible faults:\n - High & Low level alarms\n - Range Alarms\n - Open wire\n - No Field Power\n",
+                    0,1,0,                              $ Min, Max (max enumeration #), and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+$ Input Range
+      Param7 =      $ Input Range 0
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 0A 24 01 30 07",                $ Link Path to Input Range attribute.
+                    0x0002,                             $ No support for: settable path, scaling, scaling links, or
+                                                        $ real time update of value.  Value is gettable and 
+                                                        $ Settable.  Enumerated strings are supported.
+                    8,                                  $ Data Type - Unsigned Short Int
+                    1,                                  $ Data Size
+                    "Input Range #0",                   $ Parameter Name
+                    "",                                 $ Units String
+                    "Defines type and range of input signal.\n\nValid Selections:\n - 4 to 20 ma\n - 0 to 20 ma\n\nThe Range specifies the scaling endpoints.",
+                    0,9,3,                              $ Min, Max, and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Param8 =      $ Input Range 1
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 0A 24 02 30 07",                $ Link Path to Input Range attribute.
+                    0x0002,                             $ No support for: settable path, scaling, scaling links, or
+                                                        $ real time update of value.  Value is gettable and 
+                                                        $ Settable.  Enumerated strings are supported.
+                    8,                                  $ Data Type - Unsigned Short Int
+                    1,                                  $ Data Size
+                    "Input Range #1",                   $ Parameter Name
+                    "",                                 $ Units String
+                    "Defines type and range of input signal.\n\nValid Selections:\n - 4 to 20 ma\n - 0 to 20 ma\n\nThe Range specifies the scaling endpoints.",
+                    0,9,3,                              $ Min, Max, and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+$ Value Data Type
+      Param9 =      $ Value Data Type #0
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 0A 24 01 30 08",                $ Link Path to AIP object's data type attribute.
+                    0x0012,                             $ No support for: settable path, scaling, scaling links.
+                                                        $ No Real time update of value.  Value is gettable only.
+                    8,                                  $ Data Type - Unsigned Short Int
+                    1,                                  $ Data Size
+                    "Value Data Type #0",               $ Parameter Name
+                    "",                                 $ Units String
+                    "This parameter defines the type of data (or number) the module will return for the Value.\nIt is not settable and will always return 'Signed Integer.'",
+                    0,2,0,                              $ Min, Max (max enumeration #), and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Param10 =     $ Value Data Type #1
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 0A 24 02 30 08",                $ Link Path to AIP object's data type attribute.
+                    0x0012,                             $ No support for: settable path, scaling, scaling links.
+                                                        $ No Real time update of value.  Value is gettable only.
+                    8,                                  $ Data Type - Unsigned Short Int
+                    1,                                  $ Data Size
+                    "Value Data Type #1",               $ Parameter Name
+                    "",                                 $ Units String
+                    "This parameter defines the type of data (or number) the module will return for the Value.\nIt is not settable and will always return 'Signed Integer.'",
+                    0,2,0,                              $ Min, Max (max enumeration #), and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+$ Scaling Values
+      Param11 =     $ Low Engineering #0
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 0A 24 01 30 65",                $ Link Path to AIP object's Low Scale attribute.
+                    0x0000,                             $ No support for: settable path, scaling, scaling links.
+                                                        $ Real time update of value.  Value is gettable only.
+                    3,                                  $ Data Type - int
+                    2,                                  $ Data Size
+                    "Low Scaling #0",                   $ Parameter Name
+                    "",                                 $ Units String
+                    "Value returned when input is 0 mA or 4 mA (depending on range selected).\nAlso known as Low Scaling value or Low Engineering units.",
+                    -32768,32767,1638,                  $ Min, Max (max enumeration #), and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Param12 =     $ Low Engineering #1
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 0A 24 02 30 65",                $ Link Path to AIP object's Low Scale attribute.
+                    0x0000,                             $ No support for: settable path, scaling, scaling links.
+                                                        $ Real time update of value.  Value is gettable only.
+                    3,                                  $ Data Type - int
+                    2,                                  $ Data Size
+                    "Low Scaling #1",                   $ Parameter Name
+                    "",                                 $ Units String
+                    "Value returned when input is 0 mA or 4 mA (depending on range selected).\nAlso known as Low Scaling value or Low Engineering units.",
+                    -32768,32767,1638,                  $ Min, Max (max enumeration #), and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Param13 =     $ High Engineering #0
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 0A 24 01 30 67",                $ Link Path to AIP object's High Scale attribute.
+                    0x0000,                             $ No support for: settable path, scaling, scaling links.
+                                                        $ Real time update of value.  Value is gettable only.
+                    3,                                  $ Data Type - int
+                    2,                                  $ Data Size
+                    "High Scaling #0",                  $ Parameter Name
+                    "",                                 $ Units String
+                    "Value returned when input is 20 mA.\nAlso known as High Scaling value or High Engineering units.",
+                    -32768,32767,16383,                 $ Min, Max (max enumeration #), and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Param14 =     $ High Engineering #1
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 0A 24 02 30 67",                $ Link Path to AIP object's Low Scale attribute.
+                    0x0000,                             $ No support for: settable path, scaling, scaling links.
+                                                        $ Real time update of value.  Value is gettable only.
+                    3,                                  $ Data Type - int
+                    2,                                  $ Data Size
+                    "High Scaling #1",                  $ Parameter Name
+                    "",                                 $ Units String
+                    "Value returned when input is 20 mA.\nAlso known as High Scaling value or High Engineering units.",
+                    -32768,32767,16383,                 $ Min, Max (max enumeration #), and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+$ Alarm Latch
+      Param15 =     $ Alarm Latch #0
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 0A 24 01 30 68",                $ Link Path to AIP object's Alarm Latch attribute.
+                    0x0002,                             $ No support for: settable path, scaling, scaling links.
+                                                        $ No Real time update of value.
+                    4,                                  $ Data boolean
+                    1,                                  $ Data Size
+                    "Enable Alarm Latch #0",            $ Parameter Name
+                    "",                                 $ Units String
+                    "Alarms will latch FAULTED until a 'Latch Reset' command is received\n\nAlarms effected:\n - Input Status (Open wire and no field power)\n - Low & High level Alarms\n - Range Alarms\n\nThis is useful in tracking transient or momentary errors.",
+                    0,1,0,                              $ Min, Max (max enumeration #), and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Param16 =     $ Alarm Latch #1
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 0A 24 02 30 68",                $ Link Path to AIP object's Alarm Latch attribute.
+                    0x0002,                             $ No support for: settable path, scaling, scaling links.
+                                                        $ No Real time update of value.
+                    4,                                  $ Data boolean
+                    1,                                  $ Data Size
+                    "Enable Alarm Latch #1",            $ Parameter Name
+                    "",                                 $ Units String
+                    "Alarms will latch FAULTED until a 'Latch Reset' command is received\n\nAlarms effected:\n - Input Status (Open wire and no field power)\n - Low & High level Alarms\n - Range Alarms\n\nThis is useful in tracking transient or momentary errors.",
+                    0,1,0,                              $ Min, Max (max enumeration #), and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+$ Alarm Disables
+      Param17 =     $ Disable Alarms #0
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 0A 24 01 30 69",                $ Link Path to AIP object's Disable Alarms attribute.
+                    0x0002,                             $ No support for: settable path, scaling, scaling links.
+                                                        $ No Real time update of value.
+                    4,                                  $ Data boolean
+                    1,                                  $ Data Size
+                    "Disable Alarms #0",                $ Parameter Name
+                    "",                                 $ Units String
+                    "If Alarms are Disabled, all alarms for this channel will show No FAULT.\nThis is useful for un-used channels.",
+                    0,1,0,                              $ Min, Max (max enumeration #), and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Param18 =     $ Disable Alarms #1
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 0A 24 02 30 69",                $ Link Path to AIP object's Disable Alarms attribute.
+                    0x0002,                             $ No support for: settable path, scaling, scaling links.
+                                                        $ No Real time update of value.
+                    4,                                  $ Data boolean
+                    1,                                  $ Data Size
+                    "Disable Alarms #1",                $ Parameter Name
+                    "",                                 $ Units String
+                    "If Alarms are Disabled, all alarms for this channel will show No FAULT.\nThis is useful for un-used channels.",
+                    0,1,0,                              $ Min, Max (max enumeration #), and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+$ Alarm Status
+      Param19 =     $ Low Alarm Status #0
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 0A 24 01 30 6B",                $ Link Path to AIP object's Low Alarm Status attribute.
+                    0x0032,                             $ No support for: settable path, scaling, scaling links.
+                                                        $ Real time update of value.  Value is gettable only.
+                    4,                                  $ Data boolean
+                    1,                                  $ Data Size
+                    "Low Alarm Status #0",              $ Parameter Name
+                    "",                                 $ Units String
+                    "Indicates channel Value is less than Low Alarm value.\n - 'No Fault' = channel Value above Low Alarm Value\n - 'Low Alarm FAULT' = channel value below Low Alarm Value",
+                    0,1,0,                              $ Min, Max (max enumeration #), and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Param20 =     $ Low Alarm Status #1
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 0A 24 02 30 6B",                $ Link Path to AIP object's Low Alarm Status attribute.
+                    0x0032,                             $ No support for: settable path, scaling, scaling links.
+                                                        $ Real time update of value.  Value is gettable only.
+                    4,                                  $ Data boolean
+                    1,                                  $ Data Size
+                    "Low Alarm Status #1",              $ Parameter Name
+                    "",                                 $ Units String
+                    "Indicates channel Value is less than Low Alarm value.\n - 'No Fault' = channel Value above Low Alarm Value\n - 'Low Alarm FAULT' = channel value below Low Alarm Value",
+                    0,1,0,                              $ Min, Max (max enumeration #), and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Param21 =     $ High Alarm Status #0
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 0A 24 01 30 6C",                $ Link Path to AIP object's High Alarm Status attribute.
+                    0x0032,                             $ No support for: settable path, scaling, scaling links.
+                                                        $ Real time update of value.  Value is gettable only.
+                    4,                                  $ Data boolean
+                    1,                                  $ Data Size
+                    "High Alarm Status #0",             $ Parameter Name
+                    "",                                 $ Units String
+                    "Indicates channel Value is greater than High Alarm value.\n - 'No Fault' = channel Value below High Alarm Value\n - 'High Alarm FAULT' = channel value above High Alarm Value",
+
+                    0,1,0,                              $ Min, Max (max enumeration #), and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Param22 =     $ High Alarm Status #1
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 0A 24 02 30 6C",                $ Link Path to AIP object's High Alarm Status attribute.
+                    0x0032,                             $ No support for: settable path, scaling, scaling links.
+                                                        $ Real time update of value.  Value is gettable only.
+                    4,                                  $ Data boolean
+                    1,                                  $ Data Size
+                    "High Alarm Status #1",             $ Parameter Name
+                    "",                                 $ Units String
+                    "Indicates channel Value is greater than High Alarm value.\n - 'No Fault' = channel Value below High Alarm Value\n - 'High Alarm FAULT' = channel value above High Alarm Value",
+                    0,1,0,                              $ Min, Max (max enumeration #), and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Param23 =     $ Low Low Alarm Status #0
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 0A 24 01 30 6D",                $ Link Path to AIP object's Low Low Alarm Status attribute.
+                    0x0032,                             $ No support for: settable path, scaling, scaling links.
+                                                        $ Real time update of value.  Value is gettable only.
+                    4,                                  $ Data boolean
+                    1,                                  $ Data Size
+                    "Low Low Alarm Status #0",          $ Parameter Name
+                    "",                                 $ Units String
+                    "Indicates channel Value is less than Low Low Alarm value.\n - 'No Fault' = channel Value above Low Low Alarm Value\n - 'Low Low Alarm FAULT' = channel value below Low Low Alarm Value",
+                    0,1,0,                              $ Min, Max (max enumeration #), and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Param24 =     $ Low Low Alarm Status #1
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 0A 24 02 30 6D",                $ Link Path to AIP object's Low Low Alarm Status attribute.
+                    0x0032,                             $ No support for: settable path, scaling, scaling links.
+                                                        $ Real time update of value.  Value is gettable only.
+                    4,                                  $ Data boolean
+                    1,                                  $ Data Size
+                    "Low Low Alarm Status #1",          $ Parameter Name
+                    "",                                 $ Units String
+                    "Indicates channel Value is less than Low Low Alarm value.\n - 'No Fault' = channel Value above Low Low Alarm Value\n - 'Low Low Alarm FAULT' = channel value below Low Low Alarm Value",
+                    0,1,0,                              $ Min, Max (max enumeration #), and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Param25 =     $ High High Alarm Status #0
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 0A 24 01 30 6E",                $ Link Path to AIP object's High High Alarm Status attribute.
+                    0x0032,                             $ No support for: settable path, scaling, scaling links.
+                                                        $ Real time update of value.  Value is gettable only.
+                    4,                                  $ Data boolean
+                    1,                                  $ Data Size
+                    "High High Alarm Status #0",        $ Parameter Name
+                    "",                                 $ Units String
+                    "Indicates channel Value is greater than High High Alarm value.\n - 'No Fault' = channel Value below High High Alarm Value\n - 'High High Alarm FAULT' = channel value above High High Alarm Value",
+                    0,1,0,                              $ Min, Max (max enumeration #), and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Param26 =     $ High High Alarm Status #1
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 0A 24 02 30 6E",                $ Link Path to AIP object's High High Alarm Status attribute.
+                    0x0032,                             $ No support for: settable path, scaling, scaling links.
+                                                        $ Real time update of value.  Value is gettable only.
+                    4,                                  $ Data boolean
+                    1,                                  $ Data Size
+                    "High High Alarm Status #1",        $ Parameter Name
+                    "",                                 $ Units String
+                    "Indicates channel Value is greater than High High Alarm value.\n - 'No Fault' = channel Value below High High Alarm Value\n - 'High High Alarm FAULT' = channel value above High High Alarm Value",
+                    0,1,0,                              $ Min, Max (max enumeration #), and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+$ Digital Filter
+      Param27 =     $ Digital Filter #0
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 0A 24 01 30 74",                $ Link Path to AIP object's Digital Filter attribute.
+                    0x0000,                             $ No support for: settable path, scaling, scaling links.
+                                                        $ No Real time update of value. 
+                    2,                                  $ Data Type - unsigned int
+                    2,                                  $ Data Size
+                    "Digital Filter #0",                $ Parameter Name
+                    "ms",                               $ Units String
+                    "Filter time constant in milliseconds.  See manual for equation.\nTo disable, enter 0 ms.",
+                    0,65535,0,                          $ Min, Max (max enumeration #), and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Param28 =     $ Digital Filter #1
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 0A 24 02 30 74",                $ Link Path to AIP object's Digital Filter attribute.
+                    0x0000,                             $ No support for: settable path, scaling, scaling links.
+                                                        $ No Real time update of value.  
+                    2,                                  $ Data Type - unsigned int
+                    2,                                  $ Data Size
+                    "Digital Filter #1",                $ Parameter Name
+                    "ms",                               $ Units String
+                    "Filter time constant in milliseconds.  See manual for equation.\nTo disable, enter 0 ms.",
+                    0,65535,0,                          $ Min, Max (max enumeration #), and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+$ Alarm Values
+      Param29 =     $ Low Alarm #0
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 0A 24 01 30 75",                $ Link Path to AIP object's Low Alarm attribute.
+                    0x0000,                             $ No support for: settable path, scaling, scaling links.
+                                                        $ No Real time update of value. 
+                    3,                                  $ Data Type - int
+                    2,                                  $ Data Size
+                    "Low Alarm #0",                     $ Parameter Name
+                    "",                                 $ Units String
+                    "Low Alarm Threshold.\nIf input value drops below this value, Low Alarm Status will Fault.\nDefault = 3113 or 3.8 mA.\nTo disable, set at -32768.",
+                    -32768,32767,3113,                  $ Min, Max (max enumeration #), and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Param30 =     $ Low Alarm #1
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 0A 24 02 30 75",                $ Link Path to AIP object's Low Alarm attribute.
+                    0x0000,                             $ No support for: settable path, scaling, scaling links.
+                                                        $ No Real time update of value. 
+                    3,                                  $ Data Type - int
+                    2,                                  $ Data Size
+                    "Low Alarm #1",                     $ Parameter Name
+                    "",                                 $ Units String
+                    "Low Alarm Threshold.\nIf input value drops below this value, Low Alarm Status will Fault.\nDefault = 3113 or 3.8 mA.\nTo disable, set at -32768.",
+                    -32768,32767,3113,                  $ Min, Max (max enumeration #), and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Param31 =     $ High Alarm #0
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 0A 24 01 30 76",                $ Link Path to AIP object's High Alarm attribute.
+                    0x0000,                             $ No support for: settable path, scaling, scaling links.
+                                                        $ No Real time update of value. 
+                    3,                                  $ Data Type - int
+                    2,                                  $ Data Size
+                    "High Alarm #0",                    $ Parameter Name
+                    "",                                 $ Units String
+                    "High Alarm Threshold.\nIf input value climbs above this value, High Alarm Status will Fault.\nDefault = 16547 or 20.2 mA.\nTo disable, set at 32767.",
+                    -32768,32767,16547,                 $ Min, Max (max enumeration #), and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Param32 =     $ High Alarm #1
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 0A 24 02 30 76",                $ Link Path to AIP object's High Alarm attribute.
+                    0x0000,                             $ No support for: settable path, scaling, scaling links.
+                                                        $ No Real time update of value. 
+                    3,                                  $ Data Type - int
+                    2,                                  $ Data Size
+                    "High Alarm #1",                    $ Parameter Name
+                    "",                                 $ Units String
+                    "High Alarm Threshold.\nIf input value climbs above this value, High Alarm Status will Fault.\nDefault = 16547 or 20.2 mA.\nTo disable, set at 32767.",
+                    -32768,32767,16547,                 $ Min, Max (max enumeration #), and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Param33 =     $ LowLow Alarm #0
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 0A 24 01 30 77",                $ Link Path to AIP object's LowLow Alarm attribute.
+                    0x0000,                             $ No support for: settable path, scaling, scaling links.
+                                                        $ No Real time update of value. 
+                    3,                                  $ Data Type - int
+                    2,                                  $ Data Size
+                    "Low Low Alarm #0",                 $ Parameter Name
+                    "",                                 $ Units String
+                    "Low Low Alarm Threshold.\nIf input value drops below this value, Low Low Alarm Status will Fault.\nDefault = 2867 or 3.5 mA.\nTo disable, set at -32768.",
+                    -32768,32767,2867,                  $ Min, Max (max enumeration #), and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Param34 =     $ LowLow Alarm #1
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 0A 24 02 30 77",                $ Link Path to AIP object's LowLow Alarm attribute.
+                    0x0000,                             $ No support for: settable path, scaling, scaling links.
+                                                        $ No Real time update of value. 
+                    3,                                  $ Data Type - int
+                    2,                                  $ Data Size
+                    "Low Low Alarm #1",                 $ Parameter Name
+                    "",                                 $ Units String
+                    "Low Low Alarm Threshold.\nIf input value drops below this value, Low Low Alarm Status will Fault.\nDefault = 2867 or 3.5 mA.\nTo disable, set at -32768.",
+                    -32768,32767,2867,                  $ Min, Max (max enumeration #), and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Param35 =     $ HighHigh Alarm #0
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 0A 24 01 30 78",                $ Link Path to AIP object's HighHigh Alarm attribute.
+                    0x0000,                             $ No support for: settable path, scaling, scaling links.
+                                                        $ No Real time update of value. 
+                    3,                                  $ Data Type - int
+                    2,                                  $ Data Size
+                    "High High Alarm #0",               $ Parameter Name
+                    "",                                 $ Units String
+                    "High High Alarm Threshold.\nIf input value climbs above this value, High High Alarm Status will Fault.\nDefault = 16792 or 20.5 mA.\nTo disable, set at 32767.",
+                    -32768,32767,16792,                 $ Min, Max (max enumeration #), and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Param36 =     $ HighHigh Alarm #1
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 0A 24 02 30 78",                $ Link Path to AIP object's HighHigh Alarm attribute.
+                    0x0000,                             $ No support for: settable path, scaling, scaling links.
+                                                        $ No Real time update of value. 
+                    3,                                  $ Data Type - int
+                    2,                                  $ Data Size
+                    "High High Alarm #1",               $ Parameter Name
+                    "",                                 $ Units String
+                    "High High Alarm Threshold.\nIf input value climbs above this value, High High Alarm Status will Fault.\nDefault = 16792 or 20.5 mA.\nTo disable, set at 32767.",
+                    -32768,32767,16792,                 $ Min, Max (max enumeration #), and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+$ Range Alarm Status
+      Param37 =     $ Under Range Alarm Status #0
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 0A 24 01 30 80",                $ Link Path to AIP object's Under Range Status attribute.
+                    0x0032,                             $ No support for: settable path, scaling, scaling links.
+                                                        $ Real time update of value.  Value is gettable only.
+                    4,                                  $ Data boolean
+                    1,                                  $ Data Size
+                    "Under Range Alarm Status #0",      $ Parameter Name
+                    "",                                 $ Units String
+                    "Indicates channel Value is less than Under Range Alarm value (about 50 uA).\n - 'No Fault' = channel Value is above Under Range Alarm value\n - 'Under Range Alarm FAULT' = channel Value is below Under Range Alarm value",
+                    0,1,0,                              $ Min, Max (max enumeration #), and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Param38 =     $ Under Range Alarm Status #1
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 0A 24 02 30 80",                $ Link Path to AIP object's Under Range Status attribute.
+                    0x0032,                             $ No support for: settable path, scaling, scaling links.
+                                                        $ Real time update of value.  Value is gettable only.
+                    4,                                  $ Data boolean
+                    1,                                  $ Data Size
+                    "Under Range Alarm Status #1",      $ Parameter Name
+                    "",                                 $ Units String
+                    "Indicates channel Value is less than Under Range Alarm value (about 50 uA).\n - 'No Fault' = channel Value is above Under Range Alarm value\n - 'Under Range Alarm FAULT' = channel Value is below Under Range Alarm value",
+                    0,1,0,                              $ Min, Max (max enumeration #), and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Param39 =     $ Over Range Alarm Status #0
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 0A 24 01 30 81",                $ Link Path to AIP object's Over Range Status attribute.
+                    0x0032,                             $ No support for: settable path, scaling, scaling links.
+                                                        $ Real time update of value.  Value is gettable only.
+                    4,                                  $ Data boolean
+                    1,                                  $ Data Size
+                    "Over Range Alarm Status #0",       $ Parameter Name
+                    "",                                 $ Units String
+                    "Indicates channel Value is greater than Over Range Alarm value (A/D is at maximum).\n - 'No Fault' = channel Value is above Over Range Alarm value\n - 'Over Range Alarm FAULT' = channel Value is above Over Range Alarm value",
+                    0,1,0,                              $ Min, Max (max enumeration #), and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Param40 =     $ Over Range Alarm Status #1
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 0A 24 02 30 81",                $ Link Path to AIP object's Over Range Status attribute.
+                    0x0032,                             $ No support for: settable path, scaling, scaling links.
+                                                        $ Real time update of value.  Value is gettable only.
+                    4,                                  $ Data boolean
+                    1,                                  $ Data Size
+                    "Over Range Alarm Status #1",       $ Parameter Name
+                    "",                                 $ Units String
+                    "Indicates channel Value is greater than Over Range Alarm value (A/D is at maximum).\n - 'No Fault' = channel Value is above Over Range Alarm value\n - 'Over Range Alarm FAULT' = channel Value is above Over Range Alarm value",
+                    0,1,0,                              $ Min, Max (max enumeration #), and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+$ Bad Cal Status
+      Param41 =     $ Bad Cal Status #0
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 0A 24 01 30 83",                $ Link Path to AIP object's Bad Cal Status attribute.
+                    0x0032,                             $ No support for: settable path, scaling, scaling links.
+                                                        $ Real time update of value.  Value is gettable only.
+                    4,                                  $ Data boolean
+                    1,                                  $ Data Size
+                    "Bad Cal Status #0",                $ Parameter Name
+                    "",                                 $ Units String
+                    "This bit shows the current status of calibration for this channel.\n'Good Calibration' means the data stored in EEPROM is within tollerances.\n'Calibration Fault' means the module is not calibrated and is using default values.\n\nNote:  While in Calibration Mode, the status will be 'Bad Calibration.'",
+                    0,1,0,                              $ Min, Max (max enumeration #), and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Param42 =     $ Bad Cal Status #1
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 0A 24 02 30 83",                $ Link Path to AIP object's Bad Cal Status attribute.
+                    0x0032,                             $ No support for: settable path, scaling, scaling links.
+                                                        $ Real time update of value.  Value is gettable only.
+                    4,                                  $ Data boolean
+                    1,                                  $ Data Size
+                    "Bad Cal Status #1",                $ Parameter Name
+                    "",                                 $ Units String
+                    "This bit shows the current status of calibration for this channel.\n'Good Calibration' means the data stored in EEPROM is within tollerances.\n'Calibration Fault' means the module is not calibrated and is using default values.\n\nNote:  While in Calibration Mode, the status will be 'Bad Calibration.'",
+                    0,1,0,                              $ Min, Max (max enumeration #), and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+$ Autobaud
+      Param43 =     $ Disable Autobaud
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 03 24 01 30 64",                $ Link Path to disable autobaud attribute.
+                    0x0002,                             $ No support for: settable path, scaling, scaling links, or
+                                                        $ real time update of value.  Value is gettable and 
+                                                        $ Settable.  Enumerated strings are supported.
+                    4,                                  $ Data Type - boolean
+                    1,                                  $ Data Size
+                    "Autobaud",                         $ Parameter Name
+                    "",                                 $ Units String
+                    "Autobaud allows module to match the baud rate of existing devices on a network.\n\nChanges to this attribute take effect after next powerup.\nIf 'enabled', the Baud Rate Attribute can not be set.",
+                    0,1,1,                              $ Min, Max, and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+$Parameter Objects
+      Param44 =     $ Cal Mask
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 0F 24 01 30 01",                $ Link Path to Cal Mask attribute.
+                    0x0002,                             $ No support for: settable path, scaling, scaling links, or
+                                                        $ real time update of value.  Value is gettable and 
+                                                        $ Settable.  Enumerated strings are supported.
+                    8,                                  $ Data Type - byte
+                    1,                                  $ Data Size
+                    "Calibration Channel Select",       $ Parameter Name
+                    "",                                 $ Units String
+                    "Choose which channel or channels to calibrate.",
+                    0,3,0,                              $ Min, Max, and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Param45 =     $ Cal Service
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 0F 24 02 30 01",                $ Link Path to Cal Service attribute.
+                    0x0002,                             $ No support for: settable path, scaling, scaling links, or
+                                                        $ real time update of value.  Value is gettable and 
+                                                        $ Settable.  Enumerated strings are supported.
+                    8,                                  $ Data Type - byte
+                    1,                                  $ Data Size
+                    "Calibration Command",              $ Parameter Name
+                    "",                                 $ Units String
+                    "This command puts the module in different calibration modes.\n\nBegin Calibration - Initializes the module for calibration.\nAccept Low Calibration - The value on the input is a stable 4 mA.\nAccept High Calibration - The value on the input is a stable 20 mA.\nAbort Calibration - Immeadately terminates calibration process and uses previous calibration.\n\nNote: Module must be stand-alone or in Idle/Program mode.\nFurther Note: Once the 'Accept Low' and 'Accept High' Commands have been sent, the module will exit calibration mode.",
+                    0,4,0,                              $ Min, Max, and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Param46 =     $ reset Service
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 0F 24 03 30 01",                $ Link Path to reset Service attribute.
+                    0x0002,                             $ No support for: settable path, scaling, scaling links, or
+                                                        $ real time update of value.  Value is gettable and 
+                                                        $ Settable.  Enumerated strings are supported.
+                    8,                                  $ Data Type - byte
+                    1,                                  $ Data Size
+                    "Reset Latched Alarms",             $ Parameter Name
+                    "",                                 $ Units String
+                    "This parameter clears any latched alarms in the selected channel(s).\nIf alarm condition still exists, the fault will not be cleared.",
+                    0,3,0,                              $ Min, Max, and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+$Point Object stuff
+      Param47 =     $ AutoAddress
+                    0,                                  $ reserved
+                    7,                                  $ Link Path Size
+                    "21 12 03 24 01 30 03",             $ Link Path to AutoAddress attribute.
+                    0x0002,                             $ No support for: settable path, scaling, scaling links, or
+                                                        $ real time update of value.  Value is gettable and 
+                                                        $ Settable.  Enumerated strings are supported.
+                    4,                                  $ Data Type - boolean
+                    1,                                  $ Data Size
+                    "Sequential AutoAddress",           $ Parameter Name
+                    "",                                 $ Units String
+                    "Sequential AutoAddress will re-assign the node address of ever module to the right.\nEach module will change it's node address to one greater than then it's neighbor.\n\nMAKE SURE THE NODE ADDRESS OF THIS MODULE IS THE DESIRED VALUE BEFORE ISSUING THIS COMMAND.\n\nWhen this command is set, each module to the right will get a new address one greater than it's neighbor.\nThe address will ripple through a line of Point I/O modules.\n\nSteps to Auto Address a line of Point I/O modules:\n 1.) Set the address of the first module (next to PDN or adapter).\n 2.) Send the Auto Address command to 'Sequential Address.'\n 3.) All modules in line will reset with new sequential addresses.\n\nExample:\nIf there are 5 Point modules in a line, and the address of the first module is 10.\nAfter the 'Sequential Address' command is sent to the first module, the node address of the line will be:\n 10, 11, 12, 13, and 14.",
+                    0,1,0,                              $ Min, Max, and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Param48 =     $ Baud Rate
+                    0,                                  $ reserved
+                    7,                                  $ Link Path Size
+                    "21 12 03 24 01 30 05",             $ Link Path to Baud Rate attribute.
+                    0x0002,                             $ No support for: settable path, scaling, scaling links, or
+                                                        $ real time update of value.  Value is gettable and 
+                                                        $ Settable.  Enumerated strings are supported.
+                    8,                                  $ Data Type - byte
+                    1,                                  $ Data Size
+                    "Broadcast Baud Rate",              $ Parameter Name
+                    "",                                 $ Units String
+                    "This command will change the baud rate of this and every module to the right\nto the value indicated.\nIf AutoBaud is ENABLED, this command will not change the operation of the module at power up.",
+                    0,2,0,                              $ Min, Max, and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Param49 =     $ Set Disable AutoBaud
+                    0,                                  $ reserved
+                    7,                                  $ Link Path Size
+                    "21 12 03 24 01 30 06",             $ Link Path to Disable AutoBaud attribute.
+                    0x0002,                             $ No support for: settable path, scaling, scaling links, or
+                                                        $ real time update of value.  Value is gettable and 
+                                                        $ Settable.  Enumerated strings are supported.
+                    8,                                  $ Data Type - byte
+                    1,                                  $ Data Size
+                    "Broadcast AutoBaud",               $ Parameter Name
+                    "",                                 $ Units String
+                    "This command will change the AutoBaud attribute of this and every module to the right\nto the value indicated.\nIf AutoBaud is 'disabled,' the Baud Rate parameter will set the baud rate next time the module is powered up.",
+                    0,1,0,                              $ Min, Max, and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+[EnumPar]
+      Param2 =      "10 Hz  (Invalid)","50 Hz","60 Hz", $ Notch Filter
+                    "500 Hz (Invalid)","250 Hz",
+                    "1 MHz  (Invalid)","500 Hz";
+      Param5 =      "Normal Operation", "FAULT";        $ status 0
+      Param6 =      "Normal Operation", "FAULT";        $ status 1
+      Param7 =      "-10 V to 10 V (Invalid)",          $ range 0
+                    "0 V to 5 V (Invalid)",
+                    "0 V to 10 V (Invalid)",
+                    "4mA to 20mA",
+                    "-15mV to 75mV (Invalid)",
+                    "-15mV to 30mV (Invalid)",
+                    "-5 V to  5 V (Invalid)",
+                    "1 V to 5 V (Invalid)",
+                    "0mA to 20mA",
+                    "0mA to 50mA (Invalid)";
+      Param8 =      "-10 V to 10 V (Invalid)",          $ range 1
+                    "0 V to 5 V (Invalid)",
+                    "0 V to 10 V (Invalid)",
+                    "4mA to 20mA",
+                    "-15mV to 75mV (Invalid)",
+                    "-15mV to 30mV (Invalid)",
+                    "-5 V to 5 V (Invalid)",
+                    "1 V to 5 V (Invalid)",
+                    "0mA to 20mA",
+                    "0mA to 50mA (Invalid)";
+      Param9 =      "Signed Integer", "Real",           $ type 0
+                    "Unsigned Integer";
+      Param10 =     "Signed Integer", "Real",           $ type 1
+                    "Unsigned Integer";
+      Param15 =     "Disable","Enable Latching Alarms"; $ latch alarms 0
+      Param16 =     "Disable","Enable Latching Alarms"; $ latch alarms 1
+      Param17 =     "Alarms Enabled","Alarms Disabled"; $ disable alarms 0
+      Param18 =     "Alarms Enabled","Alarms Disabled"; $ disable alarms 1
+      Param19 =     "No Fault","Low Alarm FAULT";       $ low alarm 0
+      Param20 =     "No Fault","Low Alarm FAULT";       $ low alarm 1
+      Param21 =     "No Fault","High Alarm FAULT";      $ high alarm 0
+      Param22 =     "No Fault","High Alarm FAULT";      $ high alarm 1
+      Param23 =     "No Fault","Low Low Alarm FAULT";   $ low low alarm 0
+      Param24 =     "No Fault","Low Low Alarm FAULT";   $ low low alarm 1
+      Param25 =     "No Fault","High High Alarm FAULT"; $ high high alarm 0
+      Param26 =     "No Fault","High High Alarm FAULT"; $ high high alarm 1
+      Param37 =     "No fault","Under Range FAULT";     $ under range 0
+      Param38 =     "No fault","Under Range FAULT";     $ under range 1
+      Param39 =     "No fault","Over Range FAULT";      $ Over range 0
+      Param40 =     "No fault","Over Range FAULT";      $ Over range 1
+      Param41 =     "Good Calibration",                 $ bad cal 0
+                    "Calibration FAULT";
+      Param42 =     "Good Calibration",                 $ bad cal 1
+                    "Calibration FAULT";
+      Param43 =     "Enable","Disable";                 $ Autobaud
+      Param44 =     "None","Channel 0","Channel 1",     $ Cal Mask
+                    "Both Channels";
+      Param45 =     "Do Nothing","Begin Calibration",   $ Cal Command
+                    "Accept Low Calibration",
+                    "Accept High Calibration",
+                    "Abort Calibration";
+      Param46 =     "Do Nothing","Channel 0",           $ Reset Service
+                    "Channel 1","Both Channels";
+      Param47 =     "Do Nothing","Sequential Address";  $ Auto address
+      Param48 =     "125 kHz","250 kHz","500 kHz";      $ baud rate
+      Param49 =     "Enable","Disable";                 $ Autobaud
+
+[Groups]
+      Group1 =      "I/O - Input Values", 2, 3, 4;      $ Input vaues
+      Group2 =      "I/O - Input Status", 15, 5,6,      $ input status, alarms, ranges
+                    19,20, 21,22, 23,24, 25,26, 37,38, 
+                    39,40, 46;
+      Group3 =      "Configuration", 25, 2,1, 7,8,9,10, $ scaling, range, alarms, enables
+                    11,12,13,14,15,16,17,18, 27,28,
+                    29,30,31,32,33,34,35,36, 43;
+      Group4 =      "Calibration", 4, 41,42,44,45;      $ all cal stuff
+      Group5 =      "PointBus", 3, 47,48,49;            $ dup mac, qc, autoaddr, brate, auto baud
+

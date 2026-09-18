@@ -1,0 +1,274 @@
+$ EZ-EDS Version 3.9 Generated Electronic Data Sheet
+
+[File]
+        DescText = "IDM Power Interface";
+        CreateDate = 07-06-2011;
+        CreateTime = 13:32:22;
+        ModDate = 01-20-2012;
+        ModTime = 13:31:35;
+        Revision = 1.1;
+        HomeURL = "www.ab.com";
+
+[Device]
+        VendCode = 1;
+        VendName = "Allen-Bradley";
+        ProdType = 115;
+        ProdTypeStr = "Miscellaneous";
+        ProdCode = 291;
+        MajRev = 1;
+        MinRev = 2;
+        ProdName = "2094-SEPM-B24-S";
+        Catalog = "2094-SEPM-B24-S";
+        Icon = "IPIM.ico";
+        IconContents =
+                "AAABAAIAEBAQAAAABAAoAQAAJgAAACAgEAAAAAQA6AIAAE4BAAAoAAAAEAAA"
+                "ACAAAAABAAQAAAAAAIAAAAAAAAAAAAAAABAAAAAQAAAAAAAAAAAAgAAAgAAA"
+                "AICAAIAAAACAAIAAgIAAAICAgADAwMAAAAD/AAD/AAAA//8A/wAAAP8A/wD/"
+                "/wAA////AAAAAAYAAAAAAACIhwAAAAAAAIiHcAAAAAAAiId3AAAAAACIh3cA"
+                "AAAAAAAHdwAAAAAAAAd3AAAAAAAAB3cAAAAAAAAHdwAAAAAAAAd3AAAAAAAA"
+                "B3cAAAAAAAqndwAAAAAAAAd3AAAAAAB2Z3cAAAAAAAiHdwAAAAAAAIinAAAA"
+                "8P8AAPB/AADwPwAA8D8AAPA/AADwPwAA8D8AAPA/AADwPwAA8D8AAPA/AADw"
+                "PwAA8D8AAPA/AAD4PwAA/D8AACgAAAAgAAAAQAAAAAEABAAAAAAAAAIAAAAA"
+                "AAAAAAAAEAAAABAAAAAAAAAAAACAAACAAAAAgIAAgAAAAIAAgACAgAAAgICA"
+                "AMDAwAAAAP8AAP8AAAD//wD/AAAA/wD/AP//AAD///8AAAAAAAAAAAAAAAAA"
+                "AAAAAAAAAAB4iIiAAAAAAAAAAAAAAAAAeIiIh3AAAAAAAAAAAAAAAHiIiId3"
+                "AAAAAAAAAAAAAAB4iIiHd3AAAAAAAAAAAAAAeIiIh3d3AAAAAAAAAAAAAHiI"
+                "iId3dwAAAAAAAAAAAAB4iIiHd3cAAAAAAAAAAAAAeIiIh3d3AAAAAAAAAAAA"
+                "AHAAAAd3dwAAAAAAAAAAAABwAAAHd3cAAAAAAAAAAAAAcAAAB3d3AAAAAAAA"
+                "AAAAAHAAAKd3dwAAAAAAAAAAAABwAAAHd3cAAAAAAAAAAAAAcAAAp3d3AAAA"
+                "AAAAAAAAAHAAAAd3dwAAAAAAAAAAAABwAACnd3cAAAAAAAAAAAAAcAAAB3d3"
+                "AAAAAAAAAAAAAHAAAAd3dwAAAAAAAAAAAABwgICHd3cAAAAAAAAAAAAAcAAA"
+                "B3d3AAAAAAAAAAAAAHCqqgd3dwAAAAAAAAAAAABwqqoHd3cAAAAAAAAAAAAA"
+                "cKqqB3d3AAAAAAAAAAAAAHAAAAd3dwAAAAAAAAAAAAB4iIiHd3cAAAAAAAAA"
+                "AAAAd3AAB3d3AAAAAAAAAAAAAAeIh3h3dwAAAAAAAAAAAAAAeIh3h3cAAAAA"
+                "AAAAAAAAAAeIiKp3AAAAAAAAAAAAAAAAeIiKpwAAAAAAAAAAAAAAAHd3d3cA"
+                "AAAAAAD/Af///wB///8AP///AB///wAP//8AB///AAf//wAH//8AB///AAf/"
+                "/wAH//8AB///AAf//wAH//8AB///AAf//wAH//8AB///AAf//wAH//8AB///"
+                "AAf//wAH//8AB///AAf//wAH//8eB///gAf//8AH///gB///8Af///AP/w==";
+
+[Device Classification]
+        Class1 = EtherNetIP;
+        Class2 = 1_RSNetWorx_Adapter;
+        Class3 = 1_RSLinx_CLGateway_Tool;
+
+
+[Params]
+        Param1 =
+                0,                      $ reserved, shall equal 0
+                ,,                      $ Link Path Size, Link Path
+                0x0800,                 $ Descriptor
+                0xC4,                   $ Data Type
+                4,                      $ Data Size in bytes
+                "CfgSize",              $ name
+                "",                     $ units
+                "Hidden",               $ help string
+                ,,0,                    $ min, max, default data values
+                ,,,,                    $ mult, div, base, offset scaling
+                ,,,,                    $ mult, div, base, offset links
+                ;                       $ decimal places
+        Param2 =
+                0,                      $ reserved, shall equal 0
+                ,,                      $ Link Path Size, Link Path
+                0x0800,                 $ Descriptor
+                0xC4,                   $ Data Type
+                4,                      $ Data Size in bytes
+                "Fault",                $ name
+                "",                     $ units
+                "",                     $ help string
+                ,,0,                    $ min, max, default data values
+                ,,,,                    $ mult, div, base, offset scaling
+                ,,,,                    $ mult, div, base, offset links
+                ;                       $ decimal places
+        Param3 =
+                0,                      $ reserved, shall equal 0
+                ,,                      $ Link Path Size, Link Path
+                0x0800,                 $ Descriptor
+                0xCA,                   $ Data Type
+                4,                      $ Data Size in bytes
+                "DCBusVoltage",         $ name
+                "Volts",                $ units
+                "",                     $ help string
+                ,,0,                    $ min, max, default data values
+                ,,,,                    $ mult, div, base, offset scaling
+                ,,,,                    $ mult, div, base, offset links
+                ;                       $ decimal places
+        Param4 =
+                0,                      $ reserved, shall equal 0
+                ,,                      $ Link Path Size, Link Path
+                0x0800,                 $ Descriptor
+                0xC4,                   $ Data Type
+                4,                      $ Data Size in bytes
+                "ModuleFault",          $ name
+                "",                     $ units
+                "",                     $ help string
+                ,,0,                    $ min, max, default data values
+                ,,,,                    $ mult, div, base, offset scaling
+                ,,,,                    $ mult, div, base, offset links
+                ;                       $ decimal places
+        Param5 =
+                0,                      $ reserved, shall equal 0
+                ,,                      $ Link Path Size, Link Path
+                0x0800,                 $ Descriptor
+                0xC4,                   $ Data Type
+                4,                      $ Data Size in bytes
+                "ModuleStatus",         $ name
+                "",                     $ units
+                "",                     $ help string
+                ,,0,                    $ min, max, default data values
+                ,,,,                    $ mult, div, base, offset scaling
+                ,,,,                    $ mult, div, base, offset links
+                ;                       $ decimal places
+        Param6 =
+                0,                      $ reserved, shall equal 0
+                ,,                      $ Link Path Size, Link Path
+                0x0804,                 $ Descriptor
+                0xC4,                   $ Data Type
+                4,                      $ Data Size in bytes
+                "BusRegulatorCapacity", $ name
+                "%",                    $ units
+                "",                     $ help string
+                ,,0,                    $ min, max, default data values
+                1,100,1,0,              $ mult, div, base, offset scaling
+                ,,,,                    $ mult, div, base, offset links
+                ;                       $ decimal places
+        Param7 =
+                0,                      $ reserved, shall equal 0
+                ,,                      $ Link Path Size, Link Path
+                0x0804,                 $ Descriptor
+                0xC4,                   $ Data Type
+                4,                      $ Data Size in bytes
+                "BusCapacity",          $ name
+                "%",                    $ units
+                "",                     $ help string
+                ,,0,                    $ min, max, default data values
+                1,100,1,0,              $ mult, div, base, offset scaling
+                ,,,,                    $ mult, div, base, offset links
+                ;                       $ decimal places
+        Param8 =
+                0,                      $ reserved, shall equal 0
+                ,,                      $ Link Path Size, Link Path
+                0x0800,                 $ Descriptor
+                0xC4,                   $ Data Type
+                4,                      $ Data Size in bytes
+                "CfgIDNum",             $ name
+                "",                     $ units
+                "Hidden",               $ help string
+                ,,0,                    $ min, max, default data values
+                ,,,,                    $ mult, div, base, offset scaling
+                ,,,,                    $ mult, div, base, offset links
+                ;                       $ decimal places
+        Param9 =
+                0,                      $ reserved, shall equal 0
+                ,,                      $ Link Path Size, Link Path
+                0x0800,                 $ Descriptor
+                0xC4,                   $ Data Type
+                4,                      $ Data Size in bytes
+                "Reserved",             $ name
+                "",                     $ units
+                "Hidden",               $ help string
+                ,,0,                    $ min, max, default data values
+                ,,,,                    $ mult, div, base, offset scaling
+                ,,,,                    $ mult, div, base, offset links
+                ;                       $ decimal places
+
+[Assembly]
+        Assem101 =
+                "Config Assem",
+                ,
+                ,
+                0x0000,
+                ,,
+                32,Param1,
+                32,Param8,
+                32,Param9;
+        Assem102 =
+                "Input Assem",
+                ,
+                ,
+                0x0300,
+                ,,
+                32,Param2,
+                32,Param4,
+                32,Param3,
+                32,Param5,
+                32,Param6,
+                32,Param7;
+        Assem103 =
+                "Output Assem",
+                ,
+                0,
+                0x0000,
+                ,;
+
+
+
+[Connection Manager]
+    $ 1_Display_Only_
+        Connection1 =
+                0x04010002,             $ 0-15    = supported transport classes
+                                        $ 16      = trigger: cyclic
+                                        $ 17      = trigger: change of state
+                                        $ 18      = trigger: application
+                                        $ 19-23   = trigger: reserved
+                                        $ 24      = transport type: listen-only
+                                        $ 25      = transport type: input-only
+                                        $ 26      = transport type: exclusive-owner
+                                        $ 27      = transport type: redundant-owner
+                                        $ 28-30   = reserved
+                                        $ 31      = Client = 0 / Server = 1
+                0x44440105,             $ 0       = O->T fixed size supported
+                                        $ 1       = O->T variable size supported
+                                        $ 2       = T->O fixed size supported
+                                        $ 3       = T->O variable size supported
+                                        $ 4-5     = O->T number of bytes per slot (obsolete)
+                                        $ 6-7     = T->O number of bytes per slot (obsolete)
+                                        $ 8-10    = O->T Real time transfer format
+                                        $ 11      = reserved
+                                        $ 12-14   = T->O Real time transfer format
+                                        $ 15      = reserved
+                                        $ 16      = O->T connection type: NULL
+                                        $ 17      = O->T connection type: MULTICAST
+                                        $ 18      = O->T connection type: POINT2POINT
+                                        $ 19      = O->T connection type: reserved
+                                        $ 20      = T->O connection type: NULL
+                                        $ 21      = T->O connection type: MULTICAST
+                                        $ 22      = T->O connection type: POINT2POINT
+                                        $ 23      = T->O connection type: reserved
+                                        $ 24      = O->T priority: LOW
+                                        $ 25      = O->T priority: HIGH
+                                        $ 26      = O->T priority: SCHEDULED
+                                        $ 27      = O->T priority: reserved
+                                        $ 28      = T->O priority: LOW
+                                        $ 29      = T->O priority: HIGH
+                                        $ 30      = T->O priority: SCHEDULED
+                                        $ 31      = T->O priority: reserved
+                5000,2,Assem103,        $ O->T RPI, size, format
+                5000,26,Assem102,       $ T->O RPI, size, format
+                ,,                      $ config #1 size, format
+                ,Assem101,              $ config #2 size, format
+                "Logix",                $ Connection Name
+                "Owning connection for Logix Processors.  Input Assembly returns DWord of Status with Input Data.",    $ help string
+                "20 04 24 65 2c 67 2c 66";    $ Path
+
+
+[Port]
+        Port1 =
+                TCP,
+                "Ethernet/IP port",
+                "20 F5 24 01",
+                1;
+
+[Capacity]
+        MaxCIPConnections = 8;
+        TSpec1 = Tx, 5, 200;
+
+[Ethernet Link Class]
+        Revision = 3;
+        MaxInst = 2;
+        Number_Of_Static_Instances = 2;
+        Max_Number_Of_Dynamic_Instances = 0;
+        InterfaceLabel1 = "PORT 1";
+        InterfaceLabel2 = "PORT 2";
+        InterfaceType1 = 2;
+        InterfaceType2 = 2;
+

@@ -1,0 +1,122 @@
+$ Description: 	1485D DeviceLink Adapter
+$ Last Changes:	1.03	PAH	10/30/05	vendor name, IO Assy added, Data Types
+$
+$ Edit History: BJT	11/30/94	Created
+$		BJT	04/11/95	Added Output
+$		BJT	06/01/95	MaxInst should equal # of parameters in EDS
+$		BJT	06/23/95	Added IO Info section
+$		BJT	08/01/96	Added COS Info
+$	1.02	PAH	04/02/02	input clean up, model number clean up, comment clean up, EDS check
+$	1.03	PAH	10/30/05	vendor name, IO Assy added, Data Types
+[File]
+	DescText = "DeviceLink EDS File";
+
+	CreateDate	= 11-28-94;
+	CreateTime	= 15:00:00;
+	Revision	= 1.03;     			$ EDS file revision
+	HomeURL		= "http://www.ab.com/networks/eds/DN/0001000704130100.eds";
+
+[Device]
+	VendCode = 1;
+	ProdType = 7;
+	ProdCode = 1043;
+
+	MajRev = 1;
+	MinRev = 2;
+
+	VendName    = "Rockwell Automation/Allen-Bradley";
+	ProdTypeStr = "Discrete I/O";
+	ProdName = "DeviceLink - micro to micro connector";
+
+	Catalog = "1485D-A1F5-R4";
+[IO_Info]
+
+	Default = 0x0002;			$ Strobe only
+
+	PollInfo	= 0x0001, 0, 0;		$ Not supported
+	StrobeInfo	= 0x0002, 1, 0;		$ Use Input1 Strobe
+	COSInfo		= 0x0004, 0, 0;		$ Not supported
+
+	Input1 =
+		1,			$ 1 byte
+		1,			$ 1 bit used
+		0x0002,			$ Stobe only
+		"Point Input",	$ Name
+		6,			$ Path size
+		"20 08 24 01 30 03",	$ Path to DI value attribute
+		"Output value from DeviceLink.";	$ Help string
+
+[ParamClass]
+	MaxInst		= 3;
+	Descriptor	= 0x09;
+	CfgAssembly	= 0;		$ not supported
+
+[Params]
+	Param1 = 			$ On Delay
+		0,			$ Data Placeholder
+		6, "20 0f 24 01 30 01",	$ Path size and Path to filter Attribute
+		0x02,			$ Descriptor - (Support Enumerated Strings)
+		0xC7, 2,		$ Data Type and Size - (16 bit word)
+		"On Delay",		$ Name
+		"",			$ Units (Not Used)
+		"When enabled, the 'OUTPUT' will be delayed by a \n"
+		"preset value (25 mS) called 'ON-DELAY' after a transition \n" 
+		"from 'Off' to 'On'.",		
+		0,1,0,			$ min, max, default values
+		25000,1,1,0,		$ mult, div, base, offset scaling
+		0,0,0,0,		$ mult, div, base, offset links (Not Used)
+		0;			$ decimal places
+
+	Param2 = 			$ Off Delay
+		0,			$ Data Placeholder
+		6, "20 0f 24 02 30 01",	$ Path size and Path to filter Attribute
+		0x02,			$ Descriptor - (Support Enumerated Strings)
+		0xC7, 2,			$ Data Type and Size - (16 bit word)
+		"Off Delay",		$ Name
+		"",			$ Units (Not Used)
+		"When enabled, the 'OUTPUT' will be delayed by a \n"
+		"preset value (25 mS) called 'OFF-DELAY' after a transition \n" 
+		"from 'On' to 'Off'.",	$ Help
+		0,1,0,			$ min, max, default values
+		25000,1,1,0,		$ mult, div, base, offset scaling
+		0,0,0,0,		$ mult, div, base, offset links (Not Used)
+		0;			$ decimal places
+
+	Param3 = 			$ Input Point Value
+		0,			$ Data Placeholder
+		6, "20 08 24 01 30 03",	$ Path size and Path to Output Attribute
+		0x12,			$ Descriptor - (Support Enumerated Strings, Read-only)
+		0xC1, 1,		$ Data Type and Size - (Boolean)
+		"Input Point Value",	$ Name
+		" ",			$ Units (Not Used)
+		"The state of the device connected to the DeviceLink",  			$ Help
+		0,1,0,			$ min, max, default values
+		1,1,1,0,		$ mult, div, base, offset scaling (Not Used)
+		1,1,1,0,		$ mult, div, base, offset links (Not Used)
+		0;			$ decimal places
+
+
+[EnumPar]
+	Param1 =			$ On Delay Enumerated Strings
+		" 0 ms",		$ For value = 0
+		"25 ms";		$ For value = 1
+
+	Param2 =			$ Off Delay Enumerated Strings
+		" 0 ms",		$ For value = 0
+		"25 ms";		$ For value = 1
+
+	Param3 =			$ Input Point Value Enumerated Strings
+		"Off",			$ For value = 0
+		"On";			$ For value = 1
+
+[Assembly]
+	Revision = 2;
+
+	Assem1 =    "Point Input",
+		"20 08 24 01 30 03",	$ Path is not supported
+		1,			$ total length in bytes
+		0,			$ discriptor
+		,,			$ ",,"= reserved
+		1, Param3,		$ # bits, Output
+		7, 0;			$ Pad bits
+

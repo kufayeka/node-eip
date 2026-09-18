@@ -1,0 +1,163 @@
+$
+$ Revision: $Header:   V:/PVCS/DCIEN/CODE/SRC/00010018000B0100.EDV   0.6   06 Nov 2002 15:30:04   shepherd  $
+$
+$ EDS Name: 00010018000B0100.eds
+$
+[File]
+    DescText   = "PanelView-EtherNet/IP 2711-*20 EDS";
+    CreateDate = 07-11-2000;
+    CreateTime = 13:00:00;
+    ModDate    = 11-05-2002;
+    ModTime    = 11:28:00;
+    Revision   = 1.06;
+    HomeURL    = "http://www.ab.com/networks/eds/EN/00010018000B0100.eds";
+
+[Device]
+    VendCode    = 1;
+    VendName    = "Allen-Bradley";
+    ProdType    = 24;
+    ProdTypeStr = "Operator Interface";
+    ProdCode    = 11;
+    MajRev      = 1;
+    MinRev      = 5;
+    ProdName    = "PanelView";
+    Catalog     = "2711-*20";
+    Icon = "panelvu.ico";
+
+[Device Classification]
+    Class1 = EtherNetIP;
+
+[Port]
+	Port2 = TCP,   		$ Port type
+			"EtherNet", $ Port name
+			"",  		$ Path to Port object, The CNet object for PV
+			2;          $ Port Number
+
+[Params]
+    $ The Params entries consist of the following:
+        $ Reserved (0),
+        $ Link Path Size,
+        $ Link Path,
+        $ Parameter Descriptor,
+        $ Data Type Identifier,
+        $ Data Size,
+        $ Parameter Name,
+        $ Units String,
+        $ Help String,
+        $ Minimum Value,
+        $ Maximum Value,
+        $ Default Value,
+        $ Scaling Multiplier,
+        $ Scaling Divider,
+        $ Scaling Base,
+        $ Scaling Offset,
+        $ Multiplier Link,
+        $ Divisor Link,
+        $ Base Link,
+        $ Other Link,
+        $ Decimal Precision,
+
+    $ Param 1 & 2 describe the buffers that may be connected to for read (consumer) and write
+    $ (producer) connections.  The even buffer numbers 6 - 68 are for consumer connections,
+    $ and the odd buffer numbers 7 - 69 are for producer connections.
+
+    $   User Enters:    Actual Parm 1:   Actual Parm 2:
+    $                   (Scanner Inputs) (Scanner Outputs)
+    $       1               7               6
+    $       2               9               8
+    $       3               11              10
+    $       4               13              12
+    $       5               15              14
+    $       6               17              16
+    $       7               19              18
+    $       8               21              20
+
+    $ Param1 describes the Assembly Object Producer Connection Buffers 
+    $ (data going from the PV to the device).
+    Param1 = 
+    	0, 							  $ first field shall equal 0
+        ,, 							  $ path size,path
+        0x0004, 					  $ descriptor
+        0xC6, 							  $ data type : 8-bit Unsigned Integer
+        1, 							  $ data size in bytes
+        "Read Data from PanelView",	  $ name
+        "", 						  $ units
+        "", 						  $ help string
+        7, 21, 7, 					  $ min,max,default data values
+        1, 2, 1, -5, 				  $ mult,dev,base,offset scaling not used
+        0,0,0,0,					  $ mult,dev,base,offset link not used
+        0;							  $ decimal places not used
+
+    $ Param2 describes the Assembly Object Consumer Connection Buffers 
+    $ (data coming from the device to be displayed on the PV).
+    Param2 = 
+    	0, 							  $ first field shall equal 0
+        ,, 							  $ path size,path
+        0x0004, 					  $ descriptor
+        0xC6, 							  $ data type : 8-bit Unsigned Integer
+        1, 							  $ data size in bytes
+        "Write Data to PanelView", 	  $ name
+        "", 						  $ units
+        "", 						  $ help string
+        6, 20, 6, 					  $ min,max,default data values
+        1, 2, 1, -4, 				  $ mult,dev,base,offset scaling not used
+        0,0,0,0, 					  $ mult,dev,base,offset link not used
+        0;							  $ decimal places not used
+
+    $ Param3 describes the connection Requested Packet Interval (RPI) 
+    Param3 = 
+    	0, 							  $ first field shall equal 0
+        ,, 							  $ path size,path
+        0x0000, 					  $ descriptor
+        0xC8,	 						  $ data type : 32-bit Unsigned Integer
+        4, 							  $ data size in bytes
+        "RPI", 	                      $ name
+        "", 						  $ units
+        "", 						  $ help string
+        100000, 32767000, 100000,	  $ min,max,default data values
+        0, 0, 0, 0, 				  $ mult,dev,base,offset scaling not used
+        0,0,0,0, 					  $ mult,dev,base,offset link not used
+        0;							  $ decimal places not used
+
+[Connection Manager]
+
+    $ The following describe the general use types of connections.
+    $ These connections are Controller-centric.  
+    
+    $ The "read" is a Producer connection with data flowing from the PV to the Controller,
+    $ and a "heartbeat" going from the Controller to the PV.
+    Connection1 =
+        0x02010002,                             $ class 1, cyclic, input only
+        0x22660305,                             $ O=>T hi-pri, p2p or multicast, heartbeat
+                                                $ T=>O hi-pri, p2p or multicast, 32-bit run/idle header
+        Param3, 0, ,                            $ O=>T RPI, size, format
+        Param3, 448, ,                          $ T=>O RPI, size, format
+        , ,                                     $ config part 1 (unused)
+        , ,                                     $ config part 2 (unused)
+        "Read only", "",                        $ connection name string, help string
+        "20 04 24 01 2C 02 2C [Param1]";        $ Path to target object - Connection point (buffer) 2 is 0 length consumer.
+
+    $ The "write" is a Consumer connection with data flowing from the Controller to the PV,
+    $ and a "heartbeat" going from the PV to the Controller.
+    Connection2 =
+        0x04010002,                             $ class 1, cyclic, exclusive owner
+        0x22463405,                             $ O=>T hi-pri, p2p or multicast, pure data and modeless
+                                                $ T=>O hi-pri, p2p, heartbeat
+        Param3, 448, ,                          $ O=>T RPI, size, format
+        Param3, 0, ,                            $ T=>O RPI, size, format
+        , ,                                     $ config part 1 (unused)
+        , ,                                     $ config part 2 (unused)
+        "Write only", "",                       $ connection name string, help string
+        "20 04 24 01 2C [Param2] 2C 03";        $ Path to target object - Connection point (buffer) 3 is 0 length producer.
+
+    $ The "read/write" is a bi-directional connection with data flowing both directions.
+    Connection3 =
+        0x04010002,                             $ class 1, cyclic, exclusive owner
+        0x22660405,                             $ O=>T hi-pri, p2p or multicast, 32-bit run/idle header
+                                                $ T=>O hi-pri, p2p or multicast, pure data and modeless
+        Param3, 448, ,                          $ O=>T RPI, size, format
+        Param3, 448, ,                          $ T=>O RPI, size, format
+        , ,                                     $ config part 1 (unused)
+        , ,                                     $ config part 2 (unused)
+        "Read/Write", "",                       $ connection name string, help string
+        "20 04 24 01 2C [Param2] 2C [Param1]";  $ Path to target object

@@ -21,7 +21,7 @@ const net = require('net');
 const dgram = require('dgram');
 const os = require('os');
 const { encodeMessage, decodeMessage } = require('./encapsulation/header');
-const { encodeCpf, CpfItemType } = require('./encapsulation/cpf');
+const { encodeCpf, decodeCpf, CpfItemType } = require('./encapsulation/cpf');
 const { encodeIdentityItem } = require('./encapsulation/identity');
 const { buildSendRRData, readSendRRDataResponse } = require('./encapsulation/rrdata');
 const { readRegisterSessionRequest, buildRegisterSessionResponse } = require('./encapsulation/session');
@@ -40,10 +40,17 @@ const { IdentityObject } = require('./cip/objects/identity');
 const { AssemblyObject } = require('./cip/objects/assembly');
 const { TcpIpInterfaceObject } = require('./cip/objects/tcp-ip');
 const { EthernetLinkObject } = require('./cip/objects/ethernet-link');
+const { MessageRouterObject } = require('./cip/objects/message-router');
+const { QoSObject } = require('./cip/objects/qos');
+const { PortObject } = require('./cip/objects/port');
+const { DeviceLevelRingObject } = require('./cip/objects/dlr');
+const { ConnectionManagerObject } = require('./cip/objects/connection-manager-object');
+const { DeltaRegisterStore, DeltaRegisterObject } = require('./cip/objects/delta-registers');
+const { GenericCipObject } = require('./cip/objects/generic-object');
 const { ConnectionHandler } = require('./adapter/connection-handler');
 const { encodeMultipleServiceResponseData } = require('./cip/multiple-service');
 const { encodeType, decodeType } = require('./cip/types');
-const { EncapsulationCommands, CipGeneralStatus, CipCommonServices, CipClassCodes, EIP_ENCAPSULATION_PORT, EIP_IO_UDP_PORT } = require('./constants');
+const { EncapsulationCommands, EncapsulationStatus, CipGeneralStatus, CipCommonServices, CipClassCodes, EIP_ENCAPSULATION_PORT, EIP_IO_UDP_PORT } = require('./constants');
 
 function getLocalInterfaceDetails(targetAddress) {
     const interfaces = os.networkInterfaces();
@@ -67,14 +74,22 @@ function getLocalInterfaceDetails(targetAddress) {
 }
 
 class EIPAdapter extends EventEmitter {
-    constructor({ port = EIP_ENCAPSULATION_PORT, ioPort = EIP_IO_UDP_PORT, address, identity, tcpIp, ethernetLink } = {}) {
+    constructor({ port = EIP_ENCAPSULATION_PORT, ioPort = EIP_IO_UDP_PORT, address, identity, tcpIp, ethernetLink, quiet = false } = {}) {
         super();
+        this.quiet = Boolean(quiet);
         this.port = port;
         this.ioPort = ioPort;
         const iface = getLocalInterfaceDetails(address);
-        this.address = address || iface.address;
+        this.address = (address && address !== '0.0.0.0') ? address : iface.address;
         this.identity = new IdentityObject(identity);
         this.assembly = new AssemblyObject();
+        this.messageRouter = new MessageRouterObject();
+        this.qos = new QoSObject();
+        this.portObj = new PortObject({ portName: 'Port 1' });
+        this.dlr = new DeviceLevelRingObject();
+        this.connectionManagerObj = new ConnectionManagerObject();
+        this.deltaStore = new DeltaRegisterStore();
+
         this.ethernetLink = new EthernetLinkObject({
             macAddress: (ethernetLink && ethernetLink.macAddress) || iface.mac,
             interfaceLabel: (ethernetLink && ethernetLink.interfaceLabel) || iface.name,
@@ -83,23 +98,41 @@ class EIPAdapter extends EventEmitter {
         this.tcpIp = new TcpIpInterfaceObject({
             ip: this.address,
             netmask: iface.netmask,
+            gateway: (tcpIp && tcpIp.gateway) || (this.address.includes('.') ? this.address.replace(/\.\d+$/, '.1') : '0.0.0.0'),
             hostName: os.hostname(),
             ...tcpIp
         });
 
         this.objects = new Map();
         this.objects.set(CipClassCodes.Identity, this.identity);
+        this.objects.set(CipClassCodes.MessageRouter, this.messageRouter);
         this.objects.set(CipClassCodes.Assembly, this.assembly);
+        this.objects.set(CipClassCodes.ConnectionManager, this.connectionManagerObj);
+        this.objects.set(CipClassCodes.DLR, this.dlr);
+        this.objects.set(CipClassCodes.QoS, this.qos);
+        this.objects.set(CipClassCodes.Port, this.portObj);
         this.objects.set(CipClassCodes.TcpIpInterface, this.tcpIp);
         this.objects.set(CipClassCodes.EthernetLink, this.ethernetLink);
+
+        // Register Delta Vendor Specific Objects (0x350..0x359, 0x370..0x376)
+        const deltaClasses = [0x350, 0x351, 0x352, 0x353, 0x354, 0x355, 0x356, 0x357, 0x358, 0x359, 0x370, 0x371, 0x372, 0x373, 0x374, 0x375, 0x376];
+        for (const c of deltaClasses) {
+            this.objects.set(c, new DeltaRegisterObject(c, this.deltaStore));
+        }
 
         this.connectionHandler = new ConnectionHandler({
             assemblyObject: this.assembly,
             identity: this.identity,
+            connectionManagerObject: this.connectionManagerObj,
+            quiet: this.quiet,
             sendDatagram: (buf, remoteAddress, remotePort) => {
                 if (!this._udpIo) return;
-                const port = remotePort || this.ioPort;
-                this._udpIo.send(buf, port, remoteAddress);
+                let targetIp = remoteAddress;
+                if (typeof targetIp === 'string' && targetIp.startsWith('::ffff:')) {
+                    targetIp = targetIp.slice(7);
+                }
+                const port = remotePort || this.ioPort || 2222;
+                this._udpIo.send(buf, port, targetIp, () => {});
             }
         });
 
@@ -156,6 +189,9 @@ class EIPAdapter extends EventEmitter {
     /** Registers a handler for an additional CIP object class (must expose getAttributeSingle/setAttributeSingle). */
     registerObject(classId, handler) {
         this.objects.set(classId, handler);
+        if (this.messageRouter && typeof this.messageRouter.addClass === 'function') {
+            this.messageRouter.addClass(classId);
+        }
         return this;
     }
 
@@ -181,22 +217,23 @@ class EIPAdapter extends EventEmitter {
         return new Promise((resolve, reject) => {
             this._tcpServer = net.createServer((socket) => this._handleTcpConnection(socket));
             this._tcpServer.once('error', reject);
-            this._tcpServer.listen(this.port, () => resolve());
+            this._tcpServer.listen(this.port, () => {
+                resolve();
+            });
         });
     }
 
     _startUdpListen() {
         return new Promise((resolve, reject) => {
-            this._udpListen = dgram.createSocket('udp4');
+            this._udpListen = dgram.createSocket({ type: 'udp4', reuseAddr: true });
             this._udpListen.once('error', reject);
             this._udpListen.on('message', (msg, rinfo) => this._handleUdpListen(msg, rinfo));
             this._udpListen.bind(this.port, () => {
                 this._udpListen.setBroadcast(true);
-                // Safety net for after startup — e.g. an ICMP port-unreachable
-                // surfacing async on a later send() to nobody listening must
-                // not crash the process (an unhandled 'error' event throws).
                 this._udpListen.removeAllListeners('error');
-                this._udpListen.on('error', () => {});
+                this._udpListen.on('error', (err) => {
+                    console.error('\x1b[31m[UDP 44818 ERROR]\x1b[0m', err.message);
+                });
                 resolve();
             });
         });
@@ -204,12 +241,15 @@ class EIPAdapter extends EventEmitter {
 
     _startUdpIo() {
         return new Promise((resolve, reject) => {
-            this._udpIo = dgram.createSocket('udp4');
+            this._udpIo = dgram.createSocket({ type: 'udp4', reuseAddr: true });
             this._udpIo.once('error', reject);
             this._udpIo.on('message', (msg, rinfo) => this.connectionHandler.handleIncomingDatagram(msg, rinfo));
-            this._udpIo.bind(this.ioPort, () => {
+            const bindAddr = (this.address && this.address !== '0.0.0.0') ? this.address : undefined;
+            this._udpIo.bind(this.ioPort, bindAddr, () => {
                 this._udpIo.removeAllListeners('error');
-                this._udpIo.on('error', () => {});
+                this._udpIo.on('error', (err) => {
+                    console.error('\x1b[31m[UDP 2222 ERROR]\x1b[0m', err.message);
+                });
                 resolve();
             });
         });
@@ -256,7 +296,8 @@ class EIPAdapter extends EventEmitter {
                     const result = this._handleEncapsulationMessage(socket, msg, sessionHandle);
                     if (result && result.sessionHandle !== undefined) sessionHandle = result.sessionHandle;
                     if (result && result.closed) return;
-                } catch {
+                } catch (err) {
+                    console.error('[TCP MSG ERR]', err);
                     // Malformed request from a client — drop the connection rather than crash the adapter.
                     socket.destroy();
                     return;
@@ -283,6 +324,13 @@ class EIPAdapter extends EventEmitter {
                 socket.write(encodeMessage({ command: EncapsulationCommands.ListIdentity, senderContext: header.senderContext }, cpf));
                 return {};
             }
+            case EncapsulationCommands.ListInterfaces: {
+                // ODVA CIP Vol 2, section 2-4.4: Returns CPF with 0 items when no sub-interfaces
+                const emptyCpf = Buffer.alloc(2);
+                emptyCpf.writeUInt16LE(0, 0);
+                socket.write(encodeMessage({ command: EncapsulationCommands.ListInterfaces, senderContext: header.senderContext }, emptyCpf));
+                return {};
+            }
             case EncapsulationCommands.RegisterSession: {
                 readRegisterSessionRequest({ data }); // validated for shape; protocol version not currently gated
                 const sessionHandle = this._nextSessionHandle++;
@@ -301,6 +349,54 @@ class EIPAdapter extends EventEmitter {
                 const { cipResponse: cipRequestBytes } = readSendRRDataResponse(msg);
                 const cipResponseBytes = this._dispatchCipRequest(cipRequestBytes, { remoteAddress: socket.remoteAddress });
                 socket.write(buildSendRRData(header.sessionHandle, cipResponseBytes, { senderContext: header.senderContext }));
+                return {};
+            }
+            case EncapsulationCommands.SendUnitData: {
+                // ODVA CIP Vol 2, section 2-4.9: Connected Explicit Messaging (Class 3)
+                if (!data || data.length < 6) {
+                    return {};
+                }
+                const { items } = decodeCpf(data.subarray(6));
+                const addrItem = items.find((item) => item.typeId === CpfItemType.ConnectedAddress);
+                const dataItem = items.find((item) => item.typeId === CpfItemType.ConnectedTransportData);
+                const connectionId = addrItem && addrItem.data.length >= 4 ? addrItem.data.readUInt32LE(0) : 0;
+                let cipRequestBytes = (dataItem && dataItem.data) || Buffer.alloc(0);
+                let sequenceCount;
+                if (cipRequestBytes.length >= 2) {
+                    sequenceCount = cipRequestBytes.readUInt16LE(0);
+                    cipRequestBytes = cipRequestBytes.subarray(2);
+                }
+
+                const cipResponseBytes = this._dispatchCipRequest(cipRequestBytes, { remoteAddress: socket.remoteAddress, connectionId });
+
+                const conn = this.connectionHandler.connections.get(connectionId)
+                    || Array.from(this.connectionHandler.connections.values()).find(c => c.toNetworkConnectionId === connectionId);
+                const respConnId = conn ? conn.toNetworkConnectionId : connectionId;
+
+                const respAddrBuf = Buffer.alloc(4);
+                respAddrBuf.writeUInt32LE(respConnId >>> 0, 0);
+
+                let respDataBuf = cipResponseBytes;
+                if (sequenceCount !== undefined) {
+                    const seqBuf = Buffer.alloc(2);
+                    seqBuf.writeUInt16LE(sequenceCount, 0);
+                    respDataBuf = Buffer.concat([seqBuf, cipResponseBytes]);
+                }
+
+                const respCpf = encodeCpf([
+                    { typeId: CpfItemType.ConnectedAddress, data: respAddrBuf },
+                    { typeId: CpfItemType.ConnectedTransportData, data: respDataBuf }
+                ]);
+                const prefix = Buffer.alloc(6);
+                prefix.writeUInt32LE(0, 0); // Interface Handle (0 for CIP)
+                prefix.writeUInt16LE(0, 4); // Timeout
+
+                const fullPayload = Buffer.concat([prefix, respCpf]);
+                socket.write(encodeMessage({
+                    command: EncapsulationCommands.SendUnitData,
+                    sessionHandle: header.sessionHandle,
+                    senderContext: header.senderContext
+                }, fullPayload));
                 return {};
             }
             case EncapsulationCommands.NOP: {
@@ -340,8 +436,27 @@ class EIPAdapter extends EventEmitter {
             return buildResponse({ service: request.service, generalStatus: CipGeneralStatus.PathSegmentError });
         }
 
+        const svcHex = '0x' + request.service.toString(16).padStart(2, '0').toUpperCase();
+        const classHex = path.classId !== undefined ? '0x' + path.classId.toString(16).padStart(2, '0').toUpperCase() : 'N/A';
+        const instStr = path.instance !== undefined ? path.instance : 'N/A';
+        const attrStr = path.attribute !== undefined ? path.attribute : 'N/A';
+        const remoteStr = (context && context.remoteAddress) || 'client';
+
         if (path.classId === CipClassCodes.ConnectionManager) {
-            return this._dispatchConnectionManager(request, context);
+            if (
+                request.service === ConnectionManagerServices.ForwardOpen ||
+                request.service === ConnectionManagerServices.LargeForwardOpen ||
+                request.service === ConnectionManagerServices.ForwardClose ||
+                request.service === 0x52 // Unconnected_Send
+            ) {
+                const resp = this._dispatchConnectionManager(request, context);
+                const statusHex = '0x' + (resp[2] !== undefined ? resp[2].toString(16).padStart(2, '0') : '00').toUpperCase();
+                if (!this.quiet) {
+                    console.log(`\x1b[35m[CIP ROUTE]\x1b[0m ${remoteStr} | ConnMgr Svc: ${svcHex} -> Status: ${statusHex}`);
+                }
+                return resp;
+            }
+            // Other services (e.g. GetAttributeSingle 0x0E, GetAttributeAll 0x01) fall through to this.connectionManagerObj!
         }
 
         if (request.service === CipCommonServices.MultipleServicePacket) {
@@ -383,18 +498,34 @@ class EIPAdapter extends EventEmitter {
 
         const handler = this.objects.get(path.classId);
         if (!handler) {
+            if (!this.quiet) {
+                console.log(`\x1b[33m[CIP UNKNOWN]\x1b[0m ${remoteStr} | Svc: ${svcHex} | Class: ${classHex} (Missing) | Inst: ${instStr}`);
+            }
             return buildResponse({ service: request.service, generalStatus: CipGeneralStatus.PathDestinationUnknown });
         }
 
         let result;
-        if (request.service === CipCommonServices.GetAttributeSingle) {
-            result = handler.getAttributeSingle(path.instance, path.attribute, request.data);
-        } else if (request.service === CipCommonServices.SetAttributeSingle) {
-            result = handler.setAttributeSingle(path.instance, path.attribute, request.data);
-        } else if (request.service === CipCommonServices.GetAttributeAll && typeof handler.getAttributesAll === 'function') {
-            result = handler.getAttributesAll(path.instance);
-        } else {
-            result = { generalStatus: CipGeneralStatus.ServiceNotSupported, data: Buffer.alloc(0) };
+        if (typeof handler.handleService === 'function') {
+            result = handler.handleService(request.service, path, request.data);
+            if (result && result.generalStatus === CipGeneralStatus.ServiceNotSupported) {
+                result = null; // fallback to standard service handling
+            }
+        }
+        if (!result) {
+            if (request.service === CipCommonServices.GetAttributeSingle || request.service === 0x32) {
+                result = handler.getAttributeSingle(path.instance, path.attribute, request.data);
+            } else if (request.service === CipCommonServices.SetAttributeSingle || request.service === 0x33) {
+                result = handler.setAttributeSingle(path.instance, path.attribute, request.data);
+            } else if (request.service === CipCommonServices.GetAttributeAll && typeof handler.getAttributesAll === 'function') {
+                result = handler.getAttributesAll(path.instance);
+            } else {
+                result = { generalStatus: CipGeneralStatus.ServiceNotSupported, data: Buffer.alloc(0) };
+            }
+        }
+
+        const statusHex = '0x' + (result.generalStatus !== undefined ? result.generalStatus.toString(16).padStart(2, '0') : '00').toUpperCase();
+        if (!this.quiet) {
+            console.log(`\x1b[36m[CIP EXPLICIT]\x1b[0m ${remoteStr} | Svc: ${svcHex} | Class: ${classHex} | Inst: ${instStr} | Attr: ${attrStr} -> Status: ${statusHex} (${(result.data && result.data.length) || 0}B)`);
         }
 
         return buildResponse({
@@ -412,6 +543,10 @@ class EIPAdapter extends EventEmitter {
                 : parseForwardOpenRequest(request.data);
             const result = this.connectionHandler.openConnection(parsed, context);
             if (!result.ok) {
+                const extHex = '0x' + (result.extendedStatus ? result.extendedStatus.toString(16).padStart(4, '0') : '0000').toUpperCase();
+                if (!this.quiet) {
+                    console.log(`\x1b[31m[ConnMgr Open REJECT]\x1b[0m General: 0x${result.generalStatus.toString(16)} | Extended: ${extHex} | Path: ${parsed.connectionPath.toString('hex')}`);
+                }
                 return buildResponse({ service: request.service, generalStatus: result.generalStatus, additionalStatus: [result.extendedStatus] });
             }
             return buildResponse({ service: request.service, generalStatus: CipGeneralStatus.Success, data: buildForwardOpenResponse(result.response) });
@@ -423,6 +558,36 @@ class EIPAdapter extends EventEmitter {
                 return buildResponse({ service: request.service, generalStatus: result.generalStatus, additionalStatus: [result.extendedStatus] });
             }
             return buildResponse({ service: request.service, generalStatus: CipGeneralStatus.Success, data: buildForwardCloseResponse(result.response) });
+        }
+        if (request.service === ConnectionManagerServices.UnconnectedSend) {
+            // CIP Vol 1, Section 3-5.5.3 (Unconnected_Send)
+            if (!request.data || request.data.length < 4) {
+                return buildResponse({ service: request.service, generalStatus: CipGeneralStatus.NotEnoughData });
+            }
+            const msgReqSize = request.data.readUInt16LE(2);
+            if (request.data.length < 4 + msgReqSize) {
+                return buildResponse({ service: request.service, generalStatus: CipGeneralStatus.NotEnoughData });
+            }
+            const embeddedReq = request.data.subarray(4, 4 + msgReqSize);
+            const embeddedResp = this._dispatchCipRequest(embeddedReq, context);
+            return buildResponse({
+                service: request.service,
+                generalStatus: CipGeneralStatus.Success,
+                data: embeddedResp
+            });
+        }
+        if (request.service === CipCommonServices.GetAttributeSingle) {
+            const path = decodeEPath(request.path);
+            if (path.instance === 0 && path.attribute === 1) {
+                const b = Buffer.alloc(2);
+                b.writeUInt16LE(1, 0); // Revision
+                return buildResponse({ service: request.service, generalStatus: CipGeneralStatus.Success, data: b });
+            }
+            if (path.instance === 1) {
+                const b = Buffer.alloc(2);
+                b.writeUInt16LE(0, 0);
+                return buildResponse({ service: request.service, generalStatus: CipGeneralStatus.Success, data: b });
+            }
         }
         return buildResponse({ service: request.service, generalStatus: CipGeneralStatus.ServiceNotSupported });
     }

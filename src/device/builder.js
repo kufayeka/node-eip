@@ -29,13 +29,14 @@ class DeviceBuilder extends EventEmitter {
     constructor(options = {}) {
         super();
         this.identity = {
-            vendorId: options.vendorId !== undefined ? options.vendorId : 0x1337,
-            vendorName: options.vendorName || 'Kufayeka Automation',
+            vendorId: options.vendorId !== undefined ? options.vendorId : 799,
+            vendorName: options.vendorName || 'Delta Electronics, Inc.',
             productCode: options.productCode !== undefined ? options.productCode : 1,
-            productName: options.productName || 'Virtual EIP Device',
+            productName: options.productName || 'Kufayeka Smart Node',
+            catalog: options.catalog || 'KUF-EIP-NODE',
             deviceType: typeof options.deviceType === 'number' ? options.deviceType : this._resolveDeviceTypeCode(options.deviceType),
             deviceTypeStr: typeof options.deviceType === 'string' ? options.deviceType : 'Generic Device',
-            revision: options.revision || { major: 1, minor: 0 },
+            revision: options.revision || { major: 1, minor: 1 },
             serialNumber: options.serialNumber || (Math.floor(Math.random() * 0x7FFFFFFF) + 1)
         };
 
@@ -44,13 +45,23 @@ class DeviceBuilder extends EventEmitter {
         this.params = [];
         this.tags = new Map(); // tagName -> { type, value }
         this.assemblies = [];
+        this.connections = [];
+        this._assemblyMappings = new Map(); // instance -> array of { param, offset, byteSize }
+        this.syncIoParamsEnabled = Boolean(options.syncIoParams);
 
         // Forward parameter changes and writes
         this.parameterObject.on('change', (param, newVal, oldVal) => {
             this.emit('paramChange', param.code || param.id, newVal, oldVal, param);
+            if (this.adapter && this._assemblyMappings && this.syncIoParamsEnabled) {
+                for (const assem of this.assemblies) {
+                    if (assem.type === 'input') {
+                        this._syncParamsToAssembly(assem.instance);
+                    }
+                }
+            }
         });
         this.parameterObject.on('write', (param, newVal, oldVal) => {
-            this.emit('paramWrite', param.code || param.id, newVal, oldVal, param);
+            this.emit('paramWrite', param.code || param.id, newVal, oldVal, param, 'explicit-0x0F');
         });
     }
 
@@ -188,6 +199,28 @@ class DeviceBuilder extends EventEmitter {
     }
 
     /**
+     * Defines a named Class 1 I/O connection profile in the EDS file.
+     *
+     * @param {object} opts
+     * @param {string} opts.name - Connection name shown in Delta EIP Builder dropdown
+     * @param {string} [opts.help] - Description / help string
+     * @param {number} opts.outputAssembly - Output / Consumed Assembly Instance ID (PLC -> Device)
+     * @param {number} opts.inputAssembly - Input / Produced Assembly Instance ID (Device -> PLC)
+     */
+    defineConnection(opts) {
+        if (!opts || typeof opts.name !== 'string') {
+            throw new TypeError('defineConnection: options.name must be a string');
+        }
+        this.connections.push({
+            name: opts.name,
+            help: opts.help || opts.name,
+            outputAssembly: opts.outputAssembly,
+            inputAssembly: opts.inputAssembly
+        });
+        return this;
+    }
+
+    /**
      * Generates a 100% compliant ODVA Electronic Data Sheet (.eds) text.
      *
      * @returns {string} Official EDS text
@@ -197,7 +230,8 @@ class DeviceBuilder extends EventEmitter {
             identity: this.identity,
             description: this.description,
             params: this.params,
-            assemblies: this.assemblies
+            assemblies: this.assemblies,
+            connections: this.connections
         });
     }
 
@@ -229,6 +263,7 @@ class DeviceBuilder extends EventEmitter {
             port: adapterOpts.port,
             ioPort: adapterOpts.ioPort,
             address: adapterOpts.address,
+            quiet: adapterOpts.quiet !== undefined ? adapterOpts.quiet : false,
             identity: {
                 vendorId: this.identity.vendorId,
                 deviceType: this.identity.deviceType,
@@ -265,14 +300,55 @@ class DeviceBuilder extends EventEmitter {
         // Forward assembly events
         adapter.assembly.on('change', (instance, current, oldBuf) => {
             this.emit('assemblyChange', instance, current, oldBuf);
+            const assem = this.assemblies.find(a => a.instance === instance);
+            if (assem && assem.type === 'output' && this.syncIoParamsEnabled) {
+                if (instance === 110 && adapter.deltaStore) {
+                    // D-Register Mirror: Sync incoming PLC D0..D63 into DeltaStore D
+                    const words = Math.min(64, Math.floor(current.length / 2));
+                    for (let i = 0; i < words; i++) {
+                        adapter.deltaStore.setWord('D', i, current.readInt16LE(i * 2));
+                    }
+                } else {
+                    this._unpackAssemblyToParams(instance, current, 'plc-io');
+                }
+            }
         });
         adapter.assembly.on('write', (instance, current, oldBuf) => {
             this.emit('assemblyWrite', instance, current, oldBuf);
         });
 
-        // 3. Register Assemblies
+        // 3. Register Assemblies & Build Parameter Mappings
+        this._assemblyMappings = new Map();
         for (const assem of this.assemblies) {
             adapter.defineAssembly(assem.instance, assem.sizeBytes);
+            const mapping = this._buildAssemblyMapping(assem);
+            this._assemblyMappings.set(assem.instance, mapping);
+
+            // Pre-pack initial parameter values for input assemblies (T->O produced to PLC)
+            if (assem.type === 'input' && this.syncIoParamsEnabled) {
+                this._syncParamsToAssembly(assem.instance);
+            }
+        }
+
+        // Dynamically sync feedback parameters right before every produced T->O cyclic UDP datagram
+        if (adapter.connectionHandler) {
+            adapter.connectionHandler.onProduceData = (instance) => {
+                if (this.syncIoParamsEnabled) {
+                    if (instance === 111 && adapter.deltaStore) {
+                        // Pack DeltaStore D100..D163 feedback into Assembly 111 buffer
+                        const buf = adapter.assembly.getData(111);
+                        if (buf) {
+                            const words = Math.min(64, Math.floor(buf.length / 2));
+                            for (let i = 0; i < words; i++) {
+                                const val = adapter.deltaStore.getWord('D', 100 + i);
+                                buf.writeInt16LE(val !== undefined ? val : 0, i * 2);
+                            }
+                        }
+                    } else {
+                        this._syncParamsToAssembly(instance);
+                    }
+                }
+            };
         }
 
         this.adapter = adapter;
@@ -280,26 +356,138 @@ class DeviceBuilder extends EventEmitter {
     }
 
     /**
-     * Real-time watcher for all incoming write events from PLCs / Scanners.
-     * Captures parameter writes, symbolic tag writes, and assembly data writes.
+     * Enables or disables automatic bidirectional synchronization between
+     * Assemblies and Parameters (e.g. Assembly 100 unpacks into writable parameters,
+     * and parameter changes pack into Assembly 101).
      *
-     * @param {function(object): void} [callback] - Optional custom event handler. If omitted, prints formatted console logs.
+     * @param {boolean} [enabled=true]
      * @returns {DeviceBuilder}
      */
-    watch(callback) {
-        const handler = callback || ((event) => {
+    syncIoParams(enabled = true) {
+        this.syncIoParamsEnabled = Boolean(enabled);
+        return this;
+    }
+
+    _buildAssemblyMapping(assem) {
+        const members = [];
+        if (Array.isArray(assem.members) && assem.members.length > 0) {
+            let offset = 0;
+            for (const m of assem.members) {
+                const p = this.getParam(m.paramId || m.id);
+                const bSize = m.byteSize || (m.bitLength ? Math.ceil(m.bitLength / 8) : (p ? p.byteSize : 2));
+                if (p) members.push({ param: p, offset, byteSize: bSize });
+                offset += bSize;
+            }
+        } else if (this.params.length > 0 && assem.instance < 110) {
+            const targetParams = (assem.type === 'output')
+                ? (this.params.filter(p => p.access !== 'r').length > 0 ? this.params.filter(p => p.access !== 'r') : this.params)
+                : this.params;
+            let offset = 0;
+            for (const p of targetParams) {
+                if (offset + p.byteSize <= assem.sizeBytes) {
+                    members.push({ param: p, offset, byteSize: p.byteSize });
+                    offset += p.byteSize;
+                }
+            }
+        }
+        return members;
+    }
+
+    _syncParamsToAssembly(instance) {
+        if (!this.adapter || !this.syncIoParamsEnabled) return;
+        const mapping = this._assemblyMappings ? this._assemblyMappings.get(instance) : null;
+        if (!mapping || !mapping.length) return;
+        const currentBuf = this.adapter.assembly.getData(instance);
+        if (!currentBuf) return;
+        const newBuf = Buffer.from(currentBuf);
+        const { encodeType } = require('../cip/types');
+        for (const item of mapping) {
+            const { param, offset, byteSize } = item;
+            if (!param || offset + byteSize > newBuf.length) continue;
+            if (param.buffer && param.buffer.length >= byteSize) {
+                param.buffer.copy(newBuf, offset, 0, byteSize);
+            } else {
+                try {
+                    const encoded = encodeType(param.dataType, param.value !== undefined ? param.value : param.default);
+                    encoded.copy(newBuf, offset, 0, Math.min(byteSize, encoded.length));
+                } catch {}
+            }
+        }
+        if (!newBuf.equals(currentBuf)) {
+            this.adapter.assembly.setData(instance, newBuf, { silent: true });
+        }
+    }
+
+    _unpackAssemblyToParams(instance, buffer, source = 'plc') {
+        const mapping = this._assemblyMappings ? this._assemblyMappings.get(instance) : null;
+        if (!mapping || !mapping.length) return;
+        const { decodeType } = require('../cip/types');
+        for (const item of mapping) {
+            const { param, offset, byteSize } = item;
+            if (!param || offset + byteSize > buffer.length) continue;
+            try {
+                const slice = buffer.subarray(offset, offset + byteSize);
+                const decoded = decodeType(param.dataType, slice, 0);
+                const newVal = decoded.value;
+                if (newVal !== param.value) {
+                    const oldVal = param.value;
+                    param.value = newVal;
+                    param.buffer = Buffer.from(slice);
+                    this.emit('paramChange', param.code || param.id, newVal, oldVal, param, source, instance);
+                    this.emit('paramWrite', param.code || param.id, newVal, oldVal, param, source, instance);
+                }
+            } catch (err) {}
+        }
+    }
+
+    /**
+     * Real-time watcher for incoming write events from PLCs / Scanners.
+     * Captures parameter writes, symbolic tag writes, and assembly data writes.
+     *
+     * @param {function(object): void|object} [callbackOrOpts] - Custom callback or options:
+     *   - quiet {boolean}: if true, silences all assembly logs completely
+     *   - logAssembly {boolean}: if true, logs every raw Class 1 cyclic write (default: false to prevent console flood)
+     *   - logAssemblyChanges {boolean}: if true, logs when assembly data changes (default: false)
+     *   - logParams {boolean}: whether to log parameter writes (default: true)
+     *   - logTags {boolean}: whether to log symbolic tag writes (default: true)
+     * @returns {DeviceBuilder}
+     */
+    watch(callbackOrOpts) {
+        let opts = {};
+        let customCallback = null;
+        if (typeof callbackOrOpts === 'function') {
+            customCallback = callbackOrOpts;
+        } else if (callbackOrOpts && typeof callbackOrOpts === 'object') {
+            opts = callbackOrOpts;
+            if (typeof opts.callback === 'function') {
+                customCallback = opts.callback;
+            }
+        }
+
+        const isQuiet = Boolean(opts.quiet);
+        const logAssembly = Boolean(opts.logAssembly); // default false: DO NOT spam on every 20ms cyclic packet!
+        const logAssemblyChanges = opts.logAssemblyChanges !== undefined ? Boolean(opts.logAssemblyChanges) : false;
+        const logParams = opts.logParams !== undefined ? Boolean(opts.logParams) : true;
+        const logTags = opts.logTags !== undefined ? Boolean(opts.logTags) : true;
+
+        const defaultHandler = (event) => {
             const now = new Date();
             const time = now.toTimeString().split(' ')[0] + '.' + String(now.getMilliseconds()).padStart(3, '0');
-            if (event.type === 'param') {
-                console.log(`\x1b[36m[${time}] [PLC WRITE -> PARAM]\x1b[0m \x1b[1m${event.code}\x1b[0m ("${event.name}"): \x1b[31m${event.oldValue}\x1b[0m -> \x1b[32m${event.value}\x1b[0m ${event.units || ''}`);
-            } else if (event.type === 'tag') {
+            if (event.type === 'param' && logParams) {
+                const src = event.source ? (event.source === 'plc-io' ? ` [via Assembly ${event.instance}]` : ` [via ${event.source}]`) : '';
+                console.log(`\x1b[36m[${time}] [PLC WRITE -> PARAM]\x1b[0m \x1b[1m${event.code}\x1b[0m ("${event.name}"): \x1b[31m${event.oldValue}\x1b[0m -> \x1b[32m${event.value}\x1b[0m ${event.units || ''}${src}`);
+            } else if (event.type === 'tag' && logTags) {
                 console.log(`\x1b[35m[${time}] [PLC WRITE -> TAG]\x1b[0m \x1b[1m${event.name}\x1b[0m: \x1b[31m${JSON.stringify(event.oldValue)}\x1b[0m -> \x1b[32m${JSON.stringify(event.value)}\x1b[0m`);
-            } else if (event.type === 'assembly') {
+            } else if (event.type === 'assembly' && !isQuiet && logAssembly) {
                 console.log(`\x1b[33m[${time}] [PLC WRITE -> ASSEMBLY ${event.instance}]\x1b[0m Size: ${event.length}B | Hex: \x1b[36m${event.hex}\x1b[0m`);
+            } else if (event.type === 'assemblyChange' && !isQuiet && logAssemblyChanges) {
+                console.log(`\x1b[33m[${time}] [PLC ASSEMBLY ${event.instance} CHANGED]\x1b[0m Size: ${event.length}B | Hex: \x1b[36m${event.hex}\x1b[0m`);
             }
-        });
+        };
 
-        this.on('paramWrite', (code, value, oldValue, param) => {
+        const handler = customCallback || defaultHandler;
+
+        this.on('paramWrite', (code, value, oldValue, param, source, instance) => {
             handler({
                 type: 'param',
                 code,
@@ -307,6 +495,8 @@ class DeviceBuilder extends EventEmitter {
                 value,
                 oldValue,
                 units: param ? param.units : '',
+                source: source || 'explicit',
+                instance,
                 timestamp: new Date()
             });
         });
@@ -321,16 +511,31 @@ class DeviceBuilder extends EventEmitter {
             });
         });
 
-        this.on('assemblyWrite', (instance, buffer, oldBuf) => {
-            handler({
-                type: 'assembly',
-                instance,
-                buffer,
-                hex: buffer.toString('hex'),
-                length: buffer.length,
-                timestamp: new Date()
+        if (logAssembly || (customCallback && opts.logAssembly !== false)) {
+            this.on('assemblyWrite', (instance, buffer, oldBuf) => {
+                handler({
+                    type: 'assembly',
+                    instance,
+                    buffer,
+                    hex: buffer.toString('hex'),
+                    length: buffer.length,
+                    timestamp: new Date()
+                });
             });
-        });
+        }
+
+        if (logAssemblyChanges) {
+            this.on('assemblyChange', (instance, buffer, oldBuf) => {
+                handler({
+                    type: 'assemblyChange',
+                    instance,
+                    buffer,
+                    hex: buffer.toString('hex'),
+                    length: buffer.length,
+                    timestamp: new Date()
+                });
+            });
+        }
 
         return this;
     }

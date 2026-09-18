@@ -1,0 +1,230 @@
+$ Revision History
+$ 1.001  07-27-05  jgm  Initial Version
+$ 1.002  03-21-06  jgm  Updated to support standardization guidelines
+$ 1.003  05-08-07  pdt  Added entry to prevent usage of RSLogix 5000 EDS AOP
+
+[File]
+	DescText    = "1769-IQ32T/A EDS File";
+	CreateDate  = 07-27-2005;
+	CreateTime  = 14:00:00;
+	ModDate     = 05-08-2007;
+	ModTime     = 06:00:00;
+	Revision    = 1.003;
+	HomeURL     = "http://www.ab.com/networks/eds/XX/00010007004C0300.eds";
+
+[Device]
+	VendCode    = 1;
+	VendName    = "Rockwell Automation/Allen-Bradley";
+	ProdType    = 7;
+	ProdTypeStr = "Discrete I/O";
+	ProdCode    = 76;
+	MajRev      = 3;
+	MinRev      = 1;
+	ProdName    = "1769-32pt 24Vdc Input /w MIL Connector/A";
+	Catalog     = "1769-IQ32T/A";
+	Icon        = "1769-Blue.ico";
+	1_EDS_AOP_Support = "No";
+
+[Modular]
+	Rack1 =  1,108,91,1,1,,,,
+			 1, 2, 3, 4, 5, 6, 7, 8, 9,10, $ Legal slots
+			11,12,13,14,15,16,17,18,19,20,
+			21,22,23,24,25,26,27,28,29,30,
+			31,32,33,34,35,36,37;
+
+	ExternalID = "01 00 07 00 4C 00 03";
+
+[1_1769Audit]
+	1_5vdcPwrLoad   = 170;
+	1_24vdcPwrLoad  = 0;
+	1_DistRating    = 8;
+
+[Params]
+	ProxiedParam4 = ,,,,,,"","","",0,2,2,,,,,,,,,;		$ Input data size
+	ProxiedEnum4 =
+			0, "None",
+			1, "Data - Low 16 Bits Only",
+			2, "Data";
+
+	ProxiedParam6 = ,,,,,,"","","",0,2,2,,,,,,,,,;		$ Electronic Keying
+	ProxiedEnum6 = 0,"Disable Keying", 1,"Exact Match", 2,"Compatible Module";
+
+	ProxiedParam7 = ,,,,,,"","","",1,255,1,,,,,,,,,;	$ Configured Minor Revision
+
+	ProxiedParam8 = ,,,,,,"","","",1,255,1,,,,,,,,,;	$ Actual Minor Revision
+
+
+	$*******************************
+	$	Input array data (2 words)
+	$*******************************
+	Param20 =
+			0,,,				$ Reserved, link size, link path
+			0x0010, 			$ Descriptor (Read Only)
+			0xD3, 4,			$ DWORD
+			"Data","",
+			"Contains current state of field input points.",
+			0,0xFFFFFFFF,0,,,,,,,,,;
+
+
+	$**********************************
+	$	Configuration Array (2 words)
+	$**********************************
+
+	$*******************************************************************
+	$	Word 0 configuration data - Group 1 and 2 Filter Configuration
+	$*******************************************************************
+	Param100 =
+			0,,,				$ Reserved, link size, link path
+			0x0002, 			$ Descriptor (Enum)
+			0xC7,2,				$ UINT
+			"Group 1 Off to On Filter Configuration","",
+			"Off to On Filter for Inputs 0 - 7.",
+			0,6,0,,,,,,,,,;
+	Enum100 =
+			0, "8.0 milliSec",
+			1, "4.0 milliSec",
+			2, "2.0 milliSec",
+			3, "1.0 milliSec",
+			4, "0.5 milliSec",
+			5, "0.1 milliSec",
+			6, "0.0 milliSec";
+
+	Param110 =
+			0,,,				$ Reserved, link size, link path
+			0x0002, 			$ Descriptor (Enum)
+			0xC7,2, 			$ UINT
+			"Group 1 On to Off Filter Configuration","",
+			"On to Off Filter for Inputs 0 - 7.",
+			0,6,0,,,,,,,,,;
+	Enum110 =
+			0, "8.0 milliSec",
+			1, "4.0 milliSec",
+			2, "2.0 milliSec",
+			3, "1.0 milliSec",
+			4, "0.5 milliSec",
+			5, "0.1 milliSec",
+			6, "0.0 milliSec";
+
+	Param120 =
+			0,,,				$ Reserved, link size, link path
+			0x0002, 			$ Descriptor (Enum)
+			0xC7,2, 			$ UINT
+			"Group 2 Off to On Filter Configuration","",
+			"Off to On Filter for Inputs 8 - 15.",
+			0,6,0,,,,,,,,,;
+	Enum120 =
+			0, "8.0 milliSec",
+			1, "4.0 milliSec",
+			2, "2.0 milliSec",
+			3, "1.0 milliSec",
+			4, "0.5 milliSec",
+			5, "0.1 milliSec",
+			6, "0.0 milliSec";
+
+	Param130 =
+			0,,,				$ Reserved, link size, link path
+			0x0002, 			$ Descriptor (Enum)
+			0xC7,2, 			$ UINT
+			"Group 2 On to Off Filter Configuration","",
+			"On to Off Filter for Inputs 8 - 15.",
+			0,6,0,,,,,,,,,;
+	Enum130 =
+			0, "8.0 milliSec",
+			1, "4.0 milliSec",
+			2, "2.0 milliSec",
+			3, "1.0 milliSec",
+			4, "0.5 milliSec",
+			5, "0.1 milliSec",
+			6, "0.0 milliSec";
+
+	$*******************************************************************
+	$	Word 1 configuration data - Group 3 and 4 Filter Configuration
+	$*******************************************************************
+	Param200 =
+			0,,,				$ Reserved, link size, link path
+			0x0002, 			$ Descriptor (Enum)
+			0xC7,2, 			$ UINT
+			"Group 3 Off to On Filter Configuration","",
+			"Off to On Filter for Inputs 16 - 23.",
+			0,6,0,,,,,,,,,;
+	Enum200 =
+			0, "8.0 milliSec",
+			1, "4.0 milliSec",
+			2, "2.0 milliSec",
+			3, "1.0 milliSec",
+			4, "0.5 milliSec",
+			5, "0.1 milliSec",
+			6, "0.0 milliSec";
+
+	Param210 =
+			0,,,				$ Reserved, link size, link path
+			0x0002, 			$ Descriptor (Enum)
+			0xC7,2, 			$ UINT
+			"Group 3 On to Off Filter Configuration","",
+			"On to Off Filter for Inputs 16 - 23.",
+			0,6,0,,,,,,,,,;
+	Enum210 =
+			0, "8.0 milliSec",
+			1, "4.0 milliSec",
+			2, "2.0 milliSec",
+			3, "1.0 milliSec",
+			4, "0.5 milliSec",
+			5, "0.1 milliSec",
+			6, "0.0 milliSec";
+
+	Param220 =
+			0,,,				$ Reserved, link size, link path
+			0x0002, 			$ Descriptor (Enum)
+			0xC7,2, 			$ UINT
+			"Group 4 Off to On Filter Configuration","",
+			"Off to On Filter for Inputs 24 - 31.",
+			0,6,0,,,,,,,,,;
+	Enum220 =
+			0, "8.0 milliSec",
+			1, "4.0 milliSec",
+			2, "2.0 milliSec",
+			3, "1.0 milliSec",
+			4, "0.5 milliSec",
+			5, "0.1 milliSec",
+			6, "0.0 milliSec";
+
+	Param230 =
+			0,,,				$ Reserved, link size, link path
+			0x0002, 			$ Descriptor (Enum)
+			0xC7,2, 			$ UINT
+			"Group 4 On to Off Filter Configuration","",
+			"On to Off Filter for Inputs 24 - 31.",
+			0,6,0,,,,,,,,,;
+	Enum230 =
+			0, "8.0 milliSec",
+			1, "4.0 milliSec",
+			2, "2.0 milliSec",
+			3, "1.0 milliSec",
+			4, "0.5 milliSec",
+			5, "0.1 milliSec",
+			6, "0.0 milliSec";
+
+
+[Assembly]
+
+	ProxiedAssem101 =
+			"Input Array",,,,,,
+			32, Param20;
+
+	ProxiedAssem4 =
+
+			"Configuration",,,,,,
+
+			$------------ Word 0 ---------------------
+			 4, Param100,	$ Group 1 Filter Off to On
+			 4, Param110,	$ Group 1 Filter On to Off
+			 4, Param120,	$ Group 2 Filter Off to On
+			 4, Param130,	$ Group 2 Filter On to Off
+
+			 $------------ Word 1 ---------------------
+			 4, Param200,	$ Group 3 Filter Off to On
+			 4, Param210,	$ Group 3 Filter On to Off
+			 4, Param220,	$ Group 4 Filter Off to On
+			 4, Param230,	$ Group 4 Filter On to Off
+			16, 0,			$ Reserved
+			16, 0;			$ Reserved

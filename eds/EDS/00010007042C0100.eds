@@ -1,0 +1,58 @@
+$ DeviceNet Pendant
+$
+$ Description: 	The following file is the EDS for the Allen-Bradley
+$		DeviceNet DeviceLink 1I/1O
+$
+$ Author: 	BJT
+$ Date: 	8/22/97
+$
+$ Edit History: BJT	8/22/97	Created
+
+[File]
+	DescText = "DeviceLink 1I/1O EDS File";
+
+	CreateDate = 08-22-97;
+	CreateTime = 12:00:00;
+	Revision = 1.0;     	$ EDS file revision
+
+[Device]
+	VendCode    = 1;                                  $ Vendor Code
+	ProdType    = 7;                                  $ Product Type
+	ProdCode    = 0x042C;                              $ Product Code
+
+	MajRev      = 1;                                  $ Major Rev
+	MinRev      = 1;                                  $ Minor Rev
+	VendName    = "Allen-Bradley Company, Inc.";
+	ProdTypeStr = "General Purpose Discrete I/O";
+	ProdName    = "DeviceLink 1I/1O";
+	Catalog     = "1485D-A2F5-R4D3";
+
+[IO_Info]
+	Default     = 0X0002;
+	StrobeInfo  = 0X0002, 1, 1;
+
+	Input1      = 1;
+	Output1     = 0;
+
+[ParamClass]
+	MaxInst = 1;
+	Descriptor = 0x09;
+
+[Params]
+	Param1 = 				$ Output
+		0,				$ Data Placeholder
+		6, "20 08 24 01 30 03",	$ Path size and Path to Output Attribute
+		0x12,				$ Descriptor - (Support Enumerated Strings, Read-only)
+		4, 1,				$ Data Type and Size - (Boolean)
+		"Output",			$ Name
+		" ",				$ Units (Not Used)
+		"The state of the pushbutton pendant",  	$ Help
+		0,1,0,			$ min, max, default values
+		1,1,1,0,			$ mult, div, base, offset scaling (Not Used)
+		1,1,1,0,			$ mult, div, base, offset links (Not Used)
+		0;				$ decimal places
+
+[EnumPar]
+	Param1 =				$ Output Enumerated Strings
+		"Off",			$ For value = 0
+		"On";				$ For value = 1

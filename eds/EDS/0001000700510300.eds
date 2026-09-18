@@ -1,0 +1,69 @@
+$ Revision History
+$ 1.001  07-21-04  jgm  Initial version for Series A FW Rev 3.1 module.
+$ 1.002  03-21-06  jgm  Updated to support standardization guidelines
+$ 1.003  05-08-07  pdt  Added entry to prevent usage of RSLogix 5000 EDS AOP
+
+[File]
+	DescText    = "1769-IA8I/A FW Rev 3.1 EDS File";
+	CreateDate  = 07-21-2004;
+	CreateTime  = 10:00:00;
+	ModDate     = 05-08-2007;
+	ModTime     = 06:00:00;
+	Revision    = 1.003;
+	HomeURL     = "http://www.ab.com/networks/eds/XX/0001000700510300.eds";
+
+[Device]
+	VendCode    = 1;
+	VendName    = "Rockwell Automation/Allen-Bradley";
+	ProdType    = 7;
+	ProdTypeStr = "Discrete I/O";
+	ProdCode    = 81;
+	MajRev      = 3;
+	MinRev      = 1;
+	ProdName    = "1769-8pt 120Vac Isolated Input/A/FW Rev 3.1";
+	Catalog     = "1769-IA8I/A/FW Rev 3.1";
+	Icon        = "1769-Red.ico";
+	1_EDS_AOP_Support = "No";
+
+[Modular]
+	Rack1 = 1,108,91,1,1,,,,
+		 1, 2, 3, 4, 5, 6, 7, 8, 9,10, $ Legal slots
+		11,12,13,14,15,16,17,18,19,20,
+		21,22,23,24,25,26,27,28,29,30,
+		31,32,33,34,35,36,37;
+
+	ExternalID = "01 00 07 00 51 00 03";
+
+[1_1769Audit]
+	1_5vdcPwrLoad   = 90;
+	1_24vdcPwrLoad  = 0;
+	1_DistRating    = 8;
+
+[Params]
+	ProxiedParam4 = ,,,,,,"","","",0,1,1,,,,,,,,,;	$ Input data size
+	ProxiedEnum4 = 0,"None", 1,"Data";
+
+	ProxiedParam6 = ,,,,,,"","","",0,2,2,,,,,,,,,;	$ Electronic Keying
+	ProxiedEnum6 = 0,"Disable Keying", 1,"Exact Match", 2,"Compatible Module";
+
+	ProxiedParam7 = ,,,,,,"","","",1,255,1,,,,,,,,,;	$ Configured Minor Revision
+
+	ProxiedParam8 = ,,,,,,"","","",1,255,1,,,,,,,,,;	$ Actual Minor Revision
+
+
+	$***********************************
+	$	Input array data
+	$***********************************
+	Param20 =
+		,,,0x0010,
+		0xD1,1,               $ BYTE
+		"Data","",
+		"Current state of field input points.",
+		0,0x00FF,0,,,,,,,,,;
+
+
+[Assembly]
+
+	ProxiedAssem101 ="Input Array",,,,,,
+		8,Param20,
+		8,0;

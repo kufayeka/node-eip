@@ -1,0 +1,542 @@
+$ 	1732E-16CFGM12 EtherNet/IP ArmorBlock I/O
+$  
+
+
+[File]
+        DescText = "1732E 16 Configurable I/O EtherNet/IP  ArmorBlock I/O";
+        CreateDate = 06-30-2006;
+        CreateTime = 08:00:00;
+        ModDate = 03-27-2007;
+        ModTime = 10:31:00;
+        Revision = 1.020;               $ EDS revision.
+        HomeURL = "http://www.ab.com/networks/eds/EN/0001000701120100.eds";
+
+[Device]
+        VendCode = 1;
+        VendName = "Rockwell Automation/Allen-Bradley";
+        ProdType = 7;
+        ProdTypeStr = "General Purpose Discrete I/O";
+        ProdCode = 274;
+        MajRev = 1;
+        MinRev = 5;
+        ProdName = "1732E-16CFGM12 16 DC In/Out M12";
+        Catalog = "1732E-16CFGM12";
+        Icon = "1732E_M12.ico";
+
+[Device Classification]
+        Class1 = EtherNetIP;
+	Class2 = 1_RSLinx_CLGateway_Tool;
+
+[Params]
+        Param1 =
+                0,                      $ reserved, shall equal 0
+                6,"20 1D 24 01 30 06",  $ Link Path Size, Link Path
+                0x0000,                 $ Descriptor
+                0xC7,                   $ Data Type
+                2,                      $ Data Size in bytes
+                "FilterOffOn",          $ name
+                "ms",                   $ units
+                "Input OFF-to-ON Filter.\n"
+                "Enter a value in milliseconds: 0, 1, 2, 4, 8, or 16 ms.\n"
+                "The input must be ON for the delay period specified before the module\n"
+                "detects the change.",    $ help string
+                0,16000,1000,           $ min, max, default data values
+                ,,,,                    $ mult, div, base, offset scaling
+                ,,,,                    $ mult, div, base, offset links
+                ;                       $ decimal places
+        Enum1 =
+                0,"No Delay",
+                1000,"1 ms",
+                2000,"2 ms",
+                4000,"4 ms",
+                8000,"8 ms",
+                16000,"16 ms";
+
+        Param2 =
+                0,                      $ reserved, shall equal 0
+                6,"20 1D 24 01 30 07",  $ Link Path Size, Link Path
+                0x0000,                 $ Descriptor
+                0xC7,                   $ Data Type
+                2,                      $ Data Size in bytes
+                "FilterOnOff",          $ name
+                "ms",                   $ units
+                "Input ON-to-OFF Filter.\n"
+                "Enter a value in milliseconds: 0, 1, 2, 4, 8, or 16 ms.\n"
+                "The input must be OFF for the delay period specified before the module\n"
+                "detects the change.",    $ help string
+                0,16000,1000,           $ min, max, default data values
+                ,,,,                    $ mult, div, base, offset scaling
+                ,,,,                    $ mult, div, base, offset links
+                ;                       $ decimal places
+        Enum2 =
+                0,"No Delay",
+                1000,"1 ms",
+                2000,"2 ms",
+                4000,"4 ms",
+                8000,"8 ms",
+                16000,"16 ms";
+
+        Param3 =
+                0,                      $ reserved, shall equal 0
+                6,"20 1E 24 01 30 07",  $ Link Path Size, Link Path
+                0x0002,                 $ Descriptor
+                0xC1,                   $ Data Type
+                1,                      $ Data Size in bytes
+                "FaultMode",            $ name
+                "",                     $ units
+                "Output Fault Mode. The outputs will go to either the Fault Value (0) or\n"
+                "Hold Last State (1) during a communication fault.",    $ help string
+                0,1,0,                  $ min, max, default data values
+                ,,,,                    $ mult, div, base, offset scaling
+                ,,,,                    $ mult, div, base, offset links
+                ;                       $ decimal places
+        Enum3 =
+                0,"Fault Value",
+                1,"Hold Last State";
+        Param4 =
+                0,                      $ reserved, shall equal 0
+                6,"20 1E 24 01 30 08",  $ Link Path Size, Link Path
+                0x0002,                 $ Descriptor
+                0xC1,                   $ Data Type
+                1,                      $ Data Size in bytes
+                "FaultValue",           $ name
+                "",                     $ units
+                "Fault Value. If FaultMode is set to \"Fault Value\" (0), then this\n"
+                "parameter determines the output value: 0 = OFF; 1 = ON.",    $ help string
+                0,1,0,                  $ min, max, default data values
+                ,,,,                    $ mult, div, base, offset scaling
+                ,,,,                    $ mult, div, base, offset links
+                ;                       $ decimal places
+        Enum4 =
+                0,"OFF",
+                1,"ON";
+        Param5 =
+                0,                      $ reserved, shall equal 0
+                6,"20 1E 24 01 30 09",  $ Link Path Size, Link Path
+                0x0002,                 $ Descriptor
+                0xC1,                   $ Data Type
+                1,                      $ Data Size in bytes
+                "ProgMode",             $ name
+                "",                     $ units
+                "Program Mode.  The outputs will go to either the Program Value (0) or\n"
+                "Hold Last State (1) when in the master is in Program Mode.",    $ help string
+                0,1,0,                  $ min, max, default data values
+                ,,,,                    $ mult, div, base, offset scaling
+                ,,,,                    $ mult, div, base, offset links
+                ;                       $ decimal places
+        Enum5 =
+                0,"Progam Value",
+                1,"Hold Last State";
+        Param6 =
+                0,                      $ reserved, shall equal 0
+                6,"20 1E 24 01 30 0A",  $ Link Path Size, Link Path
+                0x0002,                 $ Descriptor
+                0xC1,                   $ Data Type
+                1,                      $ Data Size in bytes
+                "ProgValue",            $ name
+                "",                     $ units
+                "Program Value. If ProgMode is set to \"Progam Value\" (0), then this\n"
+                "parameter determines the output value: 0 = OFF; 1 = ON.",    $ help string
+                0,1,0,                  $ min, max, default data values
+                ,,,,                    $ mult, div, base, offset scaling
+                ,,,,                    $ mult, div, base, offset links
+                ;                       $ decimal places
+        Enum6 =
+                0,"OFF",
+                1,"ON";
+        Param7 =
+                0,                      $ reserved, shall equal 0
+                ,,                      $ Link Path Size, Link Path
+                0x0210,                 $ Descriptor
+                0xC7,                   $ Data Type
+                2,                      $ Data Size in bytes
+                "Data",                 $ name
+                "",                     $ units
+                "New Help String",      $ help string
+                ,,0,                    $ min, max, default data values
+                ,,,,                    $ mult, div, base, offset scaling
+                ,,,,                    $ mult, div, base, offset links
+                ;                       $ decimal places
+        Param8 =
+                0,                      $ reserved, shall equal 0
+                ,,                      $ Link Path Size, Link Path
+                0x0200,                 $ Descriptor
+                0xC7,                   $ Data Type
+                2,                      $ Data Size in bytes
+                "Data",                 $ name
+                "",                     $ units
+                "New Help String",      $ help string
+                ,,0,                    $ min, max, default data values
+                ,,,,                    $ mult, div, base, offset scaling
+                ,,,,                    $ mult, div, base, offset links
+                ;                       $ decimal places
+        Param9 =
+                0,                      $ reserved, shall equal 0
+                ,,                      $ Link Path Size, Link Path
+                0x0200,                 $ Descriptor
+                0xC4,                   $ Data Type
+                4,                      $ Data Size in bytes
+                "Reserved32",           $ name
+                "",                     $ units
+                "New Help String",      $ help string
+                ,,0,                    $ min, max, default data values
+                ,,,,                    $ mult, div, base, offset scaling
+                ,,,,                    $ mult, div, base, offset links
+                ;                       $ decimal places
+        Param10 =
+                0,                      $ reserved, shall equal 0
+                ,,                      $ Link Path Size, Link Path
+                0x0200,                 $ Descriptor
+                0xC7,                   $ Data Type
+                2,                      $ Data Size in bytes
+                "Reserved16",           $ name
+                "",                     $ units
+                "New Help String",      $ help string
+                ,,0,                    $ min, max, default data values
+                ,,,,                    $ mult, div, base, offset scaling
+                ,,,,                    $ mult, div, base, offset links
+                ;                       $ decimal places
+        Param11 =
+                0,                      $ reserved, shall equal 0
+                ,,                      $ Link Path Size, Link Path
+                0x0200,                 $ Descriptor
+                0xC6,                   $ Data Type
+                1,                      $ Data Size in bytes
+                "Reserved8",            $ name
+                "",                     $ units
+                "New Help String",      $ help string
+                ,,0,                    $ min, max, default data values
+                ,,,,                    $ mult, div, base, offset scaling
+                ,,,,                    $ mult, div, base, offset links
+                ;                       $ decimal places
+        Param12 =
+                0,                      $ reserved, shall equal 0
+                ,,                      $ Link Path Size, Link Path
+                0x0200,                 $ Descriptor
+                0xC1,                   $ Data Type
+                1,                      $ Data Size in bytes
+                "CRN",                  $ name
+                "",                     $ units
+                "New Help String",      $ help string
+                0,1,1,                  $ min, max, default data values
+                ,,,,                    $ mult, div, base, offset scaling
+                ,,,,                    $ mult, div, base, offset links
+                ;                       $ decimal places
+
+        Param13 =
+                0,                      $ reserved, shall equal 0
+                ,,                      $ Link Path Size, Link Path
+                0x0200,                 $ Descriptor
+                0xC1,                   $ Data Type
+                1,                      $ Data Size in bytes
+                "Run/Idle",             $ name
+                "",                     $ units
+                "New Help String",      $ help string
+                0,1,0,                  $ min, max, default data values
+                ,,,,                    $ mult, div, base, offset scaling
+                ,,,,                    $ mult, div, base, offset links
+                ;                       $ decimal places
+
+[Assembly]
+        Assem5 =
+                "Data",
+                "20 04 24 05 30 03",
+                ,
+                0x0000,
+                ,,
+                16,Param7;
+        Assem35 =
+                "Data",
+                "20 04 24 23 30 03",
+                ,
+                0x0000,
+                ,,
+                16,Param8;
+        Assem102 =
+                "Config",
+                "20 04 24 66 30 03",
+                ,
+                0x0000,
+                ,,
+                16,Param1,
+                16,Param2,
+                1,Param3,
+                1,Param4,
+                1,Param5,
+                1,Param6,
+                4,,
+                8,Param11;
+        Assem105 =
+                "Data",
+                "20 04 24 69 30 03",
+                ,
+                0x0000,
+                ,,
+                32,Param9,
+                16,Param7;
+
+        Assem123 =                      $ Private config in Forward Open, Module
+                "FO Header",
+                ,                       $ Path
+                ,                       $ Length in bytes
+                0x0000,                 $ descriptor
+                ,,                      $ reserved
+                16,Param12,             $ configuration revision (only valid value is 1)
+                16,;                    $ reserved - zeros
+
+        Assem124 =                      $ Private config in Forward Open, Module
+                "Output Assem",
+                ,                       $ Path
+                ,                       $ Length in bytes
+                0x0000,                 $ descriptor
+                ,,                      $ reserved
+                16,Param13,             $ configuration revision (only valid value is 1)
+                16,,                    $ reserved - zeros
+                ,Assem35;               $ Payload
+
+
+
+[Connection Manager]
+    $ 1_Display_Only_
+        Connection1 =
+                0x04020002,             $ 0-15    = supported transport classes
+                                        $ 16      = trigger: cyclic
+                                        $ 17      = trigger: change of state
+                                        $ 18      = trigger: application
+                                        $ 19-23   = trigger: reserved
+                                        $ 24      = transport type: listen-only
+                                        $ 25      = transport type: input-only
+                                        $ 26      = transport type: exclusive-owner
+                                        $ 27      = transport type: redundant-owner
+                                        $ 28-30   = reserved
+                                        $ 31      = Client = 0 / Server = 1
+                0x44240405,             $ 0       = O->T fixed size supported
+                                        $ 1       = O->T variable size supported
+                                        $ 2       = T->O fixed size supported
+                                        $ 3       = T->O variable size supported
+                                        $ 4-5     = O->T number of bytes per slot (obsolete)
+                                        $ 6-7     = T->O number of bytes per slot (obsolete)
+                                        $ 8-10    = O->T Real time transfer format
+                                        $ 11      = reserved
+                                        $ 12-14   = T->O Real time transfer format
+                                        $ 15      = reserved
+                                        $ 16      = O->T connection type: NULL
+                                        $ 17      = O->T connection type: MULTICAST
+                                        $ 18      = O->T connection type: POINT2POINT
+                                        $ 19      = O->T connection type: reserved
+                                        $ 20      = T->O connection type: NULL
+                                        $ 21      = T->O connection type: MULTICAST
+                                        $ 22      = T->O connection type: POINT2POINT
+                                        $ 23      = T->O connection type: reserved
+                                        $ 24      = O->T priority: LOW
+                                        $ 25      = O->T priority: HIGH
+                                        $ 26      = O->T priority: SCHEDULED
+                                        $ 27      = O->T priority: reserved
+                                        $ 28      = T->O priority: LOW
+                                        $ 29      = T->O priority: HIGH
+                                        $ 30      = T->O priority: SCHEDULED
+                                        $ 31      = T->O priority: reserved
+                ,,Assem35,              $ O->T RPI, size, format
+                ,,Assem105,             $ T->O RPI, size, format
+                ,Assem123,              $ config #1 size, format
+                ,Assem102,              $ config #2 size, format
+                "Logix - Exclusive Owner",    $ Connection Name
+                "Owning connection for Logix Processors.  Input Assembly returns DWord of Status with Input Data.",    $ help string
+                "20 04 24 66 2C 23 2C 69";    $ Path
+        Connection2 =
+                0x04030002,             $ 0-15    = supported transport classes
+                                        $ 16      = trigger: cyclic
+                                        $ 17      = trigger: change of state
+                                        $ 18      = trigger: application
+                                        $ 19-23   = trigger: reserved
+                                        $ 24      = transport type: listen-only
+                                        $ 25      = transport type: input-only
+                                        $ 26      = transport type: exclusive-owner
+                                        $ 27      = transport type: redundant-owner
+                                        $ 28-30   = reserved
+                                        $ 31      = Client = 0 / Server = 1
+                0x44640405,             $ 0       = O->T fixed size supported
+                                        $ 1       = O->T variable size supported
+                                        $ 2       = T->O fixed size supported
+                                        $ 3       = T->O variable size supported
+                                        $ 4-5     = O->T number of bytes per slot (obsolete)
+                                        $ 6-7     = T->O number of bytes per slot (obsolete)
+                                        $ 8-10    = O->T Real time transfer format
+                                        $ 11      = reserved
+                                        $ 12-14   = T->O Real time transfer format
+                                        $ 15      = reserved
+                                        $ 16      = O->T connection type: NULL
+                                        $ 17      = O->T connection type: MULTICAST
+                                        $ 18      = O->T connection type: POINT2POINT
+                                        $ 19      = O->T connection type: reserved
+                                        $ 20      = T->O connection type: NULL
+                                        $ 21      = T->O connection type: MULTICAST
+                                        $ 22      = T->O connection type: POINT2POINT
+                                        $ 23      = T->O connection type: reserved
+                                        $ 24      = O->T priority: LOW
+                                        $ 25      = O->T priority: HIGH
+                                        $ 26      = O->T priority: SCHEDULED
+                                        $ 27      = O->T priority: reserved
+                                        $ 28      = T->O priority: LOW
+                                        $ 29      = T->O priority: HIGH
+                                        $ 30      = T->O priority: SCHEDULED
+                                        $ 31      = T->O priority: reserved
+                ,,Assem35,              $ O->T RPI, size, format
+                ,,Assem5,               $ T->O RPI, size, format
+                ,Assem123,              $ config #1 size, format
+                ,Assem102,              $ config #2 size, format
+                "Open - Exclusive Owner",    $ Connection Name
+                "Owning connection for Open Processors. ",    $ help string
+                "20 04 24 66 2C 23 2C 05";    $ Path
+        Connection3 =
+                0x01020002,             $ 0-15    = supported transport classes
+                                        $ 16      = trigger: cyclic
+                                        $ 17      = trigger: change of state
+                                        $ 18      = trigger: application
+                                        $ 19-23   = trigger: reserved
+                                        $ 24      = transport type: listen-only
+                                        $ 25      = transport type: input-only
+                                        $ 26      = transport type: exclusive-owner
+                                        $ 27      = transport type: redundant-owner
+                                        $ 28-30   = reserved
+                                        $ 31      = Client = 0 / Server = 1
+                0x44240305,             $ 0       = O->T fixed size supported
+                                        $ 1       = O->T variable size supported
+                                        $ 2       = T->O fixed size supported
+                                        $ 3       = T->O variable size supported
+                                        $ 4-5     = O->T number of bytes per slot (obsolete)
+                                        $ 6-7     = T->O number of bytes per slot (obsolete)
+                                        $ 8-10    = O->T Real time transfer format
+                                        $ 11      = reserved
+                                        $ 12-14   = T->O Real time transfer format
+                                        $ 15      = reserved
+                                        $ 16      = O->T connection type: NULL
+                                        $ 17      = O->T connection type: MULTICAST
+                                        $ 18      = O->T connection type: POINT2POINT
+                                        $ 19      = O->T connection type: reserved
+                                        $ 20      = T->O connection type: NULL
+                                        $ 21      = T->O connection type: MULTICAST
+                                        $ 22      = T->O connection type: POINT2POINT
+                                        $ 23      = T->O connection type: reserved
+                                        $ 24      = O->T priority: LOW
+                                        $ 25      = O->T priority: HIGH
+                                        $ 26      = O->T priority: SCHEDULED
+                                        $ 27      = O->T priority: reserved
+                                        $ 28      = T->O priority: LOW
+                                        $ 29      = T->O priority: HIGH
+                                        $ 30      = T->O priority: SCHEDULED
+                                        $ 31      = T->O priority: reserved
+                ,0,,                    $ O->T RPI, size, format
+                ,,Assem105,             $ T->O RPI, size, format
+                ,Assem123,              $ config #1 size, format
+                ,Assem102,              $ config #2 size, format
+                "Logix - Listen Only",  $ Connection Name
+                "Listen Only connection for Logix Processors.  Input Assembly returns DWord of Status with Input Data.",    $ help string
+                "20 04 24 66 2C BF 2C 69";    $ Path
+
+        Connection4 =
+                0x01030002,             $ 0-15    = supported transport classes
+                                        $ 16      = trigger: cyclic
+                                        $ 17      = trigger: change of state
+                                        $ 18      = trigger: application
+                                        $ 19-23   = trigger: reserved
+                                        $ 24      = transport type: listen-only
+                                        $ 25      = transport type: input-only
+                                        $ 26      = transport type: exclusive-owner
+                                        $ 27      = transport type: redundant-owner
+                                        $ 28-30   = reserved
+                                        $ 31      = Client = 0 / Server = 1
+                0x44240305,             $ 0       = O->T fixed size supported
+                                        $ 1       = O->T variable size supported
+                                        $ 2       = T->O fixed size supported
+                                        $ 3       = T->O variable size supported
+                                        $ 4-5     = O->T number of bytes per slot (obsolete)
+                                        $ 6-7     = T->O number of bytes per slot (obsolete)
+                                        $ 8-10    = O->T Real time transfer format
+                                        $ 11      = reserved
+                                        $ 12-14   = T->O Real time transfer format
+                                        $ 15      = reserved
+                                        $ 16      = O->T connection type: NULL
+                                        $ 17      = O->T connection type: MULTICAST
+                                        $ 18      = O->T connection type: POINT2POINT
+                                        $ 19      = O->T connection type: reserved
+                                        $ 20      = T->O connection type: NULL
+                                        $ 21      = T->O connection type: MULTICAST
+                                        $ 22      = T->O connection type: POINT2POINT
+                                        $ 23      = T->O connection type: reserved
+                                        $ 24      = O->T priority: LOW
+                                        $ 25      = O->T priority: HIGH
+                                        $ 26      = O->T priority: SCHEDULED
+                                        $ 27      = O->T priority: reserved
+                                        $ 28      = T->O priority: LOW
+                                        $ 29      = T->O priority: HIGH
+                                        $ 30      = T->O priority: SCHEDULED
+                                        $ 31      = T->O priority: reserved
+                ,0,,                    $ O->T RPI, size, format
+                ,,Assem5,               $ T->O RPI, size, format
+                ,Assem123,              $ config #1 size, format
+                ,Assem102,              $ config #2 size, format
+                "Open - Listen Only",   $ Connection Name
+                "Listen Only connection for Open Processors. ",    $ help string
+                "20 04 24 66 2C BF 2C 05";    $ Path
+        Connection5 =
+                0x02030002,             $ 0-15    = supported transport classes
+                                        $ 16      = trigger: cyclic
+                                        $ 17      = trigger: change of state
+                                        $ 18      = trigger: application
+                                        $ 19-23   = trigger: reserved
+                                        $ 24      = transport type: listen-only
+                                        $ 25      = transport type: input-only
+                                        $ 26      = transport type: exclusive-owner
+                                        $ 27      = transport type: redundant-owner
+                                        $ 28-30   = reserved
+                                        $ 31      = Client = 0 / Server = 1
+                0x44640405,             $ 0       = O->T fixed size supported
+                                        $ 1       = O->T variable size supported
+                                        $ 2       = T->O fixed size supported
+                                        $ 3       = T->O variable size supported
+                                        $ 4-5     = O->T number of bytes per slot (obsolete)
+                                        $ 6-7     = T->O number of bytes per slot (obsolete)
+                                        $ 8-10    = O->T Real time transfer format
+                                        $ 11      = reserved
+                                        $ 12-14   = T->O Real time transfer format
+                                        $ 15      = reserved
+                                        $ 16      = O->T connection type: NULL
+                                        $ 17      = O->T connection type: MULTICAST
+                                        $ 18      = O->T connection type: POINT2POINT
+                                        $ 19      = O->T connection type: reserved
+                                        $ 20      = T->O connection type: NULL
+                                        $ 21      = T->O connection type: MULTICAST
+                                        $ 22      = T->O connection type: POINT2POINT
+                                        $ 23      = T->O connection type: reserved
+                                        $ 24      = O->T priority: LOW
+                                        $ 25      = O->T priority: HIGH
+                                        $ 26      = O->T priority: SCHEDULED
+                                        $ 27      = O->T priority: reserved
+                                        $ 28      = T->O priority: LOW
+                                        $ 29      = T->O priority: HIGH
+                                        $ 30      = T->O priority: SCHEDULED
+                                        $ 31      = T->O priority: reserved
+                ,0,,                    $ O->T RPI, size, format
+                ,,Assem5,               $ T->O RPI, size, format
+                ,Assem123,              $ config #1 size, format
+                ,Assem102,              $ config #2 size, format
+                "Open - Input Only",    $ Connection Name
+                "Owning connection for Open Processors who only want input data.",    $ help string
+                "20 04 24 66 2C BE 2C 05";    $ Path
+
+[Port]
+        Port1 =
+                TCP,
+                "EthernetIP Port",
+                "20 F5 24 01",
+                2;
+
+[Capacity]
+        ConnOverhead = .0;
+        MaxIOConnections = 5;
+        MaxMsgConnections = 5;
+        MaxConsumersPerMcast = 5;
+        TSpec1 = TxRx, 8, 2000;
+
+

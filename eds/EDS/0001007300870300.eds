@@ -1,0 +1,83 @@
+$ Electronic Data Sheet for Powermonitor 3000 - M4 - Ethernet/IP - Class 1 accuracy - Series B devices
+$ Covers bulletin 1404-M4***-ENT B devices
+$ The Series B EtherNet PM3000 does not support any parameter objects or configuration assemblies
+
+[File]
+   DescText = "EDS for PM3000 - M4 - EtherNet/IP - Class 1 accuracy - Series B devices";
+   CreateDate = 11-25-2002;			$ when this EDS file was created - JCK
+   CreateTime = 09:00:00;
+   ModDate = 06-18-2003;			$ when this EDS file was last modified - JCK
+   ModTime = 11:00:00;
+   Revision = 1.3;				$ revision of this EDS file
+   HomeURL = "http://www.ab.com/networks/eds/EN/0001007300870300.eds";	$ where EDS and other files can be found
+
+[Device]
+   VendCode = 1;
+   VendName = "Rockwell Automation - Allen-Bradley";
+   ProdType = 115;
+   ProdTypeStr = "Rockwell Automation Miscellaneous";
+   ProdCode = 0x87;				$ M4 - EtherNet/IP - Class 1 accuracy - Series B group of devices
+   MajRev = 3;					$ Device Major Revision
+   MinRev = 14;					$ Device Minor Revision
+   ProdName = "PM3000 M4 w/EtherNetIP,Class 1";
+   Catalog = "1404-M4xxx-ENT B";
+   Icon = "Pm3000IconRev1.ico";
+
+[Device Classification]
+   Class1 = EtherNetIP;
+ 
+[ParamClass]
+   MaxInst = 0;
+   Descriptor = 0;
+   CfgAssembly = 0;
+
+[Params]			$ Since the PM3000 does not support the Parameter object, the parameters are listed below
+   Param1 =			$ only for reference by the Assembly section
+   0,				$ reserved
+   ,,				$ link path size in bytes, link path; not used (parameter object not directly addressable)
+   0x30,			$ Descriptor - Read only, updated real-time
+   0xC7,			$ Data type identifier - 16 bit unsigned integer (replaces obsolete data type of 2)
+   2,				$ Data size in bytes
+   "Relay output status",	$ Parameter name
+   " ", " ",			$ Units string, help string
+   0, 3, 0,			$ Min, max, default value
+   ,,,,				$ Scaling multiplier, divider, base, offset not used
+   ,,,,				$ Multiplier, divder, base, offset link not used
+   ;				$ Decimal precision
+
+   Param2 = 0, ,, 0x30, 0xC7,	2, "KYZ output status",	 "", "", 0, 3, 		0, ,,,, ,,,, ;
+   Param3 = 0, ,, 0x30, 0xC7,	2, "Alarm output word",	 "", "", 0, 0xFFFF, 	0, ,,,, ,,,, ;
+   Param4 = 0, ,, 0x30, 0xC7,	2, "Status input state",	 "", "", 0, 3, 		0, ,,,, ,,,, ;
+   Param5 = 0, ,, 0x30, 0xC7,	2, "Status input #1 counter",	 "", "", 0, 29999, 	0, ,,,, ,,,, ;
+   Param6 = 0, ,, 0x30, 0xC7,	2, "Status input #2 counter",	 "", "", 0, 29999, 	0, ,,,, ,,,, ;
+   Param7 = 0, ,, 0x20, 0xC7,	2, "Relay Output",		 "", "", 0, 1, 		0, ,,,, ,,,, ; 
+   Param8 = 0, ,, 0x20, 0xC7,	2, "KYZ output",		 "", "", 0, 1, 		0, ,,,, ,,,, ;
+
+[Assembly]
+   Assem1 =					$ This Assembly Object instance supports unscheduled (Class 3 and UCMM) connections and also
+						$ a maximum of 64 scheduled (Class 1) connections.  By default, this assembly contains 12 bytes of 
+						$ PM3000 discrete result data.  This size and contents of this assembly instance can also
+						$ be changed to contain what you want; refer to publication 1404-UM001 for more info.
+   "PM3000 discrete result data",		$ Name of the assembly
+   "",						$ Logical path to data; null string indicates to point to assembly instance attribute 3
+   12,						$ Size of the assembly in bytes	
+   0,						$ Descriptor; values can not be edited
+   ,,						$ reserved fields
+   16, Param1,					$ Member size in bits, member reference
+   16, Param2,					$ Member size in bits, member reference
+   16, Param3,					$ Member size in bits, member reference
+   16, Param4,					$ Member size in bits, member reference
+   16, Param5,					$ Member size in bits, member reference
+   16, Param6;					$ Member size in bits, member reference
+  
+   Assem2 =					$ This Assembly Object instance supports unscheduled (Class 3 and UCMM) connections and also
+						$ a maximum of one (1) scheduled (Class 1) connections.  You can control the Relay and KYZ outputs
+						$ on the PM3000 by changing values in this assembly if you also have the output control parameter 
+						$ in the PM3000 advanced device config table set properly; refer to publication 1404-UM001 for more info.
+   "Control PM3000 Relay and KYZ output" ,	$ Name of the assembly
+   "",						$ Logical path to data; null string causes path to point to assembly instance attribute 3
+   2,						$ Size of the assembly in bytes	
+   1,						$ Descriptor; values can be edited
+   ,,						$ reserved fields
+   16, Param7,					$ Member size in bits, member reference
+   16, Param8;					$ Member size in bits, member reference

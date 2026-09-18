@@ -23,8 +23,8 @@ class IdentityObject {
         revision = { major: 1, minor: 0 },
         productName = 'EIP-Device',
         serialNumber = 0x12345678,
-        status = 0,
-        state = 0xff
+        status = 0x0060,
+        state = 3
     } = {}) {
         this.vendorId = vendorId;
         this.deviceType = deviceType;
@@ -50,6 +50,11 @@ class IdentityObject {
             case 7: {
                 const nameBuf = Buffer.from(this.productName, 'ascii');
                 return ok(Buffer.concat([Buffer.from([nameBuf.length]), nameBuf]));
+            }
+            case 8: {
+                const b = Buffer.alloc(1);
+                b.writeUInt8(this.state !== 0xff ? this.state : 3, 0); // 3 = Operational
+                return ok(b);
             }
             default:
                 return { generalStatus: CipGeneralStatus.AttributeNotSupported, data: Buffer.alloc(0) };

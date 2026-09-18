@@ -1,0 +1,244 @@
+$ Revision History
+$ 1.001  07-21-04  jgm  Initial version for Series B FW Rev 3.1 module.
+$ 1.002  12-15-05  jgm  Updated to support standardization guidelines
+$ 1.003  03-20-06  jgm  Updated Input/Output data names per DPI group review
+$ 1.004  05-08-07  pdt  Added entry to prevent usage of RSLogix 5000 EDS AOP
+
+[File]
+	DescText    = "1769-IQ6XOW4/B FW Rev 3.1 EDS File";
+	CreateDate  = 07-21-2004;
+	CreateTime  = 10:00:00;
+	ModDate     = 05-08-2007;
+	ModTime     = 06:00:00;
+	Revision    = 1.004;
+	HomeURL     = "http://www.ab.com/networks/eds/XX/0001000700420300.eds";
+
+[Device]
+	VendCode    = 1;
+	VendName    = "Rockwell Automation/Allen-Bradley";
+	ProdType    = 7;
+	ProdTypeStr = "General Purpose Discrete I/O";
+	ProdCode    = 66;
+	MajRev      = 3;
+	MinRev      = 1;
+	ProdName    = "1769-24Vdc Input, Relay Output Combo/B/FW Rev 3.1";
+	Catalog     = "1769-IQ6XOW4/B/FW Rev 3.1";
+	Icon        = "1769-BlueOrange.ico";
+	1_EDS_AOP_Support = "No";
+
+[Modular]
+	Rack1 =  1,108,91,1,1,,,,
+			 1, 2, 3, 4, 5, 6, 7, 8, 9,10, $ Legal slots
+			11,12,13,14,15,16,17,18,19,20,
+			21,22,23,24,25,26,27,28,29,30,
+			31,32,33,34,35,36,37;
+
+	ExternalID = "01 00 07 00 42 00 03";
+
+[1_1769Audit]
+	1_5vdcPwrLoad  = 105;
+	1_24vdcPwrLoad = 50;
+	1_DistRating   = 8;
+
+
+[Params]
+	ProxiedParam4 = ,,,,,,"","","",0,2,2,,,,,,,,,;		$ Input data size
+	ProxiedEnum4  = 0,"No Input Data", 1,"1 Word (Input Data)", 2,"2 Words (Echo of Output Data)";
+
+	ProxiedParam5 = ,,,,,,"","","",0,1,1,,,,,,,,,;		$ Output data size
+	ProxiedEnum5  = 0,"No Output Data", 1,"1 Word (Output data)";
+
+	ProxiedParam6 = ,,,,,,"","","",0,2,2,,,,,,,,,;		$ Electronic Keying
+	ProxiedEnum6  = 0,"Disable Keying", 1,"Exact Match", 2,"Compatible Module";
+
+	ProxiedParam7 = ,,,,,,"","","",1,255,1,,,,,,,,,;	$ Configured Minor Revision
+
+	ProxiedParam8 = ,,,,,,"","","",1,255,1,,,,,,,,,;	$ Actual Minor Revision
+
+	Param10 =
+			 0,,,                   $ Reserved,link size, link path & descriptor
+			 0x0002,                $ Descriptor (Enum)
+			 0xC7,2,                $ UINT
+			 "Communication Failure","",
+			 "Select output to apply after Comms Failure in Program Mode.",
+			 0,1,0,,,,,,,,,;
+	Enum10 = 0,"Don't Change Outputs", 1,"Change Outputs to Fault Mode";
+
+
+	$***********************************
+	$	Input array data
+	$***********************************
+	Param20 =
+			 0,,,                   $ Reserved,link size, link path & descriptor
+			 0x0010,                $ Descriptor (Read Only)
+			 0xD2,2,                $ WORD
+			 "Data","",
+			 "Current state of input points 0-5. Bits 6-15 are not used.",
+			 0,0x003F,0,,,,,,,,,;
+
+	Param21 =
+			 0,,,                   $ Reserved,link size, link path & descriptor
+			 0x0010,                $ Descriptor (Read Only)
+			 0xD2,2,                $ WORD
+			 "ReadBack","",
+			 "Current state of output points 0-3. Bits 4-15 are not used.",
+			 0,0x000F,0,,,,,,,,,;
+
+
+	$***********************************
+	$	Output array data
+	$***********************************
+	Param30 =
+			 0,,,                   $ Reserved,link size, link path & descriptor
+			 0x0000,                $ Descriptor
+			 0xD2,2,                $ WORD
+			 "Data","",
+			 "Set discrete output points 0-3. Bits 4 to 15 are not used.",
+			 0,0x000F,0,,,,,,,,,;
+
+
+	$***********************************
+	$	Word 1 configuration data - Program State for Output Array Word
+	$***********************************
+	Param100= 0,,,0x0002,0xC6,1,"Pt00 Program State","",
+			  "Select output state on system transition from Run to Program.",
+			  0,1,0,,,,,,,,,;
+	Enum100=  0,"User-defined Safe State", 1,"Hold Last State";
+
+	Param101= 0,,,0x0002,0xC6,1,"Pt01 Program State","",
+			  "Select output state on system transition from Run to Program.",
+			  0,1,0,,,,,,,,,;
+	Enum101=  0,"User-defined Safe State", 1,"Hold Last State";
+
+	Param102= 0,,,0x0002,0xC6,1,"Pt02 Program State","",
+			  "Select output state on system transition from Run to Program.",
+			  0,1,0,,,,,,,,,;
+	Enum102=  0,"User-defined Safe State", 1,"Hold Last State";
+
+	Param103= 0,,,0x0002,0xC6,1,"Pt03 Program State","",
+			  "Select output state on system transition from Run to Program.",
+			  0,1,0,,,,,,,,,;
+	Enum103=  0,"User-defined Safe State", 1,"Hold Last State";
+
+	$***********************************
+	$	Word 2 configuration data - Program Value for Output Array Word
+	$***********************************
+	Param200= 0,,,0x0002,0xC6,1,"Pt00 Program Value","",
+			  "User-defined safe state value after transistion to Program Mode.",
+			  0,1,0,,,,,,,,,;
+	Enum200=  0,"Off", 1,"On";
+
+	Param201= 0,,,0x0002,0xC6,1,"Pt01 Program Value","",
+			  "User-defined safe state value after transistion to Program Mode.",
+			  0,1,0,,,,,,,,,;
+	Enum201=  0,"Off", 1,"On";
+
+	Param202= 0,,,0x0002,0xC6,1,"Pt02 Program Value","",
+			  "User-defined safe state value after transistion to Program Mode.",
+			  0,1,0,,,,,,,,,;
+	Enum202=  0,"Off", 1,"On";
+
+	Param203= 0,,,0x0002,0xC6,1,"Pt03 Program Value","",
+			  "User-defined safe state value after transistion to Program Mode.",
+			  0,1,0,,,,,,,,,;
+	Enum203=  0,"Off", 1,"On";
+
+	$***********************************
+	$	Word 3 configuration data - Fault State for Output Array Word
+	$***********************************
+	Param300= 0,,,0x0002,0xC6,1,"Pt00 Fault State","",
+			  "Select output state on a system transition from Run to Fault.",
+			  0,1,0,,,,,,,,,;
+	Enum300=  0,"User-defined Safe State", 1,"Hold Last State";
+
+	Param301= 0,,,0x0002,0xC6,1,"Pt01 Fault State","",
+			  "Select output state on a system transition from Run to Fault.",
+			  0,1,0,,,,,,,,,;
+	Enum301=  0,"User-defined Safe State", 1,"Hold Last State";
+
+	Param302= 0,,,0x0002,0xC6,1,"Pt02 Fault State","",
+			  "Select output state on a system transition from Run to Fault.",
+			  0,1,0,,,,,,,,,;
+	Enum302=  0,"User-defined Safe State", 1,"Hold Last State";
+
+	Param303= 0,,,0x0002,0xC6,1,"Pt03 Fault State","",
+			  "Select output state on a system transition from Run to Fault.",
+			  0,1,0,,,,,,,,,;
+	Enum303=  0,"User-defined Safe State", 1,"Hold Last State";
+
+	$***********************************
+	$	Word 4 configuration data - Fault Value for Output Array Word
+	$***********************************
+	Param400= 0,,,0x0002,0xC6,1,"Pt00 Fault Value","",
+			  "User-defined safe state value after transistion to Fault Mode.",
+			  0,1,0,,,,,,,,,;
+	Enum400=  0,"Off", 1,"On";
+
+	Param401= 0,,,0x0002,0xC6,1,"Pt01 Fault Value","",
+			  "User-defined safe state value after transistion to Fault Mode.",
+			  0,1,0,,,,,,,,,;
+	Enum401=  0,"Off", 1,"On";
+
+	Param402= 0,,,0x0002,0xC6,1,"Pt02 Fault Value","",
+			  "User-defined safe state value after transistion to Fault Mode.",
+			  0,1,0,,,,,,,,,;
+	Enum402=  0,"Off", 1,"On";
+
+	Param403= 0,,,0x0002,0xC6,1,"Pt03 Fault Value","",
+			  "User-defined safe state value after transistion to Fault Mode.",
+			  0,1,0,,,,,,,,,;
+	Enum403=  0,"Off", 1,"On";
+
+
+[Assembly]
+
+	ProxiedAssem101 =
+		"Input Array",,,,,,
+		16,Param20,
+		16,Param21;
+
+	ProxiedAssem100 =
+		"Output Array",,,,,,
+		16,Param30;
+
+	ProxiedAssem4 =
+		"Configuration",,,,,,
+
+		$------------ Word[0] --------------------------------
+		16,Param10,
+
+		$------------ Program State Word[1] ------------------
+		 1,Param100,	$ Program State Point 0
+		 1,Param101,	$ Program State Point 1
+		 1,Param102,	$ Program State Point 2
+		 1,Param103,	$ Program State Point 3
+		12,0,
+
+		$------------ Program Value Word[2] ------------------
+		 1,Param200,	$ Program Value Point 0
+		 1,Param201,	$ Program Value Point 1
+		 1,Param202,	$ Program Value Point 2
+		 1,Param203,	$ Program Value Point 3
+		12,0,
+
+		$------------ Fault State Word[3] ------------------
+		 1,Param300,	$ Fault State Point 0
+		 1,Param301,	$ Fault State Point 1
+		 1,Param302,	$ Fault State Point 2
+		 1,Param303,	$ Fault State Point 3
+		12,0,
+
+		$------------ Fault Value Word[4] ------------------
+		 1,Param400,	$ Fault Value Point 0
+		 1,Param401,	$ Fault Value Point 1
+		 1,Param402,	$ Fault Value Point 2
+		 1,Param403,	$ Fault Value Point 3
+		12,0;
+
+
+[Groups]
+	Group1 = "General",1,10;
+	Group2 = "Output Program States",4,100,101,102,103;
+	Group3 = "Output Program Values",4,200,201,202,203;
+	Group4 = "Output Fault States",4,300,301,302,303;
+	Group5 = "Output Fault Values",4,400,401,402,403;

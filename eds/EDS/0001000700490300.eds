@@ -1,0 +1,1340 @@
+$ Revision History
+$ 1.001  06-04-03  jgm  Initial Version
+$ 1.002  12-14-05  jgm  Updated to support standardization guidelines
+$ 1.003  03-21-06  jgm  Updated Input/Output data names per DPI group review
+$ 1.004  05-08-07  pdt  Added entry to prevent usage of RSLogix 5000 EDS AOP
+
+[File]
+	DescText    = "1769-OB32/A EDS File";
+	CreateDate  = 06-04-2003;
+	CreateTime  = 16:00:00;
+	ModDate     = 05-08-2007;
+	ModTime     = 06:00:00;
+	Revision    = 1.004;
+	HomeURL     = "http://www.ab.com/networks/eds/XX/0001000700490300.eds";
+
+[Device]
+	VendCode    = 1;
+	VendName    = "Rockwell Automation/Allen-Bradley";
+	ProdType    = 7;
+	ProdTypeStr = "General Purpose Discrete I/O";
+	ProdCode    = 73;
+	MajRev      = 3;
+	MinRev      = 1;
+	ProdName    = "1769-32pt 24Vdc Source Output";
+	Catalog     = "1769-OB32/A";
+	Icon        = "1769-Green.ico";
+	1_EDS_AOP_Support = "No";
+
+[Modular]
+	Rack1 =  1,108,91,1,1,,,,
+			 1, 2, 3, 4, 5, 6, 7, 8, 9,10, $ Legal slots
+			11,12,13,14,15,16,17,18,19,20,
+			21,22,23,24,25,26,27,28,29,30,
+			31,32,33,34,35,36,37;
+
+	ExternalID = "01 00 07 00 49 00 03";
+
+[1_1769Audit]
+	1_5vdcPwrLoad  = 300;
+	1_24vdcPwrLoad = 0;
+	1_DistRating   = 6;
+
+
+[Params]
+	ProxiedParam4 = ,,,,,,"","","",0,2,2,,,,,,,,,;		$ Input data size
+	ProxiedEnum4 = 0,"No Input Data",
+				   1,"Echo 1st Output Word",
+				   2,"Echo Both Output Words";
+
+	ProxiedParam5 = ,,,,,,"","","",0,2,2,,,,,,,,,;		$ Output data size
+	ProxiedEnum5 = 0,"No Output Data",
+				   1,"Output data (1st Word)",
+				   2,"Output data (2 Words)";
+
+	ProxiedParam6 = ,,,,,,"","","",0,2,2,,,,,,,,,;		$ Electronic Keying
+	ProxiedEnum6 = 0,"Disable Keying", 1,"Exact Match",2,"Compatible Module";
+
+	ProxiedParam7 = ,,,,,,"","","",1,255,1,,,,,,,,,;	$ Configured Minor Revision
+
+	ProxiedParam8 = ,,,,,,"","","",1,255,1,,,,,,,,,;	$ Actual Minor Revision
+
+	$*************************************************************************
+	$	Word 0 configuration data - Select Outputs on Communication Failure
+	$*************************************************************************
+	Param10=  0,,,			$ Reserved, link size, link path
+			  0x0002,		$ Descriptor (Enum)
+			  0xC1,1,		$ BOOL
+			  "Communication Failure","",
+			  "Select outputs to apply during a Comms Failure in Program Mode.",
+			  0,1,0,,,,,,,,,;
+	Enum10 =  0,"Leave Outputs in Program Mode", 1,"Change Outputs to Fault Mode";
+
+
+	$**********************
+	$	Input array data
+	$**********************
+	Param20 = 0,,,                $ Reserved, link size, link path
+			  0x0010,             $ Descriptor (Read Only)
+			  0xD3, 4,            $ DWORD
+			  "ReadBack","",
+			  "Data Echo of output points",
+			  0,0xFFFFFFFF,0,,,,,,,,,;
+
+
+	$***********************
+	$	Output array data
+	$***********************
+	Param30 = 0,,,                $ Reserved, link size, link path
+			  0x0000,             $ Descriptor
+			  0xD3, 4,            $ DWORD
+			  "Data","",
+			  "Output data points.",
+			  0,0xFFFFFFFF,0,,,,,,,,,;
+
+
+	$***********************************************************************
+	$	Word 2 configuration data - Program State for Output Array Word 0
+	$***********************************************************************
+	Param200= 0,,,			$ Reserved, link size, link path
+			  0x0002,		$ Descriptor (Enum)
+			  0xC1,1,		$ BOOL
+			  "Pt00 Program State","",
+			  "Select output state on system transition from Run to Program.",
+			  0,1,0,,,,,,,,,;
+	Enum200=  0,"User-defined Safe State",1,"Hold Last State";
+
+	Param201= 0,,,
+			  0x0002,		$ Descriptor (Enum)
+			  0xC1,1,		$ BOOL
+			  "Pt01 Program State","",
+			  "Select output state on system transition from Run to Program.",
+			  0,1,0,,,,,,,,,;
+	Enum201=  0,"User-defined Safe State",1,"Hold Last State";
+
+	Param202= 0,,,
+			  0x0002,		$ Descriptor (Enum)
+			  0xC1,1,		$ BOOL
+			  "Pt02 Program State","",
+			  "Select output state on system transition from Run to Program.",
+			  0,1,0,,,,,,,,,;
+	Enum202=  0,"User-defined Safe State",1,"Hold Last State";
+
+	Param203= 0,,,
+			  0x0002,		$ Descriptor (Enum)
+			  0xC1,1,		$ BOOL
+			  "Pt03 Program State","",
+			  "Select output state on system transition from Run to Program.",
+			  0,1,0,,,,,,,,,;
+	Enum203=  0,"User-defined Safe State",1,"Hold Last State";
+
+	Param204= 0,,,
+			  0x0002,		$ Descriptor (Enum)
+			  0xC1,1,		$ BOOL
+			  "Pt04 Program State","",
+			  "Select output state on system transition from Run to Program.",
+			  0,1,0,,,,,,,,,;
+	Enum204=  0,"User-defined Safe State",1,"Hold Last State";
+
+	Param205= 0,,,
+			  0x0002,		$ Descriptor (Enum)
+			  0xC1,1,		$ BOOL
+			  "Pt05 Program State","",
+			  "Select output state on system transition from Run to Program.",
+			  0,1,0,,,,,,,,,;
+	Enum205=  0,"User-defined Safe State",1,"Hold Last State";
+
+	Param206= 0,,,
+			  0x0002,		$ Descriptor (Enum)
+			  0xC1,1,		$ BOOL
+			  "Pt06 Program State","",
+			  "Select output state on system transition from Run to Program.",
+			  0,1,0,,,,,,,,,;
+	Enum206=  0,"User-defined Safe State",1,"Hold Last State";
+
+	Param207= 0,,,
+			  0x0002,		$ Descriptor (Enum)
+			  0xC1,1,		$ BOOL
+			  "Pt07 Program State","",
+			  "Select output state on system transition from Run to Program.",
+			  0,1,0,,,,,,,,,;
+	Enum207=  0,"User-defined Safe State",1,"Hold Last State";
+
+	Param208= 0,,,
+			  0x0002,		$ Descriptor (Enum)
+			  0xC1,1,		$ BOOL
+			  "Pt08 Program State","",
+			  "Select output state on system transition from Run to Program.",
+			  0,1,0,,,,,,,,,;
+	Enum208=  0,"User-defined Safe State",1,"Hold Last State";
+
+	Param209= 0,,,
+			  0x0002,		$ Descriptor (Enum)
+			  0xC1,1,		$ BOOL
+			  "Pt09 Program State","",
+			  "Select output state on system transition from Run to Program.",
+			  0,1,0,,,,,,,,,;
+	Enum209=  0,"User-defined Safe State",1,"Hold Last State";
+
+	Param210= 0,,,
+			  0x0002,		$ Descriptor (Enum)
+			  0xC1,1,		$ BOOL
+			  "Pt10 Program State","",
+			  "Select output state on system transition from Run to Program.",
+			  0,1,0,,,,,,,,,;
+	Enum210=  0,"User-defined Safe State",1,"Hold Last State";
+
+	Param211= 0,,,
+			  0x0002,		$ Descriptor (Enum)
+			  0xC1,1,		$ BOOL
+			  "Pt11 Program State","",
+			  "Select output state on system transition from Run to Program.",
+			  0,1,0,,,,,,,,,;
+	Enum211=  0,"User-defined Safe State",1,"Hold Last State";
+
+	Param212= 0,,,
+			  0x0002,		$ Descriptor (Enum)
+			  0xC1,1,		$ BOOL
+			  "Pt12 Program State","",
+			  "Select output state on system transition from Run to Program.",
+			  0,1,0,,,,,,,,,;
+	Enum212=  0,"User-defined Safe State",1,"Hold Last State";
+
+	Param213= 0,,,
+			  0x0002,		$ Descriptor (Enum)
+			  0xC1,1,		$ BOOL
+			  "Pt13 Program State","",
+			  "Select output state on system transition from Run to Program.",
+			  0,1,0,,,,,,,,,;
+	Enum213=  0,"User-defined Safe State",1,"Hold Last State";
+
+	Param214= 0,,,
+			  0x0002,		$ Descriptor (Enum)
+			  0xC1,1,		$ BOOL
+			  "Pt14 Program State","",
+			  "Select output state on system transition from Run to Program.",
+			  0,1,0,,,,,,,,,;
+	Enum214=  0,"User-defined Safe State",1,"Hold Last State";
+
+	Param215= 0,,,
+			  0x0002,		$ Descriptor (Enum)
+			  0xC1,1,		$ BOOL
+			  "Pt15 Program State","",
+			  "Select output state on system transition from Run to Program.",
+			  0,1,0,,,,,,,,,;
+	Enum215=  0,"User-defined Safe State",1,"Hold Last State";
+
+	$***********************************************************************
+	$	Word 3 configuration data - Program State for Output Array Word 1
+	$***********************************************************************
+	Param300= 0,,,			$ Reserved, link size, link path
+			  0x0002,		$ Descriptor (Enum)
+			  0xC1,1,		$ BOOL
+			  "Pt16 Program State","",
+			  "Select output state on system transition from Run to Program.",
+			  0,1,0,,,,,,,,,;
+	Enum300=  0,"User-defined Safe State",1,"Hold Last State";
+
+	Param301= 0,,,
+			  0x0002,		$ Descriptor (Enum)
+			  0xC1,1,		$ BOOL
+			  "Pt17 Program State","",
+			  "Select output state on system transition from Run to Program.",
+			  0,1,0,,,,,,,,,;
+	Enum301=  0,"User-defined Safe State",1,"Hold Last State";
+
+	Param302= 0,,,
+			  0x0002,		$ Descriptor (Enum)
+			  0xC1,1,		$ BOOL
+			  "Pt18 Program State","",
+			  "Select output state on system transition from Run to Program.",
+			  0,1,0,,,,,,,,,;
+	Enum302=  0,"User-defined Safe State",1,"Hold Last State";
+
+	Param303= 0,,,
+			  0x0002,		$ Descriptor (Enum)
+			  0xC1,1,		$ BOOL
+			  "Pt19 Program State","",
+			  "Select output state on system transition from Run to Program.",
+			  0,1,0,,,,,,,,,;
+	Enum303=  0,"User-defined Safe State",1,"Hold Last State";
+
+	Param304= 0,,,
+			  0x0002,		$ Descriptor (Enum)
+			  0xC1,1,		$ BOOL
+			  "Pt20 Program State","",
+			  "Select output state on system transition from Run to Program.",
+			  0,1,0,,,,,,,,,;
+	Enum304=  0,"User-defined Safe State",1,"Hold Last State";
+
+	Param305= 0,,,
+			  0x0002,		$ Descriptor (Enum)
+			  0xC1,1,		$ BOOL
+			  "Pt21 Program State","",
+			  "Select output state on system transition from Run to Program.",
+			  0,1,0,,,,,,,,,;
+	Enum305=  0,"User-defined Safe State",1,"Hold Last State";
+
+	Param306= 0,,,
+			  0x0002,		$ Descriptor (Enum)
+			  0xC1,1,		$ BOOL
+			  "Pt22 Program State","",
+			  "Select output state on system transition from Run to Program.",
+			  0,1,0,,,,,,,,,;
+	Enum306=  0,"User-defined Safe State",1,"Hold Last State";
+
+	Param307= 0,,,
+			  0x0002,		$ Descriptor (Enum)
+			  0xC1,1,		$ BOOL
+			  "Pt23 Program State","",
+			  "Select output state on system transition from Run to Program.",
+			  0,1,0,,,,,,,,,;
+	Enum307=  0,"User-defined Safe State",1,"Hold Last State";
+
+	Param308= 0,,,
+			  0x0002,		$ Descriptor (Enum)
+			  0xC1,1,		$ BOOL
+			  "Pt24 Program State","",
+			  "Select output state on system transition from Run to Program.",
+			  0,1,0,,,,,,,,,;
+	Enum308=  0,"User-defined Safe State",1,"Hold Last State";
+
+	Param309= 0,,,
+			  0x0002,		$ Descriptor (Enum)
+			  0xC1,1,		$ BOOL
+			  "Pt25 Program State","",
+			  "Select output state on system transition from Run to Program.",
+			  0,1,0,,,,,,,,,;
+	Enum309=  0,"User-defined Safe State",1,"Hold Last State";
+
+	Param310= 0,,,
+			  0x0002,		$ Descriptor (Enum)
+			  0xC1,1,		$ BOOL
+			  "Pt26 Program State","",
+			  "Select output state on system transition from Run to Program.",
+			  0,1,0,,,,,,,,,;
+	Enum310=  0,"User-defined Safe State",1,"Hold Last State";
+
+	Param311= 0,,,
+			  0x0002,		$ Descriptor (Enum)
+			  0xC1,1,		$ BOOL
+			  "Pt27 Program State","",
+			  "Select output state on system transition from Run to Program.",
+			  0,1,0,,,,,,,,,;
+	Enum311=  0,"User-defined Safe State",1,"Hold Last State";
+
+	Param312= 0,,,
+			  0x0002,		$ Descriptor (Enum)
+			  0xC1,1,		$ BOOL
+			  "Pt28 Program State","",
+			  "Select output state on system transition from Run to Program.",
+			  0,1,0,,,,,,,,,;
+	Enum312=  0,"User-defined Safe State",1,"Hold Last State";
+
+	Param313= 0,,,
+			  0x0002,		$ Descriptor (Enum)
+			  0xC1,1,		$ BOOL
+			  "Pt29 Program State","",
+			  "Select output state on system transition from Run to Program.",
+			  0,1,0,,,,,,,,,;
+	Enum313=  0,"User-defined Safe State",1,"Hold Last State";
+
+	Param314= 0,,,
+			  0x0002,		$ Descriptor (Enum)
+			  0xC1,1,		$ BOOL
+			  "Pt30 Program State","",
+			  "Select output state on system transition from Run to Program.",
+			  0,1,0,,,,,,,,,;
+	Enum314=  0,"User-defined Safe State",1,"Hold Last State";
+
+	Param315= 0,,,
+			  0x0002,		$ Descriptor (Enum)
+			  0xC1,1,		$ BOOL
+			  "Pt31 Program State","",
+			  "Select output state on system transition from Run to Program.",
+			  0,1,0,,,,,,,,,;
+	Enum315=  0,"User-defined Safe State",1,"Hold Last State";
+
+	$***********************************************************************
+	$	Word 4 configuration data - Program Value for Output Array Word 0
+	$***********************************************************************
+	Param400= 0,,,			$ Reserved, link size, link path
+			  0x0002,		$ Descriptor (Enum)
+			  0xC1,1,		$ BOOL
+			  "Pt00 Program Value","",
+			  "Select user-defined safe state value.",
+			  0,1,0,,,,,,,,,;
+	Enum400=  0,"Off",1,"On";
+
+	Param401= 0,,,
+			  0x0002,		$ Descriptor (Enum)
+			  0xC1,1,		$ BOOL
+			  "Pt01 Program Value","",
+			  "Select user-defined safe state value.",
+			  0,1,0,,,,,,,,,;
+	Enum401=  0,"Off",1,"On";
+
+	Param402= 0,,,
+			  0x0002,		$ Descriptor (Enum)
+			  0xC1,1,		$ BOOL
+			  "Pt02 Program Value","",
+			  "Select user-defined safe state value.",
+			  0,1,0,,,,,,,,,;
+	Enum402=  0,"Off",1,"On";
+
+	Param403= 0,,,
+			  0x0002,		$ Descriptor (Enum)
+			  0xC1,1,		$ BOOL
+			  "Pt03 Program Value","",
+			  "Select user-defined safe state value.",
+			  0,1,0,,,,,,,,,;
+	Enum403=  0,"Off",1,"On";
+
+	Param404= 0,,,
+			  0x0002,		$ Descriptor (Enum)
+			  0xC1,1,		$ BOOL
+			  "Pt04 Program Value","",
+			  "Select user-defined safe state value.",
+			  0,1,0,,,,,,,,,;
+	Enum404=  0,"Off",1,"On";
+
+	Param405= 0,,,
+			  0x0002,		$ Descriptor (Enum)
+			  0xC1,1,		$ BOOL
+			  "Pt05 Program Value","",
+			  "Select user-defined safe state value.",
+			  0,1,0,,,,,,,,,;
+	Enum405=  0,"Off",1,"On";
+
+	Param406= 0,,,
+			  0x0002,		$ Descriptor (Enum)
+			  0xC1,1,		$ BOOL
+			  "Pt06 Program Value","",
+			  "Select user-defined safe state value.",
+			  0,1,0,,,,,,,,,;
+	Enum406=  0,"Off",1,"On";
+
+	Param407= 0,,,
+			  0x0002,		$ Descriptor (Enum)
+			  0xC1,1,		$ BOOL
+			  "Pt07 Program Value","",
+			  "Select user-defined safe state value.",
+			  0,1,0,,,,,,,,,;
+	Enum407=  0,"Off",1,"On";
+
+	Param408= 0,,,
+			  0x0002,		$ Descriptor (Enum)
+			  0xC1,1,		$ BOOL
+			  "Pt08 Program Value","",
+			  "Select user-defined safe state value.",
+			  0,1,0,,,,,,,,,;
+	Enum408=  0,"Off",1,"On";
+
+	Param409= 0,,,
+			  0x0002,		$ Descriptor (Enum)
+			  0xC1,1,		$ BOOL
+			  "Pt09 Program Value","",
+			  "Select user-defined safe state value.",
+			  0,1,0,,,,,,,,,;
+	Enum409=  0,"Off",1,"On";
+
+	Param410= 0,,,
+			  0x0002,		$ Descriptor (Enum)
+			  0xC1,1,		$ BOOL
+			  "Pt10 Program Value","",
+			  "Select user-defined safe state value.",
+			  0,1,0,,,,,,,,,;
+	Enum410=  0,"Off",1,"On";
+
+	Param411= 0,,,
+			  0x0002,		$ Descriptor (Enum)
+			  0xC1,1,		$ BOOL
+			  "Pt11 Program Value","",
+			  "Select user-defined safe state value.",
+			  0,1,0,,,,,,,,,;
+	Enum411=  0,"Off",1,"On";
+
+	Param412= 0,,,
+			  0x0002,		$ Descriptor (Enum)
+			  0xC1,1,		$ BOOL
+			  "Pt12 Program Value","",
+			  "Select user-defined safe state value.",
+			  0,1,0,,,,,,,,,;
+	Enum412=  0,"Off",1,"On";
+
+	Param413= 0,,,
+			  0x0002,		$ Descriptor (Enum)
+			  0xC1,1,		$ BOOL
+			  "Pt13 Program Value","",
+			  "Select user-defined safe state value.",
+			  0,1,0,,,,,,,,,;
+	Enum413=  0,"Off",1,"On";
+
+	Param414= 0,,,
+			  0x0002,		$ Descriptor (Enum)
+			  0xC1,1,		$ BOOL
+			  "Pt14 Program Value","",
+			  "Select user-defined safe state value.",
+			  0,1,0,,,,,,,,,;
+	Enum414=  0,"Off",1,"On";
+
+	Param415= 0,,,
+			  0x0002,		$ Descriptor (Enum)
+			  0xC1,1,		$ BOOL
+			  "Pt15 Program Value","",
+			  "Select user-defined safe state value.",
+			  0,1,0,,,,,,,,,;
+	Enum415=  0,"Off",1,"On";
+
+	$***********************************************************************
+	$	Word 5 configuration data - Program Value for Output Array Word 1
+	$***********************************************************************
+	Param500= 0,,,			$ Reserved, link size, link path
+			  0x0002,		$ Descriptor (Enum)
+			  0xC1,1,		$ BOOL
+			  "Pt16 Program Value","",
+			  "Select user-defined safe state value.",
+			  0,1,0,,,,,,,,,;
+	Enum500=  0,"Off",1,"On";
+
+	Param501= 0,,,
+			  0x0002,		$ Descriptor (Enum)
+			  0xC1,1,		$ BOOL
+			  "Pt17 Program Value","",
+			  "Select user-defined safe state value.",
+			  0,1,0,,,,,,,,,;
+	Enum501=  0,"Off",1,"On";
+
+	Param502= 0,,,
+			  0x0002,		$ Descriptor (Enum)
+			  0xC1,1,		$ BOOL
+			  "Pt18 Program Value","",
+			  "Select user-defined safe state value.",
+			  0,1,0,,,,,,,,,;
+	Enum502=  0,"Off",1,"On";
+
+	Param503= 0,,,
+			  0x0002,		$ Descriptor (Enum)
+			  0xC1,1,		$ BOOL
+			  "Pt19 Program Value","",
+			  "Select user-defined safe state value.",
+			  0,1,0,,,,,,,,,;
+	Enum503=  0,"Off",1,"On";
+
+	Param504= 0,,,
+			  0x0002,		$ Descriptor (Enum)
+			  0xC1,1,		$ BOOL
+			  "Pt20 Program Value","",
+			  "Select user-defined safe state value.",
+			  0,1,0,,,,,,,,,;
+	Enum504=  0,"Off",1,"On";
+
+	Param505= 0,,,
+			  0x0002,		$ Descriptor (Enum)
+			  0xC1,1,		$ BOOL
+			  "Pt21 Program Value","",
+			  "Select user-defined safe state value.",
+			  0,1,0,,,,,,,,,;
+	Enum505=  0,"Off",1,"On";
+
+	Param506= 0,,,
+			  0x0002,		$ Descriptor (Enum)
+			  0xC1,1,		$ BOOL
+			  "Pt22 Program Value","",
+			  "Select user-defined safe state value.",
+			  0,1,0,,,,,,,,,;
+	Enum506=  0,"Off",1,"On";
+
+	Param507= 0,,,
+			  0x0002,		$ Descriptor (Enum)
+			  0xC1,1,		$ BOOL
+			  "Pt23 Program Value","",
+			  "Select user-defined safe state value.",
+			  0,1,0,,,,,,,,,;
+	Enum507=  0,"Off",1,"On";
+
+	Param508= 0,,,
+			  0x0002,		$ Descriptor (Enum)
+			  0xC1,1,		$ BOOL
+			  "Pt24 Program Value","",
+			  "Select user-defined safe state value.",
+			  0,1,0,,,,,,,,,;
+	Enum508=  0,"Off",1,"On";
+
+	Param509= 0,,,
+			  0x0002,		$ Descriptor (Enum)
+			  0xC1,1,		$ BOOL
+			  "Pt25 Program Value","",
+			  "Select user-defined safe state value.",
+			  0,1,0,,,,,,,,,;
+	Enum509=  0,"Off",1,"On";
+
+	Param510= 0,,,
+			  0x0002,		$ Descriptor (Enum)
+			  0xC1,1,		$ BOOL
+			  "Pt26 Program Value","",
+			  "Select user-defined safe state value.",
+			  0,1,0,,,,,,,,,;
+	Enum510=  0,"Off",1,"On";
+
+	Param511= 0,,,
+			  0x0002,		$ Descriptor (Enum)
+			  0xC1,1,		$ BOOL
+			  "Pt27 Program Value","",
+			  "Select user-defined safe state value.",
+			  0,1,0,,,,,,,,,;
+	Enum511=  0,"Off",1,"On";
+
+	Param512= 0,,,
+			  0x0002,		$ Descriptor (Enum)
+			  0xC1,1,		$ BOOL
+			  "Pt28 Program Value","",
+			  "Select user-defined safe state value.",
+			  0,1,0,,,,,,,,,;
+	Enum512=  0,"Off",1,"On";
+
+	Param513= 0,,,
+			  0x0002,		$ Descriptor (Enum)
+			  0xC1,1,		$ BOOL
+			  "Pt29 Program Value","",
+			  "Select user-defined safe state value.",
+			  0,1,0,,,,,,,,,;
+	Enum513=  0,"Off",1,"On";
+
+	Param514= 0,,,
+			  0x0002,		$ Descriptor (Enum)
+			  0xC1,1,		$ BOOL
+			  "Pt30 Program Value","",
+			  "Select user-defined safe state value.",
+			  0,1,0,,,,,,,,,;
+	Enum514=  0,"Off",1,"On";
+
+	Param515= 0,,,
+			  0x0002,		$ Descriptor (Enum)
+			  0xC1,1,		$ BOOL
+			  "Pt31 Program Value","",
+			  "Select user-defined safe state value.",
+			  0,1,0,,,,,,,,,;
+	Enum515=  0,"Off",1,"On";
+
+	$*********************************************************************
+	$	Word 6 configuration data - Fault State for Output Array Word 0
+	$*********************************************************************
+	Param600= 0,,,			$ Reserved, link size, link path
+			  0x0002,		$ Descriptor (Enum)
+			  0xC1,1,		$ BOOL
+			  "Pt00 Fault State","",
+			  "Select condition on system transition from Run to Fault.",
+			  0,1,0,,,,,,,,,;
+	Enum600=  0,"User-defined Safe State",1,"Hold Last State";
+
+	Param601= 0,,,
+			  0x0002,		$ Descriptor (Enum)
+			  0xC1,1,		$ BOOL
+			  "Pt01 Fault State","",
+			  "Select condition on system transition from Run to Fault.",
+			  0,1,0,,,,,,,,,;
+	Enum601=  0,"User-defined Safe State",1,"Hold Last State";
+
+	Param602= 0,,,
+			  0x0002,		$ Descriptor (Enum)
+			  0xC1,1,		$ BOOL
+			  "Pt02 Fault State","",
+			  "Select condition on system transition from Run to Fault.",
+			  0,1,0,,,,,,,,,;
+	Enum602=  0,"User-defined Safe State",1,"Hold Last State";
+
+	Param603= 0,,,
+			  0x0002,		$ Descriptor (Enum)
+			  0xC1,1,		$ BOOL
+			  "Pt03 Fault State","",
+			  "Select condition on system transition from Run to Fault.",
+			  0,1,0,,,,,,,,,;
+	Enum603=  0,"User-defined Safe State",1,"Hold Last State";
+
+	Param604= 0,,,
+			  0x0002,		$ Descriptor (Enum)
+			  0xC1,1,		$ BOOL
+			  "Pt04 Fault State","",
+			  "Select condition on system transition from Run to Fault.",
+			  0,1,0,,,,,,,,,;
+	Enum604=  0,"User-defined Safe State",1,"Hold Last State";
+
+	Param605= 0,,,
+			  0x0002,		$ Descriptor (Enum)
+			  0xC1,1,		$ BOOL
+			  "Pt05 Fault State","",
+			  "Select condition on system transition from Run to Fault.",
+			  0,1,0,,,,,,,,,;
+	Enum605=  0,"User-defined Safe State",1,"Hold Last State";
+
+	Param606= 0,,,
+			  0x0002,		$ Descriptor (Enum)
+			  0xC1,1,		$ BOOL
+			  "Pt06 Fault State","",
+			  "Select condition on system transition from Run to Fault.",
+			  0,1,0,,,,,,,,,;
+	Enum606=  0,"User-defined Safe State",1,"Hold Last State";
+
+	Param607= 0,,,
+			  0x0002,		$ Descriptor (Enum)
+			  0xC1,1,		$ BOOL
+			  "Pt07 Fault State","",
+			  "Select condition on system transition from Run to Fault.",
+			  0,1,0,,,,,,,,,;
+	Enum607=  0,"User-defined Safe State",1,"Hold Last State";
+
+	Param608= 0,,,
+			  0x0002,		$ Descriptor (Enum)
+			  0xC1,1,		$ BOOL
+			  "Pt08 Fault State","",
+			  "Select condition on system transition from Run to Fault.",
+			  0,1,0,,,,,,,,,;
+	Enum608=  0,"User-defined Safe State",1,"Hold Last State";
+
+	Param609= 0,,,
+			  0x0002,		$ Descriptor (Enum)
+			  0xC1,1,		$ BOOL
+			  "Pt09 Fault State","",
+			  "Select condition on system transition from Run to Fault.",
+			  0,1,0,,,,,,,,,;
+	Enum609=  0,"User-defined Safe State",1,"Hold Last State";
+
+	Param610= 0,,,
+			  0x0002,		$ Descriptor (Enum)
+			  0xC1,1,		$ BOOL
+			  "Pt10 Fault State","",
+			  "Select condition on system transition from Run to Fault.",
+			  0,1,0,,,,,,,,,;
+	Enum610=  0,"User-defined Safe State",1,"Hold Last State";
+
+	Param611= 0,,,
+			  0x0002,		$ Descriptor (Enum)
+			  0xC1,1,		$ BOOL
+			  "Pt11 Fault State","",
+			  "Select condition on system transition from Run to Fault.",
+			  0,1,0,,,,,,,,,;
+	Enum611=  0,"User-defined Safe State",1,"Hold Last State";
+
+	Param612= 0,,,
+			  0x0002,		$ Descriptor (Enum)
+			  0xC1,1,		$ BOOL
+			  "Pt12 Fault State","",
+			  "Select condition on system transition from Run to Fault.",
+			  0,1,0,,,,,,,,,;
+	Enum612=  0,"User-defined Safe State",1,"Hold Last State";
+
+	Param613= 0,,,
+			  0x0002,		$ Descriptor (Enum)
+			  0xC1,1,		$ BOOL
+			  "Pt13 Fault State","",
+			  "Select condition on system transition from Run to Fault.",
+			  0,1,0,,,,,,,,,;
+	Enum613=  0,"User-defined Safe State",1,"Hold Last State";
+
+	Param614= 0,,,
+			  0x0002,		$ Descriptor (Enum)
+			  0xC1,1,		$ BOOL
+			  "Pt14 Fault State","",
+			  "Select condition on system transition from Run to Fault.",
+			  0,1,0,,,,,,,,,;
+	Enum614=  0,"User-defined Safe State",1,"Hold Last State";
+
+	Param615= 0,,,
+			  0x0002,		$ Descriptor (Enum)
+			  0xC1,1,		$ BOOL
+			  "Pt15 Fault State","",
+			  "Select condition on system transition from Run to Fault.",
+			  0,1,0,,,,,,,,,;
+	Enum615=  0,"User-defined Safe State",1,"Hold Last State";
+
+	$*********************************************************************
+	$	Word 7 configuration data - Fault State for Output Array Word 1
+	$*********************************************************************
+	Param700= 0,,,			$ Reserved, link size, link path
+			  0x0002,		$ Descriptor (Enum)
+			  0xC1,1,		$ BOOL
+			  "Pt16 Fault State","",
+			  "Select condition on system transition from Run to Fault.",
+			  0,1,0,,,,,,,,,;
+	Enum700=  0,"User-defined Safe State",1,"Hold Last State";
+
+	Param701= 0,,,
+			  0x0002,		$ Descriptor (Enum)
+			  0xC1,1,		$ BOOL
+			  "Pt17 Fault State","",
+			  "Select condition on system transition from Run to Fault.",
+			  0,1,0,,,,,,,,,;
+	Enum701=  0,"User-defined Safe State",1,"Hold Last State";
+
+	Param702= 0,,,
+			  0x0002,		$ Descriptor (Enum)
+			  0xC1,1,		$ BOOL
+			  "Pt18 Fault State","",
+			  "Select condition on system transition from Run to Fault.",
+			  0,1,0,,,,,,,,,;
+	Enum702=  0,"User-defined Safe State",1,"Hold Last State";
+
+	Param703= 0,,,
+			  0x0002,		$ Descriptor (Enum)
+			  0xC1,1,		$ BOOL
+			  "Pt19 Fault State","",
+			  "Select condition on system transition from Run to Fault.",
+			  0,1,0,,,,,,,,,;
+	Enum703=  0,"User-defined Safe State",1,"Hold Last State";
+
+	Param704= 0,,,
+			  0x0002,		$ Descriptor (Enum)
+			  0xC1,1,		$ BOOL
+			  "Pt20 Fault State","",
+			  "Select condition on system transition from Run to Fault.",
+			  0,1,0,,,,,,,,,;
+	Enum704=  0,"User-defined Safe State",1,"Hold Last State";
+
+	Param705= 0,,,
+			  0x0002,		$ Descriptor (Enum)
+			  0xC1,1,		$ BOOL
+			  "Pt21 Fault State","",
+			  "Select condition on system transition from Run to Fault.",
+			  0,1,0,,,,,,,,,;
+	Enum705=  0,"User-defined Safe State",1,"Hold Last State";
+
+	Param706= 0,,,
+			  0x0002,		$ Descriptor (Enum)
+			  0xC1,1,		$ BOOL
+			  "Pt22 Fault State","",
+			  "Select condition on system transition from Run to Fault.",
+			  0,1,0,,,,,,,,,;
+	Enum706=  0,"User-defined Safe State",1,"Hold Last State";
+
+	Param707= 0,,,
+			  0x0002,		$ Descriptor (Enum)
+			  0xC1,1,		$ BOOL
+			  "Pt23 Fault State","",
+			  "Select condition on system transition from Run to Fault.",
+			  0,1,0,,,,,,,,,;
+	Enum707=  0,"User-defined Safe State",1,"Hold Last State";
+
+	Param708= 0,,,
+			  0x0002,		$ Descriptor (Enum)
+			  0xC1,1,		$ BOOL
+			  "Pt24 Fault State","",
+			  "Select condition on system transition from Run to Fault.",
+			  0,1,0,,,,,,,,,;
+	Enum708=  0,"User-defined Safe State",1,"Hold Last State";
+
+	Param709= 0,,,
+			  0x0002,		$ Descriptor (Enum)
+			  0xC1,1,		$ BOOL
+			  "Pt25 Fault State","",
+			  "Select condition on system transition from Run to Fault.",
+			  0,1,0,,,,,,,,,;
+	Enum709=  0,"User-defined Safe State",1,"Hold Last State";
+
+	Param710= 0,,,
+			  0x0002,		$ Descriptor (Enum)
+			  0xC1,1,		$ BOOL
+			  "Pt26 Fault State","",
+			  "Select condition on system transition from Run to Fault.",
+			  0,1,0,,,,,,,,,;
+	Enum710=  0,"User-defined Safe State",1,"Hold Last State";
+
+	Param711= 0,,,
+			  0x0002,		$ Descriptor (Enum)
+			  0xC1,1,		$ BOOL
+			  "Pt27 Fault State","",
+			  "Select condition on system transition from Run to Fault.",
+			  0,1,0,,,,,,,,,;
+	Enum711=  0,"User-defined Safe State",1,"Hold Last State";
+
+	Param712= 0,,,
+			  0x0002,		$ Descriptor (Enum)
+			  0xC1,1,		$ BOOL
+			  "Pt28 Fault State","",
+			  "Select condition on system transition from Run to Fault.",
+			  0,1,0,,,,,,,,,;
+	Enum712=  0,"User-defined Safe State",1,"Hold Last State";
+
+	Param713= 0,,,
+			  0x0002,		$ Descriptor (Enum)
+			  0xC1,1,		$ BOOL
+			  "Pt29 Fault State","",
+			  "Select condition on system transition from Run to Fault.",
+			  0,1,0,,,,,,,,,;
+	Enum713=  0,"User-defined Safe State",1,"Hold Last State";
+
+	Param714= 0,,,
+			  0x0002,		$ Descriptor (Enum)
+			  0xC1,1,		$ BOOL
+			  "Pt30 Fault State","",
+			  "Select condition on system transition from Run to Fault.",
+			  0,1,0,,,,,,,,,;
+	Enum714=  0,"User-defined Safe State",1,"Hold Last State";
+
+	Param715= 0,,,
+			  0x0002,		$ Descriptor (Enum)
+			  0xC1,1,		$ BOOL
+			  "Pt31 Fault State","",
+			  "Select condition on system transition from Run to Fault.",
+			  0,1,0,,,,,,,,,;
+	Enum715=  0,"User-defined Safe State",1,"Hold Last State";
+
+	$*********************************************************************
+	$	Word 8 configuration data - Fault Value for Output Array Word 0
+	$*********************************************************************
+	Param800= 0,,,			$ Reserved, link size, link path
+			  0x0002,		$ Descriptor (Enum)
+			  0xC1,1,		$ BOOL
+			  "Pt00 Fault Value","",
+			  "Select fault state value.",
+			  0,1,0,,,,,,,,,;
+	Enum800=  0,"Off",1,"On";
+
+	Param801= 0,,,			$ Reserved, link size, link path
+			  0x0002,		$ Descriptor (Enum)
+			  0xC1,1,		$ BOOL
+			  "Pt01 Fault Value","",
+			  "Select fault state value.",
+			  0,1,0,,,,,,,,,;
+	Enum801=  0,"Off",1,"On";
+
+	Param802= 0,,,			$ Reserved, link size, link path
+			  0x0002,		$ Descriptor (Enum)
+			  0xC1,1,		$ BOOL
+			  "Pt02 Fault Value","",
+			  "Select fault state value.",
+			  0,1,0,,,,,,,,,;
+	Enum802=  0,"Off",1,"On";
+
+	Param803= 0,,,			$ Reserved, link size, link path
+			  0x0002,		$ Descriptor (Enum)
+			  0xC1,1,		$ BOOL
+			  "Pt03 Fault Value","",
+			  "Select fault state value.",
+			  0,1,0,,,,,,,,,;
+	Enum803=  0,"Off",1,"On";
+
+	Param804= 0,,,			$ Reserved, link size, link path
+			  0x0002,		$ Descriptor (Enum)
+			  0xC1,1,		$ BOOL
+			  "Pt04 Fault Value","",
+			  "Select fault state value.",
+			  0,1,0,,,,,,,,,;
+	Enum804=  0,"Off",1,"On";
+
+	Param805= 0,,,			$ Reserved, link size, link path
+			  0x0002,		$ Descriptor (Enum)
+			  0xC1,1,		$ BOOL
+			  "Pt05 Fault Value","",
+			  "Select fault state value.",
+			  0,1,0,,,,,,,,,;
+	Enum805=  0,"Off",1,"On";
+
+	Param806= 0,,,			$ Reserved, link size, link path
+			  0x0002,		$ Descriptor (Enum)
+			  0xC1,1,		$ BOOL
+			  "Pt06 Fault Value","",
+			  "Select fault state value.",
+			  0,1,0,,,,,,,,,;
+	Enum806=  0,"Off",1,"On";
+
+	Param807= 0,,,			$ Reserved, link size, link path
+			  0x0002,		$ Descriptor (Enum)
+			  0xC1,1,		$ BOOL
+			  "Pt07 Fault Value","",
+			  "Select fault state value.",
+			  0,1,0,,,,,,,,,;
+	Enum807=  0,"Off",1,"On";
+
+	Param808= 0,,,			$ Reserved, link size, link path
+			  0x0002,		$ Descriptor (Enum)
+			  0xC1,1,		$ BOOL
+			  "Pt08 Fault Value","",
+			  "Select fault state value.",
+			  0,1,0,,,,,,,,,;
+	Enum808=  0,"Off",1,"On";
+
+	Param809= 0,,,			$ Reserved, link size, link path
+			  0x0002,		$ Descriptor (Enum)
+			  0xC1,1,		$ BOOL
+			  "Pt09 Fault Value","",
+			  "Select fault state value.",
+			  0,1,0,,,,,,,,,;
+	Enum809=  0,"Off",1,"On";
+
+	Param810= 0,,,			$ Reserved, link size, link path
+			  0x0002,		$ Descriptor (Enum)
+			  0xC1,1,		$ BOOL
+			  "Pt10 Fault Value","",
+			  "Select fault state value.",
+			  0,1,0,,,,,,,,,;
+	Enum810=  0,"Off",1,"On";
+
+	Param811= 0,,,			$ Reserved, link size, link path
+			  0x0002,		$ Descriptor (Enum)
+			  0xC1,1,		$ BOOL
+			  "Pt11 Fault Value","",
+			  "Select fault state value.",
+			  0,1,0,,,,,,,,,;
+	Enum811=  0,"Off",1,"On";
+
+	Param812= 0,,,			$ Reserved, link size, link path
+			  0x0002,		$ Descriptor (Enum)
+			  0xC1,1,		$ BOOL
+			  "Pt12 Fault Value","",
+			  "Select fault state value.",
+			  0,1,0,,,,,,,,,;
+	Enum812=  0,"Off",1,"On";
+
+	Param813= 0,,,			$ Reserved, link size, link path
+			  0x0002,		$ Descriptor (Enum)
+			  0xC1,1,		$ BOOL
+			  "Pt13 Fault Value","",
+			  "Select fault state value.",
+			  0,1,0,,,,,,,,,;
+	Enum813=  0,"Off",1,"On";
+
+	Param814= 0,,,			$ Reserved, link size, link path
+			  0x0002,		$ Descriptor (Enum)
+			  0xC1,1,		$ BOOL
+			  "Pt14 Fault Value","",
+			  "Select fault state value.",
+			  0,1,0,,,,,,,,,;
+	Enum814=  0,"Off",1,"On";
+
+	Param815= 0,,,			$ Reserved, link size, link path
+			  0x0002,		$ Descriptor (Enum)
+			  0xC1,1,		$ BOOL
+			  "Pt15 Fault Value","",
+			  "Select fault state value.",
+			  0,1,0,,,,,,,,,;
+	Enum815=  0,"Off",1,"On";
+
+	$*********************************************************************
+	$	Word 9 configuration data - Fault Value for Output Array Word 1
+	$*********************************************************************
+	Param900= 0,,,			$ Reserved, link size, link path
+			  0x0002,		$ Descriptor (Enum)
+			  0xC1,1,		$ BOOL
+			  "Pt16 Fault Value","",
+			  "Select fault state value.",
+			  0,1,0,,,,,,,,,;
+	Enum900=  0,"Off",1,"On";
+
+	Param901= 0,,,			$ Reserved, link size, link path
+			  0x0002,		$ Descriptor (Enum)
+			  0xC1,1,		$ BOOL
+			  "Pt17 Fault Value","",
+			  "Select fault state value.",
+			  0,1,0,,,,,,,,,;
+	Enum901=  0,"Off",1,"On";
+
+	Param902= 0,,,			$ Reserved, link size, link path
+			  0x0002,		$ Descriptor (Enum)
+			  0xC1,1,		$ BOOL
+			  "Pt18 Fault Value","",
+			  "Select fault state value.",
+			  0,1,0,,,,,,,,,;
+	Enum902=  0,"Off",1,"On";
+
+	Param903= 0,,,			$ Reserved, link size, link path
+			  0x0002,		$ Descriptor (Enum)
+			  0xC1,1,		$ BOOL
+			  "Pt19 Fault Value","",
+			  "Select fault state value.",
+			  0,1,0,,,,,,,,,;
+	Enum903=  0,"Off",1,"On";
+
+	Param904= 0,,,			$ Reserved, link size, link path
+			  0x0002,		$ Descriptor (Enum)
+			  0xC1,1,		$ BOOL
+			  "Pt20 Fault Value","",
+			  "Select fault state value.",
+			  0,1,0,,,,,,,,,;
+	Enum904=  0,"Off",1,"On";
+
+	Param905= 0,,,			$ Reserved, link size, link path
+			  0x0002,		$ Descriptor (Enum)
+			  0xC1,1,		$ BOOL
+			  "Pt21 Fault Value","",
+			  "Select fault state value.",
+			  0,1,0,,,,,,,,,;
+	Enum905=  0,"Off",1,"On";
+
+	Param906= 0,,,			$ Reserved, link size, link path
+			  0x0002,		$ Descriptor (Enum)
+			  0xC1,1,		$ BOOL
+			  "Pt22 Fault Value","",
+			  "Select fault state value.",
+			  0,1,0,,,,,,,,,;
+	Enum906=  0,"Off",1,"On";
+
+	Param907= 0,,,			$ Reserved, link size, link path
+			  0x0002,		$ Descriptor (Enum)
+			  0xC1,1,		$ BOOL
+			  "Pt23 Fault Value","",
+			  "Select fault state value.",
+			  0,1,0,,,,,,,,,;
+	Enum907=  0,"Off",1,"On";
+
+	Param908= 0,,,			$ Reserved, link size, link path
+			  0x0002,		$ Descriptor (Enum)
+			  0xC1,1,		$ BOOL
+			  "Pt24 Fault Value","",
+			  "Select fault state value.",
+			  0,1,0,,,,,,,,,;
+	Enum908=  0,"Off",1,"On";
+
+	Param909= 0,,,			$ Reserved, link size, link path
+			  0x0002,		$ Descriptor (Enum)
+			  0xC1,1,		$ BOOL
+			  "Pt25 Fault Value","",
+			  "Select fault state value.",
+			  0,1,0,,,,,,,,,;
+	Enum909=  0,"Off",1,"On";
+
+	Param910= 0,,,			$ Reserved, link size, link path
+			  0x0002,		$ Descriptor (Enum)
+			  0xC1,1,		$ BOOL
+			  "Pt26 Fault Value","",
+			  "Select fault state value.",
+			  0,1,0,,,,,,,,,;
+	Enum910=  0,"Off",1,"On";
+
+	Param911= 0,,,			$ Reserved, link size, link path
+			  0x0002,		$ Descriptor (Enum)
+			  0xC1,1,		$ BOOL
+			  "Pt27 Fault Value","",
+			  "Select fault state value.",
+			  0,1,0,,,,,,,,,;
+	Enum911=  0,"Off",1,"On";
+
+	Param912= 0,,,			$ Reserved, link size, link path
+			  0x0002,		$ Descriptor (Enum)
+			  0xC1,1,		$ BOOL
+			  "Pt28 Fault Value","",
+			  "Select fault state value.",
+			  0,1,0,,,,,,,,,;
+	Enum912=  0,"Off",1,"On";
+
+	Param913= 0,,,			$ Reserved, link size, link path
+			  0x0002,		$ Descriptor (Enum)
+			  0xC1,1,		$ BOOL
+			  "Pt29 Fault Value","",
+			  "Select fault state value.",
+			  0,1,0,,,,,,,,,;
+	Enum913=  0,"Off",1,"On";
+
+	Param914= 0,,,			$ Reserved, link size, link path
+			  0x0002,		$ Descriptor (Enum)
+			  0xC1,1,		$ BOOL
+			  "Pt30 Fault Value","",
+			  "Select fault state value.",
+			  0,1,0,,,,,,,,,;
+	Enum914=  0,"Off",1,"On";
+
+	Param915= 0,,,			$ Reserved, link size, link path
+			  0x0002,		$ Descriptor (Enum)
+			  0xC1,1,		$ BOOL
+			  "Pt31 Fault Value","",
+			  "Select fault state value.",
+			  0,1,0,,,,,,,,,;
+	Enum915=  0,"Off",1,"On";
+
+
+[Assembly]
+
+	$ Input File (2 words)
+	ProxiedAssem101 =
+		"Input Array",,,,,,
+		32,Param20;
+
+	$ Output File (2 words)
+	ProxiedAssem100 =
+		"Output Array",,,,,,
+		32,Param30;
+
+	$ Configuration File (16 words)
+	ProxiedAssem4 =
+		"Channel Config",,,,,,
+
+		$--- Configuration Word 0 ---
+		1,Param10,		$ Program Fault Enable
+		15,0,			$ Unused
+
+		$--- Configuration Word 1 - Reserved
+		16,0,
+
+		$--- Configuration Word 2 - Program State for Output Word 0
+		1,Param200,		$ Point 0
+		1,Param201,		$ Point 1
+		1,Param202,		$ Point 2
+		1,Param203,		$ Point 3
+		1,Param204,		$ Point 4
+		1,Param205,		$ Point 5
+		1,Param206,		$ Point 6
+		1,Param207,		$ Point 7
+		1,Param208,		$ Point 8
+		1,Param209,		$ Point 9
+		1,Param210,		$ Point 10
+		1,Param211,		$ Point 11
+		1,Param212,		$ Point 12
+		1,Param213,		$ Point 13
+		1,Param214,		$ Point 14
+		1,Param215,		$ Point 15
+
+		$--- Configuration Word 3 - Program State for Output Word 1
+		1,Param300,		$ Point 0
+		1,Param301,		$ Point 1
+		1,Param302,		$ Point 2
+		1,Param303,		$ Point 3
+		1,Param304,		$ Point 4
+		1,Param305,		$ Point 5
+		1,Param306,		$ Point 6
+		1,Param307,		$ Point 7
+		1,Param308,		$ Point 8
+		1,Param309,		$ Point 9
+		1,Param310,		$ Point 10
+		1,Param311,		$ Point 11
+		1,Param312,		$ Point 12
+		1,Param313,		$ Point 13
+		1,Param314,		$ Point 14
+		1,Param315,		$ Point 15
+
+		$--- Configuration Word 4 - Program Value for Output Word 0
+		1,Param400,		$ Point 0
+		1,Param401,		$ Point 1
+		1,Param402,		$ Point 2
+		1,Param403,		$ Point 3
+		1,Param404,		$ Point 4
+		1,Param405,		$ Point 5
+		1,Param406,		$ Point 6
+		1,Param407,		$ Point 7
+		1,Param408,		$ Point 8
+		1,Param409,		$ Point 9
+		1,Param410,		$ Point 10
+		1,Param411,		$ Point 11
+		1,Param412,		$ Point 12
+		1,Param413,		$ Point 13
+		1,Param414,		$ Point 14
+		1,Param415,		$ Point 15
+
+		$--- Configuration Word 5 - Program Value for Output Word 1
+		1,Param500,		$ Point 0
+		1,Param501,		$ Point 1
+		1,Param502,		$ Point 2
+		1,Param503,		$ Point 3
+		1,Param504,		$ Point 4
+		1,Param505,		$ Point 5
+		1,Param506,		$ Point 6
+		1,Param507,		$ Point 7
+		1,Param508,		$ Point 8
+		1,Param509,		$ Point 9
+		1,Param510,		$ Point 10
+		1,Param511,		$ Point 11
+		1,Param512,		$ Point 12
+		1,Param513,		$ Point 13
+		1,Param514,		$ Point 14
+		1,Param515,		$ Point 15
+
+		$--- Configuration Word 6 - Fault State for Output Word 0
+		1,Param600,		$ Point 0
+		1,Param601,		$ Point 1
+		1,Param602,		$ Point 2
+		1,Param603,		$ Point 3
+		1,Param604,		$ Point 4
+		1,Param605,		$ Point 5
+		1,Param606,		$ Point 6
+		1,Param607,		$ Point 7
+		1,Param608,		$ Point 8
+		1,Param609,		$ Point 9
+		1,Param610,		$ Point 10
+		1,Param611,		$ Point 11
+		1,Param612,		$ Point 12
+		1,Param613,		$ Point 13
+		1,Param614,		$ Point 14
+		1,Param615,		$ Point 15
+
+		$--- Configuration Word 7 - Fault State for Output Word 1
+		1,Param700,		$ Point 0
+		1,Param701,		$ Point 1
+		1,Param702,		$ Point 2
+		1,Param703,		$ Point 3
+		1,Param704,		$ Point 4
+		1,Param705,		$ Point 5
+		1,Param706,		$ Point 6
+		1,Param707,		$ Point 7
+		1,Param708,		$ Point 8
+		1,Param709,		$ Point 9
+		1,Param710,		$ Point 10
+		1,Param711,		$ Point 11
+		1,Param712,		$ Point 12
+		1,Param713,		$ Point 13
+		1,Param714,		$ Point 14
+		1,Param715,		$ Point 15
+
+		$--- Configuration Word 8 - Fault Value for Output Word 0
+		1,Param800,		$ Point 0
+		1,Param801,		$ Point 1
+		1,Param802,		$ Point 2
+		1,Param803,		$ Point 3
+		1,Param804,		$ Point 4
+		1,Param805,		$ Point 5
+		1,Param806,		$ Point 6
+		1,Param807,		$ Point 7
+		1,Param808,		$ Point 8
+		1,Param809,		$ Point 9
+		1,Param810,		$ Point 10
+		1,Param811,		$ Point 11
+		1,Param812,		$ Point 12
+		1,Param813,		$ Point 13
+		1,Param814,		$ Point 14
+		1,Param815,		$ Point 15
+
+		$--- Configuration Word 9 - Fault Value for Output Word 1
+		1,Param900,		$ Point 0
+		1,Param901,		$ Point 1
+		1,Param902,		$ Point 2
+		1,Param903,		$ Point 3
+		1,Param904,		$ Point 4
+		1,Param905,		$ Point 5
+		1,Param906,		$ Point 6
+		1,Param907,		$ Point 7
+		1,Param908,		$ Point 8
+		1,Param909,		$ Point 9
+		1,Param910,		$ Point 10
+		1,Param911,		$ Point 11
+		1,Param912,		$ Point 12
+		1,Param913,		$ Point 13
+		1,Param914,		$ Point 14
+		1,Param915,		$ Point 15
+
+		$--- Configuration Word 10 - Reserved
+		16,0,
+
+		$--- Configuration Word 11 - Reserved
+		16,0,
+
+		$--- Configuration Word 12 - Reserved
+		16,0,
+
+		$--- Configuration Word 13 - Reserved
+		16,0,
+
+		$--- Configuration Word 14 - Reserved
+		16,0,
+
+		$--- Configuration Word 15 - Reserved
+		16,0;
+
+
+[Groups]
+	Group1 = "General",1,10;
+	Group2 = "Program States 00-15",16,200,201,202,203,204,205,206,207,208,209,210,211,212,213,214,215;
+	Group3 = "Program States 16-31",16,300,301,302,303,304,305,306,307,308,309,310,311,312,313,314,315;
+	Group4 = "Program Values 00-15",16,400,401,402,403,404,405,406,407,408,409,410,411,412,413,414,415;
+	Group5 = "Program Values 16-31",16,500,501,502,503,504,505,506,507,508,509,510,511,512,513,514,515;
+	Group6 = "Fault States 00-15",  16,600,601,602,603,604,605,606,607,608,609,610,611,612,613,614,615;
+	Group7 = "Fault States 16-31",  16,700,701,702,703,704,705,706,707,708,709,710,711,712,713,714,715;
+	Group8 = "Fault Values 00-15",  16,800,801,802,803,804,805,806,807,808,809,810,811,812,813,814,815;
+	Group9 = "Fault Values 16-31",  16,900,901,902,903,904,905,906,907,908,909,910,911,912,913,914,915;

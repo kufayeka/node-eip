@@ -1,0 +1,202 @@
+$
+$ EDS Name: 0001001800190100.eds
+$
+[File]
+    DescText   = "InView-EtherNet/IP 2706-PENETX EDS";
+    CreateDate = 02-11-2003;
+    CreateTime = 09:00:00;
+    ModDate    = 09-24-2003;
+    ModTime    = 08:30:00;
+    Revision   = 1.1;
+
+[Device]
+    VendCode    = 1;
+    VendName    = "Allen-Bradley";
+    ProdType    = 24;
+    ProdTypeStr = "Human Machine Interface";
+    ProdCode    = 25;
+    MajRev      = 1;
+    MinRev      = 4;
+    ProdName    = "InView EtherNet/IP";
+    Catalog     = "2706-PENETX";
+    Icon = "inview.ico";
+
+[Device Classification]
+    Class1 = EtherNetIP;
+
+[Port]
+	Port2 = TCP,   		$ Port type
+			"EtherNet", $ Port name
+			"",  		$ Path to Port object, The CNet object for InView
+			2;          $ Port Number
+
+[Params]
+    $ The Params entries consist of the following:
+        $ Reserved (0),
+        $ Link Path Size,
+        $ Link Path,
+        $ Parameter Descriptor,
+        $ Data Type Identifier,
+        $ Data Size,
+        $ Parameter Name,
+        $ Units String,
+        $ Help String,
+        $ Minimum Value,
+        $ Maximum Value,
+        $ Default Value,
+        $ Scaling Multiplier,
+        $ Scaling Divider,
+        $ Scaling Base,
+        $ Scaling Offset,
+        $ Multiplier Link,
+        $ Divisor Link,
+        $ Base Link,
+        $ Other Link,
+        $ Decimal Precision,
+
+    $ Param 1 & 2 describe the buffers that may be connected to for read (consumer) and write
+    $ (producer) connections.  The even buffer numbers 6 - 68 are for consumer connections,
+    $ and the odd buffer numbers 7 - 69 are for producer connections.
+
+    $   User Enters:    Actual Parm 1:   Actual Parm 2:
+    $                   (Scanner Inputs) (Scanner Outputs)
+    $       1               7               6
+    $       2               9               8
+    $       3               11              10
+    $       4               13              12
+    $       5               15              14
+    $       6               17              16
+    $       7               19              18
+    $       8               21              20
+
+    $ Param1 describes the Assembly Object Producer Connection Buffers 
+    $ (data going from the PV to the device).
+    Param1 = 
+    	0, 							  $ first field shall equal 0
+        ,, 							  $ path size,path
+        0x0004, 					  $ descriptor
+        8, 							  $ data type : 16-bit Unsigned Integer
+        1, 							  $ data size in bytes
+        "Read Data from InView",	  $ name
+        "", 						  $ units
+        "", 						  $ help string
+        7, 21, 7, 					  $ min,max,default data values
+        1, 2, 1, -5, 				  $ mult,dev,base,offset scaling not used
+        0,0,0,0,					  $ mult,dev,base,offset link not used
+        0;							  $ decimal places not used
+
+    $ Param2 describes the Assembly Object Consumer Connection Buffers 
+    $ (data coming from the device to be displayed on the PV).
+    Param2 = 
+    	0, 							  $ first field shall equal 0
+        ,, 							  $ path size,path
+        0x0004, 					  $ descriptor
+        8, 							  $ data type : 16-bit Unsigned Integer
+        1, 							  $ data size in bytes
+        "Write Data to InView", 	  $ name
+        "", 						  $ units
+        "", 						  $ help string
+        6, 20, 6, 					  $ min,max,default data values
+        1, 2, 1, -4, 				  $ mult,dev,base,offset scaling not used
+        0,0,0,0, 					  $ mult,dev,base,offset link not used
+        0;							  $ decimal places not used
+
+    $ The following describes the valid size range for Assembly consumer and producer connections.  
+    $ These sizes include a 32-bit header for both Producer and Consumer connections.
+    Param3 = 0, , , 0x0000, 2, 2, "", "", "", 0, 500, 16, 0, 0, 0, 0, 0, 0, 0, 0, 0;
+	Enum3 =
+	0,"0",2,"2",4,"4",6,"6",8,"8",10,"10",12,"12",14,"14",16,"16",18,"18",20,"20",
+	22,"22",24,"24",26,"26",28,"28",30,"30",32,"32",34,"34",36,"36",38,"38",40,"40",
+	42,"42",44,"44",46,"46",48,"48",50,"50",52,"52",54,"54",56,"56",58,"58",60,"60",
+	62,"62",64,"64",66,"66",68,"68",70,"70",72,"72",74,"74",76,"76",78,"78",80,"80",
+	82,"82",84,"84",86,"86",88,"88",90,"90",92,"92",94,"94",96,"96",98,"98",100,"100",
+	102,"102",104,"104",106,"106",108,"108",110,"110",112,"112",114,"114",116,"116",118,"118",120,"120",
+	122,"122",124,"124",126,"126",128,"128",130,"130",132,"132",134,"134",136,"136",138,"138",140,"140",
+	142,"142",144,"144",146,"146",148,"148",150,"150",152,"152",154,"154",156,"156",158,"158",160,"160",
+	162,"162",164,"164",166,"166",168,"168",170,"170",172,"172",174,"174",176,"176",178,"178",180,"180",
+	182,"182",184,"184",186,"186",188,"188",190,"190",192,"192",194,"194",196,"196",198,"198",200,"200",
+	202,"202",204,"204",206,"206",208,"208",210,"210",212,"212",214,"214",216,"216",218,"218",220,"220",
+	222,"222",224,"224",226,"226",228,"228",230,"230",232,"232",234,"234",236,"236",238,"238",240,"240",
+	242,"242",244,"244",246,"246",248,"248",250,"250",252,"252",254,"254",256,"256",258,"258",260,"260",
+	262,"262",264,"264",266,"266",268,"268",270,"270",272,"272",274,"274",276,"276",278,"278",280,"280",
+	282,"282",284,"284",286,"286",288,"288",290,"290",292,"292",294,"294",296,"296",298,"298",300,"300",
+	302,"302",304,"304",306,"306",308,"308",310,"310",312,"312",314,"314",316,"316",318,"318",320,"320",
+	322,"322",324,"324",326,"326",328,"328",330,"330",332,"332",334,"334",336,"336",338,"338",340,"340",
+	342,"342",344,"344",346,"346",348,"348",350,"350",352,"352",354,"354",356,"356",358,"358",360,"360",
+	362,"362",364,"364",366,"366",368,"368",370,"370",372,"372",374,"374",376,"376",378,"378",380,"380",
+	382,"382",384,"384",386,"386",388,"388",390,"390",392,"392",394,"394",396,"396",398,"398",400,"400",
+	402,"402",404,"404",406,"406",408,"408",410,"410",412,"412",414,"414",416,"416",418,"418",420,"420",
+	422,"422",424,"424",426,"426",428,"428",430,"430",432,"432",434,"434",436,"436",438,"438",440,"440",
+	442,"442",444,"444",446,"446",448,"448",450,"450",452,"452",454,"454",456,"456",458,"458",460,"460",
+	462,"462",464,"464",466,"466",468,"468",470,"470",472,"472",474,"474",476,"476",478,"478",480,"480",
+	482,"482",484,"484",486,"486",488,"488",490,"490",492,"492",494,"494",496,"496",498,"498",500,"500";
+    Param4 = 0, , , 0x0000, 2, 2, "", "", "", 0, 500, 16, 0, 0, 0, 0, 0, 0, 0, 0, 0;
+	Enum4 =
+	0,"0",2,"2",4,"4",6,"6",8,"8",10,"10",12,"12",14,"14",16,"16",18,"18",20,"20",
+	22,"22",24,"24",26,"26",28,"28",30,"30",32,"32",34,"34",36,"36",38,"38",40,"40",
+	42,"42",44,"44",46,"46",48,"48",50,"50",52,"52",54,"54",56,"56",58,"58",60,"60",
+	62,"62",64,"64",66,"66",68,"68",70,"70",72,"72",74,"74",76,"76",78,"78",80,"80",
+	82,"82",84,"84",86,"86",88,"88",90,"90",92,"92",94,"94",96,"96",98,"98",100,"100",
+	102,"102",104,"104",106,"106",108,"108",110,"110",112,"112",114,"114",116,"116",118,"118",120,"120",
+	122,"122",124,"124",126,"126",128,"128",130,"130",132,"132",134,"134",136,"136",138,"138",140,"140",
+	142,"142",144,"144",146,"146",148,"148",150,"150",152,"152",154,"154",156,"156",158,"158",160,"160",
+	162,"162",164,"164",166,"166",168,"168",170,"170",172,"172",174,"174",176,"176",178,"178",180,"180",
+	182,"182",184,"184",186,"186",188,"188",190,"190",192,"192",194,"194",196,"196",198,"198",200,"200",
+	202,"202",204,"204",206,"206",208,"208",210,"210",212,"212",214,"214",216,"216",218,"218",220,"220",
+	222,"222",224,"224",226,"226",228,"228",230,"230",232,"232",234,"234",236,"236",238,"238",240,"240",
+	242,"242",244,"244",246,"246",248,"248",250,"250",252,"252",254,"254",256,"256",258,"258",260,"260",
+	262,"262",264,"264",266,"266",268,"268",270,"270",272,"272",274,"274",276,"276",278,"278",280,"280",
+	282,"282",284,"284",286,"286",288,"288",290,"290",292,"292",294,"294",296,"296",298,"298",300,"300",
+	302,"302",304,"304",306,"306",308,"308",310,"310",312,"312",314,"314",316,"316",318,"318",320,"320",
+	322,"322",324,"324",326,"326",328,"328",330,"330",332,"332",334,"334",336,"336",338,"338",340,"340",
+	342,"342",344,"344",346,"346",348,"348",350,"350",352,"352",354,"354",356,"356",358,"358",360,"360",
+	362,"362",364,"364",366,"366",368,"368",370,"370",372,"372",374,"374",376,"376",378,"378",380,"380",
+	382,"382",384,"384",386,"386",388,"388",390,"390",392,"392",394,"394",396,"396",398,"398",400,"400",
+	402,"402",404,"404",406,"406",408,"408",410,"410",412,"412",414,"414",416,"416",418,"418",420,"420",
+	422,"422",424,"424",426,"426",428,"428",430,"430",432,"432",434,"434",436,"436",438,"438",440,"440",
+	442,"442",444,"444",446,"446",448,"448",450,"450",452,"452",454,"454",456,"456",458,"458",460,"460",
+	462,"462",464,"464",466,"466",468,"468",470,"470",472,"472",474,"474",476,"476",478,"478",480,"480",
+	482,"482",484,"484",486,"486",488,"488",490,"490",492,"492",494,"494",496,"496",498,"498",500,"500";
+
+[Connection Manager]
+
+    $ The following describe the general use types of connections.
+    $ These connections are Controller-centric.  
+    
+    $ The "read" is a Producer connection with data flowing from the PV to the Controller,
+    $ and a "heartbeat" going from the Controller to the PV.
+    Connection1 =
+        0x02010002,                             $ class 1, cyclic, input only
+        0x22660401,                             $ O=>T hi-pri, p2p or multicast, run/idle header
+                                                $ T=>O hi-pri, p2p or multicast, 64-bit status header
+        , 0, ,                                  $ O=>T RPI, size, format
+        , Param3, ,                             $ T=>O RPI, size, format
+        , ,                                     $ config part 1 (unused)
+        , ,                                     $ config part 2 (unused)
+        "Read only", "",                        $ connection name string, help string
+        "20 04 24 01 2C 02 2C [Param1]";        $ Path to target object - Connection point (buffer) 2 is 0 length consumer.
+
+    $ The "write" is a Consumer connection with data flowing from the Controller to the PV,
+    $ and a "heartbeat" going from the PV to the Controller.
+    Connection2 =
+        0x04010002,                             $ class 1, cyclic, exclusive owner
+        0x22660401,                             $ O=>T hi-pri, p2p or multicast, run/idle header
+                                                $ T=>O hi-pri, p2p, 64-bit status header
+        , Param4, ,                             $ O=>T RPI, size, format
+        , 0, ,                                  $ T=>O RPI, size, format
+        , ,                                     $ config part 1 (unused)
+        , ,                                     $ config part 2 (unused)
+        "Write only", "",                       $ connection name string, help string
+        "20 04 24 01 2C [Param2] 2C 03";        $ Path to target object - Connection point (buffer) 3 is 0 length producer.
+
+    $ The "read/write" is a bi-directional connection with data flowing both directions.
+    Connection3 =
+        0x04010002,                             $ class 1, cyclic, exclusive owner
+        0x22660401,                             $ O=>T hi-pri, p2p or multicast, run/idle header
+                                                $ T=>O hi-pri, p2p or multicast, 64-bit status header
+        , Param3, ,                             $ O=>T RPI, size, format
+        , Param4, ,                             $ T=>O RPI, size, format
+        , ,                                     $ config part 1 (unused)
+        , ,                                     $ config part 2 (unused)
+        "Read/Write", "",                       $ connection name string, help string
+        "20 04 24 01 2C [Param2] 2C [Param1]";  $ Path to target object

@@ -1,0 +1,71 @@
+$ EZ-EDS Version 1.2 Generated Electronic Data Sheet
+
+[File]
+        DescText = "1757-FFLDC Foundation Fieldbus Gateway Device LGXC block";
+        CreateDate = 12-12-2007;
+        CreateTime = 20:00:00;
+        Revision = 1.4;
+        HomeURL = "http://www.ab.com/networks/eds/CN/0001007300840100.eds";
+
+[Device]
+        VendCode = 1;
+        VendName = "Allen-Bradley";
+        ProdType = 115;
+        ProdTypeStr = "Rockwell Miscellaneous";
+        ProdCode = 132;
+        MajRev = 1;
+        MinRev = 1;
+        ProdName = "LGXC Block";
+        Catalog = "1757-FFLDC/A";
+        Icon = "ff_icon.ico";
+
+[Device Classification]
+	Class1 = 1_RSNetWorx_FFLD,1_RSNetWorx_Connectable_Module;
+
+$[Port]
+$   Port1 = 1_Virtual_Backplane,
+$           "Backplane",
+$           "21 00 00 03 24 01",
+$           1;
+
+[Modular]
+    Width =       1;		   $ Occupies a single slot
+	Rack1 =						$ Based on the virtual backplane (VB5FL)
+            1,					$ VendorID = Allen-Bradley
+            0x6C, 0x148,		$ Product Type, Product Code
+            1, 1,				$ Major Revision, Minor Revision
+            ,,,					$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16;		$ Legal Slots
+	ExternalID = "84 00";
+
+   1_Display_Only_ProxiedConnect1 =
+      ,           $ trigger & transport 
+                  $  0-15  = supported transport classes (class 1)
+                  $  16 = cyclic (1 = supported)
+                  $  17 = change of state (0 = not supported)
+                  $  18 = on demand (0 = not supported)
+                  $  19-23 = reserved (must be zero)
+                  $  24-27 = exclusive owner
+                  $  28-30 = reserved (must be zero)
+                  $  31 = client 0 (don't care for classes 0 and 1)
+      ,           $ point/multicast & priority & realtime format
+                  $   0     = O=>T fixed (1 = supported)
+                  $   1     = O=>T variable (0 = not supported)
+                  $   2     = T=>O fixed (1 = supported)
+                  $   3     = T=>O variable (0 = not supported)
+                  $  4-7   = reserved (must be zero)
+                  $  8-10  = O=>T header (4 byte run/idle)
+                  $  11  = reserved (must be zero)
+                  $  12-14 = T=>O header 
+                  $  15  = reserved (must be zero)
+                  $  16-19 = O=>T point-to-point
+                  $  20-23 = T=>O multicast
+                  $  24-27 = O=>T scheduled
+                  $  28-31 = T=>O scheduled
+      ,,,         $ O=>T default,description
+      ,,,         $ T=>O default,description
+      ,,          $ config part 1 (dynamic assemblies)
+      ,,          $ config part 2 (module configuration)
+      ,           $ connection name
+      ,           $ Help string
+      ;           $ exclusive owner path

@@ -1,0 +1,2089 @@
+$ 	1732E-OB8M8SR 2 Port EtherNet/IP ArmorBlock I/O
+$  
+
+
+[File]
+        DescText = "1732E 8 Scheduled Output 2 Port EtherNet/IP ArmorBlock I/O";
+        CreateDate = 05-19-2011;
+        CreateTime = 14:42:42;
+        ModDate = 01-14-2012;
+        ModTime = 07:42:42;
+        Revision = 1.3;               $ EDS revision.
+        HomeURL = "http://www.ab.com/networks/eds/EN/00010007017F0100.eds";
+
+[Device]
+        VendCode = 1;
+        VendName = "Rockwell Automation/Allen-Bradley";
+        ProdType = 7;
+        ProdTypeStr = "General Purpose Discrete I/O";
+        ProdCode = 383;
+        MajRev = 1;
+        MinRev = 11;
+        ProdName = "1732E-OB8M8SR 24 DC Out M8";
+        Catalog = "1732E-OB8M8SR";
+        Icon = "1732D_M8.ico";
+
+[Device Classification]
+        Class1 = EtherNetIP;
+	  Class2 = 1_RSLinx_CLGateway_Tool;
+
+[ParamClass]
+        Revision = 1;
+        MaxInst = 5;
+        Descriptor = 0x0F;
+        CfgAssembly = 171;
+
+[TCP/IP Interface Class]
+        Revision = 2;
+        MaxInst = 1;
+        Number_Of_Static_Instances = 1;
+        Max_Number_Of_Dynamic_Instances = 0;
+
+[Ethernet Link Class]
+        Revision = 3;
+        MaxInst = 2;
+        Number_Of_Static_Instances = 2;
+        Max_Number_Of_Dynamic_Instances = 0;
+        InterfaceLabel1 = "1";
+        InterfaceLabel2 = "2";
+        InterfaceType1 = 2; $ 2=Twisted Pair
+        InterfaceType2 = 2; $ 2=Twisted Pair
+
+[DLR Class]
+        Revision = 1;
+        MaxInst = 1;
+        Number_Of_Static_Instances = 1;
+        Max_Number_Of_Dynamic_Instances = 0;
+
+[Params]
+        Param10 =
+                0,                      $ reserved, shall equal 0
+                6,"20 09 24 01 30 05",  $ Link Path Size, Link Path
+                0x0000,                 $ Descriptor
+                0xC1,                   $ Data Type
+                1,                      $ Data Size in bytes
+                "Point 0 FaultMode",            $ name
+                "",                     $ units
+                "Output Fault Mode. The output will go to either the Fault Value (0) or\n"
+                "Hold Last State (1) during a communication fault.",    $ help string
+                0,1,0,                  $ min, max, default data values
+                ,,,,                    $ mult, div, base, offset scaling
+                ,,,,                    $ mult, div, base, offset links
+                ;                       $ decimal places
+        Enum10 =
+                0,"Use Fault Value",
+                1,"Hold Last State";
+
+        Param11 =
+                0,                      $ reserved, shall equal 0
+                6,"20 09 24 02 30 05",  $ Link Path Size, Link Path
+                0x0000,                 $ Descriptor
+                0xC1,                   $ Data Type
+                1,                      $ Data Size in bytes
+                "Point 1 FaultMode",            $ name
+                "",                     $ units
+                "Output Fault Mode. The output will go to either the Fault Value (0) or\n"
+                "Hold Last State (1) during a communication fault.",    $ help string
+                0,1,0,                  $ min, max, default data values
+                ,,,,                    $ mult, div, base, offset scaling
+                ,,,,                    $ mult, div, base, offset links
+                ;                       $ decimal places
+        Enum11 =
+                0,"Use Fault Value",
+                1,"Hold Last State";
+
+        Param12 =
+                0,                      $ reserved, shall equal 0
+                6,"20 09 24 03 30 05",  $ Link Path Size, Link Path
+                0x0000,                 $ Descriptor
+                0xC1,                   $ Data Type
+                1,                      $ Data Size in bytes
+                "Point 2 FaultMode",            $ name
+                "",                     $ units
+                "Output Fault Mode. The output will go to either the Fault Value (0) or\n"
+                "Hold Last State (1) during a communication fault.",    $ help string
+                0,1,0,                  $ min, max, default data values
+                ,,,,                    $ mult, div, base, offset scaling
+                ,,,,                    $ mult, div, base, offset links
+                ;                       $ decimal places
+        Enum12 =
+                0,"Use Fault Value",
+                1,"Hold Last State";
+
+        Param13 =
+                0,                      $ reserved, shall equal 0
+                6,"20 09 24 04 30 05",  $ Link Path Size, Link Path
+                0x0000,                 $ Descriptor
+                0xC1,                   $ Data Type
+                1,                      $ Data Size in bytes
+                "Point 3 FaultMode",            $ name
+                "",                     $ units
+                "Output Fault Mode. The output will go to either the Fault Value (0) or\n"
+                "Hold Last State (1) during a communication fault.",    $ help string
+                0,1,0,                  $ min, max, default data values
+                ,,,,                    $ mult, div, base, offset scaling
+                ,,,,                    $ mult, div, base, offset links
+                ;                       $ decimal places
+        Enum13 =
+                0,"Use Fault Value",
+                1,"Hold Last State";
+
+        Param14 =
+                0,                      $ reserved, shall equal 0
+                6,"20 09 24 05 30 05",  $ Link Path Size, Link Path
+                0x0000,                 $ Descriptor
+                0xC1,                   $ Data Type
+                1,                      $ Data Size in bytes
+                "Point 4 FaultMode",            $ name
+                "",                     $ units
+                "Output Fault Mode. The output will go to either the Fault Value (0) or\n"
+                "Hold Last State (1) during a communication fault.",    $ help string
+                0,1,0,                  $ min, max, default data values
+                ,,,,                    $ mult, div, base, offset scaling
+                ,,,,                    $ mult, div, base, offset links
+                ;                       $ decimal places
+        Enum14 =
+                0,"Use Fault Value",
+                1,"Hold Last State";
+
+        Param15 =
+                0,                      $ reserved, shall equal 0
+                6,"20 09 24 06 30 05",  $ Link Path Size, Link Path
+                0x0000,                 $ Descriptor
+                0xC1,                   $ Data Type
+                1,                      $ Data Size in bytes
+                "Point 5 FaultMode",            $ name
+                "",                     $ units
+                "Output Fault Mode. The output will go to either the Fault Value (0) or\n"
+                "Hold Last State (1) during a communication fault.",    $ help string
+                0,1,0,                  $ min, max, default data values
+                ,,,,                    $ mult, div, base, offset scaling
+                ,,,,                    $ mult, div, base, offset links
+                ;                       $ decimal places
+        Enum15 =
+                0,"Use Fault Value",
+                1,"Hold Last State";
+
+        Param16 =
+                0,                      $ reserved, shall equal 0
+                6,"20 09 24 07 30 05",  $ Link Path Size, Link Path
+                0x0000,                 $ Descriptor
+                0xC1,                   $ Data Type
+                1,                      $ Data Size in bytes
+                "Point 6 FaultMode",            $ name
+                "",                     $ units
+                "Output Fault Mode. The output will go to either the Fault Value (0) or\n"
+                "Hold Last State (1) during a communication fault.",    $ help string
+                0,1,0,                  $ min, max, default data values
+                ,,,,                    $ mult, div, base, offset scaling
+                ,,,,                    $ mult, div, base, offset links
+                ;                       $ decimal places
+        Enum16 =
+                0,"Use Fault Value",
+                1,"Hold Last State";
+
+        Param17 =
+                0,                      $ reserved, shall equal 0
+                6,"20 09 24 08 30 05",  $ Link Path Size, Link Path
+                0x0000,                 $ Descriptor
+                0xC1,                   $ Data Type
+                1,                      $ Data Size in bytes
+                "Point 7 FaultMode",            $ name
+                "",                     $ units
+                "Output Fault Mode. The output will go to either the Fault Value (0) or\n"
+                "Hold Last State (1) during a communication fault.",    $ help string
+                0,1,0,                  $ min, max, default data values
+                ,,,,                    $ mult, div, base, offset scaling
+                ,,,,                    $ mult, div, base, offset links
+                ;                       $ decimal places
+        Enum17 =
+                0,"Use Fault Value",
+                1,"Hold Last State";
+
+        Param20 =
+                0,                      $ reserved, shall equal 0
+                6,"20 09 24 01 30 06",  $ Link Path Size, Link Path
+                0x0000,                 $ Descriptor
+                0xC1,                   $ Data Type
+                1,                      $ Data Size in bytes
+                "Point 0 FaultValue",           $ name
+                "",                     $ units
+                "Fault Value. If FaultMode is set to \"Fault Value\" (0), then this\n"
+                "parameter determines the output value: 0 = OFF; 1 = ON.",    $ help string
+                0,1,0,                  $ min, max, default data values
+                ,,,,                    $ mult, div, base, offset scaling
+                ,,,,                    $ mult, div, base, offset links
+                ;                       $ decimal places
+        Enum20 =
+                0,"OFF",
+                1,"ON";
+
+        Param21 =
+                0,                      $ reserved, shall equal 0
+                6,"20 09 24 02 30 06",  $ Link Path Size, Link Path
+                0x0000,                 $ Descriptor
+                0xC1,                   $ Data Type
+                1,                      $ Data Size in bytes
+                "Point 1 FaultValue",           $ name
+                "",                     $ units
+                "Fault Value. If FaultMode is set to \"Fault Value\" (0), then this\n"
+                "parameter determines the output value: 0 = OFF; 1 = ON.",    $ help string
+                0,1,0,                  $ min, max, default data values
+                ,,,,                    $ mult, div, base, offset scaling
+                ,,,,                    $ mult, div, base, offset links
+                ;                       $ decimal places
+        Enum21 =
+                0,"OFF",
+                1,"ON";
+
+        Param22 =
+                0,                      $ reserved, shall equal 0
+                6,"20 09 24 03 30 06",  $ Link Path Size, Link Path
+                0x0000,                 $ Descriptor
+                0xC1,                   $ Data Type
+                1,                      $ Data Size in bytes
+                "Point 2 FaultValue",           $ name
+                "",                     $ units
+                "Fault Value. If FaultMode is set to \"Fault Value\" (0), then this\n"
+                "parameter determines the output value: 0 = OFF; 1 = ON.",    $ help string
+                0,1,0,                  $ min, max, default data values
+                ,,,,                    $ mult, div, base, offset scaling
+                ,,,,                    $ mult, div, base, offset links
+                ;                       $ decimal places
+        Enum22 =
+                0,"OFF",
+                1,"ON";
+
+        Param23 =
+                0,                      $ reserved, shall equal 0
+                6,"20 09 24 01 30 06",  $ Link Path Size, Link Path
+                0x0000,                 $ Descriptor
+                0xC1,                   $ Data Type
+                1,                      $ Data Size in bytes
+                "Point 4 FaultValue",           $ name
+                "",                     $ units
+                "Fault Value. If FaultMode is set to \"Fault Value\" (0), then this\n"
+                "parameter determines the output value: 0 = OFF; 1 = ON.",    $ help string
+                0,1,0,                  $ min, max, default data values
+                ,,,,                    $ mult, div, base, offset scaling
+                ,,,,                    $ mult, div, base, offset links
+                ;                       $ decimal places
+        Enum23 =
+                0,"OFF",
+                1,"ON";
+
+        Param24 =
+                0,                      $ reserved, shall equal 0
+                6,"20 09 24 05 30 06",  $ Link Path Size, Link Path
+                0x0000,                 $ Descriptor
+                0xC1,                   $ Data Type
+                1,                      $ Data Size in bytes
+                "Point 4 FaultValue",           $ name
+                "",                     $ units
+                "Fault Value. If FaultMode is set to \"Fault Value\" (0), then this\n"
+                "parameter determines the output value: 0 = OFF; 1 = ON.",    $ help string
+                0,1,0,                  $ min, max, default data values
+                ,,,,                    $ mult, div, base, offset scaling
+                ,,,,                    $ mult, div, base, offset links
+                ;                       $ decimal places
+        Enum24 =
+                0,"OFF",
+                1,"ON";
+
+        Param25 =
+                0,                      $ reserved, shall equal 0
+                6,"20 09 24 06 30 06",  $ Link Path Size, Link Path
+                0x0000,                 $ Descriptor
+                0xC1,                   $ Data Type
+                1,                      $ Data Size in bytes
+                "Point 5 FaultValue",           $ name
+                "",                     $ units
+                "Fault Value. If FaultMode is set to \"Fault Value\" (0), then this\n"
+                "parameter determines the output value: 0 = OFF; 1 = ON.",    $ help string
+                0,1,0,                  $ min, max, default data values
+                ,,,,                    $ mult, div, base, offset scaling
+                ,,,,                    $ mult, div, base, offset links
+                ;                       $ decimal places
+        Enum25 =
+                0,"OFF",
+                1,"ON";
+
+        Param26 =
+                0,                      $ reserved, shall equal 0
+                6,"20 09 24 07 30 06",  $ Link Path Size, Link Path
+                0x0000,                 $ Descriptor
+                0xC1,                   $ Data Type
+                1,                      $ Data Size in bytes
+                "Point 6 FaultValue",           $ name
+                "",                     $ units
+                "Fault Value. If FaultMode is set to \"Fault Value\" (0), then this\n"
+                "parameter determines the output value: 0 = OFF; 1 = ON.",    $ help string
+                0,1,0,                  $ min, max, default data values
+                ,,,,                    $ mult, div, base, offset scaling
+                ,,,,                    $ mult, div, base, offset links
+                ;                       $ decimal places
+        Enum26 =
+                0,"OFF",
+                1,"ON";
+
+        Param27 =
+                0,                      $ reserved, shall equal 0
+                6,"20 09 24 08 30 06",  $ Link Path Size, Link Path
+                0x0000,                 $ Descriptor
+                0xC1,                   $ Data Type
+                1,                      $ Data Size in bytes
+                "Point 7 FaultValue",           $ name
+                "",                     $ units
+                "Fault Value. If FaultMode is set to \"Fault Value\" (0), then this\n"
+                "parameter determines the output value: 0 = OFF; 1 = ON.",    $ help string
+                0,1,0,                  $ min, max, default data values
+                ,,,,                    $ mult, div, base, offset scaling
+                ,,,,                    $ mult, div, base, offset links
+                ;                       $ decimal places
+        Enum27 =
+                0,"OFF",
+                1,"ON";
+
+        Param30 =
+                0,                      $ reserved, shall equal 0
+                6,"20 09 24 01 30 07",  $ Link Path Size, Link Path
+                0x0000,                 $ Descriptor
+                0xC1,                   $ Data Type
+                1,                      $ Data Size in bytes
+                "Point 0 ProgMode",             $ name
+                "",                     $ units
+                "Program Mode.  The output will go to either the Program Value (0) or\n"
+                "Hold Last State (1) when in the master is in Program Mode.",    $ help string
+                0,1,0,                  $ min, max, default data values
+                ,,,,                    $ mult, div, base, offset scaling
+                ,,,,                    $ mult, div, base, offset links
+                ;                       $ decimal places
+        Enum30 =
+                0,"Use Progam Value",
+                1,"Hold Last State";
+
+        Param31 =
+                0,                      $ reserved, shall equal 0
+                6,"20 09 24 02 30 07",  $ Link Path Size, Link Path
+                0x0000,                 $ Descriptor
+                0xC1,                   $ Data Type
+                1,                      $ Data Size in bytes
+                "Point 1 ProgMode",             $ name
+                "",                     $ units
+                "Program Mode.  The output will go to either the Program Value (0) or\n"
+                "Hold Last State (1) when in the master is in Program Mode.",    $ help string
+                0,1,0,                  $ min, max, default data values
+                ,,,,                    $ mult, div, base, offset scaling
+                ,,,,                    $ mult, div, base, offset links
+                ;                       $ decimal places
+        Enum31 =
+                0,"Use Progam Value",
+                1,"Hold Last State";
+
+        Param32 =
+                0,                      $ reserved, shall equal 0
+                6,"20 09 24 03 30 07",  $ Link Path Size, Link Path
+                0x0000,                 $ Descriptor
+                0xC1,                   $ Data Type
+                1,                      $ Data Size in bytes
+                "Point 2 ProgMode",             $ name
+                "",                     $ units
+                "Program Mode.  The output will go to either the Program Value (0) or\n"
+                "Hold Last State (1) when in the master is in Program Mode.",    $ help string
+                0,1,0,                  $ min, max, default data values
+                ,,,,                    $ mult, div, base, offset scaling
+                ,,,,                    $ mult, div, base, offset links
+                ;                       $ decimal places
+        Enum32 =
+                0,"Use Progam Value",
+                1,"Hold Last State";
+
+        Param33 =
+                0,                      $ reserved, shall equal 0
+                6,"20 09 24 04 30 07",  $ Link Path Size, Link Path
+                0x0000,                 $ Descriptor
+                0xC1,                   $ Data Type
+                1,                      $ Data Size in bytes
+                "Point 3 ProgMode",             $ name
+                "",                     $ units
+                "Program Mode.  The output will go to either the Program Value (0) or\n"
+                "Hold Last State (1) when in the master is in Program Mode.",    $ help string
+                0,1,0,                  $ min, max, default data values
+                ,,,,                    $ mult, div, base, offset scaling
+                ,,,,                    $ mult, div, base, offset links
+                ;                       $ decimal places
+        Enum33 =
+                0,"Use Progam Value",
+                1,"Hold Last State";
+
+        Param34 =
+                0,                      $ reserved, shall equal 0
+                6,"20 09 24 05 30 07",  $ Link Path Size, Link Path
+                0x0000,                 $ Descriptor
+                0xC1,                   $ Data Type
+                1,                      $ Data Size in bytes
+                "Point 4 ProgMode",             $ name
+                "",                     $ units
+                "Program Mode.  The output will go to either the Program Value (0) or\n"
+                "Hold Last State (1) when in the master is in Program Mode.",    $ help string
+                0,1,0,                  $ min, max, default data values
+                ,,,,                    $ mult, div, base, offset scaling
+                ,,,,                    $ mult, div, base, offset links
+                ;                       $ decimal places
+        Enum34 =
+                0,"Use Progam Value",
+                1,"Hold Last State";
+
+        Param35 =
+                0,                      $ reserved, shall equal 0
+                6,"20 09 24 06 30 07",  $ Link Path Size, Link Path
+                0x0000,                 $ Descriptor
+                0xC1,                   $ Data Type
+                1,                      $ Data Size in bytes
+                "Point 5 ProgMode",             $ name
+                "",                     $ units
+                "Program Mode.  The output will go to either the Program Value (0) or\n"
+                "Hold Last State (1) when in the master is in Program Mode.",    $ help string
+                0,1,0,                  $ min, max, default data values
+                ,,,,                    $ mult, div, base, offset scaling
+                ,,,,                    $ mult, div, base, offset links
+                ;                       $ decimal places
+        Enum35 =
+                0,"Use Progam Value",
+                1,"Hold Last State";
+
+        Param36 =
+                0,                      $ reserved, shall equal 0
+                6,"20 09 24 07 30 07",  $ Link Path Size, Link Path
+                0x0000,                 $ Descriptor
+                0xC1,                   $ Data Type
+                1,                      $ Data Size in bytes
+                "Point 6 ProgMode",             $ name
+                "",                     $ units
+                "Program Mode.  The output will go to either the Program Value (0) or\n"
+                "Hold Last State (1) when in the master is in Program Mode.",    $ help string
+                0,1,0,                  $ min, max, default data values
+                ,,,,                    $ mult, div, base, offset scaling
+                ,,,,                    $ mult, div, base, offset links
+                ;                       $ decimal places
+        Enum36 =
+                0,"Use Progam Value",
+                1,"Hold Last State";
+
+        Param37 =
+                0,                      $ reserved, shall equal 0
+                6,"20 09 24 08 30 07",  $ Link Path Size, Link Path
+                0x0000,                 $ Descriptor
+                0xC1,                   $ Data Type
+                1,                      $ Data Size in bytes
+                "Point 7 ProgMode",             $ name
+                "",                     $ units
+                "Program Mode.  The output will go to either the Program Value (0) or\n"
+                "Hold Last State (1) when in the master is in Program Mode.",    $ help string
+                0,1,0,                  $ min, max, default data values
+                ,,,,                    $ mult, div, base, offset scaling
+                ,,,,                    $ mult, div, base, offset links
+                ;                       $ decimal places
+        Enum37 =
+                0,"Use Progam Value",
+                1,"Hold Last State";
+
+        Param40 =
+                0,                      $ reserved, shall equal 0
+                6,"20 09 24 01 30 08",  $ Link Path Size, Link Path
+                0x0000,                 $ Descriptor
+                0xC1,                   $ Data Type
+                1,                      $ Data Size in bytes
+                "Point 0 ProgValue",            $ name
+                "",                     $ units
+                "Program Value. If ProgMode is set to \"Progam Value\" (0), then this\n"
+                "parameter determines the output value: 0 = OFF; 1 = ON.",    $ help string
+                0,1,0,                  $ min, max, default data values
+                ,,,,                    $ mult, div, base, offset scaling
+                ,,,,                    $ mult, div, base, offset links
+                ;                       $ decimal places
+        Enum40 =
+                0,"OFF",
+                1,"ON";
+
+        Param41 =
+                0,                      $ reserved, shall equal 0
+                6,"20 09 24 02 30 08",  $ Link Path Size, Link Path
+                0x0000,                 $ Descriptor
+                0xC1,                   $ Data Type
+                1,                      $ Data Size in bytes
+                "Point 1 ProgValue",            $ name
+                "",                     $ units
+                "Program Value. If ProgMode is set to \"Progam Value\" (0), then this\n"
+                "parameter determines the output value: 0 = OFF; 1 = ON.",    $ help string
+                0,1,0,                  $ min, max, default data values
+                ,,,,                    $ mult, div, base, offset scaling
+                ,,,,                    $ mult, div, base, offset links
+                ;                       $ decimal places
+        Enum41 =
+                0,"OFF",
+                1,"ON";
+
+        Param42 =
+                0,                      $ reserved, shall equal 0
+                6,"20 09 24 03 30 08",  $ Link Path Size, Link Path
+                0x0000,                 $ Descriptor
+                0xC1,                   $ Data Type
+                1,                      $ Data Size in bytes
+                "Point 2 ProgValue",            $ name
+                "",                     $ units
+                "Program Value. If ProgMode is set to \"Progam Value\" (0), then this\n"
+                "parameter determines the output value: 0 = OFF; 1 = ON.",    $ help string
+                0,1,0,                  $ min, max, default data values
+                ,,,,                    $ mult, div, base, offset scaling
+                ,,,,                    $ mult, div, base, offset links
+                ;                       $ decimal places
+        Enum42 =
+                0,"OFF",
+                1,"ON";
+
+        Param43 =
+                0,                      $ reserved, shall equal 0
+                6,"20 09 24 04 30 08",  $ Link Path Size, Link Path
+                0x0000,                 $ Descriptor
+                0xC1,                   $ Data Type
+                1,                      $ Data Size in bytes
+                "Point 3 ProgValue",            $ name
+                "",                     $ units
+                "Program Value. If ProgMode is set to \"Progam Value\" (0), then this\n"
+                "parameter determines the output value: 0 = OFF; 1 = ON.",    $ help string
+                0,1,0,                  $ min, max, default data values
+                ,,,,                    $ mult, div, base, offset scaling
+                ,,,,                    $ mult, div, base, offset links
+                ;                       $ decimal places
+        Enum43 =
+                0,"OFF",
+                1,"ON";
+
+        Param44 =
+                0,                      $ reserved, shall equal 0
+                6,"20 09 24 05 30 08",  $ Link Path Size, Link Path
+                0x0000,                 $ Descriptor
+                0xC1,                   $ Data Type
+                1,                      $ Data Size in bytes
+                "Point 4 ProgValue",            $ name
+                "",                     $ units
+                "Program Value. If ProgMode is set to \"Progam Value\" (0), then this\n"
+                "parameter determines the output value: 0 = OFF; 1 = ON.",    $ help string
+                0,1,0,                  $ min, max, default data values
+                ,,,,                    $ mult, div, base, offset scaling
+                ,,,,                    $ mult, div, base, offset links
+                ;                       $ decimal places
+        Enum44 =
+                0,"OFF",
+                1,"ON";
+
+        Param45 =
+                0,                      $ reserved, shall equal 0
+                6,"20 09 24 06 30 08",  $ Link Path Size, Link Path
+                0x0000,                 $ Descriptor
+                0xC1,                   $ Data Type
+                1,                      $ Data Size in bytes
+                "Point 5 ProgValue",            $ name
+                "",                     $ units
+                "Program Value. If ProgMode is set to \"Progam Value\" (0), then this\n"
+                "parameter determines the output value: 0 = OFF; 1 = ON.",    $ help string
+                0,1,0,                  $ min, max, default data values
+                ,,,,                    $ mult, div, base, offset scaling
+                ,,,,                    $ mult, div, base, offset links
+                ;                       $ decimal places
+        Enum45 =
+                0,"OFF",
+                1,"ON";
+
+        Param46 =
+                0,                      $ reserved, shall equal 0
+                6,"20 09 24 07 30 08",  $ Link Path Size, Link Path
+                0x0000,                 $ Descriptor
+                0xC1,                   $ Data Type
+                1,                      $ Data Size in bytes
+                "Point 6 ProgValue",            $ name
+                "",                     $ units
+                "Program Value. If ProgMode is set to \"Progam Value\" (0), then this\n"
+                "parameter determines the output value: 0 = OFF; 1 = ON.",    $ help string
+                0,1,0,                  $ min, max, default data values
+                ,,,,                    $ mult, div, base, offset scaling
+                ,,,,                    $ mult, div, base, offset links
+                ;                       $ decimal places
+        Enum46 =
+                0,"OFF",
+                1,"ON";
+
+        Param47 =
+                0,                      $ reserved, shall equal 0
+                6,"20 09 24 08 30 08",  $ Link Path Size, Link Path
+                0x0000,                 $ Descriptor
+                0xC1,                   $ Data Type
+                1,                      $ Data Size in bytes
+                "Point 7 ProgValue",            $ name
+                "",                     $ units
+                "Program Value. If ProgMode is set to \"Progam Value\" (0), then this\n"
+                "parameter determines the output value: 0 = OFF; 1 = ON.",    $ help string
+                0,1,0,                  $ min, max, default data values
+                ,,,,                    $ mult, div, base, offset scaling
+                ,,,,                    $ mult, div, base, offset links
+                ;                       $ decimal places
+        Enum47 =
+                0,"OFF",
+                1,"ON";
+
+        Param50 =
+                0,                      $ reserved, shall equal 0
+                6,"20 09 24 01 30 03",  $ Link Path Size, Link Path
+                0x0000,                 $ Descriptor
+                0xC1,                   $ Data Type
+                1,                      $ Data Size in bytes
+                "Point 0 Output Data",          $ name
+                "",                     $ units
+                "",      		$ help string
+                0,1,0,                $ min, max, default data values
+                ,,,,                    $ mult, div, base, offset scaling
+                ,,,,                    $ mult, div, base, offset links
+                ;                       $ decimal places
+        Enum50 =
+                0,"OFF",
+                1,"ON";
+
+        Param51 =
+                0,                      $ reserved, shall equal 0
+                6,"20 09 24 02 30 03",  $ Link Path Size, Link Path
+                0x0000,                 $ Descriptor
+                0xC1,                   $ Data Type
+                1,                      $ Data Size in bytes
+                "Point 1 Output Data",          $ name
+                "",                     $ units
+                "",      		$ help string
+                0,1,0,                $ min, max, default data values
+                ,,,,                    $ mult, div, base, offset scaling
+                ,,,,                    $ mult, div, base, offset links
+                ;                       $ decimal places
+        Enum51 =
+                0,"OFF",
+                1,"ON";
+
+        Param52 =
+                0,                      $ reserved, shall equal 0
+                6,"20 09 24 03 30 03",  $ Link Path Size, Link Path
+                0x0000,                 $ Descriptor
+                0xC1,                   $ Data Type
+                1,                      $ Data Size in bytes
+                "Point 2 Output Data",          $ name
+                "",                     $ units
+                "",      		$ help string
+                0,1,0,                $ min, max, default data values
+                ,,,,                    $ mult, div, base, offset scaling
+                ,,,,                    $ mult, div, base, offset links
+                ;                       $ decimal places
+        Enum52 =
+                0,"OFF",
+                1,"ON";
+
+        Param53 =
+                0,                      $ reserved, shall equal 0
+                6,"20 09 24 04 30 03",  $ Link Path Size, Link Path
+                0x0000,                 $ Descriptor
+                0xC1,                   $ Data Type
+                1,                      $ Data Size in bytes
+                "Point 3 Output Data",          $ name
+                "",                     $ units
+                "",      		$ help string
+                0,1,0,                $ min, max, default data values
+                ,,,,                    $ mult, div, base, offset scaling
+                ,,,,                    $ mult, div, base, offset links
+                ;                       $ decimal places
+        Enum53 =
+                0,"OFF",
+                1,"ON";
+
+        Param54 =
+                0,                      $ reserved, shall equal 0
+                6,"20 09 24 05 30 03",  $ Link Path Size, Link Path
+                0x0000,                 $ Descriptor
+                0xC1,                   $ Data Type
+                1,                      $ Data Size in bytes
+                "Point 4 Output Data",          $ name
+                "",                     $ units
+                "",      		$ help string
+                0,1,0,                $ min, max, default data values
+                ,,,,                    $ mult, div, base, offset scaling
+                ,,,,                    $ mult, div, base, offset links
+                ;                       $ decimal places
+        Enum54 =
+                0,"OFF",
+                1,"ON";
+
+        Param55 =
+                0,                      $ reserved, shall equal 0
+                6,"20 09 24 06 30 03",  $ Link Path Size, Link Path
+                0x0000,                 $ Descriptor
+                0xC1,                   $ Data Type
+                1,                      $ Data Size in bytes
+                "Point 5 Output Data",          $ name
+                "",                     $ units
+                "",      		$ help string
+                0,1,0,                $ min, max, default data values
+                ,,,,                    $ mult, div, base, offset scaling
+                ,,,,                    $ mult, div, base, offset links
+                ;                       $ decimal places
+        Enum55 =
+                0,"OFF",
+                1,"ON";
+
+        Param56 =
+                0,                      $ reserved, shall equal 0
+                6,"20 09 24 07 30 03",  $ Link Path Size, Link Path
+                0x0000,                 $ Descriptor
+                0xC1,                   $ Data Type
+                1,                      $ Data Size in bytes
+                "Point 6 Output Data",          $ name
+                "",                     $ units
+                "",      		$ help string
+                0,1,0,                $ min, max, default data values
+                ,,,,                    $ mult, div, base, offset scaling
+                ,,,,                    $ mult, div, base, offset links
+                ;                       $ decimal places
+        Enum56 =
+                0,"OFF",
+                1,"ON";
+
+        Param57 =
+                0,                      $ reserved, shall equal 0
+                6,"20 09 24 08 30 03",  $ Link Path Size, Link Path
+                0x0000,                 $ Descriptor
+                0xC1,                   $ Data Type
+                1,                      $ Data Size in bytes
+                "Point 7 Output Data",          $ name
+                "",                     $ units
+                "",      		$ help string
+                0,1,0,                $ min, max, default data values
+                ,,,,                    $ mult, div, base, offset scaling
+                ,,,,                    $ mult, div, base, offset links
+                ;                       $ decimal places
+        Enum57 =
+                0,"OFF",
+                1,"ON";
+
+        Param60 =
+                0,                      $ reserved, shall equal 0
+                ,,                      $ Link Path Size, Link Path
+                0x0000,                 $ Descriptor
+                0xC4,                   $ Data Type
+                4,                      $ Data Size in bytes
+                "Point 0 Hold Last State Duration",           $ name
+                "",                     $ units
+                "Hold Last State Duration. If FaultMode is set to \"Hold Last State\" (1), then this\n"
+                "parameter determines the hold time (in seconds), after which the Final Fault Value is applied."
+                "A value of zero means keep the last state (do not apply final fault value).",    $ help string
+                0,10,0,                  $ min, max, default data values
+                ,,,,                    $ mult, div, base, offset scaling
+                ,,,,                    $ mult, div, base, offset links
+                ;                       $ decimal places
+        Enum60 =
+                0,"Hold Last State",
+                1,"1 second",
+                2,"2 seconds",
+                5,"5 seconds",
+                10,"10 seconds";
+
+        Param61 =
+                0,                      $ reserved, shall equal 0
+                ,,                      $ Link Path Size, Link Path
+                0x0000,                 $ Descriptor
+                0xC4,                   $ Data Type
+                4,                      $ Data Size in bytes
+                "Point 1 Hold Last State Duration",           $ name
+                "",                     $ units
+                "Hold Last State Duration. If FaultMode is set to \"Hold Last State\" (1), then this\n"
+                "parameter determines the hold time (in seconds), after which the Final Fault Value is applied."
+                "A value of zero means keep the last state (do not apply final fault value).",    $ help string
+                0,10,0,                  $ min, max, default data values
+                ,,,,                    $ mult, div, base, offset scaling
+                ,,,,                    $ mult, div, base, offset links
+                ;                       $ decimal places
+        Enum61 =
+                0,"Hold Last State",
+                1,"1 second",
+                2,"2 seconds",
+                5,"5 seconds",
+                10,"10 seconds";
+
+        Param62 =
+                0,                      $ reserved, shall equal 0
+                ,,                      $ Link Path Size, Link Path
+                0x0000,                 $ Descriptor
+                0xC4,                   $ Data Type
+                4,                      $ Data Size in bytes
+                "Point 2 Hold Last State Duration",           $ name
+                "",                     $ units
+                "Hold Last State Duration. If FaultMode is set to \"Hold Last State\" (1), then this\n"
+                "parameter determines the hold time (in seconds), after which the Final Fault Value is applied."
+                "A value of zero means keep the last state (do not apply final fault value).",    $ help string
+                0,10,0,                  $ min, max, default data values
+                ,,,,                    $ mult, div, base, offset scaling
+                ,,,,                    $ mult, div, base, offset links
+                ;                       $ decimal places
+        Enum62 =
+                0,"Hold Last State",
+                1,"1 second",
+                2,"2 seconds",
+                5,"5 seconds",
+                10,"10 seconds";
+
+        Param63 =
+                0,                      $ reserved, shall equal 0
+                ,,                      $ Link Path Size, Link Path
+                0x0000,                 $ Descriptor
+                0xC4,                   $ Data Type
+                4,                      $ Data Size in bytes
+                "Point 3 Hold Last State Duration",           $ name
+                "",                     $ units
+                "Hold Last State Duration. If FaultMode is set to \"Hold Last State\" (1), then this\n"
+                "parameter determines the hold time (in seconds), after which the Final Fault Value is applied."
+                "A value of zero means keep the last state (do not apply final fault value).",    $ help string
+                0,10,0,                  $ min, max, default data values
+                ,,,,                    $ mult, div, base, offset scaling
+                ,,,,                    $ mult, div, base, offset links
+                ;                       $ decimal places
+        Enum63 =
+                0,"Hold Last State",
+                1,"1 second",
+                2,"2 seconds",
+                5,"5 seconds",
+                10,"10 seconds";
+
+        Param64 =
+                0,                      $ reserved, shall equal 0
+                ,,                      $ Link Path Size, Link Path
+                0x0000,                 $ Descriptor
+                0xC4,                   $ Data Type
+                4,                      $ Data Size in bytes
+                "Point 4 Hold Last State Duration",           $ name
+                "",                     $ units
+                "Hold Last State Duration. If FaultMode is set to \"Hold Last State\" (1), then this\n"
+                "parameter determines the hold time (in seconds), after which the Final Fault Value is applied."
+                "A value of zero means keep the last state (do not apply final fault value).",    $ help string
+                0,10,0,                  $ min, max, default data values
+                ,,,,                    $ mult, div, base, offset scaling
+                ,,,,                    $ mult, div, base, offset links
+                ;                       $ decimal places
+        Enum64 =
+                0,"Hold Last State",
+                1,"1 second",
+                2,"2 seconds",
+                5,"5 seconds",
+                10,"10 seconds";
+
+        Param65 =
+                0,                      $ reserved, shall equal 0
+                ,,                      $ Link Path Size, Link Path
+                0x0000,                 $ Descriptor
+                0xC4,                   $ Data Type
+                4,                      $ Data Size in bytes
+                "Point 5 Hold Last State Duration",           $ name
+                "",                     $ units
+                "Hold Last State Duration. If FaultMode is set to \"Hold Last State\" (1), then this\n"
+                "parameter determines the hold time (in seconds), after which the Final Fault Value is applied."
+                "A value of zero means keep the last state (do not apply final fault value).",    $ help string
+                0,10,0,                  $ min, max, default data values
+                ,,,,                    $ mult, div, base, offset scaling
+                ,,,,                    $ mult, div, base, offset links
+                ;                       $ decimal places
+        Enum65 =
+                0,"Hold Last State",
+                1,"1 second",
+                2,"2 seconds",
+                5,"5 seconds",
+                10,"10 seconds";
+
+        Param66 =
+                0,                      $ reserved, shall equal 0
+                ,,                      $ Link Path Size, Link Path
+                0x0000,                 $ Descriptor
+                0xC4,                   $ Data Type
+                4,                      $ Data Size in bytes
+                "Point 6 Hold Last State Duration",           $ name
+                "",                     $ units
+                "Hold Last State Duration. If FaultMode is set to \"Hold Last State\" (1), then this\n"
+                "parameter determines the hold time (in seconds), after which the Final Fault Value is applied."
+                "A value of zero means keep the last state (do not apply final fault value).",    $ help string
+                0,10,0,                  $ min, max, default data values
+                ,,,,                    $ mult, div, base, offset scaling
+                ,,,,                    $ mult, div, base, offset links
+                ;                       $ decimal places
+        Enum66 =
+                0,"Hold Last State",
+                1,"1 second",
+                2,"2 seconds",
+                5,"5 seconds",
+                10,"10 seconds";
+
+        Param67 =
+                0,                      $ reserved, shall equal 0
+                ,,                      $ Link Path Size, Link Path
+                0x0000,                 $ Descriptor
+                0xC4,                   $ Data Type
+                4,                      $ Data Size in bytes
+                "Point 7 Hold Last State Duration",           $ name
+                "",                     $ units
+                "Hold Last State Duration. If FaultMode is set to \"Hold Last State\" (1), then this\n"
+                "parameter determines the hold time (in seconds), after which the Final Fault Value is applied."
+                "A value of zero means keep the last state (do not apply final fault value).",    $ help string
+                0,10,0,                  $ min, max, default data values
+                ,,,,                    $ mult, div, base, offset scaling
+                ,,,,                    $ mult, div, base, offset links
+                ;                       $ decimal places
+        Enum67 =
+                0,"Hold Last State",
+                1,"1 second",
+                2,"2 seconds",
+                5,"5 seconds",
+                10,"10 seconds";
+
+        Param70 =
+                0,                      $ reserved, shall equal 0
+                ,,                      $ Link Path Size, Link Path
+                0x0000,                 $ Descriptor
+                0xC1,                   $ Data Type
+                1,                      $ Data Size in bytes
+                "Point 0 Final Fault Value",           $ name
+                "",                     $ units
+                "Final Fault Value. If FaultMode is set to \"Hold Last State\" (1), then this\n"
+                "parameter determines the final output value after the Hold Last State Duration: 0 = OFF; 1 = ON.",    $ help string
+                0,1,0,                  $ min, max, default data values
+                ,,,,                    $ mult, div, base, offset scaling
+                ,,,,                    $ mult, div, base, offset links
+                ;                       $ decimal places
+        Enum70 =
+                0,"OFF",
+                1,"ON";
+
+        Param71 =
+                0,                      $ reserved, shall equal 0
+                ,,                      $ Link Path Size, Link Path
+                0x0000,                 $ Descriptor
+                0xC1,                   $ Data Type
+                1,                      $ Data Size in bytes
+                "Point 1 Final Fault Value",           $ name
+                "",                     $ units
+                "Final Fault Value. If FaultMode is set to \"Hold Last State\" (1), then this\n"
+                "parameter determines the final output value after the Hold Last State Duration: 0 = OFF; 1 = ON.",    $ help string
+                0,1,0,                  $ min, max, default data values
+                ,,,,                    $ mult, div, base, offset scaling
+                ,,,,                    $ mult, div, base, offset links
+                ;                       $ decimal places
+        Enum71 =
+                0,"OFF",
+                1,"ON";
+
+        Param72 =
+                0,                      $ reserved, shall equal 0
+                ,,                      $ Link Path Size, Link Path
+                0x0000,                 $ Descriptor
+                0xC1,                   $ Data Type
+                1,                      $ Data Size in bytes
+                "Point 2 Final Fault Value",           $ name
+                "",                     $ units
+                "Final Fault Value. If FaultMode is set to \"Hold Last State\" (1), then this\n"
+                "parameter determines the final output value after the Hold Last State Duration: 0 = OFF; 1 = ON.",    $ help string
+                0,1,0,                  $ min, max, default data values
+                ,,,,                    $ mult, div, base, offset scaling
+                ,,,,                    $ mult, div, base, offset links
+                ;                       $ decimal places
+        Enum72 =
+                0,"OFF",
+                1,"ON";
+
+        Param73 =
+                0,                      $ reserved, shall equal 0
+                ,,                      $ Link Path Size, Link Path
+                0x0000,                 $ Descriptor
+                0xC1,                   $ Data Type
+                1,                      $ Data Size in bytes
+                "Point 3 Final Fault Value",           $ name
+                "",                     $ units
+                "Final Fault Value. If FaultMode is set to \"Hold Last State\" (1), then this\n"
+                "parameter determines the final output value after the Hold Last State Duration: 0 = OFF; 1 = ON.",    $ help string
+                0,1,0,                  $ min, max, default data values
+                ,,,,                    $ mult, div, base, offset scaling
+                ,,,,                    $ mult, div, base, offset links
+                ;                       $ decimal places
+        Enum73 =
+                0,"OFF",
+                1,"ON";
+
+        Param74 =
+                0,                      $ reserved, shall equal 0
+                ,,                      $ Link Path Size, Link Path
+                0x0000,                 $ Descriptor
+                0xC1,                   $ Data Type
+                1,                      $ Data Size in bytes
+                "Point 4 Final Fault Value",           $ name
+                "",                     $ units
+                "Final Fault Value. If FaultMode is set to \"Hold Last State\" (1), then this\n"
+                "parameter determines the final output value after the Hold Last State Duration: 0 = OFF; 1 = ON.",    $ help string
+                0,1,0,                  $ min, max, default data values
+                ,,,,                    $ mult, div, base, offset scaling
+                ,,,,                    $ mult, div, base, offset links
+                ;                       $ decimal places
+        Enum74 =
+                0,"OFF",
+                1,"ON";
+
+        Param75 =
+                0,                      $ reserved, shall equal 0
+                ,,                      $ Link Path Size, Link Path
+                0x0000,                 $ Descriptor
+                0xC1,                   $ Data Type
+                1,                      $ Data Size in bytes
+                "Point 5 Final Fault Value",           $ name
+                "",                     $ units
+                "Final Fault Value. If FaultMode is set to \"Hold Last State\" (1), then this\n"
+                "parameter determines the final output value after the Hold Last State Duration: 0 = OFF; 1 = ON.",    $ help string
+                0,1,0,                  $ min, max, default data values
+                ,,,,                    $ mult, div, base, offset scaling
+                ,,,,                    $ mult, div, base, offset links
+                ;                       $ decimal places
+        Enum75 =
+                0,"OFF",
+                1,"ON";
+
+        Param76 =
+                0,                      $ reserved, shall equal 0
+                ,,                      $ Link Path Size, Link Path
+                0x0000,                 $ Descriptor
+                0xC1,                   $ Data Type
+                1,                      $ Data Size in bytes
+                "Point 6 Final Fault Value",           $ name
+                "",                     $ units
+                "Final Fault Value. If FaultMode is set to \"Hold Last State\" (1), then this\n"
+                "parameter determines the final output value after the Hold Last State Duration: 0 = OFF; 1 = ON.",    $ help string
+                0,1,0,                  $ min, max, default data values
+                ,,,,                    $ mult, div, base, offset scaling
+                ,,,,                    $ mult, div, base, offset links
+                ;                       $ decimal places
+        Enum76 =
+                0,"OFF",
+                1,"ON";
+
+        Param77 =
+                0,                      $ reserved, shall equal 0
+                ,,                      $ Link Path Size, Link Path
+                0x0000,                 $ Descriptor
+                0xC1,                   $ Data Type
+                1,                      $ Data Size in bytes
+                "Point 7 Final Fault Value",           $ name
+                "",                     $ units
+                "Final Fault Value. If FaultMode is set to \"Hold Last State\" (1), then this\n"
+                "parameter determines the final output value after the Hold Last State Duration: 0 = OFF; 1 = ON.",    $ help string
+                0,1,0,                  $ min, max, default data values
+                ,,,,                    $ mult, div, base, offset scaling
+                ,,,,                    $ mult, div, base, offset links
+                ;                       $ decimal places
+        Enum77 =
+                0,"OFF",
+                1,"ON";
+
+        Param80 =
+                0,                      $ reserved, shall equal 0
+                ,,                      $ Link Path Size, Link Path
+                0x0000,                 $ Descriptor
+                0xC1,                   $ Data Type
+                1,                      $ Data Size in bytes
+                "Point 0 Schedule Mask",           $ name
+                "",                     $ units
+                "Mask indicating which channels are scheduled.",    $ help string
+                0,1,0,                  $ min, max, default data values
+                ,,,,                    $ mult, div, base, offset scaling
+                ,,,,                    $ mult, div, base, offset links
+                ;                       $ decimal places
+        Enum80 =
+                0,"Use Data value (normal output)",
+                1,"Use scheduled output";
+
+        Param81 =
+                0,                      $ reserved, shall equal 0
+                ,,                      $ Link Path Size, Link Path
+                0x0000,                 $ Descriptor
+                0xC1,                   $ Data Type
+                1,                      $ Data Size in bytes
+                "Point 1 Schedule Mask",           $ name
+                "",                     $ units
+                "Mask indicating which channels are scheduled.",    $ help string
+                0,1,0,                  $ min, max, default data values
+                ,,,,                    $ mult, div, base, offset scaling
+                ,,,,                    $ mult, div, base, offset links
+                ;                       $ decimal places
+        Enum81 =
+                0,"Use Data value (normal output)",
+                1,"Use scheduled output";
+
+        Param82 =
+                0,                      $ reserved, shall equal 0
+                ,,                      $ Link Path Size, Link Path
+                0x0000,                 $ Descriptor
+                0xC1,                   $ Data Type
+                1,                      $ Data Size in bytes
+                "Point 2 Schedule Mask",           $ name
+                "",                     $ units
+                "Mask indicating which channels are scheduled.",    $ help string
+                0,1,0,                  $ min, max, default data values
+                ,,,,                    $ mult, div, base, offset scaling
+                ,,,,                    $ mult, div, base, offset links
+                ;                       $ decimal places
+        Enum82 =
+                0,"Use Data value (normal output)",
+                1,"Use scheduled output";
+
+        Param83 =
+                0,                      $ reserved, shall equal 0
+                ,,                      $ Link Path Size, Link Path
+                0x0000,                 $ Descriptor
+                0xC1,                   $ Data Type
+                1,                      $ Data Size in bytes
+                "Point 3 Schedule Mask",           $ name
+                "",                     $ units
+                "Mask indicating which channels are scheduled.",    $ help string
+                0,1,0,                  $ min, max, default data values
+                ,,,,                    $ mult, div, base, offset scaling
+                ,,,,                    $ mult, div, base, offset links
+                ;                       $ decimal places
+        Enum83 =
+                0,"Use Data value (normal output)",
+                1,"Use scheduled output";
+
+        Param84 =
+                0,                      $ reserved, shall equal 0
+                ,,                      $ Link Path Size, Link Path
+                0x0000,                 $ Descriptor
+                0xC1,                   $ Data Type
+                1,                      $ Data Size in bytes
+                "Point 4 Schedule Mask",           $ name
+                "",                     $ units
+                "Mask indicating which channels are scheduled.",    $ help string
+                0,1,0,                  $ min, max, default data values
+                ,,,,                    $ mult, div, base, offset scaling
+                ,,,,                    $ mult, div, base, offset links
+                ;                       $ decimal places
+        Enum84 =
+                0,"Use Data value (normal output)",
+                1,"Use scheduled output";
+
+        Param85 =
+                0,                      $ reserved, shall equal 0
+                ,,                      $ Link Path Size, Link Path
+                0x0000,                 $ Descriptor
+                0xC1,                   $ Data Type
+                1,                      $ Data Size in bytes
+                "Point 5 Schedule Mask",           $ name
+                "",                     $ units
+                "Mask indicating which channels are scheduled.",    $ help string
+                0,1,0,                  $ min, max, default data values
+                ,,,,                    $ mult, div, base, offset scaling
+                ,,,,                    $ mult, div, base, offset links
+                ;                       $ decimal places
+        Enum85 =
+                0,"Use Data value (normal output)",
+                1,"Use scheduled output";
+
+        Param86 =
+                0,                      $ reserved, shall equal 0
+                ,,                      $ Link Path Size, Link Path
+                0x0000,                 $ Descriptor
+                0xC1,                   $ Data Type
+                1,                      $ Data Size in bytes
+                "Point 6 Schedule Mask",           $ name
+                "",                     $ units
+                "Mask indicating which channels are scheduled.",    $ help string
+                0,1,0,                  $ min, max, default data values
+                ,,,,                    $ mult, div, base, offset scaling
+                ,,,,                    $ mult, div, base, offset links
+                ;                       $ decimal places
+        Enum86 =
+                0,"Use Data value (normal output)",
+                1,"Use scheduled output";
+
+        Param87 =
+                0,                      $ reserved, shall equal 0
+                ,,                      $ Link Path Size, Link Path
+                0x0000,                 $ Descriptor
+                0xC1,                   $ Data Type
+                1,                      $ Data Size in bytes
+                "Point 7 Schedule Mask",           $ name
+                "",                     $ units
+                "Mask indicating which channels are scheduled.",    $ help string
+                0,1,0,                  $ min, max, default data values
+                ,,,,                    $ mult, div, base, offset scaling
+                ,,,,                    $ mult, div, base, offset links
+                ;                       $ decimal places
+        Enum87 =
+                0,"Use Data value (normal output)",
+                1,"Use scheduled output";
+
+        Param90 =
+                0,                      $ reserved, shall equal 0
+                ,,                      $ Link Path Size, Link Path
+                0x0000,                 $ Descriptor
+                0xC5,                   $ Data Type
+                8,                      $ Data Size in bytes
+                "Timestamp Offset",           $ name
+                "",                     $ units
+                "System Time to Local Time Offset. Output should monitor for a delta between send value\n"
+                "and module’s value and run a Step Compensation Algorithm if the difference is >10us.",    $ help string
+                ,,0,                  $ min, max, default data values
+                ,,,,                    $ mult, div, base, offset scaling
+                ,,,,                    $ mult, div, base, offset links
+                ;                       $ decimal places
+
+        Param91 =
+                0,                      $ reserved, shall equal 0
+                ,,                      $ Link Path Size, Link Path
+                0x0000,                 $ Descriptor
+                0xC5,                   $ Data Type
+                8,                      $ Data Size in bytes
+                "Schedule Timestamp",           $ name
+                "",                     $ units
+                "Master time for which Schedule[xx].TimestampOffset modifies to determine\n"
+                "the actual schedule time for each output to be applied.",    $ help string
+                ,,0,                  $ min, max, default data values
+                ,,,,                    $ mult, div, base, offset scaling
+                ,,,,                    $ mult, div, base, offset links
+                ;                       $ decimal places
+
+        Param92 =
+                0,                      $ reserved, shall equal 0
+                ,,                      $ Link Path Size, Link Path
+                0x0000,                 $ Descriptor
+                0xC1,                   $ Data Type
+                1,                      $ Data Size in bytes
+                "Sync to Master",           $ name
+                "",                     $ units
+                "When set, indicates the module has synced to a Valid Time Master.",    $ help string
+                0,1,0,                  $ min, max, default data values
+                ,,,,                    $ mult, div, base, offset scaling
+                ,,,,                    $ mult, div, base, offset links
+                ;                       $ decimal places
+
+        Param93 =
+                0,                      $ reserved, shall equal 0
+                ,,                      $ Link Path Size, Link Path
+                0x0000,                 $ Descriptor
+                0xC1,                   $ Data Type
+                1,                      $ Data Size in bytes
+                "Sync Timeout",           $ name
+                "",                     $ units
+                "There was a Valid local CIP Sync Timemaster which has since timed out.",    $ help string
+                0,1,0,                  $ min, max, default data values
+                ,,,,                    $ mult, div, base, offset scaling
+                ,,,,                    $ mult, div, base, offset links
+                ;                       $ decimal places
+
+        Param94 =
+                0,                      $ reserved, shall equal 0
+                ,,                      $ Link Path Size, Link Path
+                0x0000,                 $ Descriptor
+                0xC7,                   $ Data Type
+                2,                      $ Data Size in bytes
+                "Late Schedule count",           $ name
+                "",                     $ units
+                "Indicates that a schedule request arrived at the module after the schedule time.\n"
+                "The counter rolls over to 1 every 65,535 late updates.",    $ help string
+                0,65535,0,                  $ min, max, default data values
+                ,,,,                    $ mult, div, base, offset scaling
+                ,,,,                    $ mult, div, base, offset links
+                ;                       $ decimal places
+
+        Param95 =
+                0,                      $ reserved, shall equal 0
+                ,,                      $ Link Path Size, Link Path
+                0x0000,                 $ Descriptor
+                0xC7,                   $ Data Type
+                2,                      $ Data Size in bytes
+                "Lost Schedule count",           $ name
+                "",                     $ units
+                "Indicates that a schedule sequence number has been skipped, thus a schedule request\n"
+                "has been lost.  The counter rolls over to 1 every 65535 lost updates.",    $ help string
+                0,65535,0,                  $ min, max, default data values
+                ,,,,                    $ mult, div, base, offset scaling
+                ,,,,                    $ mult, div, base, offset links
+                ;                       $ decimal places
+
+        Param96 =
+                0,                      $ reserved, shall equal 0
+                ,,                      $ Link Path Size, Link Path
+                0x0000,                 $ Descriptor
+                0xC9,                   $ Data Type
+                8,                      $ Data Size in bytes
+                "Local Clock Offset",           $ name
+                "",                     $ units
+                "CIP Sync Local Clock Offset.",    $ help string
+                ,,0,                  $ min, max, default data values
+                ,,,,                    $ mult, div, base, offset scaling
+                ,,,,                    $ mult, div, base, offset links
+                ;                       $ decimal places
+
+        Param97 =
+                0,                      $ reserved, shall equal 0
+                ,,                      $ Link Path Size, Link Path
+                0x0000,                 $ Descriptor
+                0xC9,                   $ Data Type
+                8,                      $ Data Size in bytes
+                "Offset Timestamp",           $ name
+                "",                     $ units
+                "Timestamp of when last CIP Sync Time was updated.",    $ help string
+                ,,0,                  $ min, max, default data values
+                ,,,,                    $ mult, div, base, offset scaling
+                ,,,,                    $ mult, div, base, offset links
+                ;                       $ decimal places
+
+
+        Param98 =
+                0,                      $ reserved, shall equal 0
+                ,,                      $ Link Path Size, Link Path
+                0x0000,                 $ Descriptor
+                0xC9,                   $ Data Type
+                8,                      $ Data Size in bytes
+                "Grand Master Clock ID",           $ name
+                "",                     $ units
+                "The ID of the CIP Sync Grand Master the module is synced to.",    $ help string
+                ,,0,                  $ min, max, default data values
+                ,,,,                    $ mult, div, base, offset scaling
+                ,,,,                    $ mult, div, base, offset links
+                ;                       $ decimal places
+
+
+        Param99 =
+                0,                      $ reserved, shall equal 0
+                ,,                      $ Link Path Size, Link Path
+                0x0000,                 $ Descriptor
+                0xC9,                   $ Data Type
+                8,                      $ Data Size in bytes
+                "Timestamp",            $ name
+                "",                     $ units
+                "64 bit Timestamp of last scheduled output applied.",    $ help string
+                ,,0,                  $ min, max, default data values
+                ,,,,                    $ mult, div, base, offset scaling
+                ,,,,                    $ mult, div, base, offset links
+                ;                       $ decimal places
+
+
+        Param100 =
+                0,                      $ reserved, shall equal 0
+                ,,                      $ Link Path Size, Link Path
+                0x0200,                 $ Descriptor
+                0xC6,                   $ Data Type
+                1,                      $ Data Size in bytes
+                "Reserved8",            $ name
+                "",                     $ units
+                "",                     $ help string
+                0,0,0,                  $ min, max, default data values
+                ,,,,                    $ mult, div, base, offset scaling
+                ,,,,                    $ mult, div, base, offset links
+                ;                       $ decimal places
+        Param101 =
+                0,                      $ reserved, shall equal 0
+                ,,                      $ Link Path Size, Link Path
+                0x0200,                 $ Descriptor
+                0xC7,                   $ Data Type
+                2,                      $ Data Size in bytes
+                "Reserved16",           $ name
+                "",                     $ units
+                "",                     $ help string
+                0,0,0,                  $ min, max, default data values
+                ,,,,                    $ mult, div, base, offset scaling
+                ,,,,                    $ mult, div, base, offset links
+                ;                       $ decimal places
+        Param102 =
+                0,                      $ reserved, shall equal 0
+                ,,                      $ Link Path Size, Link Path
+                0x0200,                 $ Descriptor
+                0xC8,                   $ Data Type
+                4,                      $ Data Size in bytes
+                "Reserved32",           $ name
+                "",                     $ units
+                "",                     $ help string
+                0,0,0,                  $ min, max, default data values
+                ,,,,                    $ mult, div, base, offset scaling
+                ,,,,                    $ mult, div, base, offset links
+                ;                       $ decimal places
+        Param103 =
+                0,                      $ reserved, shall equal 0
+                ,,                      $ Link Path Size, Link Path
+                0x0200,                 $ Descriptor
+                0xC1,                   $ Data Type
+                1,                      $ Data Size in bytes
+                "CRN",                  $ name
+                "",                     $ units
+                "",                     $ help string
+                0,1,1,                  $ min, max, default data values
+                ,,,,                    $ mult, div, base, offset scaling
+                ,,,,                    $ mult, div, base, offset links
+                ;                       $ decimal places
+
+        Param104 =
+                0,                      $ reserved, shall equal 0
+                ,,                      $ Link Path Size, Link Path
+                0x0200,                 $ Descriptor
+                0xC1,                   $ Data Type
+                1,                      $ Data Size in bytes
+                "Run/Idle",             $ name
+                "",                     $ units
+                "",                     $ help string
+                0,1,0,                  $ min, max, default data values
+                ,,,,                    $ mult, div, base, offset scaling
+                ,,,,                    $ mult, div, base, offset links
+                ;                       $ decimal places
+
+        Param105 =
+                0,                      $ reserved, shall equal 0
+                ,,                      $ Link Path Size, Link Path
+                0x0200,                 $ Descriptor
+                0xC1,                   $ Data Type
+                1,                      $ Data Size in bytes
+                "Program To Fault Enable",             $ name
+                "",                     $ units
+                "",                     $ help string
+                0,1,0,                  $ min, max, default data values
+                ,,,,                    $ mult, div, base, offset scaling
+                ,,,,                    $ mult, div, base, offset links
+                ;                       $ decimal places
+
+
+
+
+[Assembly]
+
+        Assem34 =
+                "Output Data",
+                "20 04 24 22 30 03",
+                ,
+                0x0000,
+                ,,
+                1,Param50,
+                1,Param51,
+                1,Param52,
+                1,Param53,
+                1,Param54,
+                1,Param55,
+                1,Param56,
+                1,Param57;
+
+        Assem171 =
+                "Config",
+                "20 04 24 AB 30 03",
+                ,
+                0x0000,
+                ,,
+                8,Param103,             $ configuration revision (only valid value is 1)
+                8,Param105,
+                1,Param10,
+                1,Param11,
+                1,Param12,
+                1,Param13,
+                1,Param14,
+                1,Param15,
+                1,Param16,
+                1,Param17,
+                8,Param100,
+                1,Param20,
+                1,Param21,
+                1,Param22,
+                1,Param23,
+                1,Param24,
+                1,Param25,
+                1,Param26,
+                1,Param27,
+                8,Param100,
+                1,Param70,
+                1,Param71,
+                1,Param72,
+                1,Param73,
+                1,Param74,
+                1,Param75,
+                1,Param76,
+                1,Param77,
+                8,Param100,
+                1,Param30,
+                1,Param31,
+                1,Param32,
+                1,Param33,
+                1,Param34,
+                1,Param35,
+                1,Param36,
+                1,Param37,
+                8,Param100,
+                1,Param40,
+                1,Param41,
+                1,Param42,
+                1,Param43,
+                1,Param44,
+                1,Param45,
+                1,Param46,
+                1,Param47,
+                8,Param100,
+                32,Param60,
+                32,Param61,
+                32,Param62,
+                32,Param63,
+                32,Param64,
+                32,Param65,
+                32,Param66,
+                32,Param67;
+
+        Assem174 =
+                "Output Data",
+                "20 04 24 AE 30 03",
+                ,
+                0x0000,
+                ,,
+                1,Param50,
+                1,Param51,
+                1,Param52,
+                1,Param53,
+                1,Param54,
+                1,Param55,
+                1,Param56,
+                1,Param57,
+                8,Param100,
+                16,Param101,
+                1,Param80,
+                1,Param81,
+                1,Param82,
+                1,Param83,
+                1,Param84,
+                1,Param85,
+                1,Param86,
+                1,Param87,
+                8,Param100,
+                16,Param101,
+                64,Param90,
+                64,Param91,
+                1024,Assem216;
+
+        Assem177 =
+                "Input",
+                "20 04 24 B1 30 03",
+                ,
+                0x0000,
+                ,,
+                32,Param102,
+                1,Param50,
+                1,Param51,
+                1,Param52,
+                1,Param53,
+                1,Param54,
+                1,Param55,
+                1,Param56,
+                1,Param57,
+                8,Param100,
+                16,Param101,
+                16,Param101,
+                1,Param92,
+                1,Param93,
+                6,Param100,
+                8,Param100,
+                16,Param94,
+                16,Param95,
+                64,Param96,
+                64,Param97,
+                64,Param98,
+                64,Param99,
+                512,Assem236;
+
+        Assem191 =                      $ Null Path
+                "Null",
+                ,                       $ Path
+                ,                       $ Length in bytes
+                0x0000,                 $ descriptor
+                ,                       $ reserved
+                ;                       $
+
+
+
+        Assem200 =
+                "Schedule 0 Output Data",
+                ,
+                ,
+                0x0010,
+                ,,
+                8,,
+                8,,
+                8,,
+                8,,
+                32,;
+        Assem201 =
+                "Schedule 1 Output Data",
+                ,
+                ,
+                0x0010,
+                ,,
+                8,,
+                8,,
+                8,,
+                8,,
+                32,;
+        Assem202 =
+                "Schedule 2 Output Data",
+                ,
+                ,
+                0x0010,
+                ,,
+                8,,
+                8,,
+                8,,
+                8,,
+                32,;
+        Assem203 =
+                "Schedule 3 Output Data",
+                ,
+                ,
+                0x0010,
+                ,,
+                8,,
+                8,,
+                8,,
+                8,,
+                32,;
+        Assem204 =
+                "Schedule 4 Output Data",
+                ,
+                ,
+                0x0010,
+                ,,
+                8,,
+                8,,
+                8,,
+                8,,
+                32,;
+        Assem205 =
+                "Schedule 5 Output Data",
+                ,
+                ,
+                0x0010,
+                ,,
+                8,,
+                8,,
+                8,,
+                8,,
+                32,;
+        Assem206 =
+                "Schedule 6 Output Data",
+                ,
+                ,
+                0x0010,
+                ,,
+                8,,
+                8,,
+                8,,
+                8,,
+                32,;
+        Assem207 =
+                "Schedule 7 Output Data",
+                ,
+                ,
+                0x0010,
+                ,,
+                8,,
+                8,,
+                8,,
+                8,,
+                32,;
+        Assem208 =
+                "Schedule 8 Output Data",
+                ,
+                ,
+                0x0010,
+                ,,
+                8,,
+                8,,
+                8,,
+                8,,
+                32,;
+        Assem209 =
+                "Schedule 9 Output Data",
+                ,
+                ,
+                0x0010,
+                ,,
+                8,,
+                8,,
+                8,,
+                8,,
+                32,;
+        Assem210 =
+                "Schedule 10 Output Data",
+                ,
+                ,
+                0x0010,
+                ,,
+                8,,
+                8,,
+                8,,
+                8,,
+                32,;
+        Assem211 =
+
+                "Schedule 11 Output Data",
+                ,
+                ,
+                0x0010,
+                ,,
+                8,,
+                8,,
+                8,,
+                8,,
+                32,;
+        Assem212 =
+                "Schedule 12 Output Data",
+                ,
+                ,
+                0x0010,
+                ,,
+                8,,
+                8,,
+                8,,
+                8,,
+                32,;
+        Assem213 =
+                "Schedule 13 Output Data",
+                ,
+                ,
+                0x0010,
+                ,,
+                8,,
+                8,,
+                8,,
+                8,,
+                32,;
+        Assem214 =
+                "Schedule 14 Output Data",
+                ,
+                ,
+                0x0010,
+                ,,
+                8,,
+                8,,
+                8,,
+                8,,
+                32,;
+        Assem215 =
+                "Schedule 15 Output Data",
+                ,
+                ,
+                0x0010,
+                ,,
+                8,,
+                8,,
+                8,,
+                8,,
+               32,;
+
+        Assem216 =
+                "Schedule Output Data",
+                ,
+                ,
+                0x0010,
+                ,,
+                64,Assem200,
+                64,Assem201,
+                64,Assem202,
+                64,Assem203,
+                64,Assem204,
+                64,Assem205,
+                64,Assem206,
+                64,Assem207,
+                64,Assem208,
+                64,Assem209,
+                64,Assem210,
+                64,Assem211,
+                64,Assem212,
+                64,Assem213,
+                64,Assem214,
+                64,Assem215;
+
+
+        Assem220 =
+                "Schedule 0 Input Data",
+                ,
+                ,
+                0x0010,
+                ,,
+                8,,
+                8,,
+               16,;
+        Assem221 =
+                "Schedule 1 Input Data",
+                ,
+                ,
+                0x0010,
+                ,,
+                8,,
+                8,,
+               16,;
+        Assem222 =
+                "Schedule 2 Input Data",
+                ,
+                ,
+                0x0010,
+                ,,
+                8,,
+                8,,
+               16,;
+        Assem223 =
+                "Schedule 3 Input Data",
+                ,
+                ,
+                0x0010,
+                ,,
+                8,,
+                8,,
+               16,;
+        Assem224 =
+                "Schedule 4 Input Data",
+                ,
+                ,
+                0x0010,
+                ,,
+                8,,
+                8,,
+               16,;
+        Assem225 =
+                "Schedule 5 Input Data",
+                ,
+                ,
+                0x0010,
+                ,,
+                8,,
+                8,,
+               16,;
+        Assem226 =
+                "Schedule 6 Input Data",
+                ,
+                ,
+                0x0010,
+                ,,
+                8,,
+                8,,
+               16,;
+        Assem227 =
+                "Schedule 7 Input Data",
+                ,
+                ,
+                0x0010,
+                ,,
+                8,,
+                8,,
+               16,;
+        Assem228 =
+                "Schedule 8 Input Data",
+                ,
+                ,
+                0x0010,
+                ,,
+                8,,
+                8,,
+               16,;
+        Assem229 =
+                "Schedule 9 Input Data",
+                ,
+                ,
+                0x0010,
+                ,,
+                8,,
+                8,,
+               16,;
+        Assem230 =
+                "Schedule 10 Input Data",
+                ,
+                ,
+                0x0010,
+                ,,
+                8,,
+                8,,
+               16,;
+        Assem231 =
+                "Schedule 11 Input Data",
+                ,
+                ,
+                0x0010,
+                ,,
+                8,,
+                8,,
+               16,;
+        Assem232 =
+                "Schedule 12 Input Data",
+                ,
+                ,
+                0x0010,
+                ,,
+                8,,
+                8,,
+               16,;
+        Assem233 =
+                "Schedule 13 Input Data",
+                ,
+                ,
+                0x0010,
+                ,,
+                8,,
+                8,,
+               16,;
+        Assem234 =
+                "Schedule 14 Input Data",
+                ,
+                ,
+                0x0010,
+                ,,
+                8,,
+                8,,
+               16,;
+        Assem235 =
+                "Schedule 15 Input Data",
+                ,
+                ,
+                0x0010,
+                ,,
+                8,,
+                8,,
+               16,;
+
+        Assem236 =
+                "Schedule Input Data",
+                ,
+                ,
+                0x0010,
+                ,,
+                32,Assem220,
+                32,Assem221,
+                32,Assem222,
+                32,Assem223,
+                32,Assem224,
+                32,Assem225,
+                32,Assem226,
+                32,Assem227,
+                32,Assem228,
+                32,Assem229,
+                32,Assem230,
+                32,Assem231,
+                32,Assem232,
+                32,Assem233,
+                32,Assem234,
+                32,Assem235;
+
+
+
+
+
+[Connection Manager]
+        Connection1 =
+                0x04010002,             $ 0-15    = supported transport classes
+                                        $ 16      = trigger: cyclic
+                                        $ 17      = trigger: change of state
+                                        $ 18      = trigger: application
+                                        $ 19-23   = trigger: reserved
+                                        $ 24      = transport type: listen-only
+                                        $ 25      = transport type: input-only
+                                        $ 26      = transport type: exclusive-owner
+                                        $ 27      = transport type: redundant-owner
+                                        $ 28-30   = reserved
+                                        $ 31      = Client = 0 / Server = 1
+                0x44240405,             $ 0       = O->T fixed size supported
+                                        $ 1       = O->T variable size supported
+                                        $ 2       = T->O fixed size supported
+                                        $ 3       = T->O variable size supported
+                                        $ 4-5     = O->T number of bytes per slot (obsolete)
+                                        $ 6-7     = T->O number of bytes per slot (obsolete)
+                                        $ 8-10    = O->T Real time transfer format
+                                        $ 11      = reserved
+                                        $ 12-14   = T->O Real time transfer format
+                                        $ 15      = reserved
+                                        $ 16      = O->T connection type: NULL
+                                        $ 17      = O->T connection type: MULTICAST
+                                        $ 18      = O->T connection type: POINT2POINT
+                                        $ 19      = O->T connection type: reserved
+                                        $ 20      = T->O connection type: NULL
+                                        $ 21      = T->O connection type: MULTICAST
+                                        $ 22      = T->O connection type: POINT2POINT
+                                        $ 23      = T->O connection type: reserved
+                                        $ 24      = O->T priority: LOW
+                                        $ 25      = O->T priority: HIGH
+                                        $ 26      = O->T priority: SCHEDULED
+                                        $ 27      = O->T priority: reserved
+                                        $ 28      = T->O priority: LOW
+                                        $ 29      = T->O priority: HIGH
+                                        $ 30      = T->O priority: SCHEDULED
+                                        $ 31      = T->O priority: reserved
+                ,,Assem174,              $ O->T RPI, size, format
+                ,,Assem177,             $ T->O RPI, size, format
+                ,,                      $ config #1 size, format
+                ,Assem171,              $ config #2 size, format
+                "Logix - Exclusive Owner",    $ Connection Name
+                "Owning connection.  Input Assembly returns DWord of Status (for Logix controllers) followed by 8 bits of Output Data echo and remaining Scheduled Output Data.",    $ help string
+                "20 04 24 AB 2C AE 2C B1";    $ Path
+
+        Connection2 =
+                0x04030002,             $ 0-15    = supported transport classes
+                                        $ 16      = trigger: cyclic
+                                        $ 17      = trigger: change of state
+                                        $ 18      = trigger: application
+                                        $ 19-23   = trigger: reserved
+                                        $ 24      = transport type: listen-only
+                                        $ 25      = transport type: input-only
+                                        $ 26      = transport type: exclusive-owner
+                                        $ 27      = transport type: redundant-owner
+                                        $ 28-30   = reserved
+                                        $ 31      = Client = 0 / Server = 1
+                0x44640405,             $ 0       = O->T fixed size supported
+                                        $ 1       = O->T variable size supported
+                                        $ 2       = T->O fixed size supported
+                                        $ 3       = T->O variable size supported
+                                        $ 4-5     = O->T number of bytes per slot (obsolete)
+                                        $ 6-7     = T->O number of bytes per slot (obsolete)
+                                        $ 8-10    = O->T Real time transfer format
+                                        $ 11      = reserved
+                                        $ 12-14   = T->O Real time transfer format
+                                        $ 15      = reserved
+                                        $ 16      = O->T connection type: NULL
+                                        $ 17      = O->T connection type: MULTICAST
+                                        $ 18      = O->T connection type: POINT2POINT
+                                        $ 19      = O->T connection type: reserved
+                                        $ 20      = T->O connection type: NULL
+                                        $ 21      = T->O connection type: MULTICAST
+                                        $ 22      = T->O connection type: POINT2POINT
+                                        $ 23      = T->O connection type: reserved
+                                        $ 24      = O->T priority: LOW
+                                        $ 25      = O->T priority: HIGH
+                                        $ 26      = O->T priority: SCHEDULED
+                                        $ 27      = O->T priority: reserved
+                                        $ 28      = T->O priority: LOW
+                                        $ 29      = T->O priority: HIGH
+                                        $ 30      = T->O priority: SCHEDULED
+                                        $ 31      = T->O priority: reserved
+                ,,Assem34,              $ O->T RPI, size, format
+                ,,Assem191,               $ T->O RPI, size, format
+                ,,                      $ config #1 size, format
+                ,Assem171,              $ config #2 size, format
+                "Open - Exclusive Owner",    $ Connection Name
+                "Owning connection for Open Processors.  Output Assembly consumes 8 output bits.",    $ help string
+                "20 04 24 AB 2C 22 2C BF";    $ Path
+
+
+[Port]
+        Port1 =
+                TCP,
+                "EtherNet/IP Port",
+                "20 F5 24 01",
+                2;
+
+[Capacity]
+        ConnOverhead = .0;
+        MaxIOConnections = 16;
+        MaxMsgConnections = 10;
+        MaxConsumersPerMcast = 10;
+        TSpec1 = TxRx, 2, 2000;
+        TSpec2 = TxRx, 6, 2200;
+

@@ -1,0 +1,138 @@
+$ Revision History
+$ 1.001  06-04-03  jgm  Initial Version
+$ 1.002  03-20-06  jgm  Updated to support standardization guidelines
+$ 1.003  05-08-07  pdt  Added entry to prevent usage of RSLogix 5000 EDS AOP
+
+[File]
+	DescText    = "1769-IQ16F/A EDS File";
+	CreateDate  = 06-04-2003;
+	CreateTime  = 15:00:00;
+	ModDate     = 05-08-2007;
+	ModTime     = 06:00:00;
+	Revision    = 1.003;
+	HomeURL     = "http://www.ab.com/networks/eds/XX/0001000700450300.eds";
+
+[Device]
+	VendCode    = 1;
+	VendName    = "Rockwell Automation/Allen-Bradley";
+	ProdType    = 7;
+	ProdTypeStr = "Discrete I/O";
+	ProdCode    = 69;
+	MajRev      = 3;
+	MinRev      = 1;
+	ProdName    = "1769-16pt High Speed 24Vdc Input";
+	Catalog     = "1769-IQ16F/A";
+	Icon        = "1769-Blue.ico";
+	1_EDS_AOP_Support = "No";
+
+[Modular]
+	Rack1 =  1,108,91,1,1,,,,
+			 1, 2, 3, 4, 5, 6, 7, 8, 9,10, $ Legal slots
+			11,12,13,14,15,16,17,18,19,20,
+			21,22,23,24,25,26,27,28,29,30,
+			31,32,33,34,35,36,37;
+
+	ExternalID = "01 00 07 00 45 00 03";
+
+[1_1769Audit]
+	1_5vdcPwrLoad  = 110;
+	1_24vdcPwrLoad = 0;
+	1_DistRating   = 8;
+
+[Params]
+	ProxiedParam4 = ,,,,,,"","","",0,1,1,,,,,,,,,;		$ Input data size
+	ProxiedEnum4 = 0,"No Input Data", 1,"Input Data (1 Word)";
+
+	ProxiedParam6 = ,,,,,,"","","",0,2,2,,,,,,,,,;		$ Electronic Keying
+	ProxiedEnum6 = 0,"Disable Keying", 1,"Exact Match", 2,"Compatible Module";
+
+	ProxiedParam7 = ,,,,,,"","","",1,255,1,,,,,,,,,;	$ Configured Minor Revision
+
+	ProxiedParam8 = ,,,,,,"","","",1,255,1,,,,,,,,,;	$ Actual Minor Revision
+
+	$*******************************************************
+	$	Word 0 configuration data - Selects Input Filters
+	$*******************************************************
+	Param10=  0,,,			$ Reserved, link size, link path
+			  0x0002,		$ Descriptor (Enum)
+			  0xC6,1,		$ USINT
+			  "Filter Time: OFF-ON","",
+			  "Select OFF to ON filter time for group 0 inputs.",
+			  2,6,2,,,,,,,,,;
+	Enum10 =  2,"2.0 milliseconds",
+			  3,"1.0 millisecond",
+			  4,"500 microseconds",
+			  5,"100 microseconds",
+			  6,"  0 microseconds";
+
+	Param11=  0,,,			$ Reserved, link size, link path
+			  0x0002,		$ Descriptor (Enum)
+			  0xC6,1,		$ USINT
+			  "Filter Time: ON-OFF","",
+			  "Select ON to OFF filter time for group 0 inputs.",
+			  2,6,2,,,,,,,,,;
+	Enum11 =  2,"2.0 milliseconds",
+			  3,"1.0 millisecond",
+			  4,"500 microseconds",
+			  5,"100 microseconds",
+			  6,"  0 microseconds";
+
+	Param12=  0,,,			$ Reserved, link size, link path
+			  0x0002,		$ Descriptor (Enum)
+			  0xC6,1,		$ USINT
+			  "Filter Time: OFF-ON","",
+			  "Select OFF to ON filter time for group 1 inputs.",
+			  2,6,2,,,,,,,,,;
+	Enum12 =  2,"2.0 milliseconds",
+			  3,"1.0 millisecond",
+			  4,"500 microseconds",
+			  5,"100 microseconds",
+			  6,"  0 microseconds";
+
+	Param13=  0,,,			$ Reserved, link size, link path
+			  0x0002,		$ Descriptor (Enum)
+			  0xC6,1,		$ USINT
+			  "Filter Time: ON-OFF","",
+			  "Select ON to OFF filter time for group 1 inputs.",
+			  2,6,2,,,,,,,,,;
+	Enum13 =  2,"2.0 milliseconds",
+			  3,"1.0 millisecond",
+			  4,"500 microseconds",
+			  5,"100 microseconds",
+			  6,"  0 microseconds";
+
+
+	$**********************
+	$	Input array data
+	$**********************
+	Param20=  0,,,			$ Reserved, link size, link path
+			  0x0010,		$ Descriptor (Read Only)
+			  0xD2, 2,		$ WORD
+			  "Data","",
+			  "Contains the current state of the field input points.",
+			  0,0xFFFF,0,,,,,,,,,;
+
+
+[Assembly]
+
+	$ Input File (1 word)
+	ProxiedAssem101 ="Input Array",,,,,,
+		16,Param20;
+
+	$ Configuration File (4 words)
+	ProxiedAssem4 ="Channel Config",,,,,,
+
+		$--- Configuration Word 0 ---
+		4,Param10,			$ Group 0 Off to On Filter
+		4,Param11,			$ Group 0 On to Off Filter
+		4,Param12,			$ Group 1 Off to On Filter
+		4,Param13,			$ Group 1 On to Off Filter
+
+		$--- Configuration Word 1 - Reserved
+		16,0,
+
+		$--- Configuration Word 2 - Reserved
+		16,0,
+
+		$--- Configuration Word 3 - Reserved
+		16,0;

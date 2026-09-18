@@ -1,0 +1,248 @@
+[File]
+	DescText = "1794-IV32/A Flex module EDS";
+	CreateDate = 03-18-2008;
+	CreateTime = 08:00:00;
+	ModDate	= 03-18-2008;
+	ModTime	= 08:00:00;
+	Revision = 1.0;
+	HomeURL = "http://www.ab.com/networks/eds/XX/00010007016D0100.eds";
+
+[Device]
+	VendCode = 1;
+	VendName = "Allen-Bradley";
+	ProdType = 7;
+	ProdTypeStr = "General Purpose Discrete I/O";
+	ProdCode= 365;
+	MajRev = 1;
+	MinRev = 1;
+	ProdName = "1794 - 32 Point 24V DC Input,Source";
+	Catalog = "1794-IV32/A";
+	Icon = "94BLUE.ICO";
+
+	1_Revision_Alpha = "Yes";
+	ExcludeFromAdapterRackConnection = Yes;
+
+[Device Classification]
+	Class1 = 1_RSNetWorx_1794, 1_RSNetWorx_Connectable_Module;
+
+[Params]
+      Param1 =
+        0,          $ first field shall equal 0
+        ,,          $ path size,path
+        0x0002,     $ descriptor - read only
+        0xc7,          $ data type : 16-bit Unsigned Integer
+        2,          $ data size in bytes
+        "Input Filter Time", $ name
+        "",            $ units
+        "",            $ help string
+        0,7,0,         $ min,max,default data values
+        0,0,0,0,    $ mult,dev,base,offset scaling not used
+        0,0,0,0,    $ mult,dev,base,offset link not used
+        0;          $ decimal places not used
+      Enum1 =
+        0,"On->Off/Off->On= 0.25 ms",
+        1,"On->Off/Off->On= 0.5 ms",
+        2,"On->Off/Off->On= 1 ms",
+        3,"On->Off/Off->On= 2 ms",
+	4,"On->Off/Off->On= 4 ms",
+	5,"On->Off/Off->On= 8 ms",
+	6,"On->Off/Off->On= 16 ms",
+	7,"On->Off/Off->On= 32 ms";
+
+      Param2 =
+        0,          $ first field shall equal 0
+        ,,          $ path size,path
+        0x0010,     $ descriptor - read only
+        0xc8,          $ data type : 32-bit Unsigned Integer
+        4,          $ data size in bytes
+        "Data", $ name
+        "",         $ units
+        "",         $ help string
+        0,4294967295,0,      $ min,max,default data values
+        0,0,0,0,    $ mult,dev,base,offset scaling not used
+        0,0,0,0,    $ mult,dev,base,offset link not used
+        0;          $ decimal places not used
+ 
+	ProxiedParam1 = 0,
+		,,	$ Link Path Size, Link Path
+		0x0000,	 $ Descriptor
+		, ,	$ Data Type, Data Size
+		"input size",
+		"",
+		"",
+		2,4,4,
+		,,,,
+		,,,,;
+		ProxiedEnum1 = 2,"2",4,"4";
+
+	ProxiedParam2 = 0,
+		,,	$ Link Path Size, Link Path
+		0x0000,	 $ Descriptor
+		, ,	$ Data Type, Data Size
+		"module key",
+		"",
+		"",
+		537,537,537,
+		,,,,
+		,,,,
+		;
+
+	ProxiedParam3 = 0,
+		,,	$ Link Path Size, Link Path
+		0x0000,	 $ Descriptor
+		, ,	$ Data Type, Data Size
+		"module input size",
+		"",
+		"",
+		0,2,2,
+		,,,,
+		,,,,
+		;
+
+	ProxiedParam4 = 0,
+		,,	$ Link Path Size, Link Path
+		0x0000,	 $ Descriptor
+		, ,	$ Data Type, Data Size
+		"module status size",
+		"",
+		"",
+		0,0,0,
+		,,,,
+		,,,,
+		;
+
+	ProxiedParam5 = 0,
+		,,	$ Link Path Size, Link Path
+		0x0000,	 $ Descriptor
+		, ,	$ Data Type, Data Size
+		"module output size",
+		"",
+		"",
+		0,0,0,
+		,,,,
+		,,,,
+		;
+
+	ProxiedParam6 = 0,
+		,,	$ Link Path Size, Link Path
+		0x0000,	 $ Descriptor
+		, ,	$ Data Type, Data Size
+		"module config size",
+		"",
+		"",
+		0,1,1,
+		,,,,
+		,,,,
+		;
+
+	ProxiedParam7 = 0,
+		,,	$ Link Path Size, Link Path
+		0x0000,	 $ Descriptor
+		, ,	$ Data Type, Data Size
+		"output size",
+		"",
+		"",
+		0,0,0,
+		,,,,
+		,,,,;
+		
+		
+	$ **********************************
+	$ NOTE: Parameters names are only listed for description of parameter. These names are not used!
+	$ **********************************
+	ProxiedParam10	= ,,,,,,"Module Object Attribute 0x03","","",0,2,0,,,,,,,,,;
+	ProxiedEnum10	= 0,"Reset to Zero", 	1,"Hold Outputs in Last State", 2,"Use Safe State Output Values";
+
+	ProxiedParam11	= ,,,,,,"Module Object Attribute 0x03","","",0,2,0,,,,,,,,,;
+	ProxiedEnum11	= 0,"Reset to Zero", 	1,"Hold Outputs in Last State", 2,"Use Safe State Output Values";
+
+	ProxiedParam12	= ,,,,,,"Module Object Attribute 0x11","","",0,1,0,,,,,,,,,;
+	ProxiedEnum12	= 0,"Output Remain in Idle State", 1,"Output Go To Fault State";
+
+	ProxiedParam13	= ,,,,,,"Module Object Attribute 0x14","","",0,1,0,,,,,,,,,;
+	ProxiedEnum13	= 0,"Zero Inputs", 1,"Hold Last Input Values";
+
+
+[Assembly]
+	Revision = 2;
+
+	ProxiedAssem1 = "module config",,
+		,,,,
+		8,,
+		3, Param1, $Filter
+		5,;
+
+	ProxiedAssem2 = "real time input format",,
+		,,,,
+		32, Param2; $Data
+
+
+
+
+	ProxiedAssem3 = "real time output format",,
+		,,,;
+
+	ProxiedAssem4 = "real time status format",,
+		,,,;
+
+	ProxiedAssem5 = "module config and safe state",,
+		,,,;
+
+	ProxiedAssem6 = "safe state",,
+		,,,;
+
+	ProxiedAssem7 = "module flag data",,
+		,,,,
+		4,0,
+		4,0,
+		8,0;
+
+[Connection Manager]
+
+	ProxiedConnect1 = 0x00000000,
+		0x00000000,
+		,,,	$ O=>T 
+		,,,	$ T=>O
+		,,	$ Config #1
+		,,	$ Config #2
+		"",
+		"",
+		"";
+
+	ProxiedConnect2 = 0x00000000,
+		0x00000000,
+		,,,	$ O=>T 
+		,,,	$ T=>O
+		,,	$ Config #1
+		,,	$ Config #2
+		"",
+		"",
+		"";
+
+	ProxiedConnect3 = 0x00000000,
+		0x00000000,
+		,,,	$ O=>T 
+		,,,	$ T=>O
+		,,	$ Config #1
+		,,	$ Config #2
+		"",
+		"",
+		"";
+
+	ProxiedConnect4 = 0x00000000,
+		0x00000000,
+		,,,	$ O=>T 
+		,,,	$ T=>O
+		,,	$ Config #1
+		,,	$ Config #2
+		"",
+		"",
+		"";
+
+[Modular]
+	Width = 1;
+	Rack1 = 1,108,33,1,1,,,,
+		1,2,3,4,5,6,7,8;
+	Rack2 = 1,108,93,1,1,,,,
+		1,2,3,4,5,6,7,8;
+	ExternalID = "19 02";

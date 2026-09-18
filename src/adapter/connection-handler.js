@@ -19,40 +19,65 @@ const { buildIoDatagram, parseIoDatagram } = require('../cip/io-connection');
 const { CipGeneralStatus } = require('../constants');
 
 class ConnectionHandler {
-    constructor({ assemblyObject, identity, sendDatagram }) {
+    constructor({ assemblyObject, identity, sendDatagram, connectionManagerObject, quiet = false }) {
         this.assemblyObject = assemblyObject;
         this.identity = identity; // optional — enables Electronic Key validation below
         this.sendDatagram = sendDatagram; // (buffer, remoteAddress) => void
+        this.connectionManagerObject = connectionManagerObject; // optional — tracks CIP connection stats
         this.connections = new Map(); // otNetworkConnectionId -> state
         this._nextConnectionId = 1;
+        this.quiet = Boolean(quiet);
+        this.onProduceData = null; // optional hook (t2oInstance) => void
     }
 
     /**
      * Validates an Electronic Key Segment (if the connection path carried
      * one — real Scanners/PLCs always include one) against this Adapter's
-     * own Identity — CIP Vol 1, C-1.4.5.2. VendorID 0 is treated as a
-     * wildcard ("don't care"), matching common ODVA conformance-test
-     * tooling behavior, not just real devices.
+     * own Identity — CIP Vol 1, C-1.4.5.2. Algorithm ported field-for-field
+     * from OpENer's CheckElectronicKeyData() (the ODVA-conformance-tested
+     * reference implementation, cipconnectionmanager.c), not re-derived —
+     * a few of its rules are easy to get subtly wrong by "reasoning from
+     * the spec text" alone (see the two comments below).
      */
     _checkElectronicKey(key) {
         if (!key || !this.identity) return null; // nothing to check
-        if (key.vendorId !== 0 && key.vendorId !== this.identity.vendorId) {
+        const id = this.identity;
+
+        // VendorID and ProductCode are checked together, before DeviceType
+        // (OpENer's own priority order — matters when more than one thing
+        // is wrong at once, since only the first mismatch found is reported).
+        if ((key.vendorId !== 0 && key.vendorId !== id.vendorId) ||
+            (key.productCode !== 0 && key.productCode !== id.productCode)) {
             return { generalStatus: CipGeneralStatus.ConnectionFailure, extendedStatus: 0x0114 }; // Vendor ID or Product Code mismatch
         }
-        if (key.deviceType !== 0 && key.deviceType !== this.identity.deviceType) {
+        if (key.deviceType !== 0 && key.deviceType !== id.deviceType) {
             return { generalStatus: CipGeneralStatus.ConnectionFailure, extendedStatus: 0x0115 }; // Device Type mismatch
         }
-        if (key.productCode !== 0 && key.productCode !== this.identity.productCode) {
-            return { generalStatus: CipGeneralStatus.ConnectionFailure, extendedStatus: 0x0114 };
-        }
-        const ourRev = this.identity.revision || { major: 0, minor: 0 };
-        if (key.compatibility) {
-            // Compatible keying: accept any of our revision >= the requested one.
-            if (ourRev.major < key.majorRevision || (ourRev.major === key.majorRevision && ourRev.minor < key.minorRevision)) {
-                return { generalStatus: CipGeneralStatus.ConnectionFailure, extendedStatus: 0x0116 }; // Revision mismatch
+
+        const ourRev = id.revision || { major: 0, minor: 0 };
+        if (!key.compatibility) {
+            // Major Revision 0 is a wildcard in strict keying too — not just
+            // an "exact match required" fallback. Minor Revision 0 is ALSO a
+            // wildcard once Major has matched (easy to miss: it's tempting
+            // to require an exact Major.Minor match here, but the reference
+            // implementation doesn't).
+            if (key.majorRevision === 0) return null;
+            if (key.majorRevision !== ourRev.major) {
+                return { generalStatus: CipGeneralStatus.ConnectionFailure, extendedStatus: 0x0116 };
             }
-        } else if (key.majorRevision !== 0 && (ourRev.major !== key.majorRevision || ourRev.minor !== key.minorRevision)) {
-            return { generalStatus: CipGeneralStatus.ConnectionFailure, extendedStatus: 0x0116 };
+            if (key.minorRevision !== 0 && key.minorRevision !== ourRev.minor) {
+                return { generalStatus: CipGeneralStatus.ConnectionFailure, extendedStatus: 0x0116 };
+            }
+        } else {
+            // Compatible keying is NARROWER than it sounds: Major must match
+            // EXACTLY (a higher Major on our side does NOT satisfy it, even
+            // though intuitively "we're newer" might seem compatible), and
+            // Minor must be > 0 (0 is not a valid "any minor" wildcard here,
+            // unlike strict mode) and <= our own Minor Revision.
+            const ok = key.majorRevision === ourRev.major && key.minorRevision > 0 && key.minorRevision <= ourRev.minor;
+            if (!ok) {
+                return { generalStatus: CipGeneralStatus.ConnectionFailure, extendedStatus: 0x0116 };
+            }
         }
         return null;
     }
@@ -67,29 +92,111 @@ class ConnectionHandler {
         try {
             path = decodeEPath(request.connectionPath);
         } catch {
+            this.connectionManagerObject?.recordOpenRequest(false, 'format');
             return { ok: false, generalStatus: CipGeneralStatus.PathSegmentError, extendedStatus: 0x0120 };
         }
 
         const keyError = this._checkElectronicKey(path.electronicKey);
         if (keyError) {
+            this.connectionManagerObject?.recordOpenRequest(false, 'format');
             return { ok: false, ...keyError };
+        }
+
+        const isExplicit = path.classId === 0x02 || (!path.connectionPoints || path.connectionPoints.length === 0);
+
+        const cleanAddress = (typeof remoteAddress === 'string' && remoteAddress.startsWith('::ffff:'))
+            ? remoteAddress.slice(7)
+            : remoteAddress;
+
+        if (isExplicit) {
+            // Clean up any existing explicit connection from the same originator or endpoint
+            for (const [id, existing] of this.connections.entries()) {
+                if (
+                    existing.isExplicit &&
+                    ((existing.originatorSerialNumber === request.originatorSerialNumber && existing.originatorVendorId === request.originatorVendorId) ||
+                     existing.remoteAddress === cleanAddress)
+                ) {
+                    if (existing.timer) clearInterval(existing.timer);
+                    this.connections.delete(id);
+                }
+            }
+
+            const otNetworkConnectionId = (Math.floor(Math.random() * 0x3FFFFFFF) + 0x10000000) >>> 0;
+            const state = {
+                otNetworkConnectionId,
+                toNetworkConnectionId: request.toNetworkConnectionId,
+                connectionSerialNumber: request.connectionSerialNumber,
+                originatorVendorId: request.originatorVendorId,
+                originatorSerialNumber: request.originatorSerialNumber,
+                isExplicit: true,
+                remoteAddress: cleanAddress,
+                remotePort: null,
+                timer: null
+            };
+
+            this.connections.set(otNetworkConnectionId, state);
+            this.connectionManagerObject?.recordOpenRequest(true);
+
+            if (!this.quiet) {
+                console.log(`\x1b[32m[PLC CLASS 3 EXPLICIT CONNECTED]\x1b[0m \x1b[1m${cleanAddress}\x1b[0m | ConnID: 0x${otNetworkConnectionId.toString(16)} (Message Router)`);
+            }
+
+            return {
+                ok: true,
+                response: {
+                    otNetworkConnectionId,
+                    toNetworkConnectionId: request.toNetworkConnectionId,
+                    connectionSerialNumber: request.connectionSerialNumber,
+                    originatorVendorId: request.originatorVendorId,
+                    originatorSerialNumber: request.originatorSerialNumber,
+                    otApiUs: request.otRpiUs,
+                    toApiUs: request.toRpiUs
+                }
+            };
         }
 
         const [o2tInstance, t2oInstance] = path.connectionPoints || [];
         if (o2tInstance === undefined || t2oInstance === undefined) {
+            this.connectionManagerObject?.recordOpenRequest(false, 'format');
             return { ok: false, generalStatus: CipGeneralStatus.PathSegmentError, extendedStatus: 0x0120 };
         }
         if (!this.assemblyObject.has(o2tInstance) || !this.assemblyObject.has(t2oInstance)) {
+            this.connectionManagerObject?.recordOpenRequest(false, 'resource');
             return { ok: false, generalStatus: CipGeneralStatus.ConnectionFailure, extendedStatus: 0x0107 }; // connection not found at target
         }
 
-        const outputBuf = this.assemblyObject.getData(o2tInstance);
-        const inputBuf = this.assemblyObject.getData(t2oInstance);
-        if (outputBuf.length !== request.otSize || inputBuf.length !== request.toSize) {
-            return { ok: false, generalStatus: CipGeneralStatus.ConnectionFailure, extendedStatus: 0x0113 }; // connection size mismatch
+        let outputBuf = this.assemblyObject.getData(o2tInstance);
+        let inputBuf = this.assemblyObject.getData(t2oInstance);
+
+        const maxSize = request.isLarge ? 65535 : 511;
+
+        // Auto-adapt / resize assembly buffers if valid (within standard CIP 1..511 or Large 1..65535 bytes limit)
+        if (outputBuf && outputBuf.length !== request.otSize && request.otSize > 0 && request.otSize <= maxSize) {
+            this.assemblyObject.define(o2tInstance, request.otSize);
+            outputBuf = this.assemblyObject.getData(o2tInstance);
+        }
+        if (inputBuf && inputBuf.length !== request.toSize && request.toSize > 0 && request.toSize <= maxSize) {
+            this.assemblyObject.define(t2oInstance, request.toSize);
+            inputBuf = this.assemblyObject.getData(t2oInstance);
         }
 
-        const otNetworkConnectionId = this._nextConnectionId++;
+        if (request.otSize > maxSize || request.toSize > maxSize) {
+            this.connectionManagerObject?.recordOpenRequest(false, 'format');
+            return { ok: false, generalStatus: CipGeneralStatus.ConnectionFailure, extendedStatus: 0x0113 };
+        }
+
+        // Clean up any existing connection from the same originator or endpoint
+        for (const [id, existing] of this.connections.entries()) {
+            if (
+                (existing.originatorSerialNumber === request.originatorSerialNumber && existing.originatorVendorId === request.originatorVendorId) ||
+                (existing.remoteAddress === cleanAddress && existing.o2tInstance === o2tInstance && existing.t2oInstance === t2oInstance)
+            ) {
+                if (existing.timer) clearInterval(existing.timer);
+                this.connections.delete(id);
+            }
+        }
+
+        const otNetworkConnectionId = (Math.floor(Math.random() * 0x3FFFFFFF) + 0x10000000) >>> 0;
         const state = {
             otNetworkConnectionId,
             toNetworkConnectionId: request.toNetworkConnectionId,
@@ -98,28 +205,64 @@ class ConnectionHandler {
             originatorSerialNumber: request.originatorSerialNumber,
             o2tInstance,
             t2oInstance,
-            remoteAddress,
+            otSize: request.otSize,
+            toSize: request.toSize,
+            remoteAddress: cleanAddress,
             remotePort: null,
-            sequenceNumber: 0,
+            sequenceNumber: 1,
             useRunIdleHeader: Boolean(request.useRunIdleHeader),
             runIdle: true,
             timer: null
         };
 
+        const targetDataSize = request.toSize;
+        const getProducedData = () => {
+            if (typeof this.onProduceData === 'function') {
+                try { this.onProduceData(t2oInstance); } catch {}
+            }
+            const raw = this.assemblyObject.getData(t2oInstance);
+            if (raw.length === targetDataSize) return raw;
+            if (raw.length > targetDataSize) return raw.subarray(0, targetDataSize);
+            const padded = Buffer.alloc(targetDataSize);
+            raw.copy(padded);
+            return padded;
+        };
+
         const rpiMs = Math.max(1, Math.round(request.toRpiUs / 1000));
+
+        // Immediate first packet dispatch to prevent PLC connection watchdog timeout.
+        // In ODVA CIP Transport Class 1 specification, Connected Data (item 0x00B1)
+        // carries a 16-bit Sequence Count (transport header) so controllers (Delta, Rockwell, Omron)
+        // do not consume the first 2 bytes of data as sequence numbers.
+        const initialDatagram = buildIoDatagram({
+            connectionId: state.toNetworkConnectionId,
+            sequenceNumber: state.sequenceNumber,
+            data: getProducedData(),
+            useRunIdleHeader: false,
+            runIdle: true,
+            includeSequenceCount: true
+        });
+        this.sendDatagram(initialDatagram, state.remoteAddress, state.remotePort);
+
         state.timer = setInterval(() => {
-            state.sequenceNumber++;
+            state.sequenceNumber = (state.sequenceNumber + 1) >>> 0 || 1;
             const datagram = buildIoDatagram({
                 connectionId: state.toNetworkConnectionId,
                 sequenceNumber: state.sequenceNumber,
-                data: this.assemblyObject.getData(t2oInstance),
-                useRunIdleHeader: state.useRunIdleHeader,
-                runIdle: true
+                data: getProducedData(),
+                useRunIdleHeader: false,
+                runIdle: true,
+                includeSequenceCount: true
             });
             this.sendDatagram(datagram, state.remoteAddress, state.remotePort);
         }, rpiMs);
 
         this.connections.set(otNetworkConnectionId, state);
+        this.connectionManagerObject?.recordOpenRequest(true);
+
+        if (!this.quiet) {
+            console.log(`\x1b[32m[PLC CLASS 1 I/O CONNECTED]\x1b[0m \x1b[1m${cleanAddress}\x1b[0m | O->T: Assem ${o2tInstance} (${request.otSize}B), T->O: Assem ${t2oInstance} (${request.toSize}B), RPI: ${rpiMs}ms | ConnID: 0x${otNetworkConnectionId.toString(16)}`);
+        }
 
         return {
             ok: true,
@@ -145,6 +288,7 @@ class ConnectionHandler {
             ) {
                 clearInterval(state.timer);
                 this.connections.delete(id);
+                this.connectionManagerObject?.recordCloseRequest(true);
                 return {
                     ok: true,
                     response: {
@@ -155,6 +299,7 @@ class ConnectionHandler {
                 };
             }
         }
+        this.connectionManagerObject?.recordCloseRequest(false);
         return { ok: false, generalStatus: CipGeneralStatus.ConnectionFailure, extendedStatus: 0x0107 };
     }
 
@@ -170,18 +315,42 @@ class ConnectionHandler {
             if (state.otNetworkConnectionId !== parsed.connectionId) continue;
             if (rinfo && rinfo.port) {
                 state.remotePort = rinfo.port;
-                state.remoteAddress = rinfo.address;
+                state.remoteAddress = (rinfo.address && rinfo.address.startsWith('::ffff:')) ? rinfo.address.slice(7) : rinfo.address;
             }
             const outputBuf = this.assemblyObject.getData(state.o2tInstance);
             let payload = parsed.data;
-            if (payload.length === outputBuf.length + 4) {
-                // 32-bit Run/Idle header present
-                state.runIdle = Boolean(payload.readUInt32LE(0) & 0x01);
-                payload = payload.slice(4);
+
+            // Strip CIP I/O transport headers:
+            // Case 1: 2-byte Sequence Count + 4-byte Run/Idle header (6 bytes prefix)
+            if (payload.length >= 6) {
+                const headerAt2 = payload.readUInt32LE(2);
+                if (headerAt2 === 0 || headerAt2 === 1) {
+                    state.runIdle = Boolean(headerAt2 & 0x01);
+                    payload = payload.subarray(6);
+                } else {
+                    // Case 2: 4-byte Run/Idle header at offset 0
+                    const headerAt0 = payload.readUInt32LE(0);
+                    if (headerAt0 === 0 || headerAt0 === 1) {
+                        state.runIdle = Boolean(headerAt0 & 0x01);
+                        payload = payload.subarray(4);
+                    } else if (state.otSize > 0 && payload.length === state.otSize + 2) {
+                        // Case 3: 2-byte sequence count only
+                        payload = payload.subarray(2);
+                    }
+                }
+            } else if (payload.length >= 4) {
+                const headerAt0 = payload.readUInt32LE(0);
+                if (headerAt0 === 0 || headerAt0 === 1) {
+                    state.runIdle = Boolean(headerAt0 & 0x01);
+                    payload = payload.subarray(4);
+                } else if (state.otSize > 0 && payload.length === state.otSize + 2) {
+                    payload = payload.subarray(2);
+                }
             }
-            if (payload.length === outputBuf.length) {
-                this.assemblyObject.setData(state.o2tInstance, payload);
+            if (outputBuf.length !== payload.length && payload.length > 0) {
+                this.assemblyObject.define(state.o2tInstance, payload.length);
             }
+            this.assemblyObject.setData(state.o2tInstance, payload);
             return;
         }
     }

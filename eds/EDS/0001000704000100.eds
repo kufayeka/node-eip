@@ -1,0 +1,106 @@
+$ Electronic Data Sheet for Hardened Block I/O  (1792-IB4-A/A)
+
+[File]
+DescText="1792-IB4-A/A Armor Block I/O EDS File";
+CreateDate = 07-14-95;
+CreateTime = 12:00:00;
+ModDate = 04-06-99;
+ModTime = 11:24:00;
+Revision = 1.2;			$ EDS revision.
+
+[Device]
+VendCode = 1;
+VendName = "Allen-Bradley Company, Inc.";
+ProdType = 7;
+ProdTypeStr = "General Purpose Discrete I/O";
+ProdCode = 1024;
+MajRev = 1;
+MinRev = 1;
+ProdName = "1792-IB4 4Input";
+Catalog = "1792-IB4";
+1_Icon=0001_ArmorBlk.ico;
+
+[IO_Info]
+Default = 0x0001;		$ The default I/O type is polled I/O.
+PollInfo =
+0x0001,					$ Polled I/O is the only I/O type present.
+1,							$ Input1 entry is the default input connection.
+0;							$ Output1 entry is the default output connection.
+
+Input1 =
+1,							$ The size in bytes that this connection produces.
+0,							$ All bits of this connection are significant.
+0x0001,					$ Only Polled I/O is compatible.
+"IB4 Production Data",  $ Name of Connection.
+6,							$ Path length.
+"20 04 24 0D 30 03",	$ Path to I/O Production Assembly.
+	$$$$$$$$$$ Help string $$$$$$$$$$$
+"This connection contains data from inputs at bits 0-3 and the inputs' status at bit 7.";
+
+[ParamClass]
+MaxInst = 3;			$ This module has 3 configurable parameters.
+Descriptor =  0x09;	$ Stub param instances in eeprom.
+CfgAssembly = x66;	$ The config assembly is instance #102 of assy obj.		
+
+[Params]
+$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+Param1 =					$ Disable Autobaud
+0,							$ reserved
+6,							$ Link Path Size
+"20 03 24 01 30 64",	$ Link Path to disable autobaud attribute.
+0x02,						$ No support for settable path, scaling, scaling links, or
+							$ real time update of value.  Value is gettable and 
+							$ Settable.  Enumerated strings are supported.
+4,							$ Data Type - boolean
+1,							$ Data Size
+"Autobaud",				$ Parameter Name (NOT "disable autobaud". That's confusing.)
+"",						$ Units String
+							$$$$$$$$$$ Help string $$$$$$$$$$$
+"Enable takes effect after next powerup.  Disable is required to set fixed baud rate, no power cycle is required.",
+0,1,0,					$ Min, Max, and Default values
+1,1,1,0,0,0,0,0,0;	$ Not Used
+
+
+$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+Param2 =					$ Input filter Off_to_On Delay selection
+0,							$ reserved
+6,							$ Link Path Size
+"20 0F 24 02 30 01",	$ Link Path to param instance.  The param instance decodes
+							$ the enumerated parameter into engineering units (ms).
+0x02,						$ No support for settable path, scaling, scaling links,
+							$ or real time update of value.  Value is gettable and
+							$ Settable.  Enumerated strings are supported.							
+2,							$ Data Type - unsigned integer
+2,							$ Data Size - (in bytes)
+"Off-to-On Delay",	$ Parameter Name
+"",						$ Units String
+							$$$$$$$$$$ Help string $$$$$$$$$$$
+"Signal must be present for this delay period before module detects the change.",
+0,4,0,					$ Min, Max (max enumeration #), and Default values
+1,1,1,0,0,0,0,0,0;	$ Not Used
+
+
+$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+Param3 =					$ Input filter On_to_Off Delay selection
+0,							$ reserved
+6,							$ Link Path Size
+"20 0F 24 03 30 01",	$ Link Path to param instance.  The param instance decodes
+							$ the enumerated parameter into engineering units (ms).
+0x02,						$ No support for settable path, scaling, scaling links,
+							$ or real time update of value.  Value is gettable and
+							$ Settable.  Enumerated strings are supported.							
+2,							$ Data Type - unsigned integer
+2,							$ Data Size - (in bytes)
+"On-to-Off Delay",	$ Parameter Name
+"",						$ Units String
+							$$$$$$$$$$ Help string $$$$$$$$$$$
+"Signal must be present for this delay period before module detects the change.",
+0,4,0,					$ Min, Max (max enumeration #), and Default values
+1,1,1,0,0,0,0,0,0;	$ Not Used
+
+[Groups]
+
+[EnumPar]
+Param1="Enable","Disable";
+Param2="No Delay","2 ms","4 ms","8 ms","16 ms";
+Param3="No Delay","2 ms","4 ms","8 ms","16 ms";

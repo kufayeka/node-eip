@@ -1,0 +1,36 @@
+[File]
+	DescText   = "RAC6182";
+	CreateDate = 01-28-2002;
+	CreateTime = 04:29:00;
+	ModDate    = 02-07-2002;
+	ModTime    = 10:38:00;
+	Revision   = 1.2;  
+	HomeURL    = "http://www.ab.com/networks/eds/CN/00010018000C0100.eds"; 
+
+[Device]
+	VendCode    = 1;
+	VendName    = "Allen-Bradley";
+	ProdType    = 0x18;
+	ProdTypeStr = "Human Machine Interface";
+	ProdCode    = 0x0C; 
+	MajRev      = 1;      
+	MinRev      = 1;
+	ProdName    = "RAC6182 with 1784-PCICS";
+	Catalog     = "6182";
+	Icon        = "RAC6182.ico";  
+
+[Device Classification]
+	Class1 = 1_RSNetWorx_Adapter;
+	Class2 = ControlNet;
+        Class3 = 1_RSLinx_CLGateway_Tool;
+
+[Port]
+	Port2 = ControlNet_Redundant,
+		"Port A",
+		"20 F0 24 01",
+		2;
+
+[Keeper]
+	Revision = 2;
+
+

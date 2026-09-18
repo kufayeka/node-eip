@@ -1,0 +1,23 @@
+$ Electronic Data Sheet For PanelView DeviceNet
+$ 
+
+[File]
+    DescText="PanelView";
+    CreateDate=07-25-95;
+    CreateTime=13:23:41;
+    ModDate=11-20-98;
+    ModTime=11:37:05;
+    Revision=1.4;
+
+[Device]
+	VendCode    = 1;                          $ Vendor Code
+	ProdType    = 24;                         $ Product Type
+	ProdCode    = 1;                          $ Product Code
+
+	MajRev      = 1;                          $ Major Rev 
+	MinRev      = 4;                          $ Minor Rev
+	VendName    = "Allen-Bradley Company";
+	ProdTypeStr = "Human Machine Interface";  
+	ProdName    = "PanelView";
+	Catalog     = "2711-xxxx10";
+

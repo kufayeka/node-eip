@@ -1,0 +1,98 @@
+$ Revision: $Header:  $
+$
+$ EDS Name: 0001001800020201.eds
+[File]
+    DescText   = "PanelView 2711-*15 EDS";
+    CreateDate = 01-13-1998;
+    CreateTime = 13:00:00;
+    ModDate    = 06-23-2000;
+    ModTime    = 22:00:00;
+    Revision   = 1.9;
+
+[Device]
+    VendCode    = 1;
+    VendName    = "Allen-Bradley";
+    ProdType    = 24;
+    ProdTypeStr = "Operator Interface";
+    ProdCode    = 2;
+    MajRev      = 2;
+    MinRev      = 1;
+    ProdName    = "PanelView";
+    Catalog     = "2711-*15";
+    Icon = "panelvu.ico";
+
+[Device Classification]
+    Class1 = ControlNet;
+
+[Port]
+    Port2 = ControlNet_Redundant,   $ Port type
+            "ControlNet",           $ Port name
+            "20 F0 24 01",          $ Path to Port object, The CNet object for PV
+            2;                      $ Port Number
+
+[Params]
+    $ The Params entries consist of the following:
+        $ Reserved (0),
+        $ Link Path Size,
+        $ Link Path,
+        $ Parameter Descriptor,
+        $ Data Type Identifier,
+        $ Data Size,
+        $ Parameter Name,
+        $ Units String,
+        $ Help String,
+        $ Minimum Value,
+        $ Maximum Value,
+        $ Default Value,
+        $ Scaling Multiplier,
+        $ Scaling Divider,
+        $ Scaling Base,
+        $ Scaling Offset,
+        $ Multiplier Link,
+        $ Divisor Link,
+        $ Base Link,
+        $ Other Link,
+        $ Decimal Precision,
+
+    Param1 =
+        0,                      $ first field shall equal 0
+        ,,                      $ path size,path
+        0x0000,                 $ descriptor
+        2,                      $ data type : 16-bit Unsigned Integer
+        2,                      $ data size in bytes
+        "Target Error Codes",   $ name
+        "",                     $ units
+        "",                     $ help string
+        0,0xFFFF,0,             $ min,max,default data values
+        0,0,0,0,                $ mult,dev,base,offset scaling not used
+        0,0,0,0,                $ mult,dev,base,offset link not used
+        0;                      $ decimal places not used
+    Enum1 =
+        0x0000,"Success",
+        0x2335,"Success";
+
+    $ The following describes the valid size range for Emulated Rack Outputs and Inputs.
+    $ The Rack Outputs have a 32-bit header.  The Rack Inputs have a 64-bit header.
+    Param7 = 0, , , 0x0000, 2, 2, "", "", "", 0,  64, 16, 0, 0, 0, 0, 0, 0, 0, 0, 0;
+    Param8 = 0, , , 0x0000, 2, 2, "", "", "", 8,  72, 24, 0, 0, 0, 0, 0, 0, 0, 0, 0;
+
+[Assembly]
+
+    Assem1 = "connection input format",,,,,,
+        32,Param1,
+        544,;
+
+[Connection Manager]
+
+    $ The following describes a limited use read/write connection.
+    Connection1 =
+        0x04010002,                             $ class 1, cyclic, exclusive owner
+        0x44660405,                             $ O=>T scheduled, p2p or multicast, run/idle header
+                                                $ T=>O scheduled, p2p or multicast, 64-bit status header
+        , Param7, ,                             $ O=>T RPI, size, format
+        , Param8, Assem1,                       $ T=>O RPI, size, format
+        , ,                                     $ config part 1 (unused)
+        , ,                                     $ config part 2 (unused)
+        "Read/Write - only", "",                $ connection name string, help string
+        "20 7C 24 01 2C 02 2C 01";              $ Path to target object
+    1_PLC5C_RTD_Format1 = 1_PLC5C_1771_Discrete_RTD_Format;

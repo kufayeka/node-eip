@@ -55,7 +55,8 @@ function buildIoDatagram({
     sequenceNumber,
     data = Buffer.alloc(0),
     useRunIdleHeader = false,
-    runIdle = true
+    runIdle = true,
+    includeSequenceCount = false
 }) {
     const address = Buffer.alloc(8);
     address.writeUInt32LE(connectionId >>> 0, 0);
@@ -66,6 +67,11 @@ function buildIoDatagram({
         const header = Buffer.alloc(4);
         header.writeUInt32LE(runIdle ? 1 : 0, 0);
         payload = Buffer.concat([header, payload]);
+    }
+    if (includeSequenceCount) {
+        const seqBuf = Buffer.alloc(2);
+        seqBuf.writeUInt16LE((sequenceNumber & 0xFFFF) || 1, 0);
+        payload = Buffer.concat([seqBuf, payload]);
     }
 
     return encodeCpf([
@@ -393,7 +399,12 @@ class IOConnection extends EventEmitter {
             this.emit('recovered');
         }
 
-        this.emit('data', parsed.data, {
+        let appData = parsed.data;
+        if (appData.length >= 2 && !this.useRunIdleHeader) {
+            appData = appData.subarray(2);
+        }
+
+        this.emit('data', appData, {
             sequenceNumber: parsed.sequenceNumber,
             runIdle: parsed.runIdle,
             status: trackResult.status

@@ -1,0 +1,28 @@
+$ Electronic Data Sheet for Powermonitor 1000 
+$ Covers bulletin 1408-*** devices
+$ The PM1000 now supports tag browse objects.
+
+[File]
+   DescText = "EDS for PM1000";
+   CreateDate = 11-08-2004;			$ when this EDS file was created - CC
+   CreateTime = 09:00:00;
+   ModDate = 04-26-2007;			$ when this EDS file was last modified - CC
+   ModTime = 1:00:00;
+   Revision = 1.5;				$ revision of this EDS file
+   HomeURL = "http://www.ab.com/networks/eds/EN/0001007300B10200.eds";	$ where EDS and other files can be found
+
+[Device]
+   VendCode = 1;
+   VendName = "Rockwell Automation - Allen-Bradley";
+   ProdType = 115;
+   ProdTypeStr = "Rockwell Automation Miscellaneous";
+   ProdCode = 0xB1;				$ Product Code 
+   MajRev = 0x02;					$ Device Major Revision
+   MinRev = 01;					$ Device Minor Revision
+   ProdName = "Powermonitor1000";
+   Catalog = "1408";
+   Icon = "PM1000.ico";
+
+[Device Classification]
+   Class1 = EtherNetIP;
+

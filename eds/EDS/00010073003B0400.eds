@@ -1,0 +1,107 @@
+[File]
+	DescText = "1407-CGCM";
+	CreateDate = 01-10-2002;
+	CreateTime = 10:50:00;
+	ModDate = 04-03-2006;
+	ModTime = 10:50:00;
+	Revision = 4.02;
+
+[Device]
+	VendCode = 1;
+	VendName = "Allen-Bradley";
+	ProdType = 115;
+	ProdTypeStr = "Rockwell Automation Miscellaneous";
+	ProdCode= 59;
+	MajRev = 4;
+	MinRev = 02;
+	ProdName = "1407-CGCM";
+	Catalog = "1407-CGCM";
+	Icon = "1407_CGCM.ico";
+
+[Device Classification]
+	Class1 = 1_RSNetWorx_Adapter;
+    	Class2 = ControlNet;
+
+[Port]
+   Port2 = ControlNet_Redundant,
+         "Port A",
+         "20 F0 24 01",2;
+
+[Connection Manager]
+	Connection1 =
+		0x04010002,		$ Trigger & Transport - DWORD
+	                        	$ Bit Assignments (0 = OFF, 1 = SET)
+	                        	$ 0-15 Supported Transport Classes:
+	                                	$ 0 - NULL
+	                                	$ 1 - Duplicate detect
+	                                	$ 2 - Acknowledged
+	                                	$ 3 - Verified
+	                                	$ 4 - Non-blocking
+	                                	$ 5 - Non-blocking, Fragmenting
+	                                	$ 6 - Multicast, Fragmenting
+		         			$ 7-15 Reserved
+					$ 16-23 Supported Triggers:
+		                        	$ 16 - Cyclic
+		                        	$ 17 - Change of State
+		                        	$ 18 - Application
+		                        	$ 19-23 Reserved
+					$ 24-27 Transport Type:
+		                        	$ 24 - Listen-only
+		                        	$ 25 - Input-only
+		                        	$ 26 - Exclusive-owner
+		                        	$ 27 - Redundant-owner
+	                            	$ 28-30 Reserved
+	                            	$ 31 Client = 0 / Server = 1
+
+		0x44240405,		$ Connection Parameters - DWORD
+	                        	$ Bit Assignments (0 = OFF, 1 = SET)
+	                            		$ 0 - O->T Fixed Size Supported
+	                            		$ 1 - O->T Variable Size Supported
+	                            		$ 2 - T<-O Fixed Size Supported
+	                            		$ 3 - T<-O Variable Size Supported
+	                            		$ 4-7 Reserved
+	                            		$ 8-10 O->T Header Format:
+	                                		$ 0 = NO Header
+	                                		$ 4 = 32-bit RUN/IDLE Header
+	                                		$ other = Reserved
+						$ 11 Reserved (Must be 0)
+	                        		$ 12-14 T->O Header Format:
+	                                		$ 0 = NO Header
+	                                		$ 4 = 32-bit Status Header
+	                                		$ 8 = 64-bit Status Header
+	                                		$ other = Reserved
+	                            		$ 15 Reserved (Must be 0)
+	                            		$ 16-19 O->T Connection Type:
+		                            		$ 16 - NULL
+		                            		$ 17 - MULTICAST
+		                            		$ 18 - POINT2POINT
+		                            		$ 19 - Reserved
+		                        	$ 20-23 T->O Connection Type:
+		                        		$ 20 - NULL
+		                        		$ 21 - MULTICAST
+		                        		$ 22 - POINT2POINT
+		                        		$ 23 - Reserved
+		                        	$ 24-27 O->T priority:
+		                        		$ 24 - LOW
+		                        		$ 25 - HIGH
+		                        		$ 26 - SCHEDULED
+		                        		$ 27 - Reserved
+		                		$ 28-31 T->O priority:
+		                        		$ 28 - LOW
+		                        		$ 29 - HIGH
+		                        		$ 30 - SCHEDULED
+		                        		$ 31 - Reserved
+
+			,				$ O->T RPI - UDINT or Param - Number of Microseconds of the RPI
+			64,				$ O->T Size - UNIT or Param - Number of Bytes delivered to the Target Transport
+			,				$ O->T Format - Param or Assem - Structure of the consume Buffer
+			,				$ T->O RPI - UDINT or Param - Number of Microseconds of the RPI
+			64,				$ T->O Size - UNIT or Param - Number of Bytes produced by the Target Transport
+			,				$ T->O Format - Param or Assem - Structure of the Producer Buffer
+			368,				$ Config #1 Size - UINT or Param
+			4,				$ Config #1 Format - Param or Assem
+			,				$ Config #2 Size - UINT or Param
+			,				$ Config #2 Format - Param or Assem
+			"Exclusive Owner",		$ Connection Name string - Eds_Char_Array
+			"",				$ Help string - Eds_Char_Array
+			"20 04 24 01 2C 02 2C 01";	$ Exclusive Owner Path - Eds_Char_Array - Path referencing the Target object

@@ -1,0 +1,403 @@
+$ Electronic Data Sheet for Armor Block I/O  (1792-IB16)
+
+[File]
+DescText = "1792-IB16 Armor Block I/O EDS File";
+CreateDate = 04-18-96;
+CreateTime = 12:00:00;
+ModDate = 04-23-97;
+ModTime = 12:00:00;
+Revision = 2.4;		$ EDS revision.
+
+[Device]
+VendCode = 1;
+VendName = "Allen-Bradley Company, Inc.";
+ProdType = 7;
+ProdTypeStr = "General Purpose Discrete I/O";
+ProdCode = 1026;
+MajRev = 2;
+MinRev = 1;
+ProdName = "1792-IB16 16Input";
+Catalog="1792-IB16";
+1_Icon=0001_ArmorBlk.ico;
+
+[IO_Info]
+Default = 0x0004;	$ The default I/O type is COS I/O.
+
+PollInfo =
+0x0005,			$ Polled and COS I/O device.
+1,			$ Input1 entry is the default input connection.
+0;			$ There is no consuming connection.
+
+COSInfo=
+0x0005,                 $ Polled and COS I/O device.
+1,                      $ Input1 entry is the default input connection.
+0;                      $ There is no consuming connection.
+
+Input1 =
+3,			$ The size in bytes that this connection produces.
+0,			$ All bits of this connection are significant.
+0x0005,			$ Polled and COS I/O device.
+"IB16 Production Data",	$ Name of Connection.
+6,			$ Path length.
+"20 04 24 0F 30 03",	$ Path to I/O Production Assembly.
+	$$$$$$$$$$ Help string $$$$$$$$$$$
+"This connection contains input data in bytes 0 and 1 and sensor source voltage status at bit 7 of byte 2.";
+
+[ParamClass]
+MaxInst = 20;		$ 3 configurable and 17 read-only parameters.
+Descriptor =  0x09;	$ Stub param instances in eeprom.
+CfgAssembly = 0x66;	$ The config assembly is instance #102 of assy obj.		
+
+[Params]
+$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+Param1 =		$ Disable Autobaud
+0,			$ reserved
+6,			$ Link Path Size
+"20 03 24 01 30 64",	$ Link Path to disable autobaud attribute.
+0x0002,			$ No support for settable path, scaling, scaling links, or
+			$ real time update of value.  Value is gettable and 
+			$ Settable.  Enumerated strings are supported.
+4,			$ Data Type - boolean
+1,			$ Data Size
+"Autobaud",		$ Parameter Name
+"",			$ Units String
+	$$$$$$$$$$ Help string $$$$$$$$$$$
+"Enable takes effect after next powerup.  Disable is required to set fixed baud rate, no power cycle is required.",
+0,1,0,			$ Min, Max, and Default values
+1,1,1,0,0,0,0,0,0;		$ Not Used
+
+$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+Param2 =		$ Input filter Off_to_On Delay selection
+0,			$ reserved
+6,			$ Link Path Size
+"20 0F 24 02 30 01",	$ Link Path to param instance.  The param instance decodes
+			$ the enumerated parameter into engineering units (micro seconds).
+0x0002,			$ No support for settable path, scaling, scaling links,
+			$ or real time update of value.  Value is gettable and
+			$ Settable.  Enumerated strings are supported.
+2,			$ Data Type - unsigned int
+2,			$ Data Size - (in bytes)
+"Off-to-On Delay",	$ Parameter Name
+"ms",			$ Units String
+	$$$$$$$$$$ Help string $$$$$$$$$$$
+"Signal must be present for this delay period before module detects the change.",
+0,4,0,			$ Min, Max (max enumeration #), and Default values
+1,1,1,0,0,0,0,0,0;		$ Not Used
+
+$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+Param3 =		$ Input filter On_to_Off Delay selection
+0,			$ reserved
+6,			$ Link Path Size
+"20 0F 24 03 30 01",	$ Link Path to param instance.  The param instance decodes
+			$ the enumerated parameter into engineering units (micro seconds).
+0x0002,			$ No support for settable path, scaling, scaling links,
+			$ or real time update of value.  Value is gettable and
+			$ Settable.  Enumerated strings are supported.
+2,			$ Data Type - unsigned int
+2,			$ Data Size - (in bytes)
+"On-to-Off Delay",	$ Parameter Name
+"ms",			$ Units String
+	$$$$$$$$$$ Help string $$$$$$$$$$$
+"Signal must be present for this delay period before module detects the change.",
+0,4,0,			$ Min, Max (max enumeration #), and Default values
+1,1,1,0,0,0,0,0,0;		$ Not Used
+
+$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+Param4 =		$ Input 1 value
+0,			$ reserved
+6,			$ Link Path Size
+"20 08 24 01 30 03",	$ Link Path to Input 1 value attribute.
+0x0030,			$ No support for settable path, scaling, or scaling links.
+			$ Value is gettable only. Enumerated strings are not
+			$ supported.
+8,			$ Data Type - unsigned short int
+1,			$ Data Size - (in bytes)
+"Input 1 Value",		$ Parameter Name
+"",			$ Units String
+	$$$$$$$$$$ Help string $$$$$$$$$$$
+"This parameter is the current value of Input 1.",
+0,1,0,			$ Min, Max, and Default values
+1,1,1,0,0,0,0,0,0;		$ Not Used
+
+$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+Param5 =		$ Input 2 value
+0,			$ reserved
+6,			$ Link Path Size
+"20 08 24 02 30 03",	$ Link Path to Input 2 value attribute.
+0x0030,			$ No support for settable path, scaling, or scaling links.
+			$ Value is gettable only. Enumerated strings are not
+			$ supported.
+8,			$ Data Type - unsigned short int
+1,			$ Data Size - (in bytes)
+"Input 2 Value",		$ Parameter Name
+"",			$ Units String
+	$$$$$$$$$$ Help string $$$$$$$$$$$
+"This parameter is the current value of Input 2.",
+0,1,0,			$ Min, Max, and Default values
+1,1,1,0,0,0,0,0,0;		$ Not Used
+
+$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+Param6 =		$ Input 3 value
+0,			$ reserved
+6,			$ Link Path Size
+"20 08 24 03 30 03",	$ Link Path to Input 3 value attribute.
+0x0030,			$ No support for settable path, scaling, or scaling links.
+			$ Value is gettable only. Enumerated strings are not
+			$ supported.
+8,			$ Data Type - unsigned short int
+1,			$ Data Size - (in bytes)
+"Input 3 Value",		$ Parameter Name
+"",			$ Units String
+	$$$$$$$$$$ Help string $$$$$$$$$$$
+"This parameter is the current value of Input 3.",
+0,1,0,			$ Min, Max, and Default values
+1,1,1,0,0,0,0,0,0;		$ Not Used
+
+$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+Param7 =		$ Input 4 value
+0,			$ reserved
+6,			$ Link Path Size
+"20 08 24 04 30 03",	$ Link Path to Input 4 value attribute.
+0x0030,			$ No support for settable path, scaling, or scaling links.
+			$ Value is gettable only. Enumerated strings are not
+			$ supported.
+8,			$ Data Type - unsigned short int
+1,			$ Data Size - (in bytes)
+"Input 4 Value",		$ Parameter Name
+"",			$ Units String
+	$$$$$$$$$$ Help string $$$$$$$$$$$
+"This parameter is the current value of Input 4.",
+0,1,0,			$ Min, Max, and Default values
+1,1,1,0,0,0,0,0,0;		$ Not Used
+
+$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+Param8 =		$ Input 5 value
+0,			$ reserved
+6,			$ Link Path Size
+"20 08 24 05 30 03",	$ Link Path to Input 5 value attribute.
+0x0030,			$ No support for settable path, scaling, or scaling links.
+			$ Value is gettable only. Enumerated strings are not
+			$ supported.
+8,			$ Data Type - unsigned short int
+1,			$ Data Size - (in bytes)
+"Input 5 Value",		$ Parameter Name
+"",			$ Units String
+	$$$$$$$$$$ Help string $$$$$$$$$$$
+"This parameter is the current value of Input 5.",
+0,1,0,			$ Min, Max, and Default values
+1,1,1,0,0,0,0,0,0;		$ Not Used
+
+$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+Param9 =		$ Input 6 value
+0,			$ reserved
+6,			$ Link Path Size
+"20 08 24 06 30 03",	$ Link Path to Input 6 value attribute.
+0x0030,			$ No support for settable path, scaling, or scaling links.
+			$ Value is gettable only. Enumerated strings are not
+			$ supported.
+8,			$ Data Type - unsigned short int
+1,			$ Data Size - (in bytes)
+"Input 6 Value",		$ Parameter Name
+"",			$ Units String
+	$$$$$$$$$$ Help string $$$$$$$$$$$
+"This parameter is the current value of Input 6.",
+0,1,0,			$ Min, Max, and Default values
+1,1,1,0,0,0,0,0,0;		$ Not Used
+
+$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+Param10 =		$ Input 7 value
+0,			$ reserved
+6,			$ Link Path Size
+"20 08 24 07 30 03",	$ Link Path to Input 7 value attribute.
+0x0030,			$ No support for settable path, scaling, or scaling links.
+			$ Value is gettable only. Enumerated strings are not
+			$ supported.
+8,			$ Data Type - unsigned short int
+1,			$ Data Size - (in bytes)
+"Input 7 Value",		$ Parameter Name
+"",			$ Units String
+			$$$$$$$$$$ Help string $$$$$$$$$$$
+"This parameter is the current value of Input 7.",
+0,1,0,			$ Min, Max, and Default values
+1,1,1,0,0,0,0,0,0;		$ Not Used
+
+$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+Param11 =		$ Input 8 value
+0,			$ reserved
+6,			$ Link Path Size
+"20 08 24 08 30 03",	$ Link Path to Input 8 value attribute.
+0x0030,			$ No support for settable path, scaling, or scaling links.
+			$ Value is gettable only. Enumerated strings are not
+			$ supported.
+8,			$ Data Type - unsigned short int
+1,			$ Data Size - (in bytes)
+"Input 8 Value",		$ Parameter Name
+"",			$ Units String
+			$$$$$$$$$$ Help string $$$$$$$$$$$
+"This parameter is the current value of Input 8.",
+0,1,0,			$ Min, Max, and Default values
+1,1,1,0,0,0,0,0,0;		$ Not Used
+
+$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+Param12 =		$ Input 9 value
+0,			$ reserved
+6,			$ Link Path Size
+"20 08 24 09 30 03",	$ Link Path to Input 9 value attribute.
+0x0030,			$ No support for settable path, scaling, or scaling links.
+			$ Value is gettable only. Enumerated strings are not
+			$ supported.
+8,			$ Data Type - unsigned short int
+1,			$ Data Size - (in bytes)
+"Input 9 Value",		$ Parameter Name
+"",			$ Units String
+	$$$$$$$$$$ Help string $$$$$$$$$$$
+"This parameter is the current value of Input 9.",
+0,1,0,			$ Min, Max, and Default values
+1,1,1,0,0,0,0,0,0;		$ Not Used
+
+$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+Param13 =		$ Input 10 value
+0,			$ reserved
+6,			$ Link Path Size
+"20 08 24 0A 30 03",	$ Link Path to Input 10 value attribute.
+0x0030,			$ No support for settable path, scaling, or scaling links.
+			$ Value is gettable only. Enumerated strings are not
+			$ supported.
+8,			$ Data Type - unsigned short int
+1,			$ Data Size - (in bytes)
+"Input 10 Value",	$ Parameter Name
+"",			$ Units String
+	$$$$$$$$$$ Help string $$$$$$$$$$$
+"This parameter is the current value of Input 10.",
+0,1,0,			$ Min, Max, and Default values
+1,1,1,0,0,0,0,0,0;		$ Not Used
+
+$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+Param14 =		$ Input 11 value
+0,			$ reserved
+6,			$ Link Path Size
+"20 08 24 0B 30 03",	$ Link Path to Input 11 value attribute.
+0x0030,			$ No support for settable path, scaling, or scaling links.
+			$ Value is gettable only. Enumerated strings are not
+			$ supported.
+8,			$ Data Type - unsigned short int
+1,			$ Data Size - (in bytes)
+"Input 11 Value",	$ Parameter Name
+"",			$ Units String
+	$$$$$$$$$$ Help string $$$$$$$$$$$
+"This parameter is the current value of Input 11.",
+0,1,0,			$ Min, Max, and Default values
+1,1,1,0,0,0,0,0,0;		$ Not Used
+
+$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+Param15 =		$ Input 12 value
+0,			$ reserved
+6,			$ Link Path Size
+"20 08 24 0C 30 03",	$ Link Path to Input 12 value attribute.
+0x0030,			$ No support for settable path, scaling, or scaling links.
+			$ Value is gettable only. Enumerated strings are not
+			$ supported.
+8,			$ Data Type - unsigned short int
+1,			$ Data Size - (in bytes)
+"Input 12 Value",	$ Parameter Name
+"",			$ Units String
+	$$$$$$$$$$ Help string $$$$$$$$$$$
+"This parameter is the current value of Input 12.",
+0,1,0,			$ Min, Max, and Default values
+1,1,1,0,0,0,0,0,0;		$ Not Used
+
+$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+Param16 =		$ Input 13 value
+0,			$ reserved
+6,			$ Link Path Size
+"20 08 24 0D 30 03",	$ Link Path to Input 13 value attribute.
+0x0030,			$ No support for settable path, scaling, or scaling links.
+			$ Value is gettable only. Enumerated strings are not
+			$ supported.
+8,			$ Data Type - unsigned short int
+1,			$ Data Size - (in bytes)
+"Input 13 Value",	$ Parameter Name
+"",			$ Units String
+	$$$$$$$$$$ Help string $$$$$$$$$$$
+"This parameter is the current value of Input 13",
+0,1,0,			$ Min, Max, and Default values
+1,1,1,0,0,0,0,0,0;		$ Not Used
+
+$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+Param17 =		$ Input 14 value
+0,			$ reserved
+6,			$ Link Path Size
+"20 08 24 0E 30 03",	$ Link Path to Input 14 value attribute.
+0x0030,			$ No support for settable path, scaling, or scaling links.
+			$ Value is gettable only. Enumerated strings are not
+			$ supported.
+8,			$ Data Type - unsigned short int
+1,			$ Data Size - (in bytes)
+"Input 14 Value",	$ Parameter Name
+"",			$ Units String
+	$$$$$$$$$$ Help string $$$$$$$$$$$
+"This parameter is the current value of Input 14.",
+0,1,0,			$ Min, Max, and Default values
+1,1,1,0,0,0,0,0,0;		$ Not Used
+
+$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+Param18 =		$ Input 15 value
+0,			$ reserved
+6,			$ Link Path Size
+"20 08 24 0F 30 03",	$ Link Path to Input 15 value attribute.
+0x0030,			$ No support for settable path, scaling, or scaling links.
+			$ Value is gettable only. Enumerated strings are not
+			$ supported.
+8,			$ Data Type - unsigned short int
+1,			$ Data Size - (in bytes)
+"Input 15 Value",	$ Parameter Name
+"",			$ Units String
+	$$$$$$$$$$ Help string $$$$$$$$$$$
+"This parameter is the current value of Input 15.",
+0,1,0,			$ Min, Max, and Default values
+1,1,1,0,0,0,0,0,0;		$ Not Used
+
+$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+Param19 =		$ Input 16 value
+0,			$ reserved
+6,			$ Link Path Size
+"20 08 24 10 30 03",	$ Link Path to Input 16 value attribute.
+0x0030,			$ No support for settable path, scaling, or scaling links.
+			$ Value is gettable only. Enumerated strings are not
+			$ supported.
+8,			$ Data Type - unsigned short int
+1,			$ Data Size - (in bytes)
+"Input 16 Value",	$ Parameter Name
+"",			$ Units String
+	$$$$$$$$$$ Help string $$$$$$$$$$$
+"This parameter is the current value of Input 16.",
+0,1,0,			$ Min, Max, and Default values
+1,1,1,0,0,0,0,0,0;		$ Not Used
+
+$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+Param20 =		$ Input status
+0,			$ reserved
+6,			$ Link Path Size
+"20 1D 24 01 30 05",	$ Link Path to Dicrete Input Group status attribute.
+0x0032,			$ No support for settable path, scaling, or scaling links.
+			$ Value is gettable only. Enumerated strings are supported.
+8,			$ Data Type - unsigned short int
+1,			$ Data Size - (in bytes)
+"Input Status",		$ Parameter Name
+"",			$ Units String
+	$$$$$$$$$$ Help string $$$$$$$$$$$
+"This parameter is the current status of the sensor source voltage.",
+0,1,0,			$ Min, Max, and Default values
+1,1,1,0,0,0,0,0,0;		$ Not Used
+
+[Groups]
+Group1="Configuration",3,1,2,3;
+Group2="I/O",17,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20;
+
+[EnumPar]
+Param1="Enable","Disable";
+Param2="0 ms","2 ms","4 ms","8 ms","16 ms";
+Param3="0 ms","2 ms","4 ms","8 ms","16 ms";
+Param20="Healthy","Faulted";
+
+

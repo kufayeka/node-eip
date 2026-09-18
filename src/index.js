@@ -13,6 +13,15 @@ const connectionManager = require('./cip/connection-manager');
 const ioConnection = require('./cip/io-connection');
 const identityObject = require('./cip/objects/identity');
 const assemblyObject = require('./cip/objects/assembly');
+const tcpIpObject = require('./cip/objects/tcp-ip');
+const ethernetLinkObject = require('./cip/objects/ethernet-link');
+const messageRouterObject = require('./cip/objects/message-router');
+const qosObject = require('./cip/objects/qos');
+const portObject = require('./cip/objects/port');
+const dlrObject = require('./cip/objects/dlr');
+const connectionManagerObjectInstance = require('./cip/objects/connection-manager-object');
+const deltaRegistersObject = require('./cip/objects/delta-registers');
+const genericObject = require('./cip/objects/generic-object');
 const { EIPSession } = require('./client');
 const { Scanner } = require('./scanner');
 const { EIPAdapter } = require('./adapter');
@@ -61,7 +70,16 @@ module.exports = {
         fragmentation,
         objects: {
             ...identityObject,
-            ...assemblyObject
+            ...assemblyObject,
+            ...tcpIpObject,
+            ...ethernetLinkObject,
+            ...messageRouterObject,
+            ...qosObject,
+            ...portObject,
+            ...dlrObject,
+            ...connectionManagerObjectInstance,
+            ...deltaRegistersObject,
+            ...genericObject
         }
     },
     EIPSession,

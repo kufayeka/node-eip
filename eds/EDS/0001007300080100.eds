@@ -1,0 +1,4312 @@
+$ Electronic Data Sheet
+[File]
+
+	DescText    = "Ultra 100 Drive EDS File";
+	CreateDate  = 05-21-99;
+	CreateTime  = 09:05:00;
+	ModDate     = 05-21-99;
+	ModTime     = 09:05:00;
+	Revision    = 1.3;
+
+[Device]
+	VendCode    = 1;                                  $ Vendor Code
+	ProdType    = 115;                                $ Product Type
+	ProdCode    = 8;                                  $ Product Code
+
+	MajRev      = 1;                                  $ Major Rev
+	MinRev      = 2;                                  $ Minor Rev
+	VendName    = "Allen-Bradley Company, Inc.";
+	ProdTypeStr = "RA-Miscellaneous";
+	ProdName    = "Ultra 100  2.0kW";
+	Catalog     = "1398-DDM-019-DN";
+
+[IO_Info]
+	Default     = 0X0001;
+	PollInfo    = 0X000D, 1, 0;
+	COSInfo     = 0X0005, 1, 0;
+	CyclicInfo  = 0X0009, 1, 0;
+
+	Input1      = 4, 0, 0X00D, "Drive Status", 6, "20 04 24 02 30 03", 
+                      "32 Bit Drive Status";
+
+	Output1     = 0, 0, 0X00D, "Null - No Data", 6, "20 04 24 01 30 03", 
+                      "Device does not consume any data.";
+
+[ParamClass]
+	MaxInst=178;
+	Descriptor=11;
+	CfgAssembly=0;
+
+[Params]
+
+	Param1 =
+	  0,                                              $ data slot
+	  7, "20 0F 25 01 00 30 01",                      $ path size, path
+	  0X30,                                           $ descriptor
+	  8, 1,                                           $ type code, type size
+	  "DN-SW Node Addr",                              $ name
+	  "",                                             $ units
+	$ help text
+	  "No Help",
+	  0, 99,                                          $ min, max
+	  0,                                              $ default
+	  1, 1, 1, 0,                                     $ scaling factors
+	  0, 0, 0, 0,                                     $ scaling links
+	  0;                                              $ decimal precision
+
+	Param2 =
+	  0,
+	  7, "20 0F 25 02 00 30 01",
+	  0X32,
+	  8, 1,
+	  "DN-SW Baud Rate",
+	  "",
+	$ help text
+	  "No Help",
+	  0, 7,
+	  0,
+	  1, 1, 1, 0,
+	  0, 0, 0, 0,
+	  0;
+
+	Param3 =
+	  0,
+	  7, "20 0F 25 03 00 30 01",
+	  0X00,
+	  8, 1,
+	  "DN-NV Node Addr",
+	  "",
+	$ help text
+	  "No Help",
+	  0, 63,
+	  63,
+	  1, 1, 1, 0,
+	  0, 0, 0, 0,
+	  0;
+
+	Param4 =
+	  0,
+	  7, "20 0F 25 04 00 30 01",
+	  0X02,
+	  8, 1,
+	  "DN-NV Baud Rate",
+	  "",
+	$ help text
+	  "No Help",
+	  0, 3,
+	  0,
+	  1, 1, 1, 0,
+	  0, 0, 0, 0,
+	  0;
+
+	Param5 =
+	  0,
+	  7, "20 0F 25 05 00 30 01",
+	  0X02,
+	  25, 4,
+	  "Chg of State Msk",
+	  "",
+	$ help text
+	  "No Help",
+	  0, 4294967295,
+	  4294960127,
+	  1, 1, 1, 0,
+	  0, 0, 0, 0,
+	  0;
+
+	Param6 =
+	  0,
+	  7, "20 0F 25 06 00 30 01",
+	  0X32,
+	  25, 4,
+	  "DNet I/O Status",
+	  "",
+	$ help text
+	  "No Help",
+	  0, 4294967295,
+	  0,
+	  1, 1, 1, 0,
+	  0, 0, 0, 0,
+	  0;
+
+	Param7 =
+	  0,
+	  7, "20 0F 25 07 00 30 01",
+	  0X54,
+	  2, 2,
+	  "Drive Main Ver",
+	  "",
+	$ help text
+	  "No Help",
+	  0, 65535,
+	  0,
+	  1, 1, 1, 0,
+	  0, 0, 0, 0,
+	  2;
+
+	Param8 =
+	  0,
+	  7, "20 0F 25 08 00 30 01",
+	  0X54,
+	  2, 2,
+	  "Drive Boot Ver",
+	  "",
+	$ help text
+	  "No Help",
+	  0, 65535,
+	  0,
+	  1, 1, 1, 0,
+	  0, 0, 0, 0,
+	  2;
+
+	Param9 =
+	  0,
+	  7, "20 0F 25 09 00 30 01",
+	  0X10,
+	  8, 1,
+	  "Product Type",
+	  "",
+	$ help text
+	  "No Help",
+	  0, 11,
+	  11,
+	  1, 1, 1, 0,
+	  0, 0, 0, 0,
+	  0;
+
+	Param10 =
+	  0,
+	  7, "20 0F 25 0A 00 30 01",
+	  0X30,
+	  8, 1,
+	  "Powerup Status",
+	  "",
+	$ help text
+	  "No Help",
+	  0, 255,
+	  0,
+	  1, 1, 1, 0,
+	  0, 0, 0, 0,
+	  0;
+
+	Param11 =
+	  0,
+	  7, "20 0F 25 0B 00 30 01",
+	  0X00,
+	  2, 2,
+	  "Motor ID",
+	  "",
+	$ help text
+	  "No Help",
+	  1, 65535,
+	  1,
+	  1, 1, 1, 0,
+	  0, 0, 0, 0,
+	  0;
+
+	Param12 =
+	  0,
+	  7, "20 0F 25 0C 00 30 01",
+	  0X04,
+	  2, 2,
+	  "Pos Loop P_Gain",
+	  "",
+	$ help text
+	  "No Help",
+	  0, 4095,
+	  512,
+	  1, 128, 1, 0,
+	  0, 0, 0, 0,
+	  2;
+
+	Param13 =
+	  0,
+	  7, "20 0F 25 0D 00 30 01",
+	  0X04,
+	  2, 2,
+	  "Pos Loop I_Gain",
+	  "",
+	$ help text
+	  "No Help",
+	  0, 4095,
+	  0,
+	  1, 128, 1, 0,
+	  0, 0, 0, 0,
+	  2;
+
+	Param14 =
+	  0,
+	  7, "20 0F 25 0E 00 30 01",
+	  0X04,
+	  2, 2,
+	  "Pos Loop D_Gain",
+	  "",
+	$ help text
+	  "No Help",
+	  0, 4095,
+	  0,
+	  1, 128, 1, 0,
+	  0, 0, 0, 0,
+	  2;
+
+	Param15 =
+	  0,
+	  7, "20 0F 25 0F 00 30 01",
+	  0X00,
+	  2, 2,
+	  "Pos Loop FF_Gain",
+	  "",
+	$ help text
+	  "No Help",
+	  0, 200,
+	  100,
+	  1, 1, 1, 0,
+	  0, 0, 0, 0,
+	  0;
+
+	Param16 =
+	  0,
+	  7, "20 0F 25 10 00 30 01",
+	  0X00,
+	  2, 2,
+	  "Pos Loop I_Zone",
+	  "Cnts",
+	$ help text
+	  "No Help",
+	  0, 32767,
+	  1000,
+	  1, 1, 1, 0,
+	  0, 0, 0, 0,
+	  0;
+
+	Param17 =
+	  0,
+	  7, "20 0F 25 11 00 30 01",
+	  0X00,
+	  2, 2,
+	  "Pos Window Size",
+	  "Cnts",
+	$ help text
+	  "No Help",
+	  0, 32767,
+	  20,
+	  1, 1, 1, 0,
+	  0, 0, 0, 0,
+	  0;
+
+	Param18 =
+	  0,
+	  7, "20 0F 25 12 00 30 01",
+	  0X00,
+	  8, 1,
+	  "Pos Window Time",
+	  "mS",
+	$ help text
+	  "No Help",
+	  1, 255,
+	  20,
+	  1, 1, 1, 0,
+	  0, 0, 0, 0,
+	  0;
+
+	Param19 =
+	  0,
+	  7, "20 0F 25 13 00 30 01",
+	  0X00,
+	  9, 4,
+	  "Pos Error Limit",
+	  "Cnts",
+	$ help text
+	  "No Help",
+	  1, 2147483647,
+	  8000,
+	  1, 1, 1, 0,
+	  0, 0, 0, 0,
+	  0;
+
+	Param20 =
+	  0,
+	  7, "20 0F 25 14 00 30 01",
+	  0X00,
+	  2, 2,
+	  "Pos Error Time",
+	  "mS",
+	$ help text
+	  "No Help",
+	  1, 65535,
+	  100,
+	  1, 1, 1, 0,
+	  0, 0, 0, 0,
+	  0;
+
+	Param21 =
+	  0,
+	  7, "20 0F 25 15 00 30 01",
+	  0X02,
+	  8, 1,
+	  "Master Rot Dir",
+	  "",
+	$ help text
+	  "No Help",
+	  0, 1,
+	  0,
+	  1, 1, 1, 0,
+	  0, 0, 0, 0,
+	  0;
+
+	Param22 =
+	  0,
+	  7, "20 0F 25 16 00 30 01",
+	  0X00,
+	  9, 4,
+	  "Slew Rate",
+	  "",
+	$ help text
+	  "No Help",
+	  0, 2147483647,
+	  2000,
+	  1, 1, 1, 0,
+	  0, 0, 0, 0,
+	  0;
+
+	Param23 =
+	  0,
+	  7, "20 0F 25 17 00 30 01",
+	  0X02,
+	  8, 1,
+	  "Slew Enable",
+	  "",
+	$ help text
+	  "No Help",
+	  0, 1,
+	  0,
+	  1, 1, 1, 0,
+	  0, 0, 0, 0,
+	  0;
+
+	Param24 =
+	  0,
+	  7, "20 0F 25 18 00 30 01",
+	  0X02,
+	  8, 1,
+	  "Gear Ratio Cmd",
+	  "",
+	$ help text
+	  "No Help",
+	  0, 1,
+	  0,
+	  1, 1, 1, 0,
+	  0, 0, 0, 0,
+	  0;
+
+	Param25 =
+	  0,
+	  7, "20 0F 25 19 00 30 01",
+	  0X00,
+	  3, 2,
+	  "Buf Gr Ratio-Mtr",
+	  "Cnts",
+	$ help text
+	  "No Help",
+	  -32767, 32767,
+	  1,
+	  1, 1, 1, 0,
+	  0, 0, 0, 0,
+	  0;
+
+	Param26 =
+	  0,
+	  7, "20 0F 25 1A 00 30 01",
+	  0X00,
+	  3, 2,
+	  "Buf GrRatio-Mstr",
+	  "Cnts",
+	$ help text
+	  "No Help",
+	  1, 32767,
+	  1,
+	  1, 1, 1, 0,
+	  0, 0, 0, 0,
+	  0;
+
+	Param27 =
+	  0,
+	  7, "20 0F 25 1B 00 30 01",
+	  0X30,
+	  3, 2,
+	  "Active Gear-Mtr",
+	  "Cnts",
+	$ help text
+	  "No Help",
+	  -32767, 32767,
+	  1,
+	  1, 1, 1, 0,
+	  0, 0, 0, 0,
+	  0;
+
+	Param28 =
+	  0,
+	  7, "20 0F 25 1C 00 30 01",
+	  0X30,
+	  3, 2,
+	  "Active Gear-Mstr",
+	  "Cnts",
+	$ help text
+	  "No Help",
+	  1, 32767,
+	  1,
+	  1, 1, 1, 0,
+	  0, 0, 0, 0,
+	  0;
+
+	Param29 =
+	  0,
+	  7, "20 0F 25 1D 00 30 01",
+	  0X00,
+	  2, 2,
+	  "Vel Loop P_Gain",
+	  "",
+	$ help text
+	  "No Help",
+	  0, 1000,
+	  200,
+	  1, 1, 1, 0,
+	  0, 0, 0, 0,
+	  0;
+
+	Param30 =
+	  0,
+	  7, "20 0F 25 1E 00 30 01",
+	  0X00,
+	  2, 2,
+	  "Vel Loop I_Gain",
+	  "",
+	$ help text
+	  "No Help",
+	  0, 1000,
+	  66,
+	  1, 1, 1, 0,
+	  0, 0, 0, 0,
+	  0;
+
+	Param31 =
+	  0,
+	  7, "20 0F 25 1F 00 30 01",
+	  0X10,
+	  8, 1,
+	  "Reserved",
+	  "",
+	$ help text
+	  "No Help",
+	  0, 0,
+	  0,
+	  1, 1, 1, 0,
+	  0, 0, 0, 0,
+	  0;
+
+	Param32 =
+	  0,
+	  7, "20 0F 25 20 00 30 01",
+	  0X44,
+	  9, 4,
+	  "Zero Vel Window",
+	  "RPM",
+	$ help text
+	  "No Help",
+	  0, 2147483647,
+	  196608,
+	  25, 16384, 1, 0,
+	  0, 0, 0, 0,
+	  2;
+
+	Param33 =
+	  0,
+	  7, "20 0F 25 21 00 30 01",
+	  0X44,
+	  9, 4,
+	  "Velocity Window",
+	  "RPM",
+	$ help text
+	  "No Help",
+	  0, 2147483647,
+	  655360,
+	  25, 16384, 1, 0,
+	  0, 0, 0, 0,
+	  2;
+
+	Param34 =
+	  0,
+	  7, "20 0F 25 22 00 30 01",
+	  0X44,
+	  9, 4,
+	  "Vel Overspd Lim",
+	  "RPM",
+	$ help text
+	  "No Help",
+	  0, 2147483647,
+	  327680000,
+	  25, 16384, 1, 0,
+	  0, 0, 0, 0,
+	  2;
+
+	Param35 =
+	  0,
+	  7, "20 0F 25 23 00 30 01",
+	  0X44,
+	  9, 4,
+	  "At Speed Value",
+	  "RPM",
+	$ help text
+	  "No Help",
+	  0, 2147483647,
+	  131072000,
+	  25, 16384, 1, 0,
+	  0, 0, 0, 0,
+	  2;
+
+	Param36 =
+	  0,
+	  7, "20 0F 25 24 00 30 01",
+	  0X10,
+	  8, 1,
+	  "Reserved",
+	  "",
+	$ help text
+	  "No Help",
+	  0, 0,
+	  0,
+	  1, 1, 1, 0,
+	  0, 0, 0, 0,
+	  0;
+
+	Param37 =
+	  0,
+	  7, "20 0F 25 25 00 30 01",
+	  0X44,
+	  9, 4,
+	  "Vel Error Limit",
+	  "RPM",
+	$ help text
+	  "No Help",
+	  0, 2147483647,
+	  65536000,
+	  25, 16384, 1, 0,
+	  0, 0, 0, 0,
+	  2;
+
+	Param38 =
+	  0,
+	  7, "20 0F 25 26 00 30 01",
+	  0X00,
+	  2, 2,
+	  "Vel Error Time",
+	  "mS",
+	$ help text
+	  "No Help",
+	  1, 65535,
+	  1000,
+	  1, 1, 1, 0,
+	  0, 0, 0, 0,
+	  0;
+
+	Param39 =
+	  0,
+	  7, "20 0F 25 27 00 30 01",
+	  0X00,
+	  2, 2,
+	  "Low Pass Bndwdth",
+	  "Hz",
+	$ help text
+	  "No Help",
+	  1, 992,
+	  150,
+	  1, 1, 1, 0,
+	  0, 0, 0, 0,
+	  0;
+
+	Param40 =
+	  0,
+	  7, "20 0F 25 28 00 30 01",
+	  0X02,
+	  8, 1,
+	  "LowPass Filter",
+	  "",
+	$ help text
+	  "No Help",
+	  0, 1,
+	  1,
+	  1, 1, 1, 0,
+	  0, 0, 0, 0,
+	  0;
+
+	Param41 =
+	  0,
+	  7, "20 0F 25 29 00 30 01",
+	  0X04,
+	  2, 2,
+	  "Positive I Limit",
+	  "Amps",
+	$ help text
+	  "No Help",
+	  0, 32767,
+	  128,
+	  1, 128, 1, 0,
+	  0, 0, 0, 0,
+	  3;
+
+	Param42 =
+	  0,
+	  7, "20 0F 25 2A 00 30 01",
+	  0X04,
+	  2, 2,
+	  "Negative I Limit",
+	  "Amps",
+	$ help text
+	  "No Help",
+	  0, 32767,
+	  128,
+	  1, 128, 1, 0,
+	  0, 0, 0, 0,
+	  3;
+
+	Param43 =
+	  0,
+	  7, "20 0F 25 2B 00 30 01",
+	  0X04,
+	  2, 2,
+	  "Fault Current",
+	  "Amps",
+	$ help text
+	  "No Help",
+	  0, 32767,
+	  128,
+	  1, 128, 1, 0,
+	  0, 0, 0, 0,
+	  3;
+
+	Param44 =
+	  0,
+	  7, "20 0F 25 2C 00 30 01",
+	  0X02,
+	  8, 1,
+	  "Dynamic PWM Freq",
+	  "",
+	$ help text
+	  "No Help",
+	  0, 1,
+	  0,
+	  1, 1, 1, 0,
+	  0, 0, 0, 0,
+	  0;
+
+	Param45 =
+	  0,
+	  7, "20 0F 25 2D 00 30 01",
+	  0X00,
+	  2, 2,
+	  "Encoder Lines",
+	  "",
+	$ help text
+	  "No Help",
+	  100, 64000,
+	  2000,
+	  1, 1, 1, 0,
+	  0, 0, 0, 0,
+	  0;
+
+	Param46 =
+	  0,
+	  7, "20 0F 25 2E 00 30 01",
+	  0X44,
+	  9, 4,
+	  "Max Motor Speed",
+	  "RPM",
+	$ help text
+	  "No Help",
+	  0, 2147483647,
+	  16384000,
+	  25, 16384, 1, 0,
+	  0, 0, 0, 0,
+	  2;
+
+	Param47 =
+	  0,
+	  7, "20 0F 25 2F 00 30 01",
+	  0X04,
+	  2, 2,
+	  "Motor Cont Curr",
+	  "Amps",
+	$ help text
+	  "No Help",
+	  1, 32767,
+	  361,
+	  1, 128, 1, 0,
+	  0, 0, 0, 0,
+	  3;
+
+	Param48 =
+	  0,
+	  7, "20 0F 25 30 00 30 01",
+	  0X04,
+	  2, 2,
+	  "Motor Peak Curr",
+	  "Amps",
+	$ help text
+	  "No Help",
+	  1, 32767,
+	  1134,
+	  1, 128, 1, 0,
+	  0, 0, 0, 0,
+	  3;
+
+	Param49 =
+	  0,
+	  7, "20 0F 25 31 00 30 01",
+	  0X04,
+	  2, 2,
+	  "Torque Const  Kt",
+	  "Nm/A",
+	$ help text
+	  "No Help",
+	  1, 65535,
+	  1147,
+	  1, 4096, 1, 0,
+	  0, 0, 0, 0,
+	  4;
+
+	Param50 =
+	  0,
+	  7, "20 0F 25 32 00 30 01",
+	  0X04,
+	  2, 2,
+	  "Rotor Inertia Jm",
+	  "",
+	$ help text
+	  "No Help",
+	  1, 65535,
+	  19,
+	  1, 64, 1, 0,
+	  0, 0, 0, 0,
+	  3;
+
+	Param51 =
+	  0,
+	  7, "20 0F 25 33 00 30 01",
+	  0X04,
+	  2, 2,
+	  "Back EMF Cnst Ke",
+	  "",
+	$ help text
+	  "No Help",
+	  1, 65535,
+	  8704,
+	  1, 256, 1, 0,
+	  0, 0, 0, 0,
+	  2;
+
+	Param52 =
+	  0,
+	  7, "20 0F 25 34 00 30 01",
+	  0X04,
+	  2, 2,
+	  "Winding Res",
+	  "Ohms",
+	$ help text
+	  "No Help",
+	  1, 65535,
+	  1690,
+	  1, 256, 1, 0,
+	  0, 0, 0, 0,
+	  3;
+
+	Param53 =
+	  0,
+	  7, "20 0F 25 35 00 30 01",
+	  0X04,
+	  2, 2,
+	  "Winding Ind",
+	  "mH",
+	$ help text
+	  "No Help",
+	  1, 65535,
+	  3072,
+	  1, 256, 1, 0,
+	  0, 0, 0, 0,
+	  3;
+
+	Param54 =
+	  0,
+	  7, "20 0F 25 36 00 30 01",
+	  0X02,
+	  8, 1,
+	  "Thermostat",
+	  "",
+	$ help text
+	  "No Help",
+	  0, 1,
+	  1,
+	  1, 1, 1, 0,
+	  0, 0, 0, 0,
+	  0;
+
+	Param55 =
+	  0,
+	  7, "20 0F 25 37 00 30 01",
+	  0X02,
+	  8, 1,
+	  "Commutation Type",
+	  "",
+	$ help text
+	  "No Help",
+	  0, 4,
+	  1,
+	  1, 1, 1, 0,
+	  0, 0, 0, 0,
+	  0;
+
+	Param56 =
+	  0,
+	  7, "20 0F 25 38 00 30 01",
+	  0X02,
+	  8, 1,
+	  "Thermal Protect",
+	  "",
+	$ help text
+	  "No Help",
+	  0, 1,
+	  0,
+	  1, 1, 1, 0,
+	  0, 0, 0, 0,
+	  0;
+
+	Param57 =
+	  0,
+	  7, "20 0F 25 39 00 30 01",
+	  0X00,
+	  2, 2,
+	  "Thermal Constant",
+	  "Secs",
+	$ help text
+	  "No Help",
+	  0, 65535,
+	  0,
+	  1, 1, 1, 0,
+	  0, 0, 0, 0,
+	  0;
+
+	Param58 =
+	  0,
+	  7, "20 0F 25 3A 00 30 01",
+	  0X02,
+	  8, 1,
+	  "Pole Count",
+	  "",
+	$ help text
+	  "No Help",
+	  0, 3,
+	  0,
+	  1, 1, 1, 0,
+	  0, 0, 0, 0,
+	  0;
+
+	Param59 =
+	  0,
+	  7, "20 0F 25 3B 00 30 01",
+	  0X00,
+	  2, 2,
+	  "Hall Offset",
+	  "Degs",
+	$ help text
+	  "No Help",
+	  0, 359,
+	  0,
+	  1, 1, 1, 0,
+	  0, 0, 0, 0,
+	  0;
+
+	Param60 =
+	  0,
+	  7, "20 0F 25 3C 00 30 01",
+	  0X00,
+	  2, 2,
+	  "Index Offset",
+	  "Degs",
+	$ help text
+	  "No Help",
+	  0, 359,
+	  0,
+	  1, 1, 1, 0,
+	  0, 0, 0, 0,
+	  0;
+
+	Param61 =
+	  0,
+	  7, "20 0F 25 3D 00 30 01",
+	  0X02,
+	  8, 1,
+	  "Motor Forwrd Dir",
+	  "",
+	$ help text
+	  "No Help",
+	  0, 1,
+	  0,
+	  1, 1, 1, 0,
+	  0, 0, 0, 0,
+	  0;
+
+	Param62 =
+	  0,
+	  7, "20 0F 25 3E 00 30 01",
+	  0X02,
+	  25, 4,
+	  "Dig Input 1 Cnfg",
+	  "",
+	$ help text
+	  "No Help",
+	  0, 2147483647,
+	  0,
+	  1, 1, 1, 0,
+	  0, 0, 0, 0,
+	  0;
+
+	Param63 =
+	  0,
+	  7, "20 0F 25 3F 00 30 01",
+	  0X02,
+	  25, 4,
+	  "Dig Input 2 Cnfg",
+	  "",
+	$ help text
+	  "No Help",
+	  0, 2147483647,
+	  0,
+	  1, 1, 1, 0,
+	  0, 0, 0, 0,
+	  0;
+
+	Param64 =
+	  0,
+	  7, "20 0F 25 40 00 30 01",
+	  0X02,
+	  25, 4,
+	  "Dig Input 3 Cnfg",
+	  "",
+	$ help text
+	  "No Help",
+	  0, 2147483647,
+	  0,
+	  1, 1, 1, 0,
+	  0, 0, 0, 0,
+	  0;
+
+	Param65 =
+	  0,
+	  7, "20 0F 25 41 00 30 01",
+	  0X10,
+	  8, 1,
+	  "Reserved",
+	  "",
+	$ help text
+	  "No Help",
+	  0, 0,
+	  0,
+	  1, 1, 1, 0,
+	  0, 0, 0, 0,
+	  0;
+
+	Param66 =
+	  0,
+	  7, "20 0F 25 42 00 30 01",
+	  0X02,
+	  1, 2,
+	  "Flt Reset Config",
+	  "",
+	$ help text
+	  "No Help",
+	  0, 32767,
+	  16384,
+	  1, 1, 1, 0,
+	  0, 0, 0, 0,
+	  0;
+
+	Param67 =
+	  0,
+	  7, "20 0F 25 43 00 30 01",
+	  0X02,
+	  25, 4,
+	  "Dig Outpt 1 Cnfg",
+	  "",
+	$ help text
+	  "No Help",
+	  0, 67108863,
+	  0,
+	  1, 1, 1, 0,
+	  0, 0, 0, 0,
+	  0;
+
+	Param68 =
+	  0,
+	  7, "20 0F 25 44 00 30 01",
+	  0X02,
+	  25, 4,
+	  "Dig Outpt 2 Cnfg",
+	  "",
+	$ help text
+	  "No Help",
+	  0, 67108863,
+	  0,
+	  1, 1, 1, 0,
+	  0, 0, 0, 0,
+	  0;
+
+	Param69 =
+	  0,
+	  7, "20 0F 25 45 00 30 01",
+	  0X10,
+	  8, 1,
+	  "Reserved",
+	  "",
+	$ help text
+	  "No Help",
+	  0, 0,
+	  0,
+	  1, 1, 1, 0,
+	  0, 0, 0, 0,
+	  0;
+
+	Param70 =
+	  0,
+	  7, "20 0F 25 46 00 30 01",
+	  0X10,
+	  8, 1,
+	  "Reserved",
+	  "",
+	$ help text
+	  "No Help",
+	  0, 0,
+	  0,
+	  1, 1, 1, 0,
+	  0, 0, 0, 0,
+	  0;
+
+	Param71 =
+	  0,
+	  7, "20 0F 25 47 00 30 01",
+	  0X00,
+	  3, 2,
+	  "Brake On Delay",
+	  "mS",
+	$ help text
+	  "No Help",
+	  -32767, 32767,
+	  0,
+	  1, 1, 1, 0,
+	  0, 0, 0, 0,
+	  0;
+
+	Param72 =
+	  0,
+	  7, "20 0F 25 48 00 30 01",
+	  0X00,
+	  3, 2,
+	  "Brake Off Delay",
+	  "mS",
+	$ help text
+	  "No Help",
+	  -32767, 32767,
+	  0,
+	  1, 1, 1, 0,
+	  0, 0, 0, 0,
+	  0;
+
+	Param73 =
+	  0,
+	  7, "20 0F 25 49 00 30 01",
+	  0X02,
+	  8, 1,
+	  "Limit Anlg Accel",
+	  "",
+	$ help text
+	  "No Help",
+	  0, 1,
+	  0,
+	  1, 1, 1, 0,
+	  0, 0, 0, 0,
+	  0;
+
+	Param74 =
+	  0,
+	  7, "20 0F 25 4A 00 30 01",
+	  0X00,
+	  9, 4,
+	  "Anlg Accel Limit",
+	  "RPMS",
+	$ help text
+	  "No Help",
+	  0, 2147483647,
+	  2000,
+	  1, 1, 1, 0,
+	  0, 0, 0, 0,
+	  0;
+
+	Param75 =
+	  0,
+	  7, "20 0F 25 4B 00 30 01",
+	  0X00,
+	  9, 4,
+	  "Anlg Decel Limit",
+	  "RPMS",
+	$ help text
+	  "No Help",
+	  0, 2147483647,
+	  2000,
+	  1, 1, 1, 0,
+	  0, 0, 0, 0,
+	  0;
+
+	Param76 =
+	  0,
+	  7, "20 0F 25 4C 00 30 01",
+	  0X00,
+	  3, 2,
+	  "Pos CMD In Offst",
+	  "mV",
+	$ help text
+	  "No Help",
+	  -10000, 10000,
+	  0,
+	  1, 1, 1, 0,
+	  0, 0, 0, 0,
+	  0;
+
+	Param77 =
+	  0,
+	  7, "20 0F 25 4D 00 30 01",
+	  0X00,
+	  3, 2,
+	  "Pos CMD In Scale",
+	  "Ct/V",
+	$ help text
+	  "No Help",
+	  -32767, 32767,
+	  1000,
+	  1, 1, 1, 0,
+	  0, 0, 0, 0,
+	  0;
+
+	Param78 =
+	  0,
+	  7, "20 0F 25 4E 00 30 01",
+	  0X00,
+	  3, 2,
+	  "Vel CMD In Offst",
+	  "mV",
+	$ help text
+	  "No Help",
+	  -10000, 10000,
+	  0,
+	  1, 1, 1, 0,
+	  0, 0, 0, 0,
+	  0;
+
+	Param79 =
+	  0,
+	  7, "20 0F 25 4F 00 30 01",
+	  0X04,
+	  3, 2,
+	  "Vel CMD In Scale",
+	  "%",
+	$ help text
+	  "No Help",
+	  -10000, 10000,
+	  5000,
+	  1, 100, 1, 0,
+	  0, 0, 0, 0,
+	  2;
+
+	Param80 =
+	  0,
+	  7, "20 0F 25 50 00 30 01",
+	  0X10,
+	  2, 2,
+	  "MaxVel CMD Scale",
+	  "RM/V",
+	$ help text
+	  "No Help",
+	  1, 32767,
+	  1,
+	  1, 1, 1, 0,
+	  0, 0, 0, 0,
+	  0;
+
+	Param81 =
+	  0,
+	  7, "20 0F 25 51 00 30 01",
+	  0X00,
+	  3, 2,
+	  "Tor CMD In Offst",
+	  "mV",
+	$ help text
+	  "No Help",
+	  -10000, 10000,
+	  0,
+	  1, 1, 1, 0,
+	  0, 0, 0, 0,
+	  0;
+
+	Param82 =
+	  0,
+	  7, "20 0F 25 52 00 30 01",
+	  0X04,
+	  3, 2,
+	  "Tor CMD In Scale",
+	  "%",
+	$ help text
+	  "No Help",
+	  -10000, 10000,
+	  2500,
+	  1, 100, 1, 0,
+	  0, 0, 0, 0,
+	  2;
+
+	Param83 =
+	  0,
+	  7, "20 0F 25 53 00 30 01",
+	  0X14,
+	  2, 2,
+	  "MaxTrq CMD Scale",
+	  "A/V",
+	$ help text
+	  "No Help",
+	  1, 32767,
+	  1,
+	  1, 256, 1, 0,
+	  0, 0, 0, 0,
+	  3;
+
+	Param84 =
+	  0,
+	  7, "20 0F 25 54 00 30 01",
+	  0X02,
+	  8, 1,
+	  "Analog Out1 Cnfg",
+	  "",
+	$ help text
+	  "No Help",
+	  0, 32,
+	  6,
+	  1, 1, 1, 0,
+	  0, 0, 0, 0,
+	  0;
+
+	Param85 =
+	  0,
+	  7, "20 0F 25 55 00 30 01",
+	  0X00,
+	  3, 2,
+	  "Anlg Out1 Offset",
+	  "mV",
+	$ help text
+	  "No Help",
+	  -10000, 10000,
+	  0,
+	  1, 1, 1, 0,
+	  0, 0, 0, 0,
+	  0;
+
+	Param86 =
+	  0,
+	  7, "20 0F 25 56 00 30 01",
+	  0X04,
+	  3, 2,
+	  "Anlg Out1 Scale",
+	  "",
+	$ help text
+	  "No Help",
+	  -32767, 32767,
+	  1638,
+	  1, 1, 1, 0,
+	  0, 0, 0, 0,
+	  0;
+
+	Param87 =
+	  0,
+	  7, "20 0F 25 57 00 30 01",
+	  0X10,
+	  8, 1,
+	  "Reserved",
+	  "",
+	$ help text
+	  "No Help",
+	  0, 0,
+	  0,
+	  1, 1, 1, 0,
+	  0, 0, 0, 0,
+	  0;
+
+	Param88 =
+	  0,
+	  7, "20 0F 25 58 00 30 01",
+	  0X10,
+	  8, 1,
+	  "Reserved",
+	  "",
+	$ help text
+	  "No Help",
+	  0, 0,
+	  0,
+	  1, 1, 1, 0,
+	  0, 0, 0, 0,
+	  0;
+
+	Param89 =
+	  0,
+	  7, "20 0F 25 59 00 30 01",
+	  0X10,
+	  8, 1,
+	  "Reserved",
+	  "",
+	$ help text
+	  "No Help",
+	  0, 0,
+	  0,
+	  1, 1, 1, 0,
+	  0, 0, 0, 0,
+	  0;
+
+	Param90 =
+	  0,
+	  7, "20 0F 25 5A 00 30 01",
+	  0X02,
+	  8, 1,
+	  "Analog Out Mode",
+	  "",
+	$ help text
+	  "No Help",
+	  0, 1,
+	  0,
+	  1, 1, 1, 0,
+	  0, 0, 0, 0,
+	  0;
+
+	Param91 =
+	  0,
+	  7, "20 0F 25 5B 00 30 01",
+	  0X00,
+	  3, 2,
+	  "Anlg Out1 Ovride",
+	  "mV",
+	$ help text
+	  "No Help",
+	  -10000, 10000,
+	  0,
+	  1, 1, 1, 0,
+	  0, 0, 0, 0,
+	  0;
+
+	Param92 =
+	  0,
+	  7, "20 0F 25 5C 00 30 01",
+	  0X10,
+	  8, 1,
+	  "Reserved",
+	  "",
+	$ help text
+	  "No Help",
+	  0, 0,
+	  0,
+	  1, 1, 1, 0,
+	  0, 0, 0, 0,
+	  0;
+
+	Param93 =
+	  0,
+	  7, "20 0F 25 5D 00 30 01",
+	  0X02,
+	  8, 1,
+	  "Limit Preset Acc",
+	  "",
+	$ help text
+	  "No Help",
+	  0, 1,
+	  1,
+	  1, 1, 1, 0,
+	  0, 0, 0, 0,
+	  0;
+
+	Param94 =
+	  0,
+	  7, "20 0F 25 5E 00 30 01",
+	  0X00,
+	  9, 4,
+	  "Preset Acc Limit",
+	  "RPMS",
+	$ help text
+	  "No Help",
+	  0, 2147483647,
+	  500,
+	  1, 1, 1, 0,
+	  0, 0, 0, 0,
+	  0;
+
+	Param95 =
+	  0,
+	  7, "20 0F 25 5F 00 30 01",
+	  0X00,
+	  9, 4,
+	  "Preset Dec Limit",
+	  "RPMS",
+	$ help text
+	  "No Help",
+	  0, 2147483647,
+	  500,
+	  1, 1, 1, 0,
+	  0, 0, 0, 0,
+	  0;
+
+	Param96 =
+	  0,
+	  7, "20 0F 25 60 00 30 01",
+	  0X44,
+	  6, 4,
+	  "Vel Preset 0",
+	  "RPM",
+	$ help text
+	  "No Help",
+	  -2147483647, 2147483647,
+	  0,
+	  25, 16384, 1, 0,
+	  0, 0, 0, 0,
+	  2;
+
+	Param97 =
+	  0,
+	  7, "20 0F 25 61 00 30 01",
+	  0X44,
+	  6, 4,
+	  "Vel Preset 1",
+	  "RPM",
+	$ help text
+	  "No Help",
+	  -2147483647, 2147483647,
+	  0,
+	  25, 16384, 1, 0,
+	  0, 0, 0, 0,
+	  2;
+
+	Param98 =
+	  0,
+	  7, "20 0F 25 62 00 30 01",
+	  0X44,
+	  6, 4,
+	  "Vel Preset 2",
+	  "RPM",
+	$ help text
+	  "No Help",
+	  -2147483647, 2147483647,
+	  0,
+	  25, 16384, 1, 0,
+	  0, 0, 0, 0,
+	  2;
+
+	Param99 =
+	  0,
+	  7, "20 0F 25 63 00 30 01",
+	  0X44,
+	  6, 4,
+	  "Vel Preset 3",
+	  "RPM",
+	$ help text
+	  "No Help",
+	  -2147483647, 2147483647,
+	  0,
+	  25, 16384, 1, 0,
+	  0, 0, 0, 0,
+	  2;
+
+	Param100 =
+	  0,
+	  7, "20 0F 25 64 00 30 01",
+	  0X44,
+	  6, 4,
+	  "Vel Preset 4",
+	  "RPM",
+	$ help text
+	  "No Help",
+	  -2147483647, 2147483647,
+	  0,
+	  25, 16384, 1, 0,
+	  0, 0, 0, 0,
+	  2;
+
+	Param101 =
+	  0,
+	  7, "20 0F 25 65 00 30 01",
+	  0X44,
+	  6, 4,
+	  "Vel Preset 5",
+	  "RPM",
+	$ help text
+	  "No Help",
+	  -2147483647, 2147483647,
+	  0,
+	  25, 16384, 1, 0,
+	  0, 0, 0, 0,
+	  2;
+
+	Param102 =
+	  0,
+	  7, "20 0F 25 66 00 30 01",
+	  0X44,
+	  6, 4,
+	  "Vel Preset 6",
+	  "RPM",
+	$ help text
+	  "No Help",
+	  -2147483647, 2147483647,
+	  0,
+	  25, 16384, 1, 0,
+	  0, 0, 0, 0,
+	  2;
+
+	Param103 =
+	  0,
+	  7, "20 0F 25 67 00 30 01",
+	  0X44,
+	  6, 4,
+	  "Vel Preset 7",
+	  "RPM",
+	$ help text
+	  "No Help",
+	  -2147483647, 2147483647,
+	  0,
+	  25, 16384, 1, 0,
+	  0, 0, 0, 0,
+	  2;
+
+	Param104 =
+	  0,
+	  7, "20 0F 25 68 00 30 01",
+	  0X04,
+	  3, 2,
+	  "Torque Preset 0",
+	  "Amps",
+	$ help text
+	  "No Help",
+	  -32767, 32767,
+	  0,
+	  1, 128, 1, 0,
+	  0, 0, 0, 0,
+	  3;
+
+	Param105 =
+	  0,
+	  7, "20 0F 25 69 00 30 01",
+	  0X04,
+	  3, 2,
+	  "Torque Preset 1",
+	  "Amps",
+	$ help text
+	  "No Help",
+	  -32767, 32767,
+	  0,
+	  1, 128, 1, 0,
+	  0, 0, 0, 0,
+	  3;
+
+	Param106 =
+	  0,
+	  7, "20 0F 25 6A 00 30 01",
+	  0X04,
+	  3, 2,
+	  "Torque Preset 2",
+	  "Amps",
+	$ help text
+	  "No Help",
+	  -32767, 32767,
+	  0,
+	  1, 128, 1, 0,
+	  0, 0, 0, 0,
+	  3;
+
+	Param107 =
+	  0,
+	  7, "20 0F 25 6B 00 30 01",
+	  0X04,
+	  3, 2,
+	  "Torque Preset 3",
+	  "Amps",
+	$ help text
+	  "No Help",
+	  -32767, 32767,
+	  0,
+	  1, 128, 1, 0,
+	  0, 0, 0, 0,
+	  3;
+
+	Param108 =
+	  0,
+	  7, "20 0F 25 6C 00 30 01",
+	  0X04,
+	  3, 2,
+	  "Torque Preset 4",
+	  "Amps",
+	$ help text
+	  "No Help",
+	  -32767, 32767,
+	  0,
+	  1, 128, 1, 0,
+	  0, 0, 0, 0,
+	  3;
+
+	Param109 =
+	  0,
+	  7, "20 0F 25 6D 00 30 01",
+	  0X04,
+	  3, 2,
+	  "Torque Preset 5",
+	  "Amps",
+	$ help text
+	  "No Help",
+	  -32767, 32767,
+	  0,
+	  1, 128, 1, 0,
+	  0, 0, 0, 0,
+	  3;
+
+	Param110 =
+	  0,
+	  7, "20 0F 25 6E 00 30 01",
+	  0X04,
+	  3, 2,
+	  "Torque Preset 6",
+	  "Amps",
+	$ help text
+	  "No Help",
+	  -32767, 32767,
+	  0,
+	  1, 128, 1, 0,
+	  0, 0, 0, 0,
+	  3;
+
+	Param111 =
+	  0,
+	  7, "20 0F 25 6F 00 30 01",
+	  0X04,
+	  3, 2,
+	  "Torque Preset 7",
+	  "Amps",
+	$ help text
+	  "No Help",
+	  -32767, 32767,
+	  0,
+	  1, 128, 1, 0,
+	  0, 0, 0, 0,
+	  3;
+
+	Param112 =
+	  0,
+	  7, "20 0F 25 70 00 30 01",
+	  0X02,
+	  8, 1,
+	  "Command Source",
+	  "",
+	$ help text
+	  "No Help",
+	  0, 4,
+	  0,
+	  1, 1, 1, 0,
+	  0, 0, 0, 0,
+	  0;
+
+	Param113 =
+	  0,
+	  7, "20 0F 25 71 00 30 01",
+	  0X02,
+	  8, 1,
+	  "Drive Mode",
+	  "",
+	$ help text
+	  "No Help",
+	  0, 1,
+	  0,
+	  1, 1, 1, 0,
+	  0, 0, 0, 0,
+	  0;
+
+	Param114 =
+	  0,
+	  7, "20 0F 25 72 00 30 01",
+	  0X02,
+	  8, 1,
+	  "Override Cmd Src",
+	  "",
+	$ help text
+	  "No Help",
+	  0, 4,
+	  0,
+	  1, 1, 1, 0,
+	  0, 0, 0, 0,
+	  0;
+
+	Param115 =
+	  0,
+	  7, "20 0F 25 73 00 30 01",
+	  0X02,
+	  8, 1,
+	  "Overide Drv Mode",
+	  "",
+	$ help text
+	  "No Help",
+	  0, 1,
+	  0,
+	  1, 1, 1, 0,
+	  0, 0, 0, 0,
+	  0;
+
+	Param116 =
+	  0,
+	  7, "20 0F 25 74 00 30 01",
+	  0X02,
+	  8, 1,
+	  "Enc Outpt Config",
+	  "",
+	$ help text
+	  "No Help",
+	  0, 3,
+	  0,
+	  1, 1, 1, 0,
+	  0, 0, 0, 0,
+	  0;
+
+	Param117 =
+	  0,
+	  7, "20 0F 25 75 00 30 01",
+	  0X02,
+	  8, 1,
+	  "Change Direction",
+	  "",
+	$ help text
+	  "No Help",
+	  0, 1,
+	  0,
+	  1, 1, 1, 0,
+	  0, 0, 0, 0,
+	  0;
+
+	Param118 =
+	  0,
+	  7, "20 0F 25 76 00 30 01",
+	  0X02,
+	  8, 1,
+	  "Tuning/Oper Mode",
+	  "",
+	$ help text
+	  "No Help",
+	  0, 3,
+	  0,
+	  1, 1, 1, 0,
+	  0, 0, 0, 0,
+	  0;
+
+	Param119 =
+	  0,
+	  7, "20 0F 25 77 00 30 01",
+	  0X32,
+	  1, 2,
+	  "Tuning Status",
+	  "",
+	$ help text
+	  "No Help",
+	  0, 127,
+	  0,
+	  1, 1, 1, 0,
+	  0, 0, 0, 0,
+	  0;
+
+	Param120 =
+	  0,
+	  7, "20 0F 25 78 00 30 01",
+	  0X04,
+	  2, 2,
+	  "Autotune Max Cur",
+	  "Amps",
+	$ help text
+	  "No Help",
+	  1, 32767,
+	  133,
+	  1, 128, 1, 0,
+	  0, 0, 0, 0,
+	  3;
+
+	Param121 =
+	  0,
+	  7, "20 0F 25 79 00 30 01",
+	  0X00,
+	  9, 4,
+	  "Autotune Max Dis",
+	  "Cnts",
+	$ help text
+	  "No Help",
+	  1, 2147483647,
+	  800000,
+	  1, 1, 1, 0,
+	  0, 0, 0, 0,
+	  0;
+
+	Param122 =
+	  0,
+	  7, "20 0F 25 7A 00 30 01",
+	  0X00,
+	  2, 2,
+	  "MTune Pos Period",
+	  "mS",
+	$ help text
+	  "No Help",
+	  1, 32767,
+	  400,
+	  1, 1, 1, 0,
+	  0, 0, 0, 0,
+	  0;
+
+	Param123 =
+	  0,
+	  7, "20 0F 25 7B 00 30 01",
+	  0X00,
+	  2, 2,
+	  "ManTune Pos Step",
+	  "Cnts",
+	$ help text
+	  "No Help",
+	  1, 32767,
+	  400,
+	  1, 1, 1, 0,
+	  0, 0, 0, 0,
+	  0;
+
+	Param124 =
+	  0,
+	  7, "20 0F 25 7C 00 30 01",
+	  0X00,
+	  2, 2,
+	  "MTune Vel Period",
+	  "mS",
+	$ help text
+	  "No Help",
+	  1, 32767,
+	  400,
+	  1, 1, 1, 0,
+	  0, 0, 0, 0,
+	  0;
+
+	Param125 =
+	  0,
+	  7, "20 0F 25 7D 00 30 01",
+	  0X44,
+	  9, 4,
+	  "ManTune Vel Step",
+	  "RPM",
+	$ help text
+	  "No Help",
+	  1, 2147483647,
+	  13107200,
+	  25, 16384, 1, 0,
+	  0, 0, 0, 0,
+	  2;
+
+	Param126 =
+	  0,
+	  7, "20 0F 25 7E 00 30 01",
+	  0X02,
+	  8, 1,
+	  "Tuning Direction",
+	  "",
+	$ help text
+	  "No Help",
+	  0, 2,
+	  0,
+	  1, 1, 1, 0,
+	  0, 0, 0, 0,
+	  0;
+
+	Param127 =
+	  0,
+	  7, "20 0F 25 7F 00 30 01",
+	  0X32,
+	  25, 4,
+	  "Drive Status",
+	  "",
+	$ help text
+	  "No Help",
+	  0, 4294967295,
+	  0,
+	  1, 1, 1, 0,
+	  0, 0, 0, 0,
+	  0;
+
+	Param128 =
+	  0,
+	  7, "20 0F 25 80 00 30 01",
+	  0X32,
+	  25, 4,
+	  "Fault Status",
+	  "",
+	$ help text
+	  "No Help",
+	  0, 4294967295,
+	  0,
+	  1, 1, 1, 0,
+	  0, 0, 0, 0,
+	  0;
+
+	Param129 =
+	  0,
+	  7, "20 0F 25 81 00 30 01",
+	  0X32,
+	  25, 4,
+	  "Output Status",
+	  "",
+	$ help text
+	  "No Help",
+	  0, 4294967295,
+	  0,
+	  1, 1, 1, 0,
+	  0, 0, 0, 0,
+	  0;
+
+	Param130 =
+	  0,
+	  7, "20 0F 25 82 00 30 01",
+	  0X32,
+	  1, 2,
+	  "Dig Input States",
+	  "",
+	$ help text
+	  "No Help",
+	  0, 31,
+	  0,
+	  1, 1, 1, 0,
+	  0, 0, 0, 0,
+	  0;
+
+	Param131 =
+	  0,
+	  7, "20 0F 25 83 00 30 01",
+	  0X32,
+	  1, 2,
+	  "Dig Outpt States",
+	  "",
+	$ help text
+	  "No Help",
+	  0, 15,
+	  0,
+	  1, 1, 1, 0,
+	  0, 0, 0, 0,
+	  0;
+
+	Param132 =
+	  0,
+	  7, "20 0F 25 84 00 30 01",
+	  0X30,
+	  3, 2,
+	  "Analog CMD Input",
+	  "mV",
+	$ help text
+	  "No Help",
+	  -10000, 10000,
+	  0,
+	  1, 1, 1, 0,
+	  0, 0, 0, 0,
+	  0;
+
+	Param133 =
+	  0,
+	  7, "20 0F 25 85 00 30 01",
+	  0X34,
+	  3, 2,
+	  "+ILimit Inpt Val",
+	  "Amps",
+	$ help text
+	  "No Help",
+	  -32767, 32767,
+	  0,
+	  1, 128, 1, 0,
+	  0, 0, 0, 0,
+	  3;
+
+	Param134 =
+	  0,
+	  7, "20 0F 25 86 00 30 01",
+	  0X34,
+	  3, 2,
+	  "-ILimit Inpt Val",
+	  "Amps",
+	$ help text
+	  "No Help",
+	  -32767, 32767,
+	  0,
+	  1, 128, 1, 0,
+	  0, 0, 0, 0,
+	  3;
+
+	Param135 =
+	  0,
+	  7, "20 0F 25 87 00 30 01",
+	  0X30,
+	  3, 2,
+	  "Analog Output 1",
+	  "mV",
+	$ help text
+	  "No Help",
+	  -10000, 10000,
+	  0,
+	  1, 1, 1, 0,
+	  0, 0, 0, 0,
+	  0;
+
+	Param136 =
+	  0,
+	  7, "20 0F 25 88 00 30 01",
+	  0X10,
+	  8, 1,
+	  "Reserved",
+	  "",
+	$ help text
+	  "No Help",
+	  0, 0,
+	  0,
+	  1, 1, 1, 0,
+	  0, 0, 0, 0,
+	  0;
+
+	Param137 =
+	  0,
+	  7, "20 0F 25 89 00 30 01",
+	  0X30,
+	  6, 4,
+	  "Motor Position",
+	  "Cnts",
+	$ help text
+	  "No Help",
+	  -2147483647, 2147483647,
+	  0,
+	  1, 1, 1, 0,
+	  0, 0, 0, 0,
+	  0;
+
+	Param138 =
+	  0,
+	  7, "20 0F 25 8A 00 30 01",
+	  0X30,
+	  6, 4,
+	  "Master Position",
+	  "Cnts",
+	$ help text
+	  "No Help",
+	  -2147483647, 2147483647,
+	  0,
+	  1, 1, 1, 0,
+	  0, 0, 0, 0,
+	  0;
+
+	Param139 =
+	  0,
+	  7, "20 0F 25 8B 00 30 01",
+	  0X30,
+	  6, 4,
+	  "Position Command",
+	  "Cnts",
+	$ help text
+	  "No Help",
+	  -2147483647, 2147483647,
+	  0,
+	  1, 1, 1, 0,
+	  0, 0, 0, 0,
+	  0;
+
+	Param140 =
+	  0,
+	  7, "20 0F 25 8C 00 30 01",
+	  0X30,
+	  6, 4,
+	  "Position Error",
+	  "Cnts",
+	$ help text
+	  "No Help",
+	  -2147483647, 2147483647,
+	  0,
+	  1, 1, 1, 0,
+	  0, 0, 0, 0,
+	  0;
+
+	Param141 =
+	  0,
+	  7, "20 0F 25 8D 00 30 01",
+	  0X30,
+	  6, 4,
+	  "Peak +Pos Error",
+	  "Cnts",
+	$ help text
+	  "No Help",
+	  -2147483647, 2147483647,
+	  0,
+	  1, 1, 1, 0,
+	  0, 0, 0, 0,
+	  0;
+
+	Param142 =
+	  0,
+	  7, "20 0F 25 8E 00 30 01",
+	  0X30,
+	  6, 4,
+	  "Peak -Pos Error",
+	  "Cnts",
+	$ help text
+	  "No Help",
+	  -2147483647, 2147483647,
+	  0,
+	  1, 1, 1, 0,
+	  0, 0, 0, 0,
+	  0;
+
+	Param143 =
+	  0,
+	  7, "20 0F 25 8F 00 30 01",
+	  0X74,
+	  6, 4,
+	  "Velocity Command",
+	  "RPM",
+	$ help text
+	  "No Help",
+	  -2147483647, 2147483647,
+	  0,
+	  25, 16384, 1, 0,
+	  0, 0, 0, 0,
+	  2;
+
+	Param144 =
+	  0,
+	  7, "20 0F 25 90 00 30 01",
+	  0X74,
+	  6, 4,
+	  "Motor Velocity",
+	  "RPM",
+	$ help text
+	  "No Help",
+	  -2147483647, 2147483647,
+	  0,
+	  25, 16384, 1, 0,
+	  0, 0, 0, 0,
+	  2;
+
+	Param145 =
+	  0,
+	  7, "20 0F 25 91 00 30 01",
+	  0X74,
+	  6, 4,
+	  "Velocity Error",
+	  "RPM",
+	$ help text
+	  "No Help",
+	  -2147483647, 2147483647,
+	  0,
+	  25, 16384, 1, 0,
+	  0, 0, 0, 0,
+	  2;
+
+	Param146 =
+	  0,
+	  7, "20 0F 25 92 00 30 01",
+	  0X34,
+	  3, 2,
+	  "Current Command",
+	  "Amps",
+	$ help text
+	  "No Help",
+	  -32767, 32767,
+	  0,
+	  1, 128, 1, 0,
+	  0, 0, 0, 0,
+	  3;
+
+	Param147 =
+	  0,
+	  7, "20 0F 25 93 00 30 01",
+	  0X34,
+	  3, 2,
+	  "Average Current",
+	  "Amps",
+	$ help text
+	  "No Help",
+	  -32767, 32767,
+	  0,
+	  1, 128, 1, 0,
+	  0, 0, 0, 0,
+	  3;
+
+	Param148 =
+	  0,
+	  7, "20 0F 25 94 00 30 01",
+	  0X34,
+	  3, 2,
+	  "Pos Peak Current",
+	  "Amps",
+	$ help text
+	  "No Help",
+	  0, 32767,
+	  0,
+	  1, 128, 1, 0,
+	  0, 0, 0, 0,
+	  3;
+
+	Param149 =
+	  0,
+	  7, "20 0F 25 95 00 30 01",
+	  0X34,
+	  3, 2,
+	  "Neg Peak Current",
+	  "Amps",
+	$ help text
+	  "No Help",
+	  -32767, 0,
+	  0,
+	  1, 128, 1, 0,
+	  0, 0, 0, 0,
+	  3;
+
+	Param150 =
+	  0,
+	  7, "20 0F 25 96 00 30 01",
+	  0X30,
+	  2, 2,
+	  "DC Bus Voltage",
+	  "Vlts",
+	$ help text
+	  "No Help",
+	  0, 32767,
+	  92,
+	  1, 1, 1, 0,
+	  0, 0, 0, 0,
+	  0;
+
+	Param151 =
+	  0,
+	  7, "20 0F 25 97 00 30 01",
+	  0X34,
+	  3, 2,
+	  "Field Current",
+	  "Amps",
+	$ help text
+	  "No Help",
+	  -32767, 32767,
+	  0,
+	  1, 128, 1, 0,
+	  0, 0, 0, 0,
+	  3;
+
+	Param152 =
+	  0,
+	  7, "20 0F 25 98 00 30 01",
+	  0X34,
+	  3, 2,
+	  "Torque Current",
+	  "Amps",
+	$ help text
+	  "No Help",
+	  -32767, 32767,
+	  0,
+	  1, 128, 1, 0,
+	  0, 0, 0, 0,
+	  3;
+
+	Param153 =
+	  0,
+	  7, "20 0F 25 99 00 30 01",
+	  0X34,
+	  3, 2,
+	  "R-Phase Current",
+	  "Amps",
+	$ help text
+	  "No Help",
+	  -32767, 32767,
+	  0,
+	  1, 128, 1, 0,
+	  0, 0, 0, 0,
+	  3;
+
+	Param154 =
+	  0,
+	  7, "20 0F 25 9A 00 30 01",
+	  0X34,
+	  3, 2,
+	  "T-Phase Current",
+	  "Amps",
+	$ help text
+	  "No Help",
+	  -32767, 32767,
+	  0,
+	  1, 128, 1, 0,
+	  0, 0, 0, 0,
+	  3;
+
+	Param155 =
+	  0,
+	  7, "20 0F 25 9B 00 30 01",
+	  0X34,
+	  3, 2,
+	  "Field Voltage",
+	  "Vlts",
+	$ help text
+	  "No Help",
+	  -32767, 32767,
+	  0,
+	  1, 128, 1, 0,
+	  0, 0, 0, 0,
+	  3;
+
+	Param156 =
+	  0,
+	  7, "20 0F 25 9C 00 30 01",
+	  0X34,
+	  3, 2,
+	  "Torque Voltage",
+	  "Vlts",
+	$ help text
+	  "No Help",
+	  -32767, 32767,
+	  0,
+	  1, 128, 1, 0,
+	  0, 0, 0, 0,
+	  3;
+
+	Param157 =
+	  0,
+	  7, "20 0F 25 9D 00 30 01",
+	  0X34,
+	  3, 2,
+	  "Ave Motor Currnt",
+	  "%",
+	$ help text
+	  "No Help",
+	  0, 32767,
+	  0,
+	  1, 128, 1, 0,
+	  0, 0, 0, 0,
+	  2;
+
+	Param158 =
+	  0,
+	  7, "20 0F 25 9E 00 30 01",
+	  0X10,
+	  8, 1,
+	  "Reserved",
+	  "",
+	$ help text
+	  "No Help",
+	  0, 0,
+	  0,
+	  1, 1, 1, 0,
+	  0, 0, 0, 0,
+	  0;
+
+	Param159 =
+	  0,
+	  7, "20 0F 25 9F 00 30 01",
+	  0X32,
+	  8, 1,
+	  "Fault History 1",
+	  "",
+	$ help text
+	  "No Help",
+	  0, 99,
+	  0,
+	  1, 1, 1, 0,
+	  0, 0, 0, 0,
+	  0;
+
+	Param160 =
+	  0,
+	  7, "20 0F 25 A0 00 30 01",
+	  0X32,
+	  8, 1,
+	  "Fault History 2",
+	  "",
+	$ help text
+	  "No Help",
+	  0, 99,
+	  0,
+	  1, 1, 1, 0,
+	  0, 0, 0, 0,
+	  0;
+
+	Param161 =
+	  0,
+	  7, "20 0F 25 A1 00 30 01",
+	  0X32,
+	  8, 1,
+	  "Fault History 3",
+	  "",
+	$ help text
+	  "No Help",
+	  0, 99,
+	  0,
+	  1, 1, 1, 0,
+	  0, 0, 0, 0,
+	  0;
+
+	Param162 =
+	  0,
+	  7, "20 0F 25 A2 00 30 01",
+	  0X32,
+	  8, 1,
+	  "Fault History 4",
+	  "",
+	$ help text
+	  "No Help",
+	  0, 99,
+	  0,
+	  1, 1, 1, 0,
+	  0, 0, 0, 0,
+	  0;
+
+	Param163 =
+	  0,
+	  7, "20 0F 25 A3 00 30 01",
+	  0X32,
+	  8, 1,
+	  "Fault History 5",
+	  "",
+	$ help text
+	  "No Help",
+	  0, 99,
+	  0,
+	  1, 1, 1, 0,
+	  0, 0, 0, 0,
+	  0;
+
+	Param164 =
+	  0,
+	  7, "20 0F 25 A4 00 30 01",
+	  0X32,
+	  8, 1,
+	  "Fault History 6",
+	  "",
+	$ help text
+	  "No Help",
+	  0, 99,
+	  0,
+	  1, 1, 1, 0,
+	  0, 0, 0, 0,
+	  0;
+
+	Param165 =
+	  0,
+	  7, "20 0F 25 A5 00 30 01",
+	  0X32,
+	  8, 1,
+	  "Fault History 7",
+	  "",
+	$ help text
+	  "No Help",
+	  0, 99,
+	  0,
+	  1, 1, 1, 0,
+	  0, 0, 0, 0,
+	  0;
+
+	Param166 =
+	  0,
+	  7, "20 0F 25 A6 00 30 01",
+	  0X32,
+	  8, 1,
+	  "Fault History 8",
+	  "",
+	$ help text
+	  "No Help",
+	  0, 99,
+	  0,
+	  1, 1, 1, 0,
+	  0, 0, 0, 0,
+	  0;
+
+	Param167 =
+	  0,
+	  7, "20 0F 25 A7 00 30 01",
+	  0X32,
+	  8, 1,
+	  "Fault History 9",
+	  "",
+	$ help text
+	  "No Help",
+	  0, 99,
+	  0,
+	  1, 1, 1, 0,
+	  0, 0, 0, 0,
+	  0;
+
+	Param168 =
+	  0,
+	  7, "20 0F 25 A8 00 30 01",
+	  0X32,
+	  8, 1,
+	  "Fault History 10",
+	  "",
+	$ help text
+	  "No Help",
+	  0, 99,
+	  0,
+	  1, 1, 1, 0,
+	  0, 0, 0, 0,
+	  0;
+
+	Param169 =
+	  0,
+	  7, "20 0F 25 A9 00 30 01",
+	  0X02,
+	  8, 1,
+	  "Host Contrl Mode",
+	  "",
+	$ help text
+	  "No Help",
+	  0, 1,
+	  1,
+	  1, 1, 1, 0,
+	  0, 0, 0, 0,
+	  0;
+
+	Param170 =
+	  0,
+	  7, "20 0F 25 AA 00 30 01",
+	  0X02,
+	  8, 1,
+	  "Host Setpnt Ctrl",
+	  "",
+	$ help text
+	  "No Help",
+	  0, 1,
+	  0,
+	  1, 1, 1, 0,
+	  0, 0, 0, 0,
+	  0;
+
+	Param171 =
+	  0,
+	  7, "20 0F 25 AB 00 30 01",
+	  0X10,
+	  8, 1,
+	  "Reserved",
+	  "",
+	$ help text
+	  "No Help",
+	  0, 0,
+	  0,
+	  1, 1, 1, 0,
+	  0, 0, 0, 0,
+	  0;
+
+	Param172 =
+	  0,
+	  7, "20 0F 25 AC 00 30 01",
+	  0X44,
+	  6, 4,
+	  "Host Vel Setpnt",
+	  "RPM",
+	$ help text
+	  "No Help",
+	  -2147483647, 2147483647,
+	  0,
+	  25, 16384, 1, 0,
+	  0, 0, 0, 0,
+	  2;
+
+	Param173 =
+	  0,
+	  7, "20 0F 25 AD 00 30 01",
+	  0X04,
+	  3, 2,
+	  "Host Torq Setpnt",
+	  "Amps",
+	$ help text
+	  "No Help",
+	  -32767, 32767,
+	  0,
+	  1, 128, 1, 0,
+	  0, 0, 0, 0,
+	  3;
+
+	Param174 =
+	  0,
+	  7, "20 0F 25 AE 00 30 01",
+	  0X00,
+	  9, 4,
+	  "Host Acc Setpnt",
+	  "RPMS",
+	$ help text
+	  "No Help",
+	  0, 2147483647,
+	  2000,
+	  1, 1, 1, 0,
+	  0, 0, 0, 0,
+	  0;
+
+	Param175 =
+	  0,
+	  7, "20 0F 25 AF 00 30 01",
+	  0X22,
+	  8, 1,
+	  "Reset Personalty",
+	  "",
+	$ help text
+	  "No Help",
+	  0, 1,
+	  0,
+	  1, 1, 1, 0,
+	  0, 0, 0, 0,
+	  0;
+
+	Param176 =
+	  0,
+	  7, "20 0F 25 B0 00 30 01",
+	  0X22,
+	  8, 1,
+	  "Reset Drive",
+	  "",
+	$ help text
+	  "No Help",
+	  0, 1,
+	  0,
+	  1, 1, 1, 0,
+	  0, 0, 0, 0,
+	  0;
+
+	Param177 =
+	  0,
+	  7, "20 0F 25 B1 00 30 01",
+	  0X22,
+	  8, 1,
+	  "Reset Faults",
+	  "",
+	$ help text
+	  "No Help",
+	  0, 1,
+	  0,
+	  1, 1, 1, 0,
+	  0, 0, 0, 0,
+	  0;
+
+	Param178 =
+	  0,
+	  7, "20 0F 25 B2 00 30 01",
+	  0X22,
+	  8, 1,
+	  "Reset I Peaks",
+	  "",
+	$ help text
+	  "No Help",
+	  0, 1,
+	  0,
+	  1, 1, 1, 0,
+	  0, 0, 0, 0,
+	  0;
+
+[EnumPar]
+
+	Param2 =
+	  "125kbps",
+	  "250kbps",
+	  "500kbps",
+	  "Autobaud",
+	  "Autobaud",
+	  "Autobaud",
+	  "Autobaud",
+	  "Autobaud";
+
+	Param4 =
+	  "125kbps",
+	  "250kbps",
+	  "500kbps",
+	  "AutoBaud";
+
+	Param5 =
+	  "In-Position",
+	  "Within Pos Windw",
+	  "Zero Speed",
+	  "Within Vel Windw",
+	  "Positive ILimit",
+	  "Negative ILimit",
+	  "At Speed",
+	  "Drive Enabled",
+	  "DC Bus Charged",
+	  "Fault Disable",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Axis Homed",
+	  "Brake Active",
+	  "Drive Ready",
+	  "Drive Mode Input",
+	  "Integrtr Inhibit",
+	  "Follower Enable",
+	  "Forward Clamp",
+	  "Reverse Clamp",
+	  "Analog Override",
+	  "Preset Select A",
+	  "Preset Select B",
+	  "Preset Select C",
+	  "At Home",
+	  "Sequenc Complete",
+	  "In Motion",
+	  "In Dwell",
+	  "Registr Detected",
+	  "Reset Faults",
+	  "Enable Active";
+
+	Param6 =
+	  "In-Position",
+	  "Within Pos Windw",
+	  "Zero Speed",
+	  "Within Vel Windw",
+	  "Positive ILimit",
+	  "Negative ILimit",
+	  "At Speed",
+	  "Drive Enabled",
+	  "DC Bus Charged",
+	  "Fault Disable",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Axis Homed",
+	  "Brake Active",
+	  "Drive Ready",
+	  "Drive Mode Input",
+	  "Integrtr Inhibit",
+	  "Follower Enable",
+	  "Forward Clamp",
+	  "Reverse Clamp",
+	  "Analog Override",
+	  "Preset Select A",
+	  "Preset Select B",
+	  "Preset Select C",
+	  "At Home",
+	  "Sequenc Complete",
+	  "In Motion",
+	  "In Dwell",
+	  "Registr Detected",
+	  "Reset Faults",
+	  "Enable Active";
+
+	Param21 =
+	  "Forward",
+	  "Reverse";
+
+	Param23 =
+	  "Disable",
+	  "Enable";
+
+	Param24 =
+	  "No Action",
+	  "Xfer Buffer Val";
+
+	Param40 =
+	  "Disable",
+	  "Enable";
+
+	Param44 =
+	  "Enable",
+	  "Disable";
+
+	Param54 =
+	  "Not Present",
+	  "Present";
+
+	Param55 =
+	  "Induction Motor",
+	  "6 step ABS/Index",
+	  "8 step ABS/Index",
+	  "Hall / Index",
+	  "Hall / Hall";
+
+	Param56 =
+	  "Disable",
+	  "Enable";
+
+	Param58 =
+	  "2 Poles",
+	  "4 Poles",
+	  "6 Poles",
+	  "8 Poles";
+
+	Param61 =
+	  "Clockwise",
+	  "Counterclockwise";
+
+	Param62 =
+	  "Disable Serial",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Drive Mode Sel",
+	  "Integrate Inhibt",
+	  "Follower Enable",
+	  "Forward Enable",
+	  "Reverse Enable",
+	  "Ovrride Drv Mode",
+	  "Preset Select A",
+	  "Preset Select B",
+	  "Preset Select C",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Remove CMD Offst",
+	  "Reserved",
+	  "Fault Reset";
+
+	Param63 =
+	  "Disable Serial",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Drive Mode Sel",
+	  "Integrate Inhibt",
+	  "Follower Enable",
+	  "Forward Enable",
+	  "Reverse Enable",
+	  "Ovrride Drv Mode",
+	  "Preset Select A",
+	  "Preset Select B",
+	  "Preset Select C",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Remove CMD Offst",
+	  "Reserved",
+	  "Fault Reset";
+
+	Param64 =
+	  "Disable Serial",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Drive Mode Sel",
+	  "Integrate Inhibt",
+	  "Follower Enable",
+	  "Forward Enable",
+	  "Reverse Enable",
+	  "Ovrride Drv Mode",
+	  "Preset Select A",
+	  "Preset Select B",
+	  "Preset Select C",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Remove CMD Offst",
+	  "Reserved",
+	  "Fault Reset";
+
+	Param66 =
+	  "Drive Mode Sel",
+	  "Intgratr Inhibit",
+	  "Follower Enable",
+	  "Forward Enable",
+	  "Reverse Enable",
+	  "Ovrride Drv Sel",
+	  "Preset Select A",
+	  "Preset Select B",
+	  "Preset Select C",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Remove CMD Offst",
+	  "Reserved",
+	  "Fault Reset";
+
+	Param67 =
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "In-Position",
+	  "Within Pos Windw",
+	  "Zero Speed",
+	  "Within Vel Windw",
+	  "Positive ILimit",
+	  "Negative ILimit",
+	  "At Speed",
+	  "Drive Enabled",
+	  "DC Bus Charged",
+	  "Disabling Fault";
+
+	Param68 =
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "In-Position",
+	  "Within Pos Windw",
+	  "Zero Speed",
+	  "Within Vel Windw",
+	  "Positive ILimit",
+	  "Negative ILimit",
+	  "At Speed",
+	  "Drive Enabled",
+	  "DC Bus Charged",
+	  "Disabling Fault";
+
+	Param73 =
+	  "Disable",
+	  "Enable";
+
+	Param84 =
+	  "Current Command",
+	  "Ave Current Cmd",
+	  "Pos Peak Current",
+	  "Neg Peak Current",
+	  "Positive ILimit",
+	  "Negative ILimit",
+	  "Motor Velocity",
+	  "Velocity Cmd",
+	  "Velocity Error",
+	  "Motor Position",
+	  "Slewed Pos Cmd",
+	  "Position Error",
+	  "Peak +Pos Error",
+	  "Peak -Pos Error",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Master Position",
+	  "Pos Loop Output",
+	  "Vel Loop Output",
+	  "Filter Output",
+	  "Notch Output",
+	  "R Phase Output",
+	  "T Phase Output",
+	  "Torque Current",
+	  "Field Current",
+	  "Torque Voltage",
+	  "Field Voltage",
+	  "Scaled A/D Cmd",
+	  "Bus Voltage";
+
+	Param90 =
+	  "Normal",
+	  "Override";
+
+	Param93 =
+	  "Disable",
+	  "Enable";
+
+	Param112 =
+	  "Analog CMD Input",
+	  "Presets",
+	  "Master Encoder",
+	  "Step / Direction",
+	  "Step+ / Step-";
+
+	Param113 =
+	  "Velocity",
+	  "Torque";
+
+	Param114 =
+	  "Analog CMD Input",
+	  "Presets",
+	  "Master Encoder",
+	  "Step / Direction",
+	  "Step+ / Step-";
+
+	Param115 =
+	  "Velocity",
+	  "Torque";
+
+	Param116 =
+	  "Divide by 1",
+	  "Divide by 2",
+	  "Divide by 4",
+	  "Divide by 8";
+
+	Param117 =
+	  "Normal",
+	  "Reversed";
+
+	Param118 =
+	  "Normal",
+	  "Auto Tune",
+	  "Manual Tune- Vel",
+	  "Manual Tune- Pos";
+
+	Param119 =
+	  "Auto Tune Done",
+	  "Encod Align Done",
+	  "Motor Indx Found",
+	  "Mastr Indx Found",
+	  "Motr EncRes Done",
+	  "Mstr EncRes Done",
+	  "Auto Tune Failed";
+
+	Param126 =
+	  "Bi-directional",
+	  "Forward",
+	  "Reverse";
+
+	Param127 =
+	  "In-Position",
+	  "Within Pos Windw",
+	  "Zero Speed",
+	  "Within Vel Windw",
+	  "Positive ILimit",
+	  "Negative ILimit",
+	  "At Speed",
+	  "Drive Enabled",
+	  "DC Bus Charged",
+	  "Fault Disable",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Brake Active",
+	  "Drive Ready",
+	  "Drive Mode Input",
+	  "Integrtr Inhibit",
+	  "Follower Enable",
+	  "Forward Clamp",
+	  "Reverse Clamp",
+	  "Analog Override",
+	  "Preset Select A",
+	  "Preset Select B",
+	  "Preset Select C",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reset Faults",
+	  "Enable Active";
+
+	Param128 =
+	  "I/O +24V OverCur",
+	  "Encod +5V OverCu",
+	  "Encod +7V OverCu",
+	  "Motor Overtemp",
+	  "IPM Fault",
+	  "Chan IM Line Brk",
+	  "Chan BM Line Brk",
+	  "Chan AM Line Brk",
+	  "Bus Undervoltage",
+	  "Bus Overvoltage",
+	  "Inval Hall State",
+	  "Sub proc Intrpt",
+	  "Main proc Intrpt",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Excessive Ave I",
+	  "Motor Overspeed",
+	  "Excess Follow",
+	  "Motor Encodr Err",
+	  "Mastr Encodr Err",
+	  "Motor Therm Prot",
+	  "IPM Thermal Prot",
+	  "Velocity Error",
+	  "Commutation Err",
+	  "Reserved",
+	  "Axis Not Homed",
+	  "No Motor Selectd",
+	  "Invalid Motr Sel",
+	  "Reserved",
+	  "Reserved",
+	  "CPU Comm Error";
+
+	Param129 =
+	  "At Home",
+	  "Sequenc Complete",
+	  "In Motion",
+	  "In Dwell",
+	  "Registr Detected",
+	  "Axis Homed",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "In-Position",
+	  "Within Pos Windw",
+	  "Zero Speed",
+	  "Within Vel Windw",
+	  "Positive ILimit",
+	  "Negative ILimit",
+	  "At Speed",
+	  "Drive Enabled",
+	  "DC Bus Charged",
+	  "Fault Disable",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Brake Active",
+	  "Drive Ready";
+
+	Param130 =
+	  "RESET FAULTS",
+	  "ENABLE State",
+	  "INPUT1 State",
+	  "INPUT2 State",
+	  "INPUT3 State";
+
+	Param131 =
+	  "READY State",
+	  "BRAKE State",
+	  "OUTPUT1 State",
+	  "OUTPUT2 State";
+
+	Param159 =
+	  "No Fault",
+	  "+24V Fuse Blown",
+	  "+5V Fuse Blown",
+	  "Encoder Pwr Fuse",
+	  "Motor Overtemp",
+	  "IPM Fault",
+	  "Chan IM Line Brk",
+	  "Chan BM Line Brk",
+	  "Chan AM Line Brk",
+	  "Bus Undervoltage",
+	  "Bus Overvoltage",
+	  "Bad Hall State",
+	  "Sub Proc Interpt",
+	  "Main Proc Intrpt",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Excessiv Ave Cur",
+	  "Motor Overspeed",
+	  "Exces Follow Err",
+	  "Motor Enc State",
+	  "Master Enc State",
+	  "Motor Therm Prot",
+	  "IPM Thermal Prot",
+	  "Excess Vel Error",
+	  "Commutation Err",
+	  "Reserved",
+	  "Axis Not Homed",
+	  "No Motor Selectd",
+	  "Invalid Motor",
+	  "EE-Per Write Err",
+	  "EE-Srv Write Err",
+	  "CPU Comm Error",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Prgm Boot Error",
+	  "Prgm Main Error",
+	  "Uninit Per EEPRM",
+	  "Per EE Read Err",
+	  "Per EE Checksum",
+	  "Processr Watchdg",
+	  "SubProc Watchdog",
+	  "Processr Ram Err",
+	  "Sub Proc Ram Err",
+	  "Uninit Srv EEPRM",
+	  "Srv EE Read Err",
+	  "Srv EE Checksum",
+	  "Processr A/D Err",
+	  "Sub Proc A/D Err",
+	  "ANALOG1 Output",
+	  "Gate Array Error",
+	  "ANALOG2 Output",
+	  "Inter-Proc Error",
+	  "SubProc Init Err",
+	  "SubProc SRAM Err",
+	  "SubProc Load Err",
+	  "SubProc Startup",
+	  "SubProc Checksum",
+	  "Per EE Write Err",
+	  "Srv EE Write Err",
+	  "Software Clock",
+	  "SubProc Comm Err",
+	  "Sine Table Gen",
+	  "Per EE Data Err",
+	  "Srv EE Data Err",
+	  "Motor Blk Check",
+	  "MainROM Checksum",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "DevNet Boot Chks",
+	  "DevNet Main Chks",
+	  "DevNet Rev Low",
+	  "DevNet Rev High",
+	  "Vendor Code Err",
+	  "Serial No. Error",
+	  "DevNet EE Error",
+	  "DevNet RAM Error",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Burn-in Test Err";
+
+	Param160 =
+	  "No Fault",
+	  "+24V Fuse Blown",
+	  "+5V Fuse Blown",
+	  "Encoder Pwr Fuse",
+	  "Motor Overtemp",
+	  "IPM Fault",
+	  "Chan IM Line Brk",
+	  "Chan BM Line Brk",
+	  "Chan AM Line Brk",
+	  "Bus Undervoltage",
+	  "Bus Overvoltage",
+	  "Bad Hall State",
+	  "Sub Proc Interpt",
+	  "Main Proc Intrpt",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Excessiv Ave Cur",
+	  "Motor Overspeed",
+	  "Exces Follow Err",
+	  "Motor Enc State",
+	  "Master Enc State",
+	  "Motor Therm Prot",
+	  "IPM Thermal Prot",
+	  "Excess Vel Error",
+	  "Commutation Err",
+	  "Reserved",
+	  "Axis Not Homed",
+	  "No Motor Selectd",
+	  "Invalid Motor",
+	  "EE-Per Write Err",
+	  "EE-Srv Write Err",
+	  "CPU Comm Error",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Prgm Boot Error",
+	  "Prgm Main Error",
+	  "Uninit Per EEPRM",
+	  "Per EE Read Err",
+	  "Per EE Checksum",
+	  "Processr Watchdg",
+	  "SubProc Watchdog",
+	  "Processr Ram Err",
+	  "Sub Proc Ram Err",
+	  "Uninit Srv EEPRM",
+	  "Srv EE Read Err",
+	  "Srv EE Checksum",
+	  "Processr A/D Err",
+	  "Sub Proc A/D Err",
+	  "ANALOG1 Output",
+	  "Gate Array Error",
+	  "ANALOG2 Output",
+	  "Inter-Proc Error",
+	  "SubProc Init Err",
+	  "SubProc SRAM Err",
+	  "SubProc Load Err",
+	  "SubProc Startup",
+	  "SubProc Checksum",
+	  "Per EE Write Err",
+	  "Srv EE Write Err",
+	  "Software Clock",
+	  "SubProc Comm Err",
+	  "Sine Table Gen",
+	  "Per EE Data Err",
+	  "Srv EE Data Err",
+	  "Motor Blk Check",
+	  "MainROM Checksum",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "DevNet Boot Chks",
+	  "DevNet Main Chks",
+	  "DevNet Rev Low",
+	  "DevNet Rev High",
+	  "Vendor Code Err",
+	  "Serial No. Error",
+	  "DevNet EE Error",
+	  "DevNet RAM Error",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Burn-in Test Err";
+
+	Param161 =
+	  "No Fault",
+	  "+24V Fuse Blown",
+	  "+5V Fuse Blown",
+	  "Encoder Pwr Fuse",
+	  "Motor Overtemp",
+	  "IPM Fault",
+	  "Chan IM Line Brk",
+	  "Chan BM Line Brk",
+	  "Chan AM Line Brk",
+	  "Bus Undervoltage",
+	  "Bus Overvoltage",
+	  "Bad Hall State",
+	  "Sub Proc Interpt",
+	  "Main Proc Intrpt",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Excessiv Ave Cur",
+	  "Motor Overspeed",
+	  "Exces Follow Err",
+	  "Motor Enc State",
+	  "Master Enc State",
+	  "Motor Therm Prot",
+	  "IPM Thermal Prot",
+	  "Excess Vel Error",
+	  "Commutation Err",
+	  "Reserved",
+	  "Axis Not Homed",
+	  "No Motor Selectd",
+	  "Invalid Motor",
+	  "EE-Per Write Err",
+	  "EE-Srv Write Err",
+	  "CPU Comm Error",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Prgm Boot Error",
+	  "Prgm Main Error",
+	  "Uninit Per EEPRM",
+	  "Per EE Read Err",
+	  "Per EE Checksum",
+	  "Processr Watchdg",
+	  "SubProc Watchdog",
+	  "Processr Ram Err",
+	  "Sub Proc Ram Err",
+	  "Uninit Srv EEPRM",
+	  "Srv EE Read Err",
+	  "Srv EE Checksum",
+	  "Processr A/D Err",
+	  "Sub Proc A/D Err",
+	  "ANALOG1 Output",
+	  "Gate Array Error",
+	  "ANALOG2 Output",
+	  "Inter-Proc Error",
+	  "SubProc Init Err",
+	  "SubProc SRAM Err",
+	  "SubProc Load Err",
+	  "SubProc Startup",
+	  "SubProc Checksum",
+	  "Per EE Write Err",
+	  "Srv EE Write Err",
+	  "Software Clock",
+	  "SubProc Comm Err",
+	  "Sine Table Gen",
+	  "Per EE Data Err",
+	  "Srv EE Data Err",
+	  "Motor Blk Check",
+	  "MainROM Checksum",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "DevNet Boot Chks",
+	  "DevNet Main Chks",
+	  "DevNet Rev Low",
+	  "DevNet Rev High",
+	  "Vendor Code Err",
+	  "Serial No. Error",
+	  "DevNet EE Error",
+	  "DevNet RAM Error",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Burn-in Test Err";
+
+	Param162 =
+	  "No Fault",
+	  "+24V Fuse Blown",
+	  "+5V Fuse Blown",
+	  "Encoder Pwr Fuse",
+	  "Motor Overtemp",
+	  "IPM Fault",
+	  "Chan IM Line Brk",
+	  "Chan BM Line Brk",
+	  "Chan AM Line Brk",
+	  "Bus Undervoltage",
+	  "Bus Overvoltage",
+	  "Bad Hall State",
+	  "Sub Proc Interpt",
+	  "Main Proc Intrpt",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Excessiv Ave Cur",
+	  "Motor Overspeed",
+	  "Exces Follow Err",
+	  "Motor Enc State",
+	  "Master Enc State",
+	  "Motor Therm Prot",
+	  "IPM Thermal Prot",
+	  "Excess Vel Error",
+	  "Commutation Err",
+	  "Reserved",
+	  "Axis Not Homed",
+	  "No Motor Selectd",
+	  "Invalid Motor",
+	  "EE-Per Write Err",
+	  "EE-Srv Write Err",
+	  "CPU Comm Error",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Prgm Boot Error",
+	  "Prgm Main Error",
+	  "Uninit Per EEPRM",
+	  "Per EE Read Err",
+	  "Per EE Checksum",
+	  "Processr Watchdg",
+	  "SubProc Watchdog",
+	  "Processr Ram Err",
+	  "Sub Proc Ram Err",
+	  "Uninit Srv EEPRM",
+	  "Srv EE Read Err",
+	  "Srv EE Checksum",
+	  "Processr A/D Err",
+	  "Sub Proc A/D Err",
+	  "ANALOG1 Output",
+	  "Gate Array Error",
+	  "ANALOG2 Output",
+	  "Inter-Proc Error",
+	  "SubProc Init Err",
+	  "SubProc SRAM Err",
+	  "SubProc Load Err",
+	  "SubProc Startup",
+	  "SubProc Checksum",
+	  "Per EE Write Err",
+	  "Srv EE Write Err",
+	  "Software Clock",
+	  "SubProc Comm Err",
+	  "Sine Table Gen",
+	  "Per EE Data Err",
+	  "Srv EE Data Err",
+	  "Motor Blk Check",
+	  "MainROM Checksum",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "DevNet Boot Chks",
+	  "DevNet Main Chks",
+	  "DevNet Rev Low",
+	  "DevNet Rev High",
+	  "Vendor Code Err",
+	  "Serial No. Error",
+	  "DevNet EE Error",
+	  "DevNet RAM Error",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Burn-in Test Err";
+
+	Param163 =
+	  "No Fault",
+	  "+24V Fuse Blown",
+	  "+5V Fuse Blown",
+	  "Encoder Pwr Fuse",
+	  "Motor Overtemp",
+	  "IPM Fault",
+	  "Chan IM Line Brk",
+	  "Chan BM Line Brk",
+	  "Chan AM Line Brk",
+	  "Bus Undervoltage",
+	  "Bus Overvoltage",
+	  "Bad Hall State",
+	  "Sub Proc Interpt",
+	  "Main Proc Intrpt",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Excessiv Ave Cur",
+	  "Motor Overspeed",
+	  "Exces Follow Err",
+	  "Motor Enc State",
+	  "Master Enc State",
+	  "Motor Therm Prot",
+	  "IPM Thermal Prot",
+	  "Excess Vel Error",
+	  "Commutation Err",
+	  "Reserved",
+	  "Axis Not Homed",
+	  "No Motor Selectd",
+	  "Invalid Motor",
+	  "EE-Per Write Err",
+	  "EE-Srv Write Err",
+	  "CPU Comm Error",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Prgm Boot Error",
+	  "Prgm Main Error",
+	  "Uninit Per EEPRM",
+	  "Per EE Read Err",
+	  "Per EE Checksum",
+	  "Processr Watchdg",
+	  "SubProc Watchdog",
+	  "Processr Ram Err",
+	  "Sub Proc Ram Err",
+	  "Uninit Srv EEPRM",
+	  "Srv EE Read Err",
+	  "Srv EE Checksum",
+	  "Processr A/D Err",
+	  "Sub Proc A/D Err",
+	  "ANALOG1 Output",
+	  "Gate Array Error",
+	  "ANALOG2 Output",
+	  "Inter-Proc Error",
+	  "SubProc Init Err",
+	  "SubProc SRAM Err",
+	  "SubProc Load Err",
+	  "SubProc Startup",
+	  "SubProc Checksum",
+	  "Per EE Write Err",
+	  "Srv EE Write Err",
+	  "Software Clock",
+	  "SubProc Comm Err",
+	  "Sine Table Gen",
+	  "Per EE Data Err",
+	  "Srv EE Data Err",
+	  "Motor Blk Check",
+	  "MainROM Checksum",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "DevNet Boot Chks",
+	  "DevNet Main Chks",
+	  "DevNet Rev Low",
+	  "DevNet Rev High",
+	  "Vendor Code Err",
+	  "Serial No. Error",
+	  "DevNet EE Error",
+	  "DevNet RAM Error",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Burn-in Test Err";
+
+	Param164 =
+	  "No Fault",
+	  "+24V Fuse Blown",
+	  "+5V Fuse Blown",
+	  "Encoder Pwr Fuse",
+	  "Motor Overtemp",
+	  "IPM Fault",
+	  "Chan IM Line Brk",
+	  "Chan BM Line Brk",
+	  "Chan AM Line Brk",
+	  "Bus Undervoltage",
+	  "Bus Overvoltage",
+	  "Bad Hall State",
+	  "Sub Proc Interpt",
+	  "Main Proc Intrpt",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Excessiv Ave Cur",
+	  "Motor Overspeed",
+	  "Exces Follow Err",
+	  "Motor Enc State",
+	  "Master Enc State",
+	  "Motor Therm Prot",
+	  "IPM Thermal Prot",
+	  "Excess Vel Error",
+	  "Commutation Err",
+	  "Reserved",
+	  "Axis Not Homed",
+	  "No Motor Selectd",
+	  "Invalid Motor",
+	  "EE-Per Write Err",
+	  "EE-Srv Write Err",
+	  "CPU Comm Error",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Prgm Boot Error",
+	  "Prgm Main Error",
+	  "Uninit Per EEPRM",
+	  "Per EE Read Err",
+	  "Per EE Checksum",
+	  "Processr Watchdg",
+	  "SubProc Watchdog",
+	  "Processr Ram Err",
+	  "Sub Proc Ram Err",
+	  "Uninit Srv EEPRM",
+	  "Srv EE Read Err",
+	  "Srv EE Checksum",
+	  "Processr A/D Err",
+	  "Sub Proc A/D Err",
+	  "ANALOG1 Output",
+	  "Gate Array Error",
+	  "ANALOG2 Output",
+	  "Inter-Proc Error",
+	  "SubProc Init Err",
+	  "SubProc SRAM Err",
+	  "SubProc Load Err",
+	  "SubProc Startup",
+	  "SubProc Checksum",
+	  "Per EE Write Err",
+	  "Srv EE Write Err",
+	  "Software Clock",
+	  "SubProc Comm Err",
+	  "Sine Table Gen",
+	  "Per EE Data Err",
+	  "Srv EE Data Err",
+	  "Motor Blk Check",
+	  "MainROM Checksum",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "DevNet Boot Chks",
+	  "DevNet Main Chks",
+	  "DevNet Rev Low",
+	  "DevNet Rev High",
+	  "Vendor Code Err",
+	  "Serial No. Error",
+	  "DevNet EE Error",
+	  "DevNet RAM Error",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Burn-in Test Err";
+
+	Param165 =
+	  "No Fault",
+	  "+24V Fuse Blown",
+	  "+5V Fuse Blown",
+	  "Encoder Pwr Fuse",
+	  "Motor Overtemp",
+	  "IPM Fault",
+	  "Chan IM Line Brk",
+	  "Chan BM Line Brk",
+	  "Chan AM Line Brk",
+	  "Bus Undervoltage",
+	  "Bus Overvoltage",
+	  "Bad Hall State",
+	  "Sub Proc Interpt",
+	  "Main Proc Intrpt",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Excessiv Ave Cur",
+	  "Motor Overspeed",
+	  "Exces Follow Err",
+	  "Motor Enc State",
+	  "Master Enc State",
+	  "Motor Therm Prot",
+	  "IPM Thermal Prot",
+	  "Excess Vel Error",
+	  "Commutation Err",
+	  "Reserved",
+	  "Axis Not Homed",
+	  "No Motor Selectd",
+	  "Invalid Motor",
+	  "EE-Per Write Err",
+	  "EE-Srv Write Err",
+	  "CPU Comm Error",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Prgm Boot Error",
+	  "Prgm Main Error",
+	  "Uninit Per EEPRM",
+	  "Per EE Read Err",
+	  "Per EE Checksum",
+	  "Processr Watchdg",
+	  "SubProc Watchdog",
+	  "Processr Ram Err",
+	  "Sub Proc Ram Err",
+	  "Uninit Srv EEPRM",
+	  "Srv EE Read Err",
+	  "Srv EE Checksum",
+	  "Processr A/D Err",
+	  "Sub Proc A/D Err",
+	  "ANALOG1 Output",
+	  "Gate Array Error",
+	  "ANALOG2 Output",
+	  "Inter-Proc Error",
+	  "SubProc Init Err",
+	  "SubProc SRAM Err",
+	  "SubProc Load Err",
+	  "SubProc Startup",
+	  "SubProc Checksum",
+	  "Per EE Write Err",
+	  "Srv EE Write Err",
+	  "Software Clock",
+	  "SubProc Comm Err",
+	  "Sine Table Gen",
+	  "Per EE Data Err",
+	  "Srv EE Data Err",
+	  "Motor Blk Check",
+	  "MainROM Checksum",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "DevNet Boot Chks",
+	  "DevNet Main Chks",
+	  "DevNet Rev Low",
+	  "DevNet Rev High",
+	  "Vendor Code Err",
+	  "Serial No. Error",
+	  "DevNet EE Error",
+	  "DevNet RAM Error",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Burn-in Test Err";
+
+	Param166 =
+	  "No Fault",
+	  "+24V Fuse Blown",
+	  "+5V Fuse Blown",
+	  "Encoder Pwr Fuse",
+	  "Motor Overtemp",
+	  "IPM Fault",
+	  "Chan IM Line Brk",
+	  "Chan BM Line Brk",
+	  "Chan AM Line Brk",
+	  "Bus Undervoltage",
+	  "Bus Overvoltage",
+	  "Bad Hall State",
+	  "Sub Proc Interpt",
+	  "Main Proc Intrpt",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Excessiv Ave Cur",
+	  "Motor Overspeed",
+	  "Exces Follow Err",
+	  "Motor Enc State",
+	  "Master Enc State",
+	  "Motor Therm Prot",
+	  "IPM Thermal Prot",
+	  "Excess Vel Error",
+	  "Commutation Err",
+	  "Reserved",
+	  "Axis Not Homed",
+	  "No Motor Selectd",
+	  "Invalid Motor",
+	  "EE-Per Write Err",
+	  "EE-Srv Write Err",
+	  "CPU Comm Error",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Prgm Boot Error",
+	  "Prgm Main Error",
+	  "Uninit Per EEPRM",
+	  "Per EE Read Err",
+	  "Per EE Checksum",
+	  "Processr Watchdg",
+	  "SubProc Watchdog",
+	  "Processr Ram Err",
+	  "Sub Proc Ram Err",
+	  "Uninit Srv EEPRM",
+	  "Srv EE Read Err",
+	  "Srv EE Checksum",
+	  "Processr A/D Err",
+	  "Sub Proc A/D Err",
+	  "ANALOG1 Output",
+	  "Gate Array Error",
+	  "ANALOG2 Output",
+	  "Inter-Proc Error",
+	  "SubProc Init Err",
+	  "SubProc SRAM Err",
+	  "SubProc Load Err",
+	  "SubProc Startup",
+	  "SubProc Checksum",
+	  "Per EE Write Err",
+	  "Srv EE Write Err",
+	  "Software Clock",
+	  "SubProc Comm Err",
+	  "Sine Table Gen",
+	  "Per EE Data Err",
+	  "Srv EE Data Err",
+	  "Motor Blk Check",
+	  "MainROM Checksum",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "DevNet Boot Chks",
+	  "DevNet Main Chks",
+	  "DevNet Rev Low",
+	  "DevNet Rev High",
+	  "Vendor Code Err",
+	  "Serial No. Error",
+	  "DevNet EE Error",
+	  "DevNet RAM Error",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Burn-in Test Err";
+
+	Param167 =
+	  "No Fault",
+	  "+24V Fuse Blown",
+	  "+5V Fuse Blown",
+	  "Encoder Pwr Fuse",
+	  "Motor Overtemp",
+	  "IPM Fault",
+	  "Chan IM Line Brk",
+	  "Chan BM Line Brk",
+	  "Chan AM Line Brk",
+	  "Bus Undervoltage",
+	  "Bus Overvoltage",
+	  "Bad Hall State",
+	  "Sub Proc Interpt",
+	  "Main Proc Intrpt",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Excessiv Ave Cur",
+	  "Motor Overspeed",
+	  "Exces Follow Err",
+	  "Motor Enc State",
+	  "Master Enc State",
+	  "Motor Therm Prot",
+	  "IPM Thermal Prot",
+	  "Excess Vel Error",
+	  "Commutation Err",
+	  "Reserved",
+	  "Axis Not Homed",
+	  "No Motor Selectd",
+	  "Invalid Motor",
+	  "EE-Per Write Err",
+	  "EE-Srv Write Err",
+	  "CPU Comm Error",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Prgm Boot Error",
+	  "Prgm Main Error",
+	  "Uninit Per EEPRM",
+	  "Per EE Read Err",
+	  "Per EE Checksum",
+	  "Processr Watchdg",
+	  "SubProc Watchdog",
+	  "Processr Ram Err",
+	  "Sub Proc Ram Err",
+	  "Uninit Srv EEPRM",
+	  "Srv EE Read Err",
+	  "Srv EE Checksum",
+	  "Processr A/D Err",
+	  "Sub Proc A/D Err",
+	  "ANALOG1 Output",
+	  "Gate Array Error",
+	  "ANALOG2 Output",
+	  "Inter-Proc Error",
+	  "SubProc Init Err",
+	  "SubProc SRAM Err",
+	  "SubProc Load Err",
+	  "SubProc Startup",
+	  "SubProc Checksum",
+	  "Per EE Write Err",
+	  "Srv EE Write Err",
+	  "Software Clock",
+	  "SubProc Comm Err",
+	  "Sine Table Gen",
+	  "Per EE Data Err",
+	  "Srv EE Data Err",
+	  "Motor Blk Check",
+	  "MainROM Checksum",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "DevNet Boot Chks",
+	  "DevNet Main Chks",
+	  "DevNet Rev Low",
+	  "DevNet Rev High",
+	  "Vendor Code Err",
+	  "Serial No. Error",
+	  "DevNet EE Error",
+	  "DevNet RAM Error",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Burn-in Test Err";
+
+	Param168 =
+	  "No Fault",
+	  "+24V Fuse Blown",
+	  "+5V Fuse Blown",
+	  "Encoder Pwr Fuse",
+	  "Motor Overtemp",
+	  "IPM Fault",
+	  "Chan IM Line Brk",
+	  "Chan BM Line Brk",
+	  "Chan AM Line Brk",
+	  "Bus Undervoltage",
+	  "Bus Overvoltage",
+	  "Bad Hall State",
+	  "Sub Proc Interpt",
+	  "Main Proc Intrpt",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Excessiv Ave Cur",
+	  "Motor Overspeed",
+	  "Exces Follow Err",
+	  "Motor Enc State",
+	  "Master Enc State",
+	  "Motor Therm Prot",
+	  "IPM Thermal Prot",
+	  "Excess Vel Error",
+	  "Commutation Err",
+	  "Reserved",
+	  "Axis Not Homed",
+	  "No Motor Selectd",
+	  "Invalid Motor",
+	  "EE-Per Write Err",
+	  "EE-Srv Write Err",
+	  "CPU Comm Error",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Prgm Boot Error",
+	  "Prgm Main Error",
+	  "Uninit Per EEPRM",
+	  "Per EE Read Err",
+	  "Per EE Checksum",
+	  "Processr Watchdg",
+	  "SubProc Watchdog",
+	  "Processr Ram Err",
+	  "Sub Proc Ram Err",
+	  "Uninit Srv EEPRM",
+	  "Srv EE Read Err",
+	  "Srv EE Checksum",
+	  "Processr A/D Err",
+	  "Sub Proc A/D Err",
+	  "ANALOG1 Output",
+	  "Gate Array Error",
+	  "ANALOG2 Output",
+	  "Inter-Proc Error",
+	  "SubProc Init Err",
+	  "SubProc SRAM Err",
+	  "SubProc Load Err",
+	  "SubProc Startup",
+	  "SubProc Checksum",
+	  "Per EE Write Err",
+	  "Srv EE Write Err",
+	  "Software Clock",
+	  "SubProc Comm Err",
+	  "Sine Table Gen",
+	  "Per EE Data Err",
+	  "Srv EE Data Err",
+	  "Motor Blk Check",
+	  "MainROM Checksum",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "DevNet Boot Chks",
+	  "DevNet Main Chks",
+	  "DevNet Rev Low",
+	  "DevNet Rev High",
+	  "Vendor Code Err",
+	  "Serial No. Error",
+	  "DevNet EE Error",
+	  "DevNet RAM Error",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Reserved",
+	  "Burn-in Test Err";
+
+	Param169 =
+	  "Disable",
+	  "Enable";
+
+	Param170 =
+	  "Disable",
+	  "Enable";
+
+	Param175 =
+	  "No Action",
+	  "Reset";
+
+	Param176 =
+	  "No Action",
+	  "Reset";
+
+	Param177 =
+	  "No Action",
+	  "Reset";
+
+	Param178 =
+	  "No Action",
+	  "Reset";
+
+[Groups]
+
+	Group1 = "DeviceNet", 6, 1, 2, 3, 4, 5, 6;
+
+	Group2 = "Position Loop", 17, 12, 13, 14, 15, 16, 17, 18, 19, 
+	  20, 21, 22, 23, 24, 25, 26, 27, 28;
+
+	Group3 = "Velocity Loop", 10, 29, 30, 31, 32, 33, 34, 35, 36, 
+	  37, 38;
+
+	Group4 = "Torque Current", 6, 39, 40, 41, 42, 43, 44;
+
+	Group5 = "Motor Data", 18, 11, 45, 46, 47, 48, 49, 50, 51, 52, 
+	  53, 54, 55, 56, 57, 58, 59, 60, 61;
+
+	Group6 = "Digital I/O", 11, 62, 63, 64, 65, 66, 67, 68, 69, 
+	  70, 71, 72;
+
+	Group7 = "Analog I/O", 20, 73, 74, 75, 76, 77, 78, 79, 80, 81, 
+	  82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92;
+
+	Group8 = "Presets", 19, 93, 94, 95, 96, 97, 98, 99, 100, 101, 
+	  102, 103, 104, 105, 106, 107, 108, 109, 110, 111;
+
+	Group9 = "Operating Mode", 6, 112, 113, 114, 115, 116, 117;
+
+	Group10 = "Tuning", 9, 118, 119, 120, 121, 122, 123, 124, 125, 
+	  126;
+
+	Group11 = "Runtime Status", 5, 127, 128, 129, 130, 131;
+
+	Group12 = "Runtime Data", 27, 132, 133, 134, 135, 136, 137, 
+	  138, 139, 140, 141, 142, 143, 144, 145, 146, 147, 148, 149, 
+	  150, 151, 152, 153, 154, 155, 156, 157, 158;
+
+	Group13 = "Fault History", 10, 159, 160, 161, 162, 163, 164, 
+	  165, 166, 167, 168;
+
+	Group14 = "Commands", 10, 169, 170, 171, 172, 173, 174, 175, 
+	  176, 177, 178;

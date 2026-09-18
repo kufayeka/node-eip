@@ -1,0 +1,171 @@
+$ Electronic Data Sheet for 1791D CompactBlock I/O   (1791D-4B0)
+
+[File]
+DescText = "CompactBlock I/O 4 Sinking Input EDS File";
+CreateDate = 03-16-2000;
+CreateTime = 14:39:00;
+ModDate = 01-22-2004;
+ModTime = 11:00:00;
+Revision = 2.55;		$ EDS revision.
+
+HomeURL  = "http://www.ab.com/networks/eds/DN/00010007045F0200.eds";
+
+[Device]
+VendCode = 1;
+VendName = "Allen-Bradley Company, Inc.";
+ProdType = 7;
+ProdTypeStr = "General Purpose Discrete I/O";
+ProdCode = 1119;
+MajRev = 2;
+MinRev = 2;
+ProdName = "1791D-4B0 4 Sink Input";
+Catalog="1791D-4B0";
+Icon = "CompactBlk.ico";
+DNetQC=0B0000000000000001, 200; $ Quick Connect supported at power up. 200ms powerup time
+
+[IO_Info]
+Default = 0x0004;	$ The default I/O type is COS I/O.
+
+PollInfo =
+0x000D,			$ Poll connection can be used with COS or cyclic I/O.
+1,			$ Input1 entry is the default input connection.
+1;			$ Output1 entry is the default output connection.
+
+COSInfo=
+0x0005,			$ COS connection can be used with Polled I/O.
+1,			$ Input1 entry is the default input connection.
+1;			$ Output1 entry is the default output connection.
+
+CyclicInfo=
+0x0009,			$ Cyclic connection can be used with Polled I/O.
+1,			$ Input1 entry is the default input connection.
+1;			$ Output1 entry is the default output connection.
+
+Input1 =
+1,			$ The size in bytes that this connection produces.
+0,			$ Only the first 4 bits of this connection are significant.
+0x000D,			$ Polled, COS, and Cyclic I/O device.
+"4B0 Production Data",	$ Name of Connection.
+7,			$ Path length.
+"21 04 00 24 07 30 03",	$ Path to I/O Production Assembly.
+			$$$$$$$$$$ Help string $$$$$$$$$$$
+"This connection contains the input data.";
+
+Output1 =
+0,			$ The size in bytes that this connection consumes.
+0,			$ Only the first 4 bits of this connection are significant.
+0x000D,			$ Polled and COS I/O device.
+"4B0 Consumption Data",	$ Name of Connection.
+7,			$ Path length.
+"21 04 00 24 25 30 03",	$ Path to I/O Consumption Assembly.
+			$$$$$$$$$$ Help string $$$$$$$$$$$
+"This connection contains output data.";
+
+[ParamClass]
+MaxInst = 5;		$ 4 configurable and 1 read-only parameters.
+Descriptor =  0x09;	$ Stub param instances in eeprom.
+CfgAssembly = 0xA9;	$ The config assembly is instance #169 of assy obj.		
+
+[Params]
+$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+Param1 =		$ Disable Autobaud
+0,			$ reserved
+7,			$ Link Path Size
+"21 0F 00 24 01 30 01",	$ Link Path to disable autobaud attribute.
+0x0002,			$ No support for settable path, scaling, scaling links, or
+			$ real time update of value.  Value is gettable and 
+			$ Settable.  Enumerated strings are supported.
+0xC1,			$ Data Type - boolean
+1,			$ Data Size
+"Autobaud",		$ Parameter Name
+"",			$ Units String
+			$$$$$$$$$$ Help string $$$$$$$$$$$
+"If Enabled, the module adjusts to the current network baud rate. If Disabled, the baud rate can be set to a fixed value. When Disabling, no power cycle is required. When Enabling, change takes effect after the next power up.",
+0,1,0,			$ Min, Max, and Default values
+1,1,1,0,0,0,0,0,0;	$ Not Used
+
+$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+Param2 =		$ Input filter Off_to_On Delay selection
+0,			$ reserved
+7,			$ Link Path Size
+"21 0F 00 24 02 30 01",	$ Link Path to param instance.  The param instance decodes
+			$ the enumerated parameter into engineering units (micro seconds).
+0x0002,			$ No support for settable path, scaling, scaling links,
+			$ or real time update of value.  Value is gettable and
+			$ Settable.  Enumerated strings are supported.
+0xC6,			$ Data Type - unsigned short integer
+1,			$ Data Size - (in bytes)
+"Off-to-On Delay",	$ Parameter Name
+"ms",			$ Units String
+			$$$$$$$$$$ Help string $$$$$$$$$$$
+"The signal must be present on the input for this delay period before the module detects a change in the input state.",
+0,4,1,			$ Min, Max (max enumeration #), and Default values
+1,1,1,0,0,0,0,0,0;	$ Not Used
+
+$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+Param3 =		$ Input filter On_to_Off Delay selection
+0,			$ reserved
+7,			$ Link Path Size
+"21 0F 00 24 03 30 01",	$ Link Path to param instance.  The param instance decodes
+			$ the enumerated parameter into engineering units (micro seconds).
+0x0002,			$ No support for settable path, scaling, scaling links,
+			$ or real time update of value.  Value is gettable and
+			$ Settable.  Enumerated strings are supported.
+0xC6,			$ Data Type - unsigned short integer
+1,			$ Data Size - (in bytes)
+"On-to-Off Delay",	$ Parameter Name
+"ms",			$ Units String
+			$$$$$$$$$$ Help string $$$$$$$$$$$
+"The signal must be absent from the input for this delay period before the module detects a change in the input state.",
+0,4,1,			$ Min, Max (max enumeration #), and Default values
+1,1,1,0,0,0,0,0,0;	$ Not Used
+
+$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+Param4 =		$ Input Values
+0,			$ reserved
+7,			$ Link Path Size
+"21 0F 00 24 04 30 01",	$ Link Path to Input Values attribute.
+0x0030,			$ No support for settable path, scaling, or scaling links.
+			$ Value is gettable only. Enumerated strings are not
+			$ supported.
+0xD1,			$ Data Type - 8 bit string
+1,			$ Data Size - (in bytes)
+"Input Values",		$ Parameter Name
+"",			$ Units String
+			$$$$$$$$$$ Help string $$$$$$$$$$$
+"This parameter is the current value of all Inputs, either ON (1) or OFF (0).",
+0,0xF,0,		$ Min, Max, and Default values
+1,1,1,0,0,0,0,0,0;	$ Not Used
+
+$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+Param5 =		$ Produced I/O assembly selection
+0,			$ reserved
+7,			$ Link Path Size
+"21 0F 00 24 0A 30 01",	$ Link Path to param instance.  
+0x0002,			$ No support for settable path, scaling, scaling links,
+			$ or real time update of value.  Value is gettable and
+			$ Settable.  Enumerated strings are supported.
+0xC6,			$ Data Type - unsigned short int
+1,			$ Data Size - (in bytes)
+"Produced I/O Assembly",$ Parameter Name
+"",			$ Units String
+			$$$$$$$$$$ Help string $$$$$$$$$$$
+"Choose the I/O assembly that you would like this module to produce.  The assemblies are defined in the user's guide. Note!  You must change the scanner's consumed (Rx) data size for this module to match the assembly that you have chosen.  This can be done by selecting 'Edit I/O parameters' from the scanner's scanlist tab.",
+0,1,0,			$ Min, Max (max enumeration #), and Default values
+1,1,1,0,0,0,0,0,0;	$ Not Used
+
+
+
+[Groups]
+Group1="DeviceNet Configuration",2,1,5;
+Group2="Input Configuration",2,2,3;
+Group3="Monitor",1,4;
+
+
+
+[EnumPar]
+Param1="Enabled","Disabled";
+Param2="0 ms","2 ms","4 ms","8 ms","16 ms";
+Param3="0 ms","2 ms","4 ms","8 ms","16 ms";
+Param5="Input data with Expansion Presence detect","Input data ONLY";
+

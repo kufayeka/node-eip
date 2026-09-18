@@ -1,0 +1,34 @@
+[File]
+	DescText = "1789-SIM 32 Point Input/Output Simulator";
+	CreateDate = 04-06-2001;
+	CreateTime = 08:40:00;
+	ModDate = 04-06-2001;
+	ModTime = 10:40:00;
+	Revision = 1.0;
+
+
+[Device]
+	VendCode = 1;
+	VendName = "Allen-Bradley";
+	ProdType = 0x73;
+	ProdTypeStr = "Rockwell Automation Miscellaneous";
+	ProdCode = 0x5B;
+	MajRev = 1;
+	MinRev = 1;
+	ProdName = "1789-SIM 32 Point Input/Output Simulator";
+	Catalog = "1789-SIM";
+	Icon = "1756enet.ico";
+
+[Device Classification]
+	Class1 = 1_RSNetWorx_Virtual_Backplane,1_RSNetWorx_Not_Connectable_Module;
+
+[Port]
+	Port1 = 1_Virtual_Backplane,
+		"Backplane",
+		"21 00 00 03 24 01",
+		1;
+
+[Modular]
+	Width = 1;
+	Rack1 = 1,108,55,1,1,,,,
+		1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16;

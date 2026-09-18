@@ -1,0 +1,247 @@
+$ Electronic Data Sheet for CompactBlock LDX 1790D-N4C0
+$ Copyright 2001 by Rockwell Automation and the author
+
+[File]
+	DescText	= "1790D-N4C0 CompactBlock LDX EDS File";
+	CreateDate	= 04-11-2001;
+	CreateTime	= 14:30:00;
+	ModDate		= 06-12-2002;
+	ModTime		= 12:30:00;
+	Revision	= 1.002;		$ EDS revision.
+	HomeURL		= "http://www.ab.com/networks/eds/DN/0001007300330100.eds";
+
+[Device]
+	VendCode	= 1;
+	VendName	= "Allen-Bradley Company, Inc.";
+	ProdType	= 115;
+	ProdTypeStr = "Rockwell Automation Miscellaneous";
+	ProdCode	= 51;
+	MajRev		= 1;
+	MinRev		= 1;
+	ProdName	= "1790D-N4C0 4 Analog Current In";
+	Catalog		= "1790D-N4C0";
+	1_RSNetWorx_DNetTool = "RSI.DeviceNet.ChassisApplet.2";
+	Icon		= "compactblkLDX.ico";
+
+[Modular]
+	Rack1 = 1,108,84,1,1, , , ,0;
+	Query = "20 01 24 01 30 64", 0x0E, 1, "00";
+
+
+[IO_Info]
+	Default    = 0x01;
+	PollInfo   = 0x000D, 1, 1;
+	StrobeInfo = 0x0002, 1, 1;
+	COSInfo    = 0x0005, 1, 1;
+	CyclicInfo = 0x0009, 1, 1;
+
+	1_Input1 = ,0,0x000D,"Produced Connection" ,,Assem1,;
+	1_Output1= ,0,0x000D,"Consumed Connnection",,ProxyAssem2,;
+
+[ParamClass]
+	MaxInst = 13;		$ 5 configurable parameters.
+	Descriptor =  0x08;	$ Stub param instances in eeprom.
+	CfgAssembly = 0;	$ Config assembly.		
+
+[Params]
+	$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+	Param1 =		$ Autobaud
+	0,			$ reserved
+	6,			$ Link Path Size
+	"20 03 24 01 30 64",	$ Link Path to disable autobaud attribute.
+	0x0002,			$ No support for settable path, scaling, scaling links, enumerated
+				$ strings, or real time update of value.  Value is Get/Set.
+	0xC1,			$ Data Type - boolean
+	1,			$ Data Size
+	"Autobaud",		$ Parameter Name
+	"",			$ Units String
+				$$$$$$$$$$ Help string $$$$$$$$$$$
+	"This parameter Disables or Enables the Autobaud feature in the block. The change occurs after the next power up. The default is Enabled.",
+	0,1,0,			$ Min, Max, and Default values
+	1,1,1,0,0,0,0,0,0;	$ Not Used
+
+	Param2 = 0,			$ Status 0
+		6,"20 0A 24 01 30 04",	$ Link Path Size, Link Path
+		0x0032,	 		$ Descriptor
+		0xC1, 1,		$ Data Type, Data Size
+		"Status #0",
+		"",
+		"Status of Input channel.  This bit is the OR of all possible channel Faults.",
+		0,1,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param3 = 0,			$ Status 1
+		6,"20 0A 24 02 30 04",	$ Link Path Size, Link Path
+		0x0032,	 		$ Descriptor
+		0xC1, 1,		$ Data Type, Data Size
+		"Status #1",
+		"",
+		"Status of Input channel.  This bit is the OR of all possible channel Faults.",
+		0,1,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param4 = 0,			$ Status 2
+		6,"20 0A 24 03 30 04",	$ Link Path Size, Link Path
+		0x0032,	 		$ Descriptor
+		0xC1, 1,		$ Data Type, Data Size
+		"Status #2",
+		"",
+		"Status of Input channel.  This bit is the OR of all possible channel Faults.",
+		0,1,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param5 = 0,			$ Status 3
+		6,"20 0A 24 04 30 04",	$ Link Path Size, Link Path
+		0x0032,	 		$ Descriptor
+		0xC1, 1,		$ Data Type, Data Size
+		"Status #3",
+		"",
+		"Status of Input channel.  This bit is the OR of all possible channel Faults.",
+		0,1,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;	
+
+	Param6 =	        	$ Input range selection
+		0,			$ reserved
+		6,			$ Link Path Size
+		"20 0A 24 01 30 64",	$ Link Path to input AMP range selection attribute.
+		0x0002,			$ No support for settable path, scaling, scaling links, enumerated
+					$ strings, or real time update of value.  Value is Get/Set.
+		0xC6,		        $ Data Type - Unsigned 8-bit integer
+		1,			$ Data Size
+		"AMP Range Selection #0",	$ Parameter Name
+		"",			$ Units String
+			$$$$$$$$$$ Help string $$$$$$$$$$$
+		"This parameter permits selection of the input current range in the block. The default is 4mA to 20mA.",
+		0,1,0,			$ Min, Max, and Default values
+		1,1,1,0,0,0,0,0,0;	$ Not Used
+
+	Param7 =			$ Input range selection
+		0,			$ reserved
+		6,			$ Link Path Size
+		"20 0A 24 02 30 64",	$ Link Path to input AMP range selection attribute.
+		0x0002,			$ No support for settable path, scaling, scaling links, enumerated
+					$ strings, or real time update of value.  Value is Get/Set.
+		0xC6,			$ Data Type - Unsigned 8-bit integer
+		1,			$ Data Size
+		"AMP Range Selection #1",	$ Parameter Name
+		"",			$ Units String
+			$$$$$$$$$$ Help string $$$$$$$$$$$
+		"This parameter permits selection of the input current range in the block. The default is 4mA to 20mA.",
+		0,1,0,			$ Min, Max, and Default values
+		1,1,1,0,0,0,0,0,0;	$ Not Used
+
+	Param8 =			$ Input range selection
+		0,			$ reserved
+		6,			$ Link Path Size
+		"20 0A 24 03 30 64",	$ Link Path to input AMP range selection attribute.
+		0x0002,			$ No support for settable path, scaling, scaling links, enumerated
+					$ strings, or real time update of value.  Value is Get/Set.
+		0xC6,			$ Data Type - Unsigned 8-bit integer
+		1,			$ Data Size
+		"AMP Range Selection #2",	$ Parameter Name
+		"",			$ Units String
+			$$$$$$$$$$ Help string $$$$$$$$$$$
+		"This parameter permits selection of the input current range in the block. The default is 4mA to 20mA.",
+		0,1,0,			$ Min, Max, and Default values
+		1,1,1,0,0,0,0,0,0;	$ Not Used
+
+	Param9 =			$ Input range selection
+		0,			$ reserved
+		6,			$ Link Path Size
+		"20 0A 24 04 30 64",	$ Link Path to input AMP range selection attribute.
+		0x0002,			$ No support for settable path, scaling, scaling links, enumerated
+					$ strings, or real time update of value.  Value is Get/Set.
+		0xC6,			$ Data Type - Unsigned 8-bit integer
+		1,			$ Data Size
+		"AMP Range Selection #3",	$ Parameter Name
+		"",			$ Units String
+			$$$$$$$$$$ Help string $$$$$$$$$$$
+		"This parameter permits selection of the input current range in the block. The default is 4mA to 20mA.",
+		0,1,0,			$ Min, Max, and Default values
+		1,1,1,0,0,0,0,0,0;	$ Not Used
+
+	Param10 = 0,			$ Raw Input 0
+		6,"20 0A 24 01 30 03",	$ Link Path Size, Link Path
+		0x0030,	 		$ Descriptor
+		0xC7, 2,		$ Data Type, Data Size
+		"Input Value #0",
+		"counts",
+		"Raw value of analog Input point in counts.",
+		0,4095,0,		$ Min, Max, Default
+		1,1,1,0,		$ Scaling
+		0,0,0,0,		$ Links
+		0;			$ Precision
+
+	Param11 = 0,			$ Raw Input 1
+		6,"20 0A 24 02 30 03",	$ Link Path Size, Link Path
+		0x0030,	 		$ Descriptor
+		0xC7, 2,		$ Data Type, Data Size
+		"Input Value #1",
+		"counts",
+		"Raw value of analog Input point in counts.",
+		0,4095,0,		$ Min, Max, Default
+		1,1,1,0,		$ Scaling
+		0,0,0,0,		$ Links
+		0;			$ Precision
+
+	Param12 = 0,			$ Raw Input 2
+		6,"20 0A 24 03 30 03",	$ Link Path Size, Link Path
+		0x0030,	 		$ Descriptor
+		0xC7, 2,		$ Data Type, Data Size
+		"Input Value #2",
+		"counts",
+		"Raw value of analog Input point in counts.",
+		0,4095,0,		$ Min, Max, Default
+		1,1,1,0,		$ Scaling
+		0,0,0,0,		$ Links
+		0;			$ Precision
+
+	Param13 = 0,			$ Raw Input 3
+		6,"20 0A 24 04 30 03",	$ Link Path Size, Link Path
+		0x0030,	 		$ Descriptor
+		0xC7, 2,		$ Data Type, Data Size
+		"Input Value #3",
+		"counts",
+		"Raw value of analog Input point in counts.",
+		0,4095,0,		$ Min, Max, Default
+		1,1,1,0,		$ Scaling
+		0,0,0,0,		$ Links
+		0;			$ Precision
+
+[EnumPar]
+	Param1=
+		"Enabled","Disabled";
+	Param2 =
+ 		"Normal Operation",
+		"FAULT";
+	Param3 =
+ 		"Normal Operation",
+		"FAULT";
+	Param4 =
+ 		"Normal Operation",
+		"FAULT";
+	Param5 =
+ 		"Normal Operation",
+		"FAULT";
+	Param6=
+		"4mA to 20mA","0mA to 20mA";	$ Input range selections.
+	Param7=
+		"4mA to 20mA","0mA to 20mA";	$ Input range selections.
+	Param8=
+		"4mA to 20mA","0mA to 20mA";	$ Input range selections.
+	Param9=
+		"4mA to 20mA","0mA to 20mA";	$ Input range selections.
+
+[Assembly]
+	Assem1 = "Input Data Size",,,,,,80,,,ProxyAssem1;
+
+	ProxyAssem1	= "Expansion Module Input Data",,,0b110,,,ModuleMemberList;
+	ProxyAssem2	= "Expansion Module Output Data",,,0b110,,,ModuleMemberList;

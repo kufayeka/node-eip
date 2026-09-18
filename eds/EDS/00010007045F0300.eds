@@ -1,0 +1,190 @@
+$      Revision 3.xx supports 1791D-N4CV2X Analog Conbination Module
+
+[File]
+    DescText    = "1791D-4B0 EDS.";
+    CreateDate  = 04-18-2003;
+    CreateTime  = 18:14:35;
+    ModDate     = 01-31-2009;
+    ModTime     = 13:25:00;
+    Revision    = 3.021;
+
+    HomeURL     = "http://www.ab.com/networks/eds/DN/00010007045F0300.eds";
+
+[Device]
+    VendCode    = 0x01;                 $ Vendor Code
+    VendName    = "Rockwell Automation - Allen-Bradley";
+    ProdType    = 0x07;                 $ Product Type
+    ProdTypeStr = "General Purpose Discrete I/O";
+    ProdCode    = 1119;                 $ Product Code
+    MajRev      = 0x03;                 $ Major Rev
+    MinRev      = 0x02;                 $ Minor Rev
+    ProdName    = "1791D-4B0 4 Sink Input";
+    Catalog     = "1791D-4B0";
+    Icon        = "CompactBlk.ico";
+
+   DNetQC       = 0b0000000000000001, 200;  $ Quick Connect supported at power up. 200ms powerup time
+
+[Device Classification]
+Class1 = DeviceNet;
+
+[IO_Info]
+1_COSetPathNotSupported = 1;   $Paths not settable.
+1_COSetSizeNotSupported = 1;   $Paths not settable.
+
+    Default     = 0x04;     $ Default I/OConnection is COS
+
+    PollInfo    = 0x0D,     $ Cyclic and COS can be combined with
+                  1,        $ Default Input  = Input1
+                  0;        $ Default Output = Output1
+
+    COSInfo     = 0x05,     $ Cyclic and POLL can be combined with
+                  1,        $ Default Input  = Input1
+                  0;        $ Default Output = Output1
+
+    CyclicInfo  = 0x09,     $ COS and POLL can be combined with
+                  1,        $ Default Input  = Input1
+
+                  0;        $ Default Output = Output1
+
+    Input1      = 1,        $ 1 byte
+                  0,        $ All bits significant
+                  0x0D,     $ Cyclic, COS and POLL use this data
+                  "4B0 Production Data",
+                  7,"21 04 00 24 07 30 03",
+                  "No Help";
+
+    
+
+[ParamClass]
+    MaxInst     = 0x41;    $  parameters.
+    Descriptor  = 0x09;    $ Params support Parameter Instances and are stored in Non-Volatile strage.
+    CfgAssembly = 0x0;     $ The config assembly is instance #169 of assy obj.
+    1_CfgAssembly = 0xA9;  $ Config assembly.
+
+[Params]
+    Param1  =                           $ Disable Autobaud
+            0,                          $ reserved
+            7,                          $ Link Path Size
+            "21 0F 00 24 01 30 01",     $ Link Path to disable autobaud attribute.
+            0x0002,                     $ No support for settable path, scaling, scaling links, or
+                                        $ real time update of value.  Value is gettable and 
+                                        $ Settable.  Enumerated strings are supported.
+            0xC1,                       $ Data Type - boolean
+            1,                          $ Data Size
+            "Autobaud",                 $ Parameter Name
+            "",                         $ Units String
+            "If Enabled, the module adjusts to the current network baud rate. If Disabled, the baud rate can be set to a fixed value. When Disabling, no power cycle is\nrequired. When Enabling, change takes effect after the next power up.",
+            0,1,0,                      $ Min, Max, and Default values
+            1,1,1,0,0,0,0,0,0;          $ Not Used
+
+    Param2  =                           $ Input filter Off_to_On Delay selection
+            0,                          $ reserved
+            7,                          $ Link Path Size
+            "21 0F 00 24 02 30 01",     $ Link Path to disable autobaud attribute.
+            0x0002,                     $ No support for settable path, scaling, scaling links,
+                                        $ or real time update of value.  Value is gettable and
+                                        $ Settable.  Enumerated strings are supported.
+            0xC6,                       $ Data Type - unsigned short int
+            1,                          $ Data Size - (in bytes)
+            "Off-to-On Delay",          $ Parameter Name
+            "ms",                       $ Units String
+            "The signal must be present on the input for this delay period before the module detects a change in the input state.",
+            0,4,1,                      $ Min, Max, and Default values
+            1,1,1,0,0,0,0,0,0;          $ Not Used
+
+    Param3  =                           $ Input filter On_to_Off Delay selection
+            0,                          $ reserved
+            7,                          $ Link Path Size
+            "21 0F 00 24 03 30 01",     $ Link Path to disable autobaud attribute.
+            0x0002,                     $ No support for settable path, scaling, scaling links,
+                                        $ or real time update of value.  Value is gettable and
+                                        $ Settable.  Enumerated strings are supported.
+            0xC6,                       $ Data Type - unsigned short int
+            1,                          $ Data Size - (in bytes)
+            "On-to-Off Delay",          $ Parameter Name
+            "ms",                       $ Units String
+            "The signal must be absent from the input for this delay period before the module detects a change in the input state.",
+            0,4,1,                      $ Min, Max, and Default values
+            1,1,1,0,0,0,0,0,0;          $ Not Used
+
+    Param4 =                            $ Input Values
+            0,                          $ reserved
+            7,                          $ Link Path Size
+            "21 0F 00 24 04 30 01",     $ Link Path to Input Values attribute.
+            0x0030,                     $ No support for settable path, scaling, or scaling links.
+                                        $ Value is gettable only. Enumerated strings are not
+                                        $ supported.
+            0xD1,                       $ Data Type - 8 bit string
+            1,                          $ Data Size - (in bytes)
+            "Input Values",             $ Parameter Name
+            "",                         $ Units String
+            "This parameter is the current value of all Inputs, either ON (1) or OFF (0).",
+            0,0xF,0,                    $ Min, Max, and Default values
+            1,1,1,0,0,0,0,0,0;          $ Not Used
+
+    Param5 =                            $ Produced I/O assembly selection
+            0,                          $ reserved
+            7,                          $ Link Path Size
+            "21 0F 00 24 0A 30 01",     $ Link Path to param instance.  
+            0x0002,                     $ No support for settable path, scaling, scaling links,
+                                        $ or real time update of value.  Value is gettable and
+                                        $ Settable.  Enumerated strings are supported.
+            0xC6,                       $ Data Type - unsigned short int
+            1,                          $ Data Size - (in bytes)
+            "Produced I/O Assembly",    $ Parameter Name
+            "",                         $ Units String
+            "For this module the produced assemblies are the same",
+            0,1,0,                      $ Min, Max (max enumeration #), and Default values
+            1,1,1,0,0,0,0,0,0;          $ Not Used
+
+   Param65 =          $ Enable Quick Connect
+        0,             $ reserved
+        7,             $ Link Path Size
+        "21 03 00 24 01 30 66",    $ Link Path .
+    0x0002,			
+        0xC1,          $ Data Type - boolean
+        1,             $ Data Size
+        "Quick Connect", $ Parameter Name
+        "",    "",
+        0,1,0,,,,,,,,,,,,;
+   Enum65 =        0,"Disabled",1,"Enabled";
+
+[Groups]
+    Group1  = "Monitor",                            1,4;
+    Group2  = "Input Configuration",                2,2,3;
+
+[EnumPar]
+    Param1  = "Enabled","Disabled";
+    Param2  = "0 ms","2 ms","4 ms","8 ms","16 ms";
+    Param3  = "0 ms","2 ms","4 ms","8 ms","16 ms";
+    Param5  = "Input data ONLY","Input data ONLY";
+
+
+$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+
+
+[Assembly]
+Revision = 1;
+
+$ INPUT ASSEMBLIES
+
+Assem7 =                       $ Default Assembly
+    "Input Data only",         $ Name of Connection.
+    "21 04 00 24 07 30 03",    $ Path to Assembly.
+    1,                         $ The size in bytes.
+    0, , ,                     $ Not editable, not modular.
+    4, Param4,                 $ 4 input values (byte 0)
+    4,;
+
+Assem169 =                 $0xA9
+    "Configuration Data",  $ Name of Connection.
+     , 					   $ Path to Assembly.
+    4,                     $ The size in bytes.
+    0, , ,                 $ Not editable, not modular.
+    1,Param1,              $ Autobaud                  
+    1,Param65,             $ Quick Connect             
+    6, ,                   $ pad bits              
+    8,Param2,              $ Off to On Input filter    
+    8,Param3,              $ On to Off Input filter    
+    4,Param5,              $ Input assembly select         
+    4,;                    $ Output assembly select                

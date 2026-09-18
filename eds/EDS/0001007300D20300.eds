@@ -1,0 +1,3457 @@
+$ Electronic Data Sheet for Point I/O  (1734-IE8C/C)
+$ Copyright 2008 by Rockwell Automation
+$ Universal version for: DeviceNet, ControlNet, and EthernetIP
+$ Note: This version was originally done with EzEDS - now hand edit
+$       Therefore, limited comments
+
+$ Revision History
+$ Revision	Date		Change
+$	1.2	26Jul2002	Neal's release to RSI for Series C
+$	2.1	14Aug2002	Begin changes to make CIP version
+$				Added 1_RSNetWorx_DNetTool and 1_RSNetWorx_NoAutoEnter to [Device]
+$				Added [Device Classification]
+$				Changed all Param data types to the new numbers
+$				Chaned to inline Enums and deleted [ENUM PAR]
+$				Added ProxiedAssems 2-4 (and modified)
+$				Added ProxiedParam 1-3 (and modified)
+$				Added [Connection Manager] section (picked correct connection #'s)
+$				Added [Port] and [Modular] Section (Hid ExtrnID - only for Rack)
+$	2.2	15Aug2002	Added ExcludeFromAdapterRackConnection keyword (PDT)
+$				Changed ProxyConnects to Connects and filled in
+$				Added Assem125,126,127
+$				Added Param101,102,103,104
+$	2.3	30Sep2002	Returned [Groups] section (RSNetworx is fixed)
+$	2.4	29Jan2003	Fix up for RSNetworx4.11 - 'Display Only' Logix connections
+$	2.5	30Jan2003	Removed Header in Assem126/127 and Param103/104
+$	3.1	23Dec2003	PLC/SLC support for CNet and ENet.  Changes to
+$				Assem125,126,127, Connections
+$	3.2	11Jan2003	Updated Device Revision to 3.3
+$	4.1	30Nov2004	Added Assem124 - Changed CNXNs for 3rd Party
+$	5.1	25Jan2006	Update to new DeviceNet Premier Integration EDS Guidelines
+$				Removed Assem124 from Listen Only Connection
+$	5.2	03Nov2009	Deleted Assem104
+
+$ NOTE: may be able to play with ENUMs so (invalid) does not show up
+
+[File]
+	DescText   = "PointIO 1734-IE8C/C";
+	CreateDate = 03-28-2007;
+	CreateTime = 15:00:00;
+	ModDate    = 11-03-2009;
+	ModTime    = 19:00:00;
+	Revision   = 5.2;
+	HomeURL    = "http://www.ab.com/networks/eds/DN/0001007300d20301.eds";
+
+[Device]
+	VendCode    = 1;
+	VendName    = "Rockwell Automation/Allen-Bradley";
+	ProdType    = 115;
+	ProdTypeStr = "Rockwell Automation Miscellaneous";
+	ProdCode    = 210;
+	MajRev      = 3;
+	MinRev      = 1;
+	ProdName    = "PointIO 8pt Analog Current Input";
+	Catalog     = "1734-IE8C/C";
+	Icon        = "1734brown.ico";
+	1_RSNetWorx_DNetTool = "RSI.DeviceNet.EDSApplet";
+	1_RSNetWorx_NoAutoEnter = "Yes";
+	ExcludeFromAdapterRackConnection = Yes;
+
+[Device Classification]
+     Class1 =      DeviceNet;
+
+[Params]
+	Param1 = 0,
+		6,"20 20 24 01 30 6E",	$ Link Path Size, Link Path
+		0x0000,	 $ Descriptor
+		0xC7, 2,	$ Data Type, Data Size
+		"Update Rate",
+		"ms",
+		"The Update Rate is used to assign the rate at which the inputs are sampled.\nValid values are from 0 to 10,000 ms.\n\nThe Notch Filter parameter is used to select the fastest rate possible.\nThe Update Rate will add delay to meet system needs.",
+		0,10000,67,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param2 = 0,
+		6,"20 20 24 01 30 6D",	$ Link Path Size, Link Path
+		0x0002,	 $ Descriptor
+		0xC6, 1,	$ Data Type, Data Size
+		"Notch Filter",
+		"",
+		"Select notch filter for both inputs.\n\nValid settings:\n - 50 Hz   (120 ms update rate)\n - 60 Hz   (100 ms)\n - 250 Hz  (24 ms)\n - 500 Hz  (12 ms)\n\nThe update rate changes for each filter setting.\nThe rate shown is the fastest time to update both channels.\nThe trade-off must be made between noise rejection and speed.",
+		0,8,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Enum2 =	0,"60 Hz",
+		1,"50 Hz",
+		2,"100 Hz",
+		3,"120 Hz",
+		4,"200 Hz",
+		5,"240 Hz",
+		6,"300 Hz",
+		7,"400 Hz",
+		8,"480 Hz";			
+
+	Param3 = 0,
+		6,"20 0A 24 01 30 03",	$ Link Path Size, Link Path
+		0x0030,	 $ Descriptor
+		0xC3, 2,	$ Data Type, Data Size
+		"Input Value #0",
+		"",
+		"Value of analog input point scaled to chosen units.",
+		-32768,32767,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param4 = 0,
+		6,"20 0A 24 02 30 03",	$ Link Path Size, Link Path
+		0x0030,	 $ Descriptor
+		0xC3, 2,	$ Data Type, Data Size
+		"Input Value #1",
+		"",
+		"Value of analog input point scaled to chosen units.",
+		-32768,32767,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param5 = 0,
+		6,"20 0A 24 01 30 04",	$ Link Path Size, Link Path
+		0x0032,	 $ Descriptor
+		0xC1, 1,	$ Data Type, Data Size
+		"Status #0",
+		"",
+		"Status of input channel.  This bit is the OR of all channel faults.\n\nPossible faults:\n - High & Low level alarms\n - Range Alarms\n - Open wire\n - No Field Power\n",
+		0,1,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Enum5 =	0,"Normal Operation", 1,"FAULT";
+
+	Param6 = 0,
+		6,"20 0A 24 02 30 04",	$ Link Path Size, Link Path
+		0x0032,	 $ Descriptor
+		0xC1, 1,	$ Data Type, Data Size
+		"Status #1",
+		"",
+		"Status of input channel.  This bit is the OR of all channel faults.\n\nPossible faults:\n - High & Low level alarms\n - Range Alarms\n - Open wire\n - No Field Power\n",
+		0,1,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Enum6 =	0,"Normal Operation", 1,"FAULT";
+
+	Param7 = 0,
+		6,"20 0A 24 01 30 07",	$ Link Path Size, Link Path
+		0x0002,	 $ Descriptor
+		0xC6, 1,	$ Data Type, Data Size
+		"Input Range #0",
+		"",
+		"Defines type and range of input signal.\n\nValid Selections:\n - 4 to 20 ma\n - 0 to 20 ma\n\nThe Range specifies the scaling endpoints.",
+		0,8,3,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Enum7 =	3,"4mA to 20mA",
+		8,"0mA to 20mA";
+
+	Param8 = 0,
+		6,"20 0A 24 02 30 07",	$ Link Path Size, Link Path
+		0x0002,	 $ Descriptor
+		0xC6, 1,	$ Data Type, Data Size
+		"Input Range #1",
+		"",
+		"Defines type and range of input signal.\n\nValid Selections:\n - 4 to 20 ma\n - 0 to 20 ma\n\nThe Range specifies the scaling endpoints.",
+		0,8,3,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Enum8 =	3,"4mA to 20mA",
+		8,"0mA to 20mA";
+
+	Param9 = 0,
+		6,"20 0A 24 01 30 08",	$ Link Path Size, Link Path
+		0x0012,	 $ Descriptor
+		0xC6, 1,	$ Data Type, Data Size
+		"Value Data Type #0",
+		"",
+		"This parameter defines the type of data (or number) the module will return for the Value.\nIt is not settable and will always return 'Signed Integer.'",
+		0,2,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Enum9 =	0,"Signed Integer",
+			1,"Real",
+			2,"Unsigned Integer";
+
+	Param10 = 0,
+		6,"20 0A 24 02 30 08",	$ Link Path Size, Link Path
+		0x0012,	 $ Descriptor
+		0xC6, 1,	$ Data Type, Data Size
+		"Value Data Type #1",
+		"",
+		"This parameter defines the type of data (or number) the module will return for the Value.\nIt is not settable and will always return 'Signed Integer.'",
+		0,2,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Enum10 =	0,"Signed Integer",
+			1,"Real",
+			2,"Unsigned Integer";
+
+	Param11 = 0,
+		6,"20 0A 24 01 30 65",	$ Link Path Size, Link Path
+		0x0000,	 $ Descriptor
+		0xC3, 2,	$ Data Type, Data Size
+		"Low Scaling #0",
+		"",
+		"Value returned when input is 0 mA or 4 mA (depending on range selected).\nAlso known as Low Scaling value or Low Engineering units.",
+		-32768,32767,3277,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param12 = 0,
+		6,"20 0A 24 02 30 65",	$ Link Path Size, Link Path
+		0x0000,	 $ Descriptor
+		0xC3, 2,	$ Data Type, Data Size
+		"Low Scaling #1",
+		"",
+		"Value returned when input is 0 mA or 4 mA (depending on range selected).\nAlso known as Low Scaling value or Low Engineering units.",
+		-32768,32767,3277,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param13 = 0,
+		6,"20 0A 24 01 30 67",	$ Link Path Size, Link Path
+		0x0000,	 $ Descriptor
+		0xC3, 2,	$ Data Type, Data Size
+		"High Scaling #0",
+		"",
+		"Value returned when input is 20 mA.\nAlso known as High Scaling value or High Engineering units.",
+		-32768,32767,16383,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param14 = 0,
+		6,"20 0A 24 02 30 67",	$ Link Path Size, Link Path
+		0x0000,	 $ Descriptor
+		0xC3, 2,	$ Data Type, Data Size
+		"High Scaling #1",
+		"",
+		"Value returned when input is 20 mA.\nAlso known as High Scaling value or High Engineering units.",
+		-32768,32767,16383,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param15 = 0,
+		6,"20 0A 24 01 30 68",	$ Link Path Size, Link Path
+		0x0002,	 $ Descriptor
+		0xC1, 1,	$ Data Type, Data Size
+		"Enable Alarm Latch #0",
+		"",
+		"Alarms will latch FAULTED until a 'Latch Reset' command is received\n\nAlarms effected:\n - Input Status (Open wire and no field power)\n - Low & High level Alarms\n - Range Alarms\n\nThis is useful in tracking transient or momentary errors.",
+		0,1,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Enum15 =	0,"Disable", 1,"Enable Latching Alarms";
+
+	Param16 = 0,
+		6,"20 0A 24 02 30 68",	$ Link Path Size, Link Path
+		0x0002,	 $ Descriptor
+		0xC1, 1,	$ Data Type, Data Size
+		"Enable Alarm Latch #1",
+		"",
+		"Alarms will latch FAULTED until a 'Latch Reset' command is received\n\nAlarms effected:\n - Input Status (Open wire and no field power)\n - Low & High level Alarms\n - Range Alarms\n\nThis is useful in tracking transient or momentary errors.",
+		0,1,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Enum16 =	0,"Disable", 1,"Enable Latching Alarms";
+
+	Param17 = 0,
+		6,"20 0A 24 01 30 69",	$ Link Path Size, Link Path
+		0x0002,	 $ Descriptor
+		0xC1, 1,	$ Data Type, Data Size
+		"Disable Alarms #0",
+		"",
+		"If Alarms are Disabled, all alarms for this channel will show No FAULT.\nThis is useful for un-used channels.",
+		0,1,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Enum17 =	0,"Alarms Enabled", 1,"Alarms Disabled";
+
+	Param18 = 0,
+		6,"20 0A 24 02 30 69",	$ Link Path Size, Link Path
+		0x0002,	 $ Descriptor
+		0xC1, 1,	$ Data Type, Data Size
+		"Disable Alarms #1",
+		"",
+		"If Alarms are Disabled, all alarms for this channel will show No FAULT.\nThis is useful for un-used channels.",
+		0,1,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Enum18 =	0,"Alarms Enabled", 1,"Alarms Disabled";
+
+	Param19 = 0,
+		6,"20 0A 24 01 30 6B",	$ Link Path Size, Link Path
+		0x0032,	 $ Descriptor
+		0xC1, 1,	$ Data Type, Data Size
+		"Low Alarm Status #0",
+		"",
+		"Indicates channel Value is less than Low Alarm value.\n - 'No Fault' = channel Value above Low Alarm Value\n - 'Low Alarm FAULT' = channel value below Low Alarm Value",
+		0,1,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Enum19 =	0,"No Fault", 1,"Low Alarm FAULT";
+
+	Param20 = 0,
+		6,"20 0A 24 02 30 6B",	$ Link Path Size, Link Path
+		0x0032,	 $ Descriptor
+		0xC1, 1,	$ Data Type, Data Size
+		"Low Alarm Status #1",
+		"",
+		"Indicates channel Value is less than Low Alarm value.\n - 'No Fault' = channel Value above Low Alarm Value\n - 'Low Alarm FAULT' = channel value below Low Alarm Value",
+		0,1,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Enum20 =	0,"No Fault", 1,"Low Alarm FAULT";
+
+	Param21 = 0,
+		6,"20 0A 24 01 30 6C",	$ Link Path Size, Link Path
+		0x0032,	 $ Descriptor
+		0xC1, 1,	$ Data Type, Data Size
+		"High Alarm Status #0",
+		"",
+		"Indicates channel Value is greater than High Alarm value.\n - 'No Fault' = channel Value below High Alarm Value\n - 'High Alarm FAULT' = channel value above High Alarm Value",
+		0,1,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Enum21 =	0,"No Fault", 1,"High Alarm FAULT";
+
+	Param22 = 0,
+		6,"20 0A 24 02 30 6C",	$ Link Path Size, Link Path
+		0x0032,	 $ Descriptor
+		0xC1, 1,	$ Data Type, Data Size
+		"High Alarm Status #1",
+		"",
+		"Indicates channel Value is greater than High Alarm value.\n - 'No Fault' = channel Value below High Alarm Value\n - 'High Alarm FAULT' = channel value above High Alarm Value",
+		0,1,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Enum22 =	0,"No Fault", 1,"High Alarm FAULT";
+
+	Param23 = 0,
+		6,"20 0A 24 01 30 6D",	$ Link Path Size, Link Path
+		0x0032,	 $ Descriptor
+		0xC1, 1,	$ Data Type, Data Size
+		"Low Low Alarm Status #0",
+		"",
+		"Indicates channel Value is less than Low Low Alarm value.\n - 'No Fault' = channel Value above Low Low Alarm Value\n - 'Low Low Alarm FAULT' = channel value below Low Low Alarm Value",
+		0,1,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Enum23 =	0,"No Fault", 1,"Low Low Alarm FAULT";
+
+	Param24 = 0,
+		6,"20 0A 24 02 30 6D",	$ Link Path Size, Link Path
+		0x0032,	 $ Descriptor
+		0xC1, 1,	$ Data Type, Data Size
+		"Low Low Alarm Status #1",
+		"",
+		"Indicates channel Value is less than Low Low Alarm value.\n - 'No Fault' = channel Value above Low Low Alarm Value\n - 'Low Low Alarm FAULT' = channel value below Low Low Alarm Value",
+		0,1,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Enum24 =	0,"No Fault", 1,"Low Low Alarm FAULT";
+
+	Param25 = 0,
+		6,"20 0A 24 01 30 6E",	$ Link Path Size, Link Path
+		0x0032,	 $ Descriptor
+		0xC1, 1,	$ Data Type, Data Size
+		"High High Alarm Status #0",
+		"",
+		"Indicates channel Value is greater than High High Alarm value.\n - 'No Fault' = channel Value below High High Alarm Value\n - 'High High Alarm FAULT' = channel value above High High Alarm Value",
+		0,1,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Enum25 =	0,"No Fault", 1,"High High Alarm FAULT";
+
+	Param26 = 0,
+		6,"20 0A 24 02 30 6E",	$ Link Path Size, Link Path
+		0x0032,	 $ Descriptor
+		0xC1, 1,	$ Data Type, Data Size
+		"High High Alarm Status #1",
+		"",
+		"Indicates channel Value is greater than High High Alarm value.\n - 'No Fault' = channel Value below High High Alarm Value\n - 'High High Alarm FAULT' = channel value above High High Alarm Value",
+		0,1,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Enum26 =	0,"No Fault", 1,"High High Alarm FAULT";
+
+	Param27 = 0,
+		6,"20 0A 24 01 30 74",	$ Link Path Size, Link Path
+		0x0000,	 $ Descriptor
+		0xC7, 2,	$ Data Type, Data Size
+		"Digital Filter #0",
+		"ms",
+		"Filter time constant in milliseconds.  See manual for equation.\nTo disable, enter 0 ms.",
+		0,10000,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param28 = 0,
+		6,"20 0A 24 02 30 74",	$ Link Path Size, Link Path
+		0x0000,	 $ Descriptor
+		0xC7, 2,	$ Data Type, Data Size
+		"Digital Filter #1",
+		"ms",
+		"Filter time constant in milliseconds.  See manual for equation.\nTo disable, enter 0 ms.",
+		0,10000,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param29 = 0,
+		6,"20 0A 24 01 30 75",	$ Link Path Size, Link Path
+		0x0000,	 $ Descriptor
+		0xC3, 2,	$ Data Type, Data Size
+		"Low Alarm #0",
+		"",
+		"Low Alarm Threshold.\nIf input value drops below this value, Low Alarm Status will Fault.\nDefault = 3113 or 3.8 mA.\nTo disable, set at -32768.",
+		-32768,32767,3113,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param30 = 0,
+		6,"20 0A 24 02 30 75",	$ Link Path Size, Link Path
+		0x0000,	 $ Descriptor
+		0xC3, 2,	$ Data Type, Data Size
+		"Low Alarm #1",
+		"",
+		"Low Alarm Threshold.\nIf input value drops below this value, Low Alarm Status will Fault.\nDefault = 3113 or 3.8 mA.\nTo disable, set at -32768.",
+		-32768,32767,3113,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param31 = 0,
+		6,"20 0A 24 01 30 76",	$ Link Path Size, Link Path
+		0x0000,	 $ Descriptor
+		0xC3, 2,	$ Data Type, Data Size
+		"High Alarm #0",
+		"",
+		"High Alarm Threshold.\nIf input value climbs above this value, High Alarm Status will Fault.\nDefault = 16547 or 20.2 mA.\nTo disable, set at 32767.",
+		-32768,32767,16547,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param32 = 0,
+		6,"20 0A 24 02 30 76",	$ Link Path Size, Link Path
+		0x0000,	 $ Descriptor
+		0xC3, 2,	$ Data Type, Data Size
+		"High Alarm #1",
+		"",
+		"High Alarm Threshold.\nIf input value climbs above this value, High Alarm Status will Fault.\nDefault = 16547 or 20.2 mA.\nTo disable, set at 32767.",
+		-32768,32767,16547,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param33 = 0,
+		6,"20 0A 24 01 30 77",	$ Link Path Size, Link Path
+		0x0000,	 $ Descriptor
+		0xC3, 2,	$ Data Type, Data Size
+		"Low Low Alarm #0",
+		"",
+		"Low Low Alarm Threshold.\nIf input value drops below this value, Low Low Alarm Status will Fault.\nDefault = 2867 or 3.5 mA.\nTo disable, set at -32768.",
+		-32768,32767,2867,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param34 = 0,
+		6,"20 0A 24 02 30 77",	$ Link Path Size, Link Path
+		0x0000,	 $ Descriptor
+		0xC3, 2,	$ Data Type, Data Size
+		"Low Low Alarm #1",
+		"",
+		"Low Low Alarm Threshold.\nIf input value drops below this value, Low Low Alarm Status will Fault.\nDefault = 2867 or 3.5 mA.\nTo disable, set at -32768.",
+		-32768,32767,2867,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param35 = 0,
+		6,"20 0A 24 01 30 78",	$ Link Path Size, Link Path
+		0x0000,	 $ Descriptor
+		0xC3, 2,	$ Data Type, Data Size
+		"High High Alarm #0",
+		"",
+		"High High Alarm Threshold.\nIf input value climbs above this value, High High Alarm Status will Fault.\nDefault = 16793 or 20.5 mA.\nTo disable, set at 32767.",
+		-32768,32767,16793,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param36 = 0,
+		6,"20 0A 24 02 30 78",	$ Link Path Size, Link Path
+		0x0000,	 $ Descriptor
+		0xC3, 2,	$ Data Type, Data Size
+		"High High Alarm #1",
+		"",
+		"High High Alarm Threshold.\nIf input value climbs above this value, High High Alarm Status will Fault.\nDefault = 16793 or 20.5 mA.\nTo disable, set at 32767.",
+		-32768,32767,16793,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param37 = 0,
+		6,"20 0A 24 01 30 80",	$ Link Path Size, Link Path
+		0x0032,	 $ Descriptor
+		0xC1, 1,	$ Data Type, Data Size
+		"Under Range Alarm Status #0",
+		"",
+		"Indicates channel Value is less than Under Range Alarm value (about 50 uA).\n - 'No Fault' = channel Value is above Under Range Alarm value\n - 'Under Range Alarm FAULT' = channel Value is below Under Range Alarm value",
+		0,1,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Enum37 =	0,"No fault", 1,"Under Range FAULT";
+
+	Param38 = 0,
+		6,"20 0A 24 02 30 80",	$ Link Path Size, Link Path
+		0x0032,	 $ Descriptor
+		0xC1, 1,	$ Data Type, Data Size
+		"Under Range Alarm Status #1",
+		"",
+		"Indicates channel Value is less than Under Range Alarm value (about 50 uA).\n - 'No Fault' = channel Value is above Under Range Alarm value\n - 'Under Range Alarm FAULT' = channel Value is below Under Range Alarm value",
+		0,1,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Enum38 =	0,"No fault", 1,"Under Range FAULT";
+
+	Param39 = 0,
+		6,"20 0A 24 01 30 81",	$ Link Path Size, Link Path
+		0x0032,	 $ Descriptor
+		0xC1, 1,	$ Data Type, Data Size
+		"Over Range Alarm Status #0",
+		"",
+		"Indicates channel Value is greater than Over Range Alarm value (A/D is at maximum).\n - 'No Fault' = channel Value is above Over Range Alarm value\n - 'Over Range Alarm FAULT' = channel Value is above Over Range Alarm value",
+		0,1,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Enum39 =	0,"No fault", 1,"Over Range FAULT";
+
+	Param40 = 0,
+		6,"20 0A 24 02 30 81",	$ Link Path Size, Link Path
+		0x0032,	 $ Descriptor
+		0xC1, 1,	$ Data Type, Data Size
+		"Over Range Alarm Status #1",
+		"",
+		"Indicates channel Value is greater than Over Range Alarm value (A/D is at maximum).\n - 'No Fault' = channel Value is above Over Range Alarm value\n - 'Over Range Alarm FAULT' = channel Value is above Over Range Alarm value",
+		0,1,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Enum40 =	0,"No fault", 1,"Over Range FAULT";
+
+	Param41 = 0,
+		6,"20 0A 24 01 30 83",	$ Link Path Size, Link Path
+		0x0032,	 $ Descriptor
+		0xC1, 1,	$ Data Type, Data Size
+		"Bad Cal Status #0",
+		"",
+		"This bit shows the current status of calibration for this channel.\n'Good Calibration' means the data stored in EEPROM is within tollerances.\n'Calibration Fault' means the module is not calibrated and is using default values.\n\nNote:  While in Calibration Mode, the status will be 'Bad Calibration.'",
+		0,1,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Enum41 =	0,"Good Calibration", 1,"Calibration FAULT";
+
+	Param42 = 0,
+		6,"20 0A 24 02 30 83",	$ Link Path Size, Link Path
+		0x0032,	 $ Descriptor
+		0xC1, 1,	$ Data Type, Data Size
+		"Bad Cal Status #1",
+		"",
+		"This bit shows the current status of calibration for this channel.\n'Good Calibration' means the data stored in EEPROM is within tollerances.\n'Calibration Fault' means the module is not calibrated and is using default values.\n\nNote:  While in Calibration Mode, the status will be 'Bad Calibration.'",
+		0,1,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Enum42 =	0,"Good Calibration", 1,"Calibration FAULT";
+
+	Param43 = 0,
+		6,"20 03 24 01 30 64",	$ Link Path Size, Link Path
+		0x0002,	 $ Descriptor
+		0xC1, 1,	$ Data Type, Data Size
+		"Autobaud",
+		"",
+		"Autobaud allows module to match the baud rate of existing devices on a network.\n\nChanges to this attribute take effect after next powerup.\nIf 'enabled', the Baud Rate Attribute can not be set.",
+		0,1,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Enum43 =	0,"Enable", 1,"Disable";
+
+	Param44 = 0,
+		6,"20 0F 24 01 30 01",	$ Link Path Size, Link Path
+		0x0002,	 $ Descriptor
+		0xC6, 1,	$ Data Type, Data Size
+		"Calibration Channel Select",
+		"",
+		"Choose which channel or channels to calibrate.",
+		0,9,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Enum44 =	0,"None",
+			1,"Channel 0",
+			2,"Channel 1",
+			3,"Channel 2",
+			4,"Channel 3",
+			5,"Channel 4",
+			6,"Channel 5",
+			7,"Channel 6",
+			8,"Channel 7",
+			9,"All Channels";
+
+	Param45 = 0,
+		6,"20 0F 24 02 30 01",	$ Link Path Size, Link Path
+		0x0002,	 $ Descriptor
+		0xC6, 1,	$ Data Type, Data Size
+		"Calibration Command",
+		"",
+		"This command puts the module in different calibration modes.\n\nBegin Calibration - Initializes the module for calibration.\nAccept Low Calibration - The value on the input is a stable 4 mA.\nAccept High Calibration - The value on the input is a stable 20 mA.\nAbort Calibration - Immeadately terminates calibration process and uses previous calibration.\n\nNote: Module must be stand-alone or in Idle/Program mode.\nFurther Note: Once the 'Accept Low' and 'Accept High' Commands have been sent, the module will exit calibration mode.",
+		0,4,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Enum45 =	0,"Do Nothing",
+			1,"Begin Calibration",
+			2,"Accept Low Calibration",
+			3,"Accept High Calibration",
+			4,"Abort Calibration";
+
+	Param46 = 0,
+		6,"20 0F 24 03 30 01",	$ Link Path Size, Link Path
+		0x0002,	 $ Descriptor
+		0xC6, 1,	$ Data Type, Data Size
+		"Reset Latched Alarms",
+		"",
+		"This parameter clears any latched alarms in the selected channel(s).\nIf alarm condition still exists, the fault will not be cleared.",
+		0,5,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Enum46 =	0,"Do Nothing",
+			1,"Channel 0",
+			2,"Channel 1",
+			3,"Channel 2",
+			4,"Channel 3",
+			5,"Channel 4",
+			6,"Channel 5",
+			7,"Channel 6",
+			8,"Channel 7",
+			9,"All Channels";
+
+	Param47 = 0,
+		7,"21 12 03 24 01 30 03",	$ Link Path Size, Link Path
+		0x0002,	 $ Descriptor
+		0xC1, 1,	$ Data Type, Data Size
+		"Sequential AutoAddress",
+		"",
+		"Sequential AutoAddress will re-assign the node address of ever module to the right.\nEach module will change it's node address to one greater than then it's neighbor.\n\nMAKE SURE THE NODE ADDRESS OF THIS MODULE IS THE DESIRED VALUE BEFORE ISSUING THIS COMMAND.\n\nWhen this command is set, each module to the right will get a new address one greater than it's neighbor.\nThe address will ripple through a line of Point I/O modules.\n\nSteps to Auto Address a line of Point I/O modules:\n 1.) Set the address of the first module (next to PDN or adapter).\n 2.) Send the Auto Address command to 'Sequential Address.'\n 3.) All modules in line will reset with new sequential addresses.\n\nExample:\nIf there are 5 Point modules in a line, and the address of the first module is 10.\nAfter the 'Sequential Address' command is sent to the first module, the node address of the line will be:\n 10, 11, 12, 13, and 14.",
+		0,1,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Enum47 =	0,"Do Nothing", 1,"Sequential Address";
+
+	Param48 = 0,
+		7,"21 12 03 24 01 30 05",	$ Link Path Size, Link Path
+		0x0002,	 $ Descriptor
+		0xC6, 1,	$ Data Type, Data Size
+		"Broadcast Baud Rate",
+		"",
+		"This command will change the baud rate of this and every module to the right\nto the value indicated.\nIf AutoBaud is ENABLED, this command will not change the operation of the module at power up.",
+		0,3,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Enum48 =	0,"Do Nothing",
+			1,"125 kHz",
+			2,"250 kHz",
+			3,"500 kHz";
+
+	Param49 = 0,
+		7,"21 12 03 24 01 30 06",	$ Link Path Size, Link Path
+		0x0002,	 $ Descriptor
+		0xC6, 1,	$ Data Type, Data Size
+		"Broadcast AutoBaud",
+		"",
+		"This command will change the AutoBaud attribute of this and every module to the right\nto the value indicated.\nIf AutoBaud is 'disabled,' the Baud Rate parameter will set the baud rate next time the module is powered up.",
+		0,2,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Enum49 =	0,"Do Nothing",
+			1,"Enable",
+			2,"Disable";
+
+$ Premier Integration 
+	Param50 = 0,
+		0,,	       $ No Path, Internal Parameter
+		0x0230,	 $ Descriptor
+		0xC3, 2,	$ Data Type, Data Size
+		"Ch0Data",
+		"",
+		"Value of analog input point scaled to chosen units.",
+		-32768,32767,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param51 = 0,
+		0,,	       $ No Path, Internal Parameter
+		0x0230,	 $ Descriptor
+		0xC3, 2,	$ Data Type, Data Size
+		"Ch1Data",
+		"",
+		"Value of analog input point scaled to chosen units.",
+		-32768,32767,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param52 = 0,
+		0,,          $ No Path, Internal Parameter
+		0x0232,	 $ Descriptor
+		0xD1, 1,	$ Data Type, Data Size
+		"Ch0Status",
+		"",
+		"Status of input channel.  This bit is the OR of all channel faults.\n\nPossible faults:\n - High & Low level alarms\n - Range Alarms\n - Open wire\n - No Field Power\n",
+		0,7,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Enum52 =	0,"Ch0Fault", 
+			1,"Ch0Calibration",
+			2,"Ch0LAlarm",
+			3,"Ch0HAlarm",
+			4,"Ch0LLAlarm",
+			5,"Ch0HHAlarm",
+			6,"Ch0Underrange",
+			7,"Ch0Overrange";
+
+	Param53 = 0,
+		0,,	       $ No Path, Internal Parameter
+		0x0232,	 $ Descriptor
+		0xD1, 1,	$ Data Type, Data Size
+		"Ch1Status",
+		"",
+		"Status of input channel.  This bit is the OR of all channel faults.\n\nPossible faults:\n - High & Low level alarms\n - Range Alarms\n - Open wire\n - No Field Power\n",
+		0,7,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Enum53 =	0,"Ch1Fault", 
+			1,"Ch1Calibration",
+			2,"Ch1LAlarm",
+			3,"Ch1HAlarm",
+			4,"Ch1LLAlarm",
+			5,"Ch1HHAlarm",
+			6,"Ch1Underrange",
+			7,"Ch1Overrange";
+	
+	Param54 = 0,
+		6,"20 0A 24 03 30 03",	$ Link Path Size, Link Path
+		0x0030,	 $ Descriptor
+		0xC3, 2,	$ Data Type, Data Size
+		"Input Value #2",
+		"",
+		"Value of analog input point scaled to chosen units.",
+		-32768,32767,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param55 = 0,
+		6,"20 0A 24 04 30 03",	$ Link Path Size, Link Path
+		0x0030,	 $ Descriptor
+		0xC3, 2,	$ Data Type, Data Size
+		"Input Value #3",
+		"",
+		"Value of analog input point scaled to chosen units.",
+		-32768,32767,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param56 = 0,
+		6,"20 0A 24 03 30 04",	$ Link Path Size, Link Path
+		0x0032,	 $ Descriptor
+		0xC1, 1,	$ Data Type, Data Size
+		"Status #2",
+		"",
+		"Status of input channel.  This bit is the OR of all channel faults.\n\nPossible faults:\n - High & Low level alarms\n - Range Alarms\n - Open wire\n - No Field Power\n",
+		0,1,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Enum56 =	0,"Normal Operation", 1,"FAULT";
+
+	Param57 = 0,
+		6,"20 0A 24 04 30 04",	$ Link Path Size, Link Path
+		0x0032,	 $ Descriptor
+		0xC1, 1,	$ Data Type, Data Size
+		"Status #3",
+		"",
+		"Status of input channel.  This bit is the OR of all channel faults.\n\nPossible faults:\n - High & Low level alarms\n - Range Alarms\n - Open wire\n - No Field Power\n",
+		0,1,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Enum57 =	0,"Normal Operation", 1,"FAULT";
+
+	Param58 = 0,
+		6,"20 0A 24 03 30 07",	$ Link Path Size, Link Path
+		0x0002,	 $ Descriptor
+		0xC6, 1,	$ Data Type, Data Size
+		"Input Range #2",
+		"",
+		"Defines type and range of input signal.\n\nValid Selections:\n - 4 to 20 ma\n - 0 to 20 ma\n\nThe Range specifies the scaling endpoints.",
+		0,8,3,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Enum58 =3,"4mA to 20mA",
+		8,"0mA to 20mA";
+
+	Param59 = 0,
+		6,"20 0A 24 04 30 07",	$ Link Path Size, Link Path
+		0x0002,	 $ Descriptor
+		0xC6, 1,	$ Data Type, Data Size
+		"Input Range #3",
+		"",
+		"Defines type and range of input signal.\n\nValid Selections:\n - 4 to 20 ma\n - 0 to 20 ma\n\nThe Range specifies the scaling endpoints.",
+		0,8,3,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Enum59 =3,"4mA to 20mA",
+		8,"0mA to 20mA";
+
+	Param60 = 0,
+		6,"20 0A 24 03 30 08",	$ Link Path Size, Link Path
+		0x0012,	 $ Descriptor
+		0xC6, 1,	$ Data Type, Data Size
+		"Value Data Type #2",
+		"",
+		"This parameter defines the type of data (or number) the module will return for the Value.\nIt is not settable and will always return 'Signed Integer.'",
+		0,2,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Enum60 =	0,"Signed Integer",
+			1,"Real",
+			2,"Unsigned Integer";
+
+	Param61 = 0,
+		6,"20 0A 24 04 30 08",	$ Link Path Size, Link Path
+		0x0012,	 $ Descriptor
+		0xC6, 1,	$ Data Type, Data Size
+		"Value Data Type #3",
+		"",
+		"This parameter defines the type of data (or number) the module will return for the Value.\nIt is not settable and will always return 'Signed Integer.'",
+		0,2,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Enum61 =	0,"Signed Integer",
+			1,"Real",
+			2,"Unsigned Integer";
+
+	Param62 = 0,
+		6,"20 0A 24 03 30 65",	$ Link Path Size, Link Path
+		0x0000,	 $ Descriptor
+		0xC3, 2,	$ Data Type, Data Size
+		"Low Scaling #2",
+		"",
+		"Value returned when input is 0 mA or 4 mA (depending on range selected).\nAlso known as Low Scaling value or Low Engineering units.",
+		-32768,32767,3277,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param63 = 0,
+		6,"20 0A 24 04 30 65",	$ Link Path Size, Link Path
+		0x0000,	 $ Descriptor
+		0xC3, 2,	$ Data Type, Data Size
+		"Low Scaling #3",
+		"",
+		"Value returned when input is 0 mA or 4 mA (depending on range selected).\nAlso known as Low Scaling value or Low Engineering units.",
+		-32768,32767,3277,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param64 = 0,
+		6,"20 0A 24 03 30 67",	$ Link Path Size, Link Path
+		0x0000,	 $ Descriptor
+		0xC3, 2,	$ Data Type, Data Size
+		"High Scaling #2",
+		"",
+		"Value returned when input is 20 mA.\nAlso known as High Scaling value or High Engineering units.",
+		-32768,32767,16383,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param65 = 0,
+		6,"20 0A 24 04 30 67",	$ Link Path Size, Link Path
+		0x0000,	 $ Descriptor
+		0xC3, 2,	$ Data Type, Data Size
+		"High Scaling #3",
+		"",
+		"Value returned when input is 20 mA.\nAlso known as High Scaling value or High Engineering units.",
+		-32768,32767,16383,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param66 = 0,
+		6,"20 0A 24 03 30 68",	$ Link Path Size, Link Path
+		0x0002,	 $ Descriptor
+		0xC1, 1,	$ Data Type, Data Size
+		"Enable Alarm Latch #2",
+		"",
+		"Alarms will latch FAULTED until a 'Latch Reset' command is received\n\nAlarms effected:\n - Input Status (Open wire and no field power)\n - Low & High level Alarms\n - Range Alarms\n\nThis is useful in tracking transient or momentary errors.",
+		0,1,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Enum66 =	0,"Disable", 1,"Enable Latching Alarms";
+
+	Param67 = 0,
+		6,"20 0A 24 04 30 68",	$ Link Path Size, Link Path
+		0x0002,	 $ Descriptor
+		0xC1, 1,	$ Data Type, Data Size
+		"Enable Alarm Latch #3",
+		"",
+		"Alarms will latch FAULTED until a 'Latch Reset' command is received\n\nAlarms effected:\n - Input Status (Open wire and no field power)\n - Low & High level Alarms\n - Range Alarms\n\nThis is useful in tracking transient or momentary errors.",
+		0,1,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Enum67 =	0,"Disable", 1,"Enable Latching Alarms";
+
+	Param68 = 0,
+		6,"20 0A 24 03 30 69",	$ Link Path Size, Link Path
+		0x0002,	 $ Descriptor
+		0xC1, 1,	$ Data Type, Data Size
+		"Disable Alarms #2",
+		"",
+		"If Alarms are Disabled, all alarms for this channel will show No FAULT.\nThis is useful for un-used channels.",
+		0,1,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Enum68 =	0,"Alarms Enabled", 1,"Alarms Disabled";
+
+	Param69 = 0,
+		6,"20 0A 24 04 30 69",	$ Link Path Size, Link Path
+		0x0002,	 $ Descriptor
+		0xC1, 1,	$ Data Type, Data Size
+		"Disable Alarms #3",
+		"",
+		"If Alarms are Disabled, all alarms for this channel will show No FAULT.\nThis is useful for un-used channels.",
+		0,1,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Enum69 =	0,"Alarms Enabled", 1,"Alarms Disabled";
+
+	Param70 = 0,
+		6,"20 0A 24 03 30 6B",	$ Link Path Size, Link Path
+		0x0032,	 $ Descriptor
+		0xC1, 1,	$ Data Type, Data Size
+		"Low Alarm Status #2",
+		"",
+		"Indicates channel Value is less than Low Alarm value.\n - 'No Fault' = channel Value above Low Alarm Value\n - 'Low Alarm FAULT' = channel value below Low Alarm Value",
+		0,1,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Enum70 =	0,"No Fault", 1,"Low Alarm FAULT";
+
+	Param71 = 0,
+		6,"20 0A 24 04 30 6B",	$ Link Path Size, Link Path
+		0x0032,	 $ Descriptor
+		0xC1, 1,	$ Data Type, Data Size
+		"Low Alarm Status #3",
+		"",
+		"Indicates channel Value is less than Low Alarm value.\n - 'No Fault' = channel Value above Low Alarm Value\n - 'Low Alarm FAULT' = channel value below Low Alarm Value",
+		0,1,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Enum71 =	0,"No Fault", 1,"Low Alarm FAULT";
+
+	Param72 = 0,
+		6,"20 0A 24 03 30 6C",	$ Link Path Size, Link Path
+		0x0032,	 $ Descriptor
+		0xC1, 1,	$ Data Type, Data Size
+		"High Alarm Status #2",
+		"",
+		"Indicates channel Value is greater than High Alarm value.\n - 'No Fault' = channel Value below High Alarm Value\n - 'High Alarm FAULT' = channel value above High Alarm Value",
+		0,1,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Enum72 =	0,"No Fault", 1,"High Alarm FAULT";
+
+	Param73 = 0,
+		6,"20 0A 24 04 30 6C",	$ Link Path Size, Link Path
+		0x0032,	 $ Descriptor
+		0xC1, 1,	$ Data Type, Data Size
+		"High Alarm Status #3",
+		"",
+		"Indicates channel Value is greater than High Alarm value.\n - 'No Fault' = channel Value below High Alarm Value\n - 'High Alarm FAULT' = channel value above High Alarm Value",
+		0,1,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Enum73 =	0,"No Fault", 1,"High Alarm FAULT";
+
+	Param74 = 0,
+		6,"20 0A 24 03 30 6D",	$ Link Path Size, Link Path
+		0x0032,	 $ Descriptor
+		0xC1, 1,	$ Data Type, Data Size
+		"Low Low Alarm Status #2",
+		"",
+		"Indicates channel Value is less than Low Low Alarm value.\n - 'No Fault' = channel Value above Low Low Alarm Value\n - 'Low Low Alarm FAULT' = channel value below Low Low Alarm Value",
+		0,1,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Enum74 =	0,"No Fault", 1,"Low Low Alarm FAULT";
+
+	Param75 = 0,
+		6,"20 0A 24 04 30 6D",	$ Link Path Size, Link Path
+		0x0032,	 $ Descriptor
+		0xC1, 1,	$ Data Type, Data Size
+		"Low Low Alarm Status #3",
+		"",
+		"Indicates channel Value is less than Low Low Alarm value.\n - 'No Fault' = channel Value above Low Low Alarm Value\n - 'Low Low Alarm FAULT' = channel value below Low Low Alarm Value",
+		0,1,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Enum75 =	0,"No Fault", 1,"Low Low Alarm FAULT";
+
+	Param76 = 0,
+		6,"20 0A 24 03 30 6E",	$ Link Path Size, Link Path
+		0x0032,	 $ Descriptor
+		0xC1, 1,	$ Data Type, Data Size
+		"High High Alarm Status #2",
+		"",
+		"Indicates channel Value is greater than High High Alarm value.\n - 'No Fault' = channel Value below High High Alarm Value\n - 'High High Alarm FAULT' = channel value above High High Alarm Value",
+		0,1,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Enum76 =	0,"No Fault", 1,"High High Alarm FAULT";
+
+	Param77 = 0,
+		6,"20 0A 24 04 30 6E",	$ Link Path Size, Link Path
+		0x0032,	 $ Descriptor
+		0xC1, 1,	$ Data Type, Data Size
+		"High High Alarm Status #3",
+		"",
+		"Indicates channel Value is greater than High High Alarm value.\n - 'No Fault' = channel Value below High High Alarm Value\n - 'High High Alarm FAULT' = channel value above High High Alarm Value",
+		0,1,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Enum77 =	0,"No Fault", 1,"High High Alarm FAULT";
+
+	Param78 = 0,
+		6,"20 0A 24 03 30 74",	$ Link Path Size, Link Path
+		0x0000,	 $ Descriptor
+		0xC7, 2,	$ Data Type, Data Size
+		"Digital Filter #2",
+		"ms",
+		"Filter time constant in milliseconds.  See manual for equation.\nTo disable, enter 0 ms.",
+		0,10000,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param79 = 0,
+		6,"20 0A 24 04 30 74",	$ Link Path Size, Link Path
+		0x0000,	 $ Descriptor
+		0xC7, 2,	$ Data Type, Data Size
+		"Digital Filter #3",
+		"ms",
+		"Filter time constant in milliseconds.  See manual for equation.\nTo disable, enter 0 ms.",
+		0,10000,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param80 = 0,
+		6,"20 0A 24 03 30 75",	$ Link Path Size, Link Path
+		0x0000,	 $ Descriptor
+		0xC3, 2,	$ Data Type, Data Size
+		"Low Alarm #2",
+		"",
+		"Low Alarm Threshold.\nIf input value drops below this value, Low Alarm Status will Fault.\nDefault = 3113 or 3.8 mA.\nTo disable, set at -32768.",
+		-32768,32767,3113,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param81 = 0,
+		6,"20 0A 24 04 30 75",	$ Link Path Size, Link Path
+		0x0000,	 $ Descriptor
+		0xC3, 2,	$ Data Type, Data Size
+		"Low Alarm #3",
+		"",
+		"Low Alarm Threshold.\nIf input value drops below this value, Low Alarm Status will Fault.\nDefault = 3113 or 3.8 mA.\nTo disable, set at -32768.",
+		-32768,32767,3113,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param82 = 0,
+		6,"20 0A 24 03 30 76",	$ Link Path Size, Link Path
+		0x0000,	 $ Descriptor
+		0xC3, 2,	$ Data Type, Data Size
+		"High Alarm #2",
+		"",
+		"High Alarm Threshold.\nIf input value climbs above this value, High Alarm Status will Fault.\nDefault = 16547 or 20.2 mA.\nTo disable, set at 32767.",
+		-32768,32767,16547,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param83 = 0,
+		6,"20 0A 24 04 30 76",	$ Link Path Size, Link Path
+		0x0000,	 $ Descriptor
+		0xC3, 2,	$ Data Type, Data Size
+		"High Alarm #3",
+		"",
+		"High Alarm Threshold.\nIf input value climbs above this value, High Alarm Status will Fault.\nDefault = 16547 or 20.2 mA.\nTo disable, set at 32767.",
+		-32768,32767,16547,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param84 = 0,
+		6,"20 0A 24 03 30 77",	$ Link Path Size, Link Path
+		0x0000,	 $ Descriptor
+		0xC3, 2,	$ Data Type, Data Size
+		"Low Low Alarm #2",
+		"",
+		"Low Low Alarm Threshold.\nIf input value drops below this value, Low Low Alarm Status will Fault.\nDefault = 2867 or 3.5 mA.\nTo disable, set at -32768.",
+		-32768,32767,2867,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param85 = 0,
+		6,"20 0A 24 04 30 77",	$ Link Path Size, Link Path
+		0x0000,	 $ Descriptor
+		0xC3, 2,	$ Data Type, Data Size
+		"Low Low Alarm #3",
+		"",
+		"Low Low Alarm Threshold.\nIf input value drops below this value, Low Low Alarm Status will Fault.\nDefault = 2867 or 3.5 mA.\nTo disable, set at -32768.",
+		-32768,32767,2867,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param86 = 0,
+		6,"20 0A 24 03 30 78",	$ Link Path Size, Link Path
+		0x0000,	 $ Descriptor
+		0xC3, 2,	$ Data Type, Data Size
+		"High High Alarm #2",
+		"",
+		"High High Alarm Threshold.\nIf input value climbs above this value, High High Alarm Status will Fault.\nDefault = 16793 or 20.5 mA.\nTo disable, set at 32767.",
+		-32768,32767,16793,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param87 = 0,
+		6,"20 0A 24 04 30 78",	$ Link Path Size, Link Path
+		0x0000,	 $ Descriptor
+		0xC3, 2,	$ Data Type, Data Size
+		"High High Alarm #3",
+		"",
+		"High High Alarm Threshold.\nIf input value climbs above this value, High High Alarm Status will Fault.\nDefault = 16793 or 20.5 mA.\nTo disable, set at 32767.",
+		-32768,32767,16793,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param88 = 0,
+		6,"20 0A 24 03 30 80",	$ Link Path Size, Link Path
+		0x0032,	 $ Descriptor
+		0xC1, 1,	$ Data Type, Data Size
+		"Under Range Alarm Status #2",
+		"",
+		"Indicates channel Value is less than Under Range Alarm value (about 50 uA).\n - 'No Fault' = channel Value is above Under Range Alarm value\n - 'Under Range Alarm FAULT' = channel Value is below Under Range Alarm value",
+		0,1,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Enum88 =	0,"No fault", 1,"Under Range FAULT";
+
+	Param89 = 0,
+		6,"20 0A 24 04 30 80",	$ Link Path Size, Link Path
+		0x0032,	 $ Descriptor
+		0xC1, 1,	$ Data Type, Data Size
+		"Under Range Alarm Status #3",
+		"",
+		"Indicates channel Value is less than Under Range Alarm value (about 50 uA).\n - 'No Fault' = channel Value is above Under Range Alarm value\n - 'Under Range Alarm FAULT' = channel Value is below Under Range Alarm value",
+		0,1,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Enum89 =	0,"No fault", 1,"Under Range FAULT";
+
+	Param90 = 0,
+		6,"20 0A 24 03 30 81",	$ Link Path Size, Link Path
+		0x0032,	 $ Descriptor
+		0xC1, 1,	$ Data Type, Data Size
+		"Over Range Alarm Status #2",
+		"",
+		"Indicates channel Value is greater than Over Range Alarm value (A/D is at maximum).\n - 'No Fault' = channel Value is above Over Range Alarm value\n - 'Over Range Alarm FAULT' = channel Value is above Over Range Alarm value",
+		0,1,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Enum90 =	0,"No fault", 1,"Over Range FAULT";
+
+	Param91 = 0,
+		6,"20 0A 24 04 30 81",	$ Link Path Size, Link Path
+		0x0032,	 $ Descriptor
+		0xC1, 1,	$ Data Type, Data Size
+		"Over Range Alarm Status #3",
+		"",
+		"Indicates channel Value is greater than Over Range Alarm value (A/D is at maximum).\n - 'No Fault' = channel Value is above Over Range Alarm value\n - 'Over Range Alarm FAULT' = channel Value is above Over Range Alarm value",
+		0,1,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Enum91 =0,"No fault", 1,"Over Range FAULT";
+
+	Param92 = 0,
+		6,"20 0A 24 03 30 83",	$ Link Path Size, Link Path
+		0x0032,	 $ Descriptor
+		0xC1, 1,	$ Data Type, Data Size
+		"Bad Cal Status #2",
+		"",
+		"This bit shows the current status of calibration for this channel.\n'Good Calibration' means the data stored in EEPROM is within tollerances.\n'Calibration Fault' means the module is not calibrated and is using default values.\n\nNote:  While in Calibration Mode, the status will be 'Bad Calibration.'",
+		0,1,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Enum92 =	0,"Good Calibration", 1,"Calibration FAULT";
+
+	Param93 = 0,
+		6,"20 0A 24 04 30 83",	$ Link Path Size, Link Path
+		0x0032,	 $ Descriptor
+		0xC1, 1,	$ Data Type, Data Size
+		"Bad Cal Status #3",
+		"",
+		"This bit shows the current status of calibration for this channel.\n'Good Calibration' means the data stored in EEPROM is within tollerances.\n'Calibration Fault' means the module is not calibrated and is using default values.\n\nNote:  While in Calibration Mode, the status will be 'Bad Calibration.'",
+		0,1,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Enum93 =	0,"Good Calibration", 1,"Calibration FAULT";
+
+
+$ Premier Integration 
+	Param94 = 0,
+		0,,	       $ No Path, Internal Parameter
+		0x0230,	 $ Descriptor
+		0xC3, 2,	$ Data Type, Data Size
+		"Ch2Data",
+		"",
+		"Value of analog input point scaled to chosen units.",
+		-32768,32767,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param95 = 0,
+		0,,	       $ No Path, Internal Parameter
+		0x0230,	 $ Descriptor
+		0xC3, 2,	$ Data Type, Data Size
+		"Ch3Data",
+		"",
+		"Value of analog input point scaled to chosen units.",
+		-32768,32767,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param96 = 0,
+		0,,          $ No Path, Internal Parameter
+		0x0232,	 $ Descriptor
+		0xD1, 1,	$ Data Type, Data Size
+		"Ch2Status",
+		"",
+		"Status of input channel.  This bit is the OR of all channel faults.\n\nPossible faults:\n - High & Low level alarms\n - Range Alarms\n - Open wire\n - No Field Power\n",
+		0,7,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Enum96 =	0,"Ch2Fault", 
+			1,"Ch2Calibration",
+			2,"Ch2LAlarm",
+			3,"Ch2HAlarm",
+			4,"Ch2LLAlarm",
+			5,"Ch2HHAlarm",
+			6,"Ch2Underrange",
+			7,"Ch2Overrange";
+
+	Param97 = 0,
+		0,,	       $ No Path, Internal Parameter
+		0x0232,	 $ Descriptor
+		0xD1, 1,	$ Data Type, Data Size
+		"Ch3Status",
+		"",
+		"Status of input channel.  This bit is the OR of all channel faults.\n\nPossible faults:\n - High & Low level alarms\n - Range Alarms\n - Open wire\n - No Field Power\n",
+		0,7,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Enum97 =	0,"Ch3Fault", 
+			1,"Ch3Calibration",
+			2,"Ch3LAlarm",
+			3,"Ch3HAlarm",
+			4,"Ch3LLAlarm",
+			5,"Ch3HHAlarm",
+			6,"Ch3Underrange",
+			7,"Ch3Overrange";
+
+$ Premier Integration 
+	Param98 = 0,
+		0,,	       $ No Path, Internal Parameter
+		0x0230,	 $ Descriptor
+		0xC3, 2,	$ Data Type, Data Size
+		"Ch4Data",
+		"",
+		"Value of analog input point scaled to chosen units.",
+		-32768,32767,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param99 = 0,
+		0,,	       $ No Path, Internal Parameter
+		0x0230,	 $ Descriptor
+		0xC3, 2,	$ Data Type, Data Size
+		"Ch5Data",
+		"",
+		"Value of analog input point scaled to chosen units.",
+		-32768,32767,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param100 = 0,
+		0,,	       $ No Path, Internal Parameter
+		0x0230,	 $ Descriptor
+		0xC3, 2,	$ Data Type, Data Size
+		"Ch6Data",
+		"",
+		"Value of analog input point scaled to chosen units.",
+		-32768,32767,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param103 = 0,
+		0,,	       $ No Path, Internal Parameter
+		0x0230,	 $ Descriptor
+		0xC3, 2,	$ Data Type, Data Size
+		"Ch7Data",
+		"",
+		"Value of analog input point scaled to chosen units.",
+		-32768,32767,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param104 = 0,
+		0,,          $ No Path, Internal Parameter
+		0x0232,	 $ Descriptor
+		0xD1, 1,	$ Data Type, Data Size
+		"Ch4Status",
+		"",
+		"Status of input channel.  This bit is the OR of all channel faults.\n\nPossible faults:\n - High & Low level alarms\n - Range Alarms\n - Open wire\n - No Field Power\n",
+		0,7,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Enum104 =	0,"Ch4Fault", 
+			1,"Ch4Calibration",
+			2,"Ch4LAlarm",
+			3,"Ch4HAlarm",
+			4,"Ch4LLAlarm",
+			5,"Ch4HHAlarm",
+			6,"Ch4Underrange",
+			7,"Ch4Overrange";
+
+	Param105 = 0,
+		0,,	       $ No Path, Internal Parameter
+		0x0232,	 $ Descriptor
+		0xD1, 1,	$ Data Type, Data Size
+		"Ch5Status",
+		"",
+		"Status of input channel.  This bit is the OR of all channel faults.\n\nPossible faults:\n - High & Low level alarms\n - Range Alarms\n - Open wire\n - No Field Power\n",
+		0,7,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Enum105 =	0,"Ch5Fault", 
+			1,"Ch5Calibration",
+			2,"Ch5LAlarm",
+			3,"Ch53HAlarm",
+			4,"Ch5LLAlarm",
+			5,"Ch5HHAlarm",
+			6,"Ch5Underrange",
+			7,"Ch5Overrange";
+	Param106 = 0,
+		0,,          $ No Path, Internal Parameter
+		0x0232,	 $ Descriptor
+		0xD1, 1,	$ Data Type, Data Size
+		"Ch6Status",
+		"",
+		"Status of input channel.  This bit is the OR of all channel faults.\n\nPossible faults:\n - High & Low level alarms\n - Range Alarms\n - Open wire\n - No Field Power\n",
+		0,7,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Enum106 =	0,"Ch6Fault", 
+			1,"Ch6Calibration",
+			2,"Ch6LAlarm",
+			3,"Ch6HAlarm",
+			4,"Ch6LLAlarm",
+			5,"Ch6HHAlarm",
+			6,"Ch6Underrange",
+			7,"Ch6Overrange";
+
+	Param107 = 0,
+		0,,	       $ No Path, Internal Parameter
+		0x0232,	 $ Descriptor
+		0xD1, 1,	$ Data Type, Data Size
+		"Ch7Status",
+		"",
+		"Status of input channel.  This bit is the OR of all channel faults.\n\nPossible faults:\n - High & Low level alarms\n - Range Alarms\n - Open wire\n - No Field Power\n",
+		0,7,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Enum107 =	0,"Ch7Fault", 
+			1,"Ch7Calibration",
+			2,"Ch7LAlarm",
+			3,"Ch7HAlarm",
+			4,"Ch7LLAlarm",
+			5,"Ch7HHAlarm",
+			6,"Ch7Underrange",
+			7,"Ch7Overrange";
+			
+Param108 = 0,
+		6,"20 0A 24 05 30 03",	$ Link Path Size, Link Path
+		0x0030,	 $ Descriptor
+		0xC3, 2,	$ Data Type, Data Size
+		"Input Value #4",
+		"",
+		"Value of analog input point scaled to chosen units.",
+		-32768,32767,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param109 = 0,
+		6,"20 0A 24 06 30 03",	$ Link Path Size, Link Path
+		0x0030,	 $ Descriptor
+		0xC3, 2,	$ Data Type, Data Size
+		"Input Value #5",
+		"",
+		"Value of analog input point scaled to chosen units.",
+		-32768,32767,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param110 = 0,
+		6,"20 0A 24 07 30 03",	$ Link Path Size, Link Path
+		0x0030,	 $ Descriptor
+		0xC3, 2,	$ Data Type, Data Size
+		"Input Value #6",
+		"",
+		"Value of analog input point scaled to chosen units.",
+		-32768,32767,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param111 = 0,
+		6,"20 0A 24 08 30 03",	$ Link Path Size, Link Path
+		0x0030,	 $ Descriptor
+		0xC3, 2,	$ Data Type, Data Size
+		"Input Value #7",
+		"",
+		"Value of analog input point scaled to chosen units.",
+		-32768,32767,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param112 = 0,
+		6,"20 0A 24 05 30 04",	$ Link Path Size, Link Path
+		0x0032,	 $ Descriptor
+		0xC1, 1,	$ Data Type, Data Size
+		"Status #4",
+		"",
+		"Status of input channel.  This bit is the OR of all channel faults.\n\nPossible faults:\n - High & Low level alarms\n - Range Alarms\n - Open wire\n - No Field Power\n",
+		0,1,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Enum112 =	0,"Normal Operation", 1,"FAULT";
+
+	Param113 = 0,
+		6,"20 0A 24 06 30 04",	$ Link Path Size, Link Path
+		0x0032,	 $ Descriptor
+		0xC1, 1,	$ Data Type, Data Size
+		"Status #5",
+		"",
+		"Status of input channel.  This bit is the OR of all channel faults.\n\nPossible faults:\n - High & Low level alarms\n - Range Alarms\n - Open wire\n - No Field Power\n",
+		0,1,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Enum113 =	0,"Normal Operation", 1,"FAULT";
+	
+	Param114 = 0,
+		6,"20 0A 24 07 30 04",	$ Link Path Size, Link Path
+		0x0032,	 $ Descriptor
+		0xC1, 1,	$ Data Type, Data Size
+		"Status #6",
+		"",
+		"Status of input channel.  This bit is the OR of all channel faults.\n\nPossible faults:\n - High & Low level alarms\n - Range Alarms\n - Open wire\n - No Field Power\n",
+		0,1,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Enum114 =	0,"Normal Operation", 1,"FAULT";
+
+	Param115 = 0,
+		6,"20 0A 24 08 30 04",	$ Link Path Size, Link Path
+		0x0032,	 $ Descriptor
+		0xC1, 1,	$ Data Type, Data Size
+		"Status #7",
+		"",
+		"Status of input channel.  This bit is the OR of all channel faults.\n\nPossible faults:\n - High & Low level alarms\n - Range Alarms\n - Open wire\n - No Field Power\n",
+		0,1,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Enum115 =	0,"Normal Operation", 1,"FAULT";
+
+	Param116 = 0,
+		6,"20 0A 24 05 30 07",	$ Link Path Size, Link Path
+		0x0002,	 $ Descriptor
+		0xC6, 1,	$ Data Type, Data Size
+		"Input Range #4",
+		"",
+		"Defines type and range of input signal.\n\nValid Selections:\n - 4 to 20 ma\n - 0 to 20 ma\n\nThe Range specifies the scaling endpoints.",
+		0,8,3,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Enum116 =3,"4mA to 20mA",
+		8,"0mA to 20mA";
+
+	Param117 = 0,
+		6,"20 0A 24 06 30 07",	$ Link Path Size, Link Path
+		0x0002,	 $ Descriptor
+		0xC6, 1,	$ Data Type, Data Size
+		"Input Range #5",
+		"",
+		"Defines type and range of input signal.\n\nValid Selections:\n - 4 to 20 ma\n - 0 to 20 ma\n\nThe Range specifies the scaling endpoints.",
+		0,8,3,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Enum117 =3,"4mA to 20mA",
+		8,"0mA to 20mA";
+
+
+	Param118 = 0,
+		6,"20 0A 24 07 30 07",	$ Link Path Size, Link Path
+		0x0002,	 $ Descriptor
+		0xC6, 1,	$ Data Type, Data Size
+		"Input Range #6",
+		"",
+		"Defines type and range of input signal.\n\nValid Selections:\n - 4 to 20 ma\n - 0 to 20 ma\n\nThe Range specifies the scaling endpoints.",
+		0,8,3,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Enum118 =3,"4mA to 20mA",
+		8,"0mA to 20mA";
+
+	Param119 = 0,
+		6,"20 0A 24 08 30 07",	$ Link Path Size, Link Path
+		0x0002,	 $ Descriptor
+		0xC6, 1,	$ Data Type, Data Size
+		"Input Range #7",
+		"",
+		"Defines type and range of input signal.\n\nValid Selections:\n - 4 to 20 ma\n - 0 to 20 ma\n\nThe Range specifies the scaling endpoints.",
+		0,8,3,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Enum119 =3,"4mA to 20mA",
+		8,"0mA to 20mA";
+
+	Param120 = 0,
+		6,"20 0A 24 05 30 08",	$ Link Path Size, Link Path
+		0x0012,	 $ Descriptor
+		0xC6, 1,	$ Data Type, Data Size
+		"Value Data Type #4",
+		"",
+		"This parameter defines the type of data (or number) the module will return for the Value.\nIt is not settable and will always return 'Signed Integer.'",
+		0,2,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Enum120 =	0,"Signed Integer",
+			1,"Real",
+			2,"Unsigned Integer";
+
+	Param121 = 0,
+		6,"20 0A 24 06 30 08",	$ Link Path Size, Link Path
+		0x0012,	 $ Descriptor
+		0xC6, 1,	$ Data Type, Data Size
+		"Value Data Type #5",
+		"",
+		"This parameter defines the type of data (or number) the module will return for the Value.\nIt is not settable and will always return 'Signed Integer.'",
+		0,2,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Enum121 =	0,"Signed Integer",
+			1,"Real",
+			2,"Unsigned Integer";
+
+	Param122 = 0,
+		6,"20 0A 24 07 30 08",	$ Link Path Size, Link Path
+		0x0012,	 $ Descriptor
+		0xC6, 1,	$ Data Type, Data Size
+		"Value Data Type #6",
+		"",
+		"This parameter defines the type of data (or number) the module will return for the Value.\nIt is not settable and will always return 'Signed Integer.'",
+		0,2,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Enum122 =	0,"Signed Integer",
+			1,"Real",
+			2,"Unsigned Integer";
+
+	Param123 = 0,
+		6,"20 0A 24 08 30 08",	$ Link Path Size, Link Path
+		0x0012,	 $ Descriptor
+		0xC6, 1,	$ Data Type, Data Size
+		"Value Data Type #7",
+		"",
+		"This parameter defines the type of data (or number) the module will return for the Value.\nIt is not settable and will always return 'Signed Integer.'",
+		0,2,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Enum123 =	0,"Signed Integer",
+			1,"Real",
+			2,"Unsigned Integer";
+	Param124 = 0,
+		6,"20 0A 24 05 30 65",	$ Link Path Size, Link Path
+		0x0000,	 $ Descriptor
+		0xC3, 2,	$ Data Type, Data Size
+		"Low Scaling #4",
+		"",
+		"Value returned when input is 0 mA or 4 mA (depending on range selected).\nAlso known as Low Scaling value or Low Engineering units.",
+		-32768,32767,3277,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param125 = 0,
+		6,"20 0A 24 06 30 65",	$ Link Path Size, Link Path
+		0x0000,	 $ Descriptor
+		0xC3, 2,	$ Data Type, Data Size
+		"Low Scaling #5",
+		"",
+		"Value returned when input is 0 mA or 4 mA (depending on range selected).\nAlso known as Low Scaling value or Low Engineering units.",
+		-32768,32767,3277,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param126 = 0,
+		6,"20 0A 24 07 30 65",	$ Link Path Size, Link Path
+		0x0000,	 $ Descriptor
+		0xC3, 2,	$ Data Type, Data Size
+		"Low Scaling #6",
+		"",
+		"Value returned when input is 0 mA or 4 mA (depending on range selected).\nAlso known as Low Scaling value or Low Engineering units.",
+		-32768,32767,3277,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param127 = 0,
+		6,"20 0A 24 08 30 65",	$ Link Path Size, Link Path
+		0x0000,	 $ Descriptor
+		0xC3, 2,	$ Data Type, Data Size
+		"Low Scaling #7",
+		"",
+		"Value returned when input is 0 mA or 4 mA (depending on range selected).\nAlso known as Low Scaling value or Low Engineering units.",
+		-32768,32767,3277,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param128 = 0,
+		6,"20 0A 24 05 30 67",	$ Link Path Size, Link Path
+		0x0000,	 $ Descriptor
+		0xC3, 2,	$ Data Type, Data Size
+		"High Scaling #4",
+		"",
+		"Value returned when input is 20 mA.\nAlso known as High Scaling value or High Engineering units.",
+		-32768,32767,16383,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param129 = 0,
+		6,"20 0A 24 06 30 67",	$ Link Path Size, Link Path
+		0x0000,	 $ Descriptor
+		0xC3, 2,	$ Data Type, Data Size
+		"High Scaling #5",
+		"",
+		"Value returned when input is 20 mA.\nAlso known as High Scaling value or High Engineering units.",
+		-32768,32767,16383,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param130 = 0,
+		6,"20 0A 24 07 30 67",	$ Link Path Size, Link Path
+		0x0000,	 $ Descriptor
+		0xC3, 2,	$ Data Type, Data Size
+		"High Scaling #6",
+		"",
+		"Value returned when input is 20 mA.\nAlso known as High Scaling value or High Engineering units.",
+		-32768,32767,16383,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param131 = 0,
+		6,"20 0A 24 08 30 67",	$ Link Path Size, Link Path
+		0x0000,	 $ Descriptor
+		0xC3, 2,	$ Data Type, Data Size
+		"High Scaling #7",
+		"",
+		"Value returned when input is 20 mA.\nAlso known as High Scaling value or High Engineering units.",
+		-32768,32767,16383,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param132 = 0,
+		6,"20 0A 24 05 30 68",	$ Link Path Size, Link Path
+		0x0002,	 $ Descriptor
+		0xC1, 1,	$ Data Type, Data Size
+		"Enable Alarm Latch #4",
+		"",
+		"Alarms will latch FAULTED until a 'Latch Reset' command is received\n\nAlarms effected:\n - Input Status (Open wire and no field power)\n - Low & High level Alarms\n - Range Alarms\n\nThis is useful in tracking transient or momentary errors.",
+		0,1,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Enum132 =	0,"Disable", 1,"Enable Latching Alarms";
+
+	Param133 = 0,
+		6,"20 0A 24 06 30 68",	$ Link Path Size, Link Path
+		0x0002,	 $ Descriptor
+		0xC1, 1,	$ Data Type, Data Size
+		"Enable Alarm Latch #5",
+		"",
+		"Alarms will latch FAULTED until a 'Latch Reset' command is received\n\nAlarms effected:\n - Input Status (Open wire and no field power)\n - Low & High level Alarms\n - Range Alarms\n\nThis is useful in tracking transient or momentary errors.",
+		0,1,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Enum133 =	0,"Disable", 1,"Enable Latching Alarms";
+
+	Param134 = 0,
+		6,"20 0A 24 07 30 68",	$ Link Path Size, Link Path
+		0x0002,	 $ Descriptor
+		0xC1, 1,	$ Data Type, Data Size
+		"Enable Alarm Latch #6",
+		"",
+		"Alarms will latch FAULTED until a 'Latch Reset' command is received\n\nAlarms effected:\n - Input Status (Open wire and no field power)\n - Low & High level Alarms\n - Range Alarms\n\nThis is useful in tracking transient or momentary errors.",
+		0,1,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Enum134 =	0,"Disable", 1,"Enable Latching Alarms";
+
+	Param135 = 0,
+		6,"20 0A 24 08 30 68",	$ Link Path Size, Link Path
+		0x0002,	 $ Descriptor
+		0xC1, 1,	$ Data Type, Data Size
+		"Enable Alarm Latch #7",
+		"",
+		"Alarms will latch FAULTED until a 'Latch Reset' command is received\n\nAlarms effected:\n - Input Status (Open wire and no field power)\n - Low & High level Alarms\n - Range Alarms\n\nThis is useful in tracking transient or momentary errors.",
+		0,1,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Enum135 =	0,"Disable", 1,"Enable Latching Alarms";
+
+	Param136 = 0,
+		6,"20 0A 24 05 30 69",	$ Link Path Size, Link Path
+		0x0002,	 $ Descriptor
+		0xC1, 1,	$ Data Type, Data Size
+		"Disable Alarms #4",
+		"",
+		"If Alarms are Disabled, all alarms for this channel will show No FAULT.\nThis is useful for un-used channels.",
+		0,1,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Enum136 =	0,"Alarms Enabled", 1,"Alarms Disabled";
+
+	Param137 = 0,
+		6,"20 0A 24 06 30 69",	$ Link Path Size, Link Path
+		0x0002,	 $ Descriptor
+		0xC1, 1,	$ Data Type, Data Size
+		"Disable Alarms #5",
+		"",
+		"If Alarms are Disabled, all alarms for this channel will show No FAULT.\nThis is useful for un-used channels.",
+		0,1,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Enum137 =	0,"Alarms Enabled", 1,"Alarms Disabled";
+
+	Param138 = 0,
+		6,"20 0A 24 07 30 69",	$ Link Path Size, Link Path
+		0x0002,	 $ Descriptor
+		0xC1, 1,	$ Data Type, Data Size
+		"Disable Alarms #6",
+		"",
+		"If Alarms are Disabled, all alarms for this channel will show No FAULT.\nThis is useful for un-used channels.",
+		0,1,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Enum138 =	0,"Alarms Enabled", 1,"Alarms Disabled";
+
+	Param139 = 0,
+		6,"20 0A 24 08 30 69",	$ Link Path Size, Link Path
+		0x0002,	 $ Descriptor
+		0xC1, 1,	$ Data Type, Data Size
+		"Disable Alarms #7",
+		"",
+		"If Alarms are Disabled, all alarms for this channel will show No FAULT.\nThis is useful for un-used channels.",
+		0,1,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Enum139 =	0,"Alarms Enabled", 1,"Alarms Disabled";
+
+	Param140 = 0,
+		6,"20 0A 24 05 30 6B",	$ Link Path Size, Link Path
+		0x0032,	 $ Descriptor
+		0xC1, 1,	$ Data Type, Data Size
+		"Low Alarm Status #4",
+		"",
+		"Indicates channel Value is less than Low Alarm value.\n - 'No Fault' = channel Value above Low Alarm Value\n - 'Low Alarm FAULT' = channel value below Low Alarm Value",
+		0,1,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Enum140 =	0,"No Fault", 1,"Low Alarm FAULT";
+
+	Param141 = 0,
+		6,"20 0A 24 06 30 6B",	$ Link Path Size, Link Path
+		0x0032,	 $ Descriptor
+		0xC1, 1,	$ Data Type, Data Size
+		"Low Alarm Status #5",
+		"",
+		"Indicates channel Value is less than Low Alarm value.\n - 'No Fault' = channel Value above Low Alarm Value\n - 'Low Alarm FAULT' = channel value below Low Alarm Value",
+		0,1,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Enum141 =	0,"No Fault", 1,"Low Alarm FAULT";
+
+	Param142 = 0,
+		6,"20 0A 24 07 30 6B",	$ Link Path Size, Link Path
+		0x0032,	 $ Descriptor
+		0xC1, 1,	$ Data Type, Data Size
+		"Low Alarm Status #6",
+		"",
+		"Indicates channel Value is less than Low Alarm value.\n - 'No Fault' = channel Value above Low Alarm Value\n - 'Low Alarm FAULT' = channel value below Low Alarm Value",
+		0,1,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Enum142 =	0,"No Fault", 1,"Low Alarm FAULT";
+
+	Param143 = 0,
+		6,"20 0A 24 08 30 6B",	$ Link Path Size, Link Path
+		0x0032,	 $ Descriptor
+		0xC1, 1,	$ Data Type, Data Size
+		"Low Alarm Status #7",
+		"",
+		"Indicates channel Value is less than Low Alarm value.\n - 'No Fault' = channel Value above Low Alarm Value\n - 'Low Alarm FAULT' = channel value below Low Alarm Value",
+		0,1,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Enum143 =	0,"No Fault", 1,"Low Alarm FAULT";
+
+	Param144 = 0,
+		6,"20 0A 24 05 30 6C",	$ Link Path Size, Link Path
+		0x0032,	 $ Descriptor
+		0xC1, 1,	$ Data Type, Data Size
+		"High Alarm Status #4",
+		"",
+		"Indicates channel Value is greater than High Alarm value.\n - 'No Fault' = channel Value below High Alarm Value\n - 'High Alarm FAULT' = channel value above High Alarm Value",
+		0,1,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Enum144 =	0,"No Fault", 1,"High Alarm FAULT";
+
+	Param145 = 0,
+		6,"20 0A 24 06 30 6C",	$ Link Path Size, Link Path
+		0x0032,	 $ Descriptor
+		0xC1, 1,	$ Data Type, Data Size
+		"High Alarm Status #5",
+		"",
+		"Indicates channel Value is greater than High Alarm value.\n - 'No Fault' = channel Value below High Alarm Value\n - 'High Alarm FAULT' = channel value above High Alarm Value",
+		0,1,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Enum145 =	0,"No Fault", 1,"High Alarm FAULT";
+
+	Param146 = 0,
+		6,"20 0A 24 07 30 6C",	$ Link Path Size, Link Path
+		0x0032,	 $ Descriptor
+		0xC1, 1,	$ Data Type, Data Size
+		"High Alarm Status #6",
+		"",
+		"Indicates channel Value is greater than High Alarm value.\n - 'No Fault' = channel Value below High Alarm Value\n - 'High Alarm FAULT' = channel value above High Alarm Value",
+		0,1,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Enum146 =	0,"No Fault", 1,"High Alarm FAULT";
+
+	Param147 = 0,
+		6,"20 0A 24 08 30 6C",	$ Link Path Size, Link Path
+		0x0032,	 $ Descriptor
+		0xC1, 1,	$ Data Type, Data Size
+		"High Alarm Status #7",
+		"",
+		"Indicates channel Value is greater than High Alarm value.\n - 'No Fault' = channel Value below High Alarm Value\n - 'High Alarm FAULT' = channel value above High Alarm Value",
+		0,1,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Enum147 =	0,"No Fault", 1,"High Alarm FAULT";
+
+	Param148 = 0,
+		6,"20 0A 24 05 30 6D",	$ Link Path Size, Link Path
+		0x0032,	 $ Descriptor
+		0xC1, 1,	$ Data Type, Data Size
+		"Low Low Alarm Status #4",
+		"",
+		"Indicates channel Value is less than Low Low Alarm value.\n - 'No Fault' = channel Value above Low Low Alarm Value\n - 'Low Low Alarm FAULT' = channel value below Low Low Alarm Value",
+		0,1,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Enum148 =	0,"No Fault", 1,"Low Low Alarm FAULT";
+
+	Param149 = 0,
+		6,"20 0A 24 06 30 6D",	$ Link Path Size, Link Path
+		0x0032,	 $ Descriptor
+		0xC1, 1,	$ Data Type, Data Size
+		"Low Low Alarm Status #5",
+		"",
+		"Indicates channel Value is less than Low Low Alarm value.\n - 'No Fault' = channel Value above Low Low Alarm Value\n - 'Low Low Alarm FAULT' = channel value below Low Low Alarm Value",
+		0,1,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Enum149 =	0,"No Fault", 1,"Low Low Alarm FAULT";
+
+	Param150 = 0,
+		6,"20 0A 24 07 30 6D",	$ Link Path Size, Link Path
+		0x0032,	 $ Descriptor
+		0xC1, 1,	$ Data Type, Data Size
+		"Low Low Alarm Status #6",
+		"",
+		"Indicates channel Value is less than Low Low Alarm value.\n - 'No Fault' = channel Value above Low Low Alarm Value\n - 'Low Low Alarm FAULT' = channel value below Low Low Alarm Value",
+		0,1,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Enum150 =	0,"No Fault", 1,"Low Low Alarm FAULT";
+
+	Param151 = 0,
+		6,"20 0A 24 08 30 6D",	$ Link Path Size, Link Path
+		0x0032,	 $ Descriptor
+		0xC1, 1,	$ Data Type, Data Size
+		"Low Low Alarm Status #7",
+		"",
+		"Indicates channel Value is less than Low Low Alarm value.\n - 'No Fault' = channel Value above Low Low Alarm Value\n - 'Low Low Alarm FAULT' = channel value below Low Low Alarm Value",
+		0,1,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Enum151 =	0,"No Fault", 1,"Low Low Alarm FAULT";
+
+	Param152 = 0,
+		6,"20 0A 24 05 30 6E",	$ Link Path Size, Link Path
+		0x0032,	 $ Descriptor
+		0xC1, 1,	$ Data Type, Data Size
+		"High High Alarm Status #4",
+		"",
+		"Indicates channel Value is greater than High High Alarm value.\n - 'No Fault' = channel Value below High High Alarm Value\n - 'High High Alarm FAULT' = channel value above High High Alarm Value",
+		0,1,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Enum152 =	0,"No Fault", 1,"High High Alarm FAULT";
+
+	Param153 = 0,
+		6,"20 0A 24 06 30 6E",	$ Link Path Size, Link Path
+		0x0032,	 $ Descriptor
+		0xC1, 1,	$ Data Type, Data Size
+		"High High Alarm Status #5",
+		"",
+		"Indicates channel Value is greater than High High Alarm value.\n - 'No Fault' = channel Value below High High Alarm Value\n - 'High High Alarm FAULT' = channel value above High High Alarm Value",
+		0,1,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Enum153 =	0,"No Fault", 1,"High High Alarm FAULT";
+
+	Param154 = 0,
+		6,"20 0A 24 07 30 6E",	$ Link Path Size, Link Path
+		0x0032,	 $ Descriptor
+		0xC1, 1,	$ Data Type, Data Size
+		"High High Alarm Status #6",
+		"",
+		"Indicates channel Value is greater than High High Alarm value.\n - 'No Fault' = channel Value below High High Alarm Value\n - 'High High Alarm FAULT' = channel value above High High Alarm Value",
+		0,1,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Enum154 =	0,"No Fault", 1,"High High Alarm FAULT";
+
+	Param155 = 0,
+		6,"20 0A 24 08 30 6E",	$ Link Path Size, Link Path
+		0x0032,	 $ Descriptor
+		0xC1, 1,	$ Data Type, Data Size
+		"High High Alarm Status #7",
+		"",
+		"Indicates channel Value is greater than High High Alarm value.\n - 'No Fault' = channel Value below High High Alarm Value\n - 'High High Alarm FAULT' = channel value above High High Alarm Value",
+		0,1,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Enum155 =	0,"No Fault", 1,"High High Alarm FAULT";
+
+	Param156 = 0,
+		6,"20 0A 24 05 30 74",	$ Link Path Size, Link Path
+		0x0000,	 $ Descriptor
+		0xC7, 2,	$ Data Type, Data Size
+		"Digital Filter #4",
+		"ms",
+		"Filter time constant in milliseconds.  See manual for equation.\nTo disable, enter 0 ms.",
+		0,10000,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param157 = 0,
+		6,"20 0A 24 06 30 74",	$ Link Path Size, Link Path
+		0x0000,	 $ Descriptor
+		0xC7, 2,	$ Data Type, Data Size
+		"Digital Filter #5",
+		"ms",
+		"Filter time constant in milliseconds.  See manual for equation.\nTo disable, enter 0 ms.",
+		0,10000,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param158 = 0,
+		6,"20 0A 24 07 30 74",	$ Link Path Size, Link Path
+		0x0000,	 $ Descriptor
+		0xC7, 2,	$ Data Type, Data Size
+		"Digital Filter #6",
+		"ms",
+		"Filter time constant in milliseconds.  See manual for equation.\nTo disable, enter 0 ms.",
+		0,10000,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param159 = 0,
+		6,"20 0A 24 08 30 74",	$ Link Path Size, Link Path
+		0x0000,	 $ Descriptor
+		0xC7, 2,	$ Data Type, Data Size
+		"Digital Filter #7",
+		"ms",
+		"Filter time constant in milliseconds.  See manual for equation.\nTo disable, enter 0 ms.",
+		0,10000,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param160 = 0,
+		6,"20 0A 24 05 30 75",	$ Link Path Size, Link Path
+		0x0000,	 $ Descriptor
+		0xC3, 2,	$ Data Type, Data Size
+		"Low Alarm #4",
+		"",
+		"Low Alarm Threshold.\nIf input value drops below this value, Low Alarm Status will Fault.\nDefault = 3113 or 3.8 mA.\nTo disable, set at -32768.",
+		-32768,32767,3113,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param161 = 0,
+		6,"20 0A 24 06 30 75",	$ Link Path Size, Link Path
+		0x0000,	 $ Descriptor
+		0xC3, 2,	$ Data Type, Data Size
+		"Low Alarm #5",
+		"",
+		"Low Alarm Threshold.\nIf input value drops below this value, Low Alarm Status will Fault.\nDefault = 3113 or 3.8 mA.\nTo disable, set at -32768.",
+		-32768,32767,3113,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param162 = 0,
+		6,"20 0A 24 07 30 75",	$ Link Path Size, Link Path
+		0x0000,	 $ Descriptor
+		0xC3, 2,	$ Data Type, Data Size
+		"Low Alarm #6",
+		"",
+		"Low Alarm Threshold.\nIf input value drops below this value, Low Alarm Status will Fault.\nDefault = 3113 or 3.8 mA.\nTo disable, set at -32768.",
+		-32768,32767,3113,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param163 = 0,
+		6,"20 0A 24 08 30 75",	$ Link Path Size, Link Path
+		0x0000,	 $ Descriptor
+		0xC3, 2,	$ Data Type, Data Size
+		"Low Alarm #7",
+		"",
+		"Low Alarm Threshold.\nIf input value drops below this value, Low Alarm Status will Fault.\nDefault = 3113 or 3.8 mA.\nTo disable, set at -32768.",
+		-32768,32767,3113,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param164 = 0,
+		6,"20 0A 24 05 30 76",	$ Link Path Size, Link Path
+		0x0000,	 $ Descriptor
+		0xC3, 2,	$ Data Type, Data Size
+		"High Alarm #4",
+		"",
+		"High Alarm Threshold.\nIf input value climbs above this value, High Alarm Status will Fault.\nDefault = 16547 or 20.2 mA.\nTo disable, set at 32767.",
+		-32768,32767,16547,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param165 = 0,
+		6,"20 0A 24 06 30 76",	$ Link Path Size, Link Path
+		0x0000,	 $ Descriptor
+		0xC3, 2,	$ Data Type, Data Size
+		"High Alarm #5",
+		"",
+		"High Alarm Threshold.\nIf input value climbs above this value, High Alarm Status will Fault.\nDefault = 16547 or 20.2 mA.\nTo disable, set at 32767.",
+		-32768,32767,16547,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+
+	Param166 = 0,
+		6,"20 0A 24 07 30 76",	$ Link Path Size, Link Path
+		0x0000,	 $ Descriptor
+		0xC3, 2,	$ Data Type, Data Size
+		"High Alarm #6",
+		"",
+		"High Alarm Threshold.\nIf input value climbs above this value, High Alarm Status will Fault.\nDefault = 16547 or 20.2 mA.\nTo disable, set at 32767.",
+		-32768,32767,16547,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param167 = 0,
+		6,"20 0A 24 08 30 76",	$ Link Path Size, Link Path
+		0x0000,	 $ Descriptor
+		0xC3, 2,	$ Data Type, Data Size
+		"High Alarm #7",
+		"",
+		"High Alarm Threshold.\nIf input value climbs above this value, High Alarm Status will Fault.\nDefault = 16547 or 20.2 mA.\nTo disable, set at 32767.",
+		-32768,32767,16547,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param168 = 0,
+		6,"20 0A 24 05 30 77",	$ Link Path Size, Link Path
+		0x0000,	 $ Descriptor
+		0xC3, 2,	$ Data Type, Data Size
+		"Low Low Alarm #4",
+		"",
+		"Low Low Alarm Threshold.\nIf input value drops below this value, Low Low Alarm Status will Fault.\nDefault = 2867 or 3.5 mA.\nTo disable, set at -32768.",
+		-32768,32767,2867,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param169 = 0,
+		6,"20 0A 24 06 30 77",	$ Link Path Size, Link Path
+		0x0000,	 $ Descriptor
+		0xC3, 2,	$ Data Type, Data Size
+		"Low Low Alarm #5",
+		"",
+		"Low Low Alarm Threshold.\nIf input value drops below this value, Low Low Alarm Status will Fault.\nDefault = 2867 or 3.5 mA.\nTo disable, set at -32768.",
+		-32768,32767,2867,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param170 = 0,
+		6,"20 0A 24 06 30 77",	$ Link Path Size, Link Path
+		0x0000,	 $ Descriptor
+		0xC3, 2,	$ Data Type, Data Size
+		"Low Low Alarm #6",
+		"",
+		"Low Low Alarm Threshold.\nIf input value drops below this value, Low Low Alarm Status will Fault.\nDefault = 2867 or 3.5 mA.\nTo disable, set at -32768.",
+		-32768,32767,2867,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param171 = 0,
+		6,"20 0A 24 08 30 77",	$ Link Path Size, Link Path
+		0x0000,	 $ Descriptor
+		0xC3, 2,	$ Data Type, Data Size
+		"Low Low Alarm #7",
+		"",
+		"Low Low Alarm Threshold.\nIf input value drops below this value, Low Low Alarm Status will Fault.\nDefault = 2867 or 3.5 mA.\nTo disable, set at -32768.",
+		-32768,32767,2867,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param172 = 0,
+		6,"20 0A 24 05 30 78",	$ Link Path Size, Link Path
+		0x0000,	 $ Descriptor
+		0xC3, 2,	$ Data Type, Data Size
+		"High High Alarm #4",
+		"",
+		"High High Alarm Threshold.\nIf input value climbs above this value, High High Alarm Status will Fault.\nDefault = 16793 or 20.5 mA.\nTo disable, set at 32767.",
+		-32768,32767,16793,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param173 = 0,
+		6,"20 0A 24 06 30 78",	$ Link Path Size, Link Path
+		0x0000,	 $ Descriptor
+		0xC3, 2,	$ Data Type, Data Size
+		"High High Alarm #5",
+		"",
+		"High High Alarm Threshold.\nIf input value climbs above this value, High High Alarm Status will Fault.\nDefault = 16793 or 20.5 mA.\nTo disable, set at 32767.",
+		-32768,32767,16793,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+
+	Param174 = 0,
+		6,"20 0A 24 07 30 78",	$ Link Path Size, Link Path
+		0x0000,	 $ Descriptor
+		0xC3, 2,	$ Data Type, Data Size
+		"High High Alarm #6",
+		"",
+		"High High Alarm Threshold.\nIf input value climbs above this value, High High Alarm Status will Fault.\nDefault = 16793 or 20.5 mA.\nTo disable, set at 32767.",
+		-32768,32767,16793,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param175 = 0,
+		6,"20 0A 24 08 30 78",	$ Link Path Size, Link Path
+		0x0000,	 $ Descriptor
+		0xC3, 2,	$ Data Type, Data Size
+		"High High Alarm #7",
+		"",
+		"High High Alarm Threshold.\nIf input value climbs above this value, High High Alarm Status will Fault.\nDefault = 16793 or 20.5 mA.\nTo disable, set at 32767.",
+		-32768,32767,16793,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Param176 = 0,
+		6,"20 0A 24 05 30 80",	$ Link Path Size, Link Path
+		0x0032,	 $ Descriptor
+		0xC1, 1,	$ Data Type, Data Size
+		"Under Range Alarm Status #4",
+		"",
+		"Indicates channel Value is less than Under Range Alarm value (about 50 uA).\n - 'No Fault' = channel Value is above Under Range Alarm value\n - 'Under Range Alarm FAULT' = channel Value is below Under Range Alarm value",
+		0,1,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Enum176 =	0,"No fault", 1,"Under Range FAULT";
+
+	Param177 = 0,
+		6,"20 0A 24 06 30 80",	$ Link Path Size, Link Path
+		0x0032,	 $ Descriptor
+		0xC1, 1,	$ Data Type, Data Size
+		"Under Range Alarm Status #5",
+		"",
+		"Indicates channel Value is less than Under Range Alarm value (about 50 uA).\n - 'No Fault' = channel Value is above Under Range Alarm value\n - 'Under Range Alarm FAULT' = channel Value is below Under Range Alarm value",
+		0,1,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Enum177 =	0,"No fault", 1,"Under Range FAULT";
+
+
+	Param178 = 0,
+		6,"20 0A 24 07 30 80",	$ Link Path Size, Link Path
+		0x0032,	 $ Descriptor
+		0xC1, 1,	$ Data Type, Data Size
+		"Under Range Alarm Status #6",
+		"",
+		"Indicates channel Value is less than Under Range Alarm value (about 50 uA).\n - 'No Fault' = channel Value is above Under Range Alarm value\n - 'Under Range Alarm FAULT' = channel Value is below Under Range Alarm value",
+		0,1,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Enum178 =	0,"No fault", 1,"Under Range FAULT";
+
+	Param179 = 0,
+		6,"20 0A 24 08 30 80",	$ Link Path Size, Link Path
+		0x0032,	 $ Descriptor
+		0xC1, 1,	$ Data Type, Data Size
+		"Under Range Alarm Status #7",
+		"",
+		"Indicates channel Value is less than Under Range Alarm value (about 50 uA).\n - 'No Fault' = channel Value is above Under Range Alarm value\n - 'Under Range Alarm FAULT' = channel Value is below Under Range Alarm value",
+		0,1,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Enum179 =	0,"No fault", 1,"Under Range FAULT";
+
+	Param180 = 0,
+		6,"20 0A 24 05 30 81",	$ Link Path Size, Link Path
+		0x0032,	 $ Descriptor
+		0xC1, 1,	$ Data Type, Data Size
+		"Over Range Alarm Status #4",
+		"",
+		"Indicates channel Value is greater than Over Range Alarm value (A/D is at maximum).\n - 'No Fault' = channel Value is above Over Range Alarm value\n - 'Over Range Alarm FAULT' = channel Value is above Over Range Alarm value",
+		0,1,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Enum180 =	0,"No fault", 1,"Over Range FAULT";
+
+	Param181 = 0,
+		6,"20 0A 24 06 30 81",	$ Link Path Size, Link Path
+		0x0032,	 $ Descriptor
+		0xC1, 1,	$ Data Type, Data Size
+		"Over Range Alarm Status #5",
+		"",
+		"Indicates channel Value is greater than Over Range Alarm value (A/D is at maximum).\n - 'No Fault' = channel Value is above Over Range Alarm value\n - 'Over Range Alarm FAULT' = channel Value is above Over Range Alarm value",
+		0,1,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Enum181 =0,"No fault", 1,"Over Range FAULT";
+
+	Param182 = 0,
+		6,"20 0A 24 07 30 81",	$ Link Path Size, Link Path
+		0x0032,	 $ Descriptor
+		0xC1, 1,	$ Data Type, Data Size
+		"Over Range Alarm Status #6",
+		"",
+		"Indicates channel Value is greater than Over Range Alarm value (A/D is at maximum).\n - 'No Fault' = channel Value is above Over Range Alarm value\n - 'Over Range Alarm FAULT' = channel Value is above Over Range Alarm value",
+		0,1,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Enum182 =	0,"No fault", 1,"Over Range FAULT";
+
+	Param183 = 0,
+		6,"20 0A 24 08 30 81",	$ Link Path Size, Link Path
+		0x0032,	 $ Descriptor
+		0xC1, 1,	$ Data Type, Data Size
+		"Over Range Alarm Status #7",
+		"",
+		"Indicates channel Value is greater than Over Range Alarm value (A/D is at maximum).\n - 'No Fault' = channel Value is above Over Range Alarm value\n - 'Over Range Alarm FAULT' = channel Value is above Over Range Alarm value",
+		0,1,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Enum183 =0,"No fault", 1,"Over Range FAULT";
+
+	Param184 = 0,
+		6,"20 0A 24 05 30 83",	$ Link Path Size, Link Path
+		0x0032,	 $ Descriptor
+		0xC1, 1,	$ Data Type, Data Size
+		"Bad Cal Status #4",
+		"",
+		"This bit shows the current status of calibration for this channel.\n'Good Calibration' means the data stored in EEPROM is within tollerances.\n'Calibration Fault' means the module is not calibrated and is using default values.\n\nNote:  While in Calibration Mode, the status will be 'Bad Calibration.'",
+		0,1,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Enum184 =	0,"Good Calibration", 1,"Calibration FAULT";
+
+	Param185 = 0,
+		6,"20 0A 24 06 30 83",	$ Link Path Size, Link Path
+		0x0032,	 $ Descriptor
+		0xC1, 1,	$ Data Type, Data Size
+		"Bad Cal Status #5",
+		"",
+		"This bit shows the current status of calibration for this channel.\n'Good Calibration' means the data stored in EEPROM is within tollerances.\n'Calibration Fault' means the module is not calibrated and is using default values.\n\nNote:  While in Calibration Mode, the status will be 'Bad Calibration.'",
+		0,1,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Enum185 =	0,"Good Calibration", 1,"Calibration FAULT";
+
+	Param186 = 0,
+		6,"20 0A 24 07 30 83",	$ Link Path Size, Link Path
+		0x0032,	 $ Descriptor
+		0xC1, 1,	$ Data Type, Data Size
+		"Bad Cal Status #6",
+		"",
+		"This bit shows the current status of calibration for this channel.\n'Good Calibration' means the data stored in EEPROM is within tollerances.\n'Calibration Fault' means the module is not calibrated and is using default values.\n\nNote:  While in Calibration Mode, the status will be 'Bad Calibration.'",
+		0,1,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Enum186 =	0,"Good Calibration", 1,"Calibration FAULT";
+
+	Param187 = 0,
+		6,"20 0A 24 08 30 83",	$ Link Path Size, Link Path
+		0x0032,	 $ Descriptor
+		0xC1, 1,	$ Data Type, Data Size
+		"Bad Cal Status #7",
+		"",
+		"This bit shows the current status of calibration for this channel.\n'Good Calibration' means the data stored in EEPROM is within tollerances.\n'Calibration Fault' means the module is not calibrated and is using default values.\n\nNote:  While in Calibration Mode, the status will be 'Bad Calibration.'",
+		0,1,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Enum187 =	0,"Good Calibration", 1,"Calibration FAULT";
+
+      Param101 =                    $ Revision of Configuration Assembly
+        0,                          $ first field shall equal 0
+        ,,                          $ path size,path
+        0x0210,                     $ descriptor (readonly, no display)
+        0xC7,                       $ data type : 16-bit Unsigned Integer
+        2,                          $ data size in bytes
+        "Configuration revision",   $ name
+        "",                         $ units
+        "",                         $ help string
+        1,1,1,                      $ min,max,default data values
+        0,0,0,0,                    $ mult,dev,base,offset scaling not used
+        0,0,0,0,                    $ mult,dev,base,offset link not used
+        0;                          $ decimal places not used
+
+      Param102 =                    $ non-Logix header
+        0,                          $ first field shall equal 0
+        ,,                          $ path size,path
+        0x0210,                     $ descriptor (readonly, no display)
+        0xC7,                       $ data type : 16-bit Unsigned Integer
+        2,                          $ data size in bytes
+        "Non-Logix Header",         $ name
+        "",                         $ units
+        "",                         $ help string
+        0x7001,0x7001,0x7001,       $ min,max,default data values
+        0,0,0,0,                    $ mult,dev,base,offset scaling not used
+        0,0,0,0,                    $ mult,dev,base,offset link not used
+        0;                          $ decimal places not used
+
+[Assembly]
+	Revision = 2;
+
+	Assem101 = "Data - with Status","",
+		,,,,
+		16,Param50,        $ Ch0Data
+		16,Param51,        $ Ch1Data
+		16,Param94,        $ Ch2Data
+		16,Param95,        $ Ch3Data
+		16,Param98,        $ Ch4Data
+		16,Param99,        $ Ch5Data
+		16,Param100,        $ Ch6Data
+		16,Param103,        $ Ch7Data
+		8,Param52,         $ Ch0Status
+		8,Param53,         $ Ch1Status
+		8,Param96,         $ Ch2Status
+		8,Param97,         $ Ch3Status
+		8,Param104,         $ Ch4Status
+		8,Param105,         $ Ch5Status
+		8,Param106,         $ Ch6Status
+		8,Param107;         $ Ch7Status
+
+	Assem123 = "1734-IE8C Configuration Assembly","",	$139 bytes in all	17*4+3+17*4=139
+		,0x0000,,,
+		16,Param11,
+		16,Param13,
+		16,Param27,
+		16,Param29,
+		16,Param31,
+		16,Param33,
+		16,Param35,
+		8,Param7,
+		8,Param15,
+		8,Param17,
+		8,,			$pad
+		16,Param12,
+		16,Param14,
+		16,Param28,
+		16,Param30,
+		16,Param32,
+		16,Param34,
+		16,Param36,
+		8,Param8,
+		8,Param16,
+		8,Param18,
+		8,,
+		16,Param62,		$add for IE4C Feb 2007
+		16,Param64,
+		16,Param78,
+		16,Param80,
+		16,Param82,
+		16,Param84,
+		16,Param86,
+		8,Param58,
+		8,Param66,
+		8,Param68,
+		8,,
+		16,Param63,
+		16,Param65,
+		16,Param79,
+		16,Param81,
+		16,Param83,
+		16,Param85,
+		16,Param87,
+		8,Param59,
+		8,Param67,
+		8,Param69,
+		8,,
+		16,Param124,		$add for IE8C April 2007
+		16,Param128,
+		16,Param156,
+		16,Param160,
+		16,Param164,
+		16,Param168,
+		16,Param172,
+		8,Param116,
+		8,Param132,
+		8,Param136,
+		8,,
+		16,Param125,
+		16,Param129,
+		16,Param157,
+		16,Param161,
+		16,Param165,
+		16,Param169,
+		16,Param173,
+		8,Param117,
+		8,Param133,
+		8,Param137,
+		8,,
+		16,Param126,		
+		16,Param130,
+		16,Param158,
+		16,Param162,
+		16,Param166,
+		16,Param170,
+		16,Param174,
+		8,Param118,
+		8,Param134,
+		8,Param138,
+		8,,
+		16,Param127,
+		16,Param131,
+		16,Param159,
+		16,Param163,
+		16,Param167,
+		16,Param171,
+		16,Param175,
+		8,Param119,
+		8,Param135,
+		8,Param139,
+
+		8,Param2,
+		16,Param1;
+
+    Assem124 =                  $ Private config in Forward Open, Module
+        "3rd Party Private Assembly",
+        ,                       $ Path
+        ,                       $ Length in bytes
+        ,                       $ descriptor
+        ,,                      $ reserved
+        16,Param101,            $ configuration revision (only valid value is 1)
+        16,;                    $ reserved - zeros
+
+    Assem125 =                  $ Private config in Forward Open, Module
+        "Adapter Config Assembly",
+        ,                       $ Path
+        ,                       $ Length in bytes
+        ,                       $ descriptor
+        ,,                      $ reserved
+        16,Param102,            $ Non-Logix Header (constant 0x7001)
+        16,1_RackSize,          $ number of slots
+        16,Param101,            $ configuration revision (only valid value is 1)
+        16,;                    $ reserved - zeros
+
+    Assem126 =                  $ O2T (output data)
+        "Ouput Data Assembly",
+        ,                       $ Path
+        ,                       $ Length in bytes
+        ,                       $ descriptor
+        ,                       $ reserved
+        ;                       $ No Assembly sent to module
+
+    Assem127 =                  $ T2O (input data)
+        "Input Data Assembly",
+        ,                       $ Path
+        ,                       $ Length in bytes
+        ,                       $ descriptor
+        ,,                      $ reserved
+        32,,                    $ Fault bits
+        ,Assem101;              $ Assembly passed from module
+
+[ParamClass]
+	MaxInst = 187;
+	Descriptor  = 0x09;       $ Bit 0: 1= parameter instances exist
+                                $ Bit 1: 0= not full
+                                $ Bit 2: 0= NVS command not needed
+                                $ Bit 3: 1= Automaticly stored in EERPOM
+	CfgAssembly = 123;
+
+[Groups]
+	Group1 = "I/O - Input Values",8,
+		3,4,54,55,108,109,110,111;
+	Group2 = "I/O - Input Status", 57,
+		5,6,56,57,112,113,114,115,19,20,70,71,140,141,142,143,21,22,72,73,144,145,146,147,23,24,74,75,148,149,150,151,25,26,76,77,152,153,154,155,37,38,88,89,176,177,178,179,39,40,90,91,180,181,182,183,46;
+	Group3 = "Configuration", 91,
+		2,1,7,8,58,59,116,117,118,119,9,10,60,61,120,121,122,123,11,12,62,63,124,125,126,127,13,14,64,65,128,129,130,131,15,16,66,67,132,133,134,135,17,18,68,69,136,137,138,139,27,28,78,79,156,157,158,159,29,30,80,81,160,161,162,163,31,32,82,83,164,165,166,167,33,34,84,85,168,169,170,171,35,36,86,87,172,173,174,175,43;
+	Group4 = "Calibration", 10,
+		41,42,92,93,184,185,186,187,44,45;
+	Group5 = "PointBus", 3,
+		47,48,49;
+
+[IO_Info]
+	1_COSetPathNotSupported = 1;                      $ Cnxn Obj does not support direct path setting
+
+	Default = 0x4;
+
+	PollInfo = 0xF,
+		1,
+		0;
+
+	StrobeInfo = 0xF,
+		1,
+		0;
+
+	COSInfo = 0x7,
+		1,
+		0;
+
+	CyclicInfo = 0xB,
+		1,
+		0;
+
+	Input1 = 24,
+		0, 
+		0xF, 
+		"Data - with Status",
+		6,
+		"20 04 24 65 30 03",
+		"Producing connection contains state of the four inputs and their status";
+
+[Connection Manager]
+$   Connection6 =       $ There is No Exclusive Owner Connection
+
+     Connection26 =     $ Input Only (nonLogix Direct to Module)
+                        $ Catalogs        1734-IE2C, IE2V, IR2, IT2I,IE4C,IE4V,IE8C,IE8V
+                        $ Config Assem    123	
+                        $ Consume Assem   0xBE (Input Only)	
+                        $ Produce Assem   101	
+        0x02030002,     $ trigger & transport
+        0x44240305,     $ point/multicast & priority & realtime format
+        ,0,,            $ O=>T default,description
+        ,,Assem127,     $ T=>O default,description
+        ,Assem124,      $ config part 1
+        ,Assem123,      $ config part 2
+        "Direct Input Only",  $ connection name
+        "Direct Input Only Connection - Input data contains the state (analog level) of each of the inputs. There is NO output data.",   $ Help string
+        "20 04 24 7B 2C BE 2C 65";
+
+     Connection46 =     $ Listen Only (Direct to Module)
+                        $ Catalogs        1734-IE2C, IE2V, IR2, IT2I,IE4C,IE4V,IE8C,IE8V	
+                        $ Config Assem    123	
+                        $ Consume Assem   0xBF (Listen Only)	
+                        $ Produce Assem   101	
+        0x01030002,     $ trigger & transport
+        0x44240305,     $ point/multicast & priority & realtime format
+        ,0,,            $ O=>T default,description
+        ,,Assem127,     $ T=>O default,description
+        ,,              $ config part 1
+        ,,              $ config part 2 (module configuration)
+        "Direct Listen Only",  $ connection name
+        "Direct Listen Only Connection - Input data contains the state (analog level) of each of the inputs.",   $ Help string
+        "20 04 24 7B 2C BF 2C 65";
+
+[Port]
+      Port1 =       DeviceNet,                          $ or maybe 1_Virtual_Backplane
+                    "PointIO Backplane",                $ Name of backplane
+                    "20 03 24 01",                      $ Path to DeviceNet Object Instance 1
+                    1;                                  $ Port number 1
+
+[Modular]
+      Width =       1;
+
+$ I/O Module EDS
+$ Number of slots in rack = Product Code - 99
+$ Number of I/O modules in rack = Product Code - 100
+$ Note Rack# does not match in Adapter EDS, Adapter EDS includes one for Slot 0
+
+	Rack1 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 101,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+            1;                $ Legal Slots
+
+	Rack2 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 102,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+            1,2;              $ Legal Slots
+
+	Rack3 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 103,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+            1,2,3;            $ Legal Slots
+
+	Rack4 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 104,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+            1,2,3,4;          $ Legal Slots
+
+	Rack5 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 105,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+            1,2,3,4,5;        $ Legal Slots
+
+	Rack6 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 106,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+            1,2,3,4,5,6;      $ Legal Slots
+
+	Rack7 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 107,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+            1,2,3,4,5,6,7;    $ Legal Slots
+
+	Rack8 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 108,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+            1,2,3,4,5,6,7,8,9;$ Legal Slots
+
+	Rack9 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 109,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10;
+                              $ Legal Slots
+
+	Rack10 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 110,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11;
+                              $ Legal Slots
+
+	Rack11 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 111,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12;
+                              $ Legal Slots
+
+	Rack12 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 112,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13;
+                              $ Legal Slots
+
+	Rack13 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 113,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14;
+                              $ Legal Slots
+
+	Rack14 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 114,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15;
+                              $ Legal Slots
+
+	Rack15 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 115,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16;
+                              $ Legal Slots
+
+	Rack16 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 116,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17;
+                              $ Legal Slots
+
+	Rack17 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 117,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18;
+                              $ Legal Slots
+
+	Rack18 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 118,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19;
+                              $ Legal Slots
+
+	Rack19 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 119,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20;
+                              $ Legal Slots
+
+	Rack20 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 120,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21;               $ Legal Slots
+
+	Rack21 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 121,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22;            $ Legal Slots
+
+	Rack22 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 122,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23;         $ Legal Slots
+
+	Rack23 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 123,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24;      $ Legal Slots
+
+	Rack24 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 124,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25;   $ Legal Slots
+
+	Rack25 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 125,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26;
+                              $ Legal Slots
+
+	Rack26 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 126,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27;
+                              $ Legal Slots
+
+	Rack27 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 127,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28;
+                              $ Legal Slots
+
+	Rack28 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 128,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29;
+                              $ Legal Slots
+
+	Rack29 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 129,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30;
+                              $ Legal Slots
+
+	Rack30 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 130,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31;
+                              $ Legal Slots
+
+	Rack31 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 131,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32;
+                              $ Legal Slots
+
+	Rack32 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 132,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33;
+                              $ Legal Slots
+
+	Rack33 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 133,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34;
+                              $ Legal Slots
+
+	Rack34 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 134,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35;
+                              $ Legal Slots
+
+	Rack35 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 135,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36;
+                              $ Legal Slots
+
+	Rack36 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 136,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37;
+                              $ Legal Slots
+
+	Rack37 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 137,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38;
+                              $ Legal Slots
+
+	Rack38 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 138,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39;
+                              $ Legal Slots
+
+	Rack39 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 139,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40;
+                              $ Legal Slots
+
+	Rack40 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 140,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,
+            41;               $ Legal Slots
+
+	Rack41 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 141,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,
+            41,42;            $ Legal Slots
+
+	Rack42 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 142,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,
+            41,42,43;         $ Legal Slots
+
+	Rack43 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 143,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,
+            41,42,43,44;      $ Legal Slots
+
+	Rack44 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 144,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,
+            41,42,43,44,45;   $ Legal Slots
+
+	Rack45 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 145,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,
+            41,42,43,44,45,46;
+                              $ Legal Slots
+
+	Rack46 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 146,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,
+            41,42,43,44,45,46,47;
+                              $ Legal Slots
+
+	Rack47 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 147,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,
+            41,42,43,44,45,46,47,48;
+                              $ Legal Slots
+
+	Rack48 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 148,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,
+            41,42,43,44,45,46,47,48,49;
+                              $ Legal Slots
+
+	Rack49 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 149,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,
+            41,42,43,44,45,46,47,48,49,50;
+                              $ Legal Slots
+
+	Rack50 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 150,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,
+            41,42,43,44,45,46,47,48,49,50,51;
+                              $ Legal Slots
+
+	Rack51 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 151,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,
+            41,42,43,44,45,46,47,48,49,50,51,52;
+                              $ Legal Slots
+
+	Rack52 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 152,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,
+            41,42,43,44,45,46,47,48,49,50,51,52,53;
+                              $ Legal Slots
+
+	Rack53 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 153,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,
+            41,42,43,44,45,46,47,48,49,50,51,52,53,54;
+                              $ Legal Slots
+
+	Rack54 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 154,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,
+            41,42,43,44,45,46,47,48,49,50,51,52,53,54,55;
+                              $ Legal Slots
+
+	Rack55 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 155,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,
+            41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56;
+                              $ Legal Slots
+
+	Rack56 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 156,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,
+            41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57;
+                              $ Legal Slots
+
+	Rack57 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 157,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,
+            41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58;
+                              $ Legal Slots
+
+	Rack58 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 158,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,
+            41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59;
+                              $ Legal Slots
+
+	Rack59 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 159,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,
+            41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60;
+                              $ Legal Slots
+
+	Rack60 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 160,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,
+            41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,
+            61;               $ Legal Slots
+
+	Rack61 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 161,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,
+            41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,
+            61,62;            $ Legal Slots
+
+	Rack62 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 162,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,
+            41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,
+            61,62,63;         $ Legal Slots
+
+	Rack63 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 163,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,
+            41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,
+            61,62,63,64;      $ Legal Slots

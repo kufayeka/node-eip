@@ -1,0 +1,285 @@
+$ Electronic Data Sheet for CompactBlock LDX  (1790D-4T0)
+$ Copyright 2001 by Rockwell Automation and the author
+
+[File]
+	DescText = "1790D-4T0 CompactBlock LDX EDS file";
+	CreateDate = 08-27-2001;
+	CreateTime = 13:30:00;
+	ModDate = 12-12-2001;
+	ModTime = 13:30:00;
+	Revision = 1.1;
+	HomeURL		= "http://www.ab.com/networks/eds/DN/0001007300440100.eds";
+
+[Device]
+	VendCode = 1;
+	VendName = "Allen-Bradley Company, Inc.";
+	ProdType = 115;
+	ProdTypeStr = "Miscellaneous I/O";
+	ProdCode= 68;
+	MajRev = 1;
+	MinRev = 1;
+	ProdName = "1790D-4T0 4 Thermocouple In";
+	Catalog = "1790D-4T0";
+	Icon = "compactblkLDX.ico";
+
+[Params]
+	Param1 = 0,
+		6,"20 0A 24 01 30 03",	$ Link Path Size, Link Path
+		0x0074,	 		$ Descriptor
+		0xC3, 2,		$ Data Type, Data Size
+		"Input Value #0",
+		"",
+		"Value of thermocouple input scaled to chosen units.\nIn default millivolt mode it will return tens of millivolts (i.e. 25mv = 250).",
+		-32768,32767,0,
+		1,1,1,0,0,0,0,0,1;
+
+	Param2 = 0,
+		6,"20 0A 24 02 30 03",	$ Link Path Size, Link Path
+		0x0074,	 		$ Descriptor
+		0xC3, 2,		$ Data Type, Data Size
+		"Input Value #1",
+		"",
+		"Value of thermocouple input scaled to chosen units.\nIn default millivolt mode it will return tens of millivolts (i.e. 25mv = 250).",
+		-32768,32767,0,
+		1,1,1,0,0,0,0,0,1;
+
+	Param3 = 0,
+		6,"20 0A 24 03 30 03",	$ Link Path Size, Link Path
+		0x0074,	 		$ Descriptor
+		0xC3, 2,		$ Data Type, Data Size
+		"Input Value #2",
+		"",
+		"Value of thermocouple input scaled to chosen units.\nIn default millivolt mode it will return tens of millivolts (i.e. 25mv = 250).",
+		-32768,32767,0,
+		1,1,1,0,0,0,0,0,1;
+
+	Param4 = 0,
+		6,"20 0A 24 04 30 03",	$ Link Path Size, Link Path
+		0x0074,	 		$ Descriptor
+		0xC3, 2,		$ Data Type, Data Size
+		"Input Value #3",
+		"",
+		"Value of thermocouple input scaled to chosen units.\nIn default millivolt mode it will return tens of millivolts (i.e. 25mv = 250).",
+		-32768,32767,0,
+		1,1,1,0,0,0,0,0,1;
+
+	Param5 = 0,
+		6,"20 0A 24 01 30 04",	$ Link Path Size, Link Path
+		0x0032,	 		$ Descriptor
+		0xC1, 1,		$ Data Type, Data Size
+		"Status #0",
+		"",
+		"Status of input channel.",
+		0,1,0,
+		1,1,1,0,0,0,0,0,0;
+
+	Param6 = 0,
+		6,"20 0A 24 02 30 04",	$ Link Path Size, Link Path
+		0x0032,	 		$ Descriptor
+		0xC1, 1,		$ Data Type, Data Size
+		"Status #1",
+		"",
+		"Status of input channel.",
+		0,1,0,
+		1,1,1,0,0,0,0,0,0;
+
+	Param7 = 0,
+		6,"20 0A 24 03 30 04",	$ Link Path Size, Link Path
+		0x0032,	 		$ Descriptor
+		0xC1, 1,		$ Data Type, Data Size
+		"Status #2",
+		"",
+		"Status of input channel.",
+		0,1,0,
+		1,1,1,0,0,0,0,0,0;
+
+	Param8 = 0,
+		6,"20 0A 24 04 30 04",	$ Link Path Size, Link Path
+		0x0032,	 		$ Descriptor
+		0xC1, 1,		$ Data Type, Data Size
+		"Status #3",
+		"",
+		"Status of input channel.",
+		0,1,0,
+		1,1,1,0,0,0,0,0,0;
+
+	Param9 = 0,
+		6,"20 0A 24 00 30 64",	$ Link Path Size, Link Path
+		0x0080,	 		$ Descriptor
+		0xC6, 1,		$ Data Type, Data Size
+		"Temp Units/Notch Filter",
+		"",
+		"This parameter sets the temperature units (either degrees C or degrees F) and the notch filter selection.\nPick the combination of temperature units and notch filter that you require.\nKeep in mind that higher notch filter settings allow more noise and hence lower accuracy.\nSee the User Manual for more details.",
+		0,97,0,
+		1,1,1,0,0,0,0,0,0;
+
+	Enum9 = 0,"Deg C/10Hz", 1,"Deg F/10Hz", 16,"Deg C/25Hz", 17,"Deg F/25Hz", 32,"Deg C/50Hz", 
+		33,"Deg F/50Hz", 48,"Deg C/60Hz", 49,"Deg F/60Hz", 64,"Deg C/100Hz", 65,"Deg F/100Hz", 
+		80,"Deg C/250Hz", 81,"Deg F/250Hz", 96,"Deg C/500Hz", 97,"Deg F/500Hz";
+
+
+	Param10 = 0,
+		6,"20 0A 24 01 30 64",	$ Link Path Size, Link Path
+		0x0002,	 		$ Descriptor
+		0xC6, 1,		$ Data Type, Data Size
+		"Thermocouple Type #0",
+		"",
+		"Thermocouple Type-\nChoose the type of sensor for this input.",
+		0,8,0,
+		,,,,,,,,;
+
+	Param11 = 0,
+		6,"20 0A 24 02 30 64",	$ Link Path Size, Link Path
+		0x0002,	 		$ Descriptor
+		0xC6, 1,		$ Data Type, Data Size
+		"Thermocouple Type #1",
+		"",
+		"Thermocouple Type-\nChoose the type of sensor for this input.",
+		0,8,0,
+		,,,,,,,,;
+
+	Param12 = 0,
+		6,"20 0A 24 03 30 64",	$ Link Path Size, Link Path
+		0x0002,	 		$ Descriptor
+		0xC6, 1,		$ Data Type, Data Size
+		"Thermocouple Type #2",
+		"",
+		"Thermocouple Type-\nChoose the type of sensor for this input.",
+		0,8,0,
+		,,,,,,,,;
+
+	Param13 = 0,
+		6,"20 0A 24 04 30 64",	$ Link Path Size, Link Path
+		0x0002,	 		$ Descriptor
+		0xC6, 1,		$ Data Type, Data Size
+		"Thermocouple Type #3",
+		"",
+		"Thermocouple Type-\nChoose the type of sensor for this input.",
+		0,8,0,
+		,,,,,,,,;
+
+	Param14 = 0,
+		6,"20 0A 24 00 30 66",	$ Link Path Size, Link Path
+		0x0014,	 		$ Descriptor
+		0xC3, 2,		$ Data Type, Data Size
+		"Cold Junction Value",
+		"Deg",
+		"This is the temperature measured at the terminal block.",
+		-32768,32767,0,
+		1,10,1,0,0,0,0,0,0;
+
+	Param15 = 0,
+		6,"20 0A 24 00 30 65",	$ Link Path Size, Link Path
+		0x0002,	 		$ Descriptor
+		0xC1, 1,		$ Data Type, Data Size
+		"Cold Junction Enable",
+		"",
+		"This bit will enable or disable the cold junction linearization.\nIf enabled, the cold junction compensation value will be applied to the thermocouples.\nA cold junction value can be added using the 'Cold Junction Offset' parameter.",
+		0,1,0,
+		1,1,1,0,0,0,0,0,0;
+
+	Param16 = 0,
+		6,"20 0A 24 00 30 67",	$ Link Path Size, Link Path
+		0x0000,	 		$ Descriptor
+		0xC3, 2,		$ Data Type, Data Size
+		"Cold Junction Offset",
+		"",
+		"A temperature may be entered in degrees C or degrees F in tens of degrees dependant on the scale chosen (25'C/F would be entered as 250).\nLimits are -1000 to +1000 (-100'C to +100'C) or -2120 to +2120 (-212'F to +212'F).",
+		-2120,2120,0,
+		1,1,1,0,0,0,0,0,0;
+
+	Param17 = 0,
+		6,"20 03 24 01 30 64",	$ Link Path Size, Link Path
+		0x0002,	 		$ Descriptor
+		0xC1, 1,		$ Data Type, Data Size
+		"Autobaud",
+		"",
+		"This parameter disables or enables the Autobaud feature in the block. The change occurs after the next powerup. The default is enabled.",
+		0,1,0,
+		1,1,1,0,0,0,0,0,0;
+
+[EnumPar]
+	Param5 =
+ 		"Good",
+		"Alarm State";
+	Param6 =
+ 		"Good",
+		"Alarm State";
+	Param7 =
+ 		"Good",
+		"Alarm State";
+	Param8 =
+ 		"Good",
+		"Alarm State";
+	Param10 =
+ 		"Millivolt",
+		"B",
+		"E",
+		"J",
+		"K",
+		"R",
+		"S",
+		"T",
+		"N";
+	Param11 =
+ 		"Millivolt",
+		"B",
+		"E",
+		"J",
+		"K",
+		"R",
+		"S",
+		"T",
+		"N";
+	Param12 =
+ 		"Millivolt",
+		"B",
+		"E",
+		"J",
+		"K",
+		"R",
+		"S",
+		"T",
+		"N";
+	Param13 =
+ 		"Millivolt",
+		"B",
+		"E",
+		"J",
+		"K",
+		"R",
+		"S",
+		"T",
+		"N";
+	Param15 =
+ 		"Enable",
+		"Disable";
+	Param17 =
+ 		"Enable",
+		"Disable";
+	
+[ParamClass]
+	MaxInst = 17;
+	Descriptor = 0x8;
+	CfgAssembly = ;
+
+[Groups]
+	Group1 = "I/O - Input Values", 4,
+		1,2,3,4;
+	Group2 = "I/O - Input Status", 4,
+		5,6,7,8;
+
+[IO_Info]
+	Default		= 0x1;
+	PollInfo 	= 0x000D,1,0;
+	StrobeInfo 	= ;
+	COSInfo 	= 0x0005,1,0;
+	CyclicInfo 	= 0x0009,1,0;
+
+	Input1 = 10,
+		0, 
+		0x0005, 
+		"1790D-4T0 Produce Connection",
+		6,
+		"20 04 24 6E 30 03",
+		"Producing connection contains state of the four inputs and their status.";

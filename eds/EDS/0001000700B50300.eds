@@ -1,0 +1,36 @@
+[File]
+	DescText = "1756-OG16/A ICP 16 Point TTL Output Module";
+	CreateDate = 11-09-2003;
+	CreateTime = 15:15:00;
+	Revision = 1.0;
+
+[Device]
+	VendCode = 1;
+	VendName = "Allen-Bradley";
+	ProdType = 7;
+	ProdTypeStr = "Discrete I/O ";
+	ProdCode = 181;
+	MajRev = 3;
+	MinRev = 2;
+	ProdName = "1756-OG16/A ";
+	Catalog = "1756-OG16/A ";
+	Icon = "io_green.ico";
+
+[Device Classification]
+	Class2 = 1_RSNetWorx_1756,1_RSNetWorx_Not_Connectable_Module;
+
+[Modular]
+	Width  = 1;
+	Rack1  = 1,0x6c,0x16,1,1,,,,0,1,2,3;                                    $1756-A4 Chassis, any slot
+	Rack2  = 1,0x6c,0x17,1,1,,,,0,1,2,3,4,5,6;                              $1756-A7 Chassis, any slot
+	Rack3  = 1,0x6c,0x18,1,1,,,,0,1,2,3,4,5,6,7,8,9;                        $1756-A10 Chassis, any slot
+	Rack4  = 1,0x6c,0x19,1,1,,,,0,1,2,3,4,5,6,7,8,9,10,11,12;               $1756-A13 Chassis, any slot
+	Rack5  = 1,0x6c,0x1A,1,1,,,,0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16;   $1756-A17 Chassis, any slot
+	Rack6  = 1,0x6c,0x16,2,1,,,,0,1,2,3;                                    $1756-A4 Chassis v2.1, any slot
+	Rack7  = 1,0x6c,0x17,2,1,,,,0,1,2,3,4,5,6;                              $1756-A7 Chassis v2.1, any slot
+	Rack8  = 1,0x6c,0x18,2,1,,,,0,1,2,3,4,5,6,7,8,9;                        $1756-A10 Chassis v2.1, any slot
+	Rack9  = 1,0x6c,0x19,2,1,,,,0,1,2,3,4,5,6,7,8,9,10,11,12;               $1756-A13 Chassis v2.1, any slot
+	Rack10 = 1,0x6c,0x1A,2,1,,,,0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16;   $1756-A17 Chassis v2.1, any slot
+
+
+

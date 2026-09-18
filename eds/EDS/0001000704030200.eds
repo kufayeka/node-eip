@@ -1,0 +1,191 @@
+$ Electronic Data Sheet for Armor Block I/O  (1792-OB4E)
+
+[File]
+DescText = "1792-OB4E Armor Block I/O EDS File";
+CreateDate = 04-18-96;
+CreateTime = 12:00:00;
+ModDate = 04-23-97;
+ModTime = 12:00:00;
+Revision = 2.4;		$ EDS revision.
+
+[Device]
+VendCode = 1;
+VendName = "Allen-Bradley Company, Inc.";
+ProdType = 7;
+ProdTypeStr = "General Purpose Discrete I/O";
+ProdCode = 1027;
+MajRev = 2;
+MinRev = 1;
+ProdName = "1792-OB4E 4Output";
+Catalog="1792-OB4E";
+1_Icon=0001_ArmorBlk.ico;
+
+[IO_Info]
+Default = 0x0004;	$ The default I/O type is COS I/O.
+
+PollInfo =
+0x0005,			$ Polled and COS I/O device.
+1,			$ Input1 entry is the default input connection.
+1;			$ Output1 entry is the default output connection.
+
+COSInfo=
+0x0005,                 $ Polled and COS I/O device.
+1,                      $ Input1 entry is the default input connection.
+1;                      $ Output1 entry is the default output connection.
+
+Input1 =
+1,			$ The size in bytes that this connection produces.
+4,			$ Only the four least significant bits of this 
+			$ connection are used.
+0x0005,			$ Polled or COS I/O connection.
+"OB4E Production Data",	$ Name of Connection.
+6,			$ Path length.
+"20 04 24 65 30 03",	$ Path to I/O Production Assembly.
+	$$$$$$$$$$ Help string $$$$$$$$$$$
+"This connection contains status from outputs at bits 0-3.";
+			
+Output1 = 
+1,			$ The size in bytes that this connection consumes.
+4,			$ Only the four least significant bits of this 
+			$ connection are used.
+0x0005,			$ Polled or COS I/O connection.
+"OB4E Consumption Data",$ Name of Connection.
+6,			$ Path length.
+"20 04 24 21 30 03",	$ Path to I/O Consumption Assembly.
+	$$$$$$$$$$ Help string $$$$$$$$$$$
+"This connection contains data for four outputs.";
+			 
+[ParamClass]
+MaxInst = 7;		$ 3 configurable and 4 read-only parameters.
+Descriptor =  0x09;	$ Stub param instances in eeprom.
+CfgAssembly = 0x67;	$ The config assembly is instance #103 of assy obj.		
+
+[Params]
+$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+Param1 =		$ Disable Autobaud
+0,			$ reserved
+6,			$ Link Path Size
+"20 03 24 01 30 64",	$ Link Path to disable autobaud attribute.
+0x0002,			$ No support for settable path, scaling, scaling links, or
+			$ real time update of value.  Value is gettable and 
+			$ Settable.  Enumerated strings are supported.
+4,			$ Data Type - boolean
+1,			$ Data Size
+"Autobaud",		$ Parameter Name
+"",			$ Units String
+	$$$$$$$$$$ Help string $$$$$$$$$$$
+"Enable takes effect after next powerup.  Disable is required to set fixed baud rate, no power cycle is required.",
+0,1,0,			$ Min, Max, and Default values
+1,1,1,0,0,0,0,0,0;		$ Not Used
+
+$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+Param2 =		$ Fault State selection
+0,			$ reserved
+6,			$ Link Path Size
+"20 1E 24 01 30 07",	$ Link Path to DOG object's fault state attribute.
+0x0002,			$ No support for settable path, scaling, scaling links, or
+			$ real time update of value.  Value is gettable and 
+			$ Settable.  Enumerated strings are supported.
+4,			$ Data Type - boolean
+1,			$ Data Size
+"Fault State",		$ Parameter Name
+"",			$ Units String
+	$$$$$$$$$$ Help string $$$$$$$$$$$
+"Defines output behavior in the event of a communication fault.",
+0,1,0,			$ Min, Max (max enumeration #), and Default values
+1,1,1,0,0,0,0,0,0;		$ Not Used
+
+$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+Param3 = 		$ Idle State selection
+0,			$ reserved
+6,			$ Link Path Size
+"20 1E 24 01 30 09",	$ Link Path to DOG object's idle state attribute.
+0x0002,			$ No support for settable path, scaling, scaling links, or
+			$ real time update of value.  Value is gettable and 
+			$ Settable.  Enumerated strings are supported.
+4,			$ Data Type - boolean
+1,			$ Data Size
+"Idle State",		$ Parameter Name
+"",			$ Units String
+	$$$$$$$$$$ Help string $$$$$$$$$$$
+"Defines output behavior during program mode.",
+0,1,0,			$ Min, Max (max enumeration #), and Default values
+1,1,1,0,0,0,0,0,0;		$ Not Used
+
+
+$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+Param4 =		$ Output 1 status
+0,			$ reserved
+6,			$ Link Path Size
+"20 09 24 01 30 04",	$ Link Path to Output 1 status attribute.
+0x0032,			$ No support for settable path, scaling, or scaling links.
+			$ Value is gettable only. Enumerated strings are supported.
+8,			$ Data Type - unsigned short int
+1,			$ Data Size - (in bytes)
+"Output 1 Status",	$ Parameter Name
+"",			$ Units String
+	$$$$$$$$$$ Help string $$$$$$$$$$$
+"This parameter is the current status of Output 1.",
+0,1,0,			$ Min, Max, and Default values
+1,1,1,0,0,0,0,0,0;		$ Not Used
+
+$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+Param5 =		$ Output 2 status
+0,			$ reserved
+6,			$ Link Path Size
+"20 09 24 02 30 04",	$ Link Path to Output 2 status attribute.
+0x0032,			$ No support for settable path, scaling, or scaling links.
+			$ Value is gettable only. Enumerated strings are supported.
+8,			$ Data Type - unsigned short int
+1,			$ Data Size - (in bytes)
+"Output 2 Status",	$ Parameter Name
+"",			$ Units String
+	$$$$$$$$$$ Help string $$$$$$$$$$$
+"This parameter is the current status of Output 2.",
+0,1,0,			$ Min, Max, and Default values
+1,1,1,0,0,0,0,0,0;		$ Not Used
+
+$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+Param6 =		$ Output 3 status
+0,			$ reserved
+6,			$ Link Path Size
+"20 09 24 03 30 04",	$ Link Path to Output 3 status attribute.
+0x0032,			$ No support for settable path, scaling, or scaling links.
+			$ Value is gettable only. Enumerated strings are supported.
+8,			$ Data Type - unsigned short int
+1,			$ Data Size - (in bytes)
+"Output 3 Status",	$ Parameter Name
+"",			$ Units String
+	$$$$$$$$$$ Help string $$$$$$$$$$$
+"This parameter is the current status of Output 3.",
+0,1,0,			$ Min, Max, and Default values
+1,1,1,0,0,0,0,0,0;		$ Not Used
+
+$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+Param7 =		$ Output 4 status
+0,			$ reserved
+6,			$ Link Path Size
+"20 09 24 04 30 04",	$ Link Path to Output 4 status attribute.
+0x0032,			$ No support for settable path, scaling, or scaling links.
+			$ Value is gettable only. Enumerated strings are supported.
+8,			$ Data Type - unsigned short int
+1,			$ Data Size - (in bytes)
+"Output 4 Status",	$ Parameter Name
+"",			$ Units String
+	$$$$$$$$$$ Help string $$$$$$$$$$$
+"This parameter is the current status of Output 4.",
+0,1,0,			$ Min, Max, and Default values
+1,1,1,0,0,0,0,0,0;		$ Not Used
+
+[Groups]
+Group1="Configuration",3,1,2,3;
+Group2="I/O",4,4,5,6,7;
+
+[EnumPar]
+Param1="Enable","Disable";
+Param2="Reset Outputs","Hold Last State";
+Param3="Reset Outputs","Hold Last State";
+Param4="Healthy","Faulted";
+Param5="Healthy","Faulted";
+Param6="Healthy","Faulted";
+Param7="Healthy","Faulted";

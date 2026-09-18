@@ -1,0 +1,63 @@
+[File]
+        DescText = "This is an EDS file for the DeviceNet HIM.";
+        CreateDate = 08-21-2012;
+        CreateTime = 08:00:00;
+        ModDate = 01-16-2013;
+        ModTime = 09:14:26;
+        Revision = 3.2;
+        HomeURL = "http://www.ab.com/networks/eds/DN/0001007300D00300.eds";
+
+[Device]
+        VendCode = 1;                   $ Vendor Code
+        VendName = "Rockwell Automation - Allen-Bradley";
+        ProdType = 115;                 $ Product Type
+        ProdTypeStr = "Rockwell Automation Miscellaneous";
+        ProdCode = 208;                 $ Product Code
+        MajRev = 3;                     $ Major Rev
+        MinRev = 1;                     $ Minor Rev
+        ProdName = "193-DeviceNet Configuration Terminal";
+        Catalog = "193-DNCT";
+        Icon = "193-DNCT.ICO";
+
+[IO_Info]
+        Default = 0x0000;
+
+[ParamClass]
+        MaxInst = 2;
+        Descriptor = 0x000B;
+        CfgAssembly = 0;
+
+[Params]
+        Param1 =
+                0,
+                8,"21 B4 00 25 01 00 30 68",
+                0x0000,
+                0xC6,
+                1,
+                "LCD Contrast",
+                "%",
+                "The LCD Contrast setting.",
+                0,100,41,
+                ,,,,
+                ,,,,
+                0;
+
+        Param2 =
+                0,
+                8,"21 B4 00 25 01 00 30 67",
+                0x0002,
+                0xC1,
+                1,
+                "Password Override",
+                "",
+                "Setting this overrides the curent password in the DeviceNet HIM.",
+                0,1,0,
+                ,,,,
+                ,,,,
+                0;
+
+[EnumPar]
+        Param2 =
+                "No Operation",
+                "Override Password";
+

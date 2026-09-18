@@ -1,0 +1,51 @@
+$ EZ-EDS Version 3.0 Generated Electronic Data Sheet
+
+$ EDS File for SS940 Drive - EtherNet/IP
+
+
+
+$ Change history:
+$ 18-November-2009: created by Rockwell Automation
+
+
+$ File Description
+[File]
+        DescText = "Kinetix300 EtherNet/IP EDS File";
+        CreateDate = 11-18-2009;
+        CreateTime = 14:05:20;
+        ModDate = 11-18-2009;
+        ModTime = 14:05:18;
+        Revision = 1.1;
+
+
+$ Device Description
+[Device]
+        VendCode = 1;
+        VendName = "Rockwell Automation/Allen-Bradley";
+        ProdType = 115;
+        ProdTypeStr = "Vendor Specific";
+        ProdCode = 273;
+        MajRev = 1;
+        MinRev = 1;
+        ProdName = "Kinetix300";
+        Catalog = "2097-V32PR0";
+	Icon = "2097.ico";
+
+$ Device Classification
+[Device Classification]
+        Class1 = EtherNetIP;
+
+$ Port
+[Port]
+        Port1 =
+                TCP,
+                "EtherNet/IP port",
+                "20 F5 24 01",
+                1;
+
+
+$ Capacity Section
+[Capacity]
+        MaxIOConnections = 3;
+        MaxMsgConnections = 6;
+

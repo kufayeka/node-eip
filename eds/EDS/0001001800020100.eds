@@ -1,0 +1,33 @@
+$ Revision: $Header:  $
+$
+$ EDS Name: 0001001800020201.eds
+[File]
+    DescText   = "PanelView 2711-*15 EDS";
+    CreateDate = 01-13-1998;
+    CreateTime = 13:00:00;
+    ModDate    = 06-23-2000;
+    ModTime    = 19:00:00;
+    Revision   = 1.9;
+
+[Device]
+    VendCode    = 1;
+    VendName    = "Allen-Bradley";
+    ProdType    = 24;
+    ProdTypeStr = "Operator Interface";
+    ProdCode    = 2;
+    MajRev      = 1;
+    MinRev      = 1;
+    ProdName    = "PanelView";
+    Catalog     = "2711-*15";
+    Icon = "panelvu.ico";
+
+[Device Classification]
+    Class1 = ControlNet;
+
+[Port]
+	Port2 = ControlNet_Redundant,   $ Port type
+			"ControlNet",           $ Port name
+			"20 F0 24 01",          $ Path to Port object, The CNet object for PV
+            2;                      $ Port Number
+
+$ This version of the PanelView doesn't support scheduled messaging.

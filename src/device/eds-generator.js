@@ -192,18 +192,16 @@ function createProfileFromEds(edsSource, options = {}) {
         };
         assemblies.all.push(assemInfo);
 
-        const lowerName = assem.name.toLowerCase();
+        const lowerName = (assem.name || '').toLowerCase();
         if (id === 70 || id === 71 || id === 101) {
             if (!assemblies.input) assemblies.input = assemInfo;
         } else if (id === 20 || id === 21 || id === 100) {
             if (!assemblies.output) assemblies.output = assemInfo;
-        } else if (id === 1 || id === 128) {
-            if (!assemblies.config) assemblies.config = assemInfo;
-        } else if (lowerName.includes('produce') || (lowerName.includes('input') && !lowerName.includes('control'))) {
-            if (!assemblies.input) assemblies.input = assemInfo;
-        } else if (lowerName.includes('consume') || lowerName.includes('control') || lowerName.includes('output')) {
+        } else if (lowerName.includes('ctrl') || lowerName.includes('consume') || (lowerName.includes('output') && !lowerName.includes('status'))) {
             if (!assemblies.output) assemblies.output = assemInfo;
-        } else if (lowerName.includes('config')) {
+        } else if (lowerName.includes('stat') || lowerName.includes('produce') || (lowerName.includes('input') && !lowerName.includes('control'))) {
+            if (!assemblies.input) assemblies.input = assemInfo;
+        } else if (lowerName.includes('config') || id === 128) {
             if (!assemblies.config) assemblies.config = assemInfo;
         }
     }

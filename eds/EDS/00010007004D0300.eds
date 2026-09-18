@@ -1,0 +1,158 @@
+$ Revision History
+$ 1.001  06-14-06  jgm  Initial Version
+
+[File]
+	DescText    = "1769-IG16/A FW Rev 3.1 EDS File";
+	CreateDate  = 06-14-2006;
+	CreateTime  = 15:00:00;
+	ModDate     = 06-14-2006;
+	ModTime     = 15:00:00;
+	Revision    = 1.001;
+	HomeURL     = "http://www.ab.com/networks/eds/XX/00010007004D0300.eds";
+
+[Device]
+	VendCode    = 1;
+	VendName    = "Rockwell Automation/Allen-Bradley";
+	ProdType    = 7;
+	ProdTypeStr = "General Purpose Discrete I/O";
+	ProdCode    = 77;
+	MajRev      = 3;
+	MinRev      = 1;
+	ProdName    = "1769-16pt TTL Input/A/FW Rev 3.1";
+	Catalog     = "1769-IG16/A/FW Rev 3.1";
+	Icon        = "1769-Blue.ico";
+
+[Modular]
+	Rack1 =  1,108,91,1,1,,,,
+			 1, 2, 3, 4, 5, 6, 7, 8, 9,10, $ Legal slots
+			11,12,13,14,15,16,17,18,19,20,
+			21,22,23,24,25,26,27,28,29,30,
+			31,32,33,34,35,36,37;
+
+	ExternalID = "01 00 07 00 4D 00 03";
+
+[1_1769Audit]
+	1_5vdcPwrLoad  = 120;
+	1_24vdcPwrLoad = 0;
+	1_DistRating   = 8;
+
+
+[Params]
+	ProxiedParam4 = ,,,,,,"","","",0,1,1,,,,,,,,,;		$ Input data size
+	ProxiedEnum4 =  0,"No Input Data", 1,"All Input Data (1 Word)";
+
+	ProxiedParam6 = ,,,,,,"","","",0,2,2,,,,,,,,,;		$ Electronic Keying
+	ProxiedEnum6 =  0,"Disable Keying", 1,"Exact Match", 2,"Compatible Module";
+
+	ProxiedParam7 = ,,,,,,"","","",1,255,1,,,,,,,,,;	$ Configured Minor Revision
+
+	ProxiedParam8 = ,,,,,,"","","",1,255,1,,,,,,,,,;	$ Actual Minor Revision
+
+
+	$*******************************************************
+	$	Word 0 configuration data - Selects Input Filters
+	$*******************************************************
+	Param10=
+			  0,,,			$ Reserved, link size, link path
+			  0x0002,		$ Descriptor (Enum)
+			  0xC6,1,		$ USINT
+			  "Filter Time: OFF-ON","",
+			  "Select OFF to ON filter time for group 0 inputs.",
+			  0,6,0,,,,,,,,,;
+	Enum10 =
+			  0,"8.0 milliseconds",
+			  1,"4.0 milliseconds",
+			  2,"2.0 microseconds",
+			  3,"1.0 microsecond",
+			  4,"0.5 microsecond",
+			  5,"0.1 microsecond",
+			  6,"0.0 microsecond";
+
+	Param11=
+			  0,,,			$ Reserved, link size, link path
+			  0x0002,		$ Descriptor (Enum)
+			  0xC6,1,		$ USINT
+			  "Filter Time: ON-OFF","",
+			  "Select ON to OFF filter time for group 0 inputs.",
+			  0,6,0,,,,,,,,,;
+	Enum11 =
+			  0,"8.0 milliseconds",
+			  1,"4.0 milliseconds",
+			  2,"2.0 microseconds",
+			  3,"1.0 microsecond",
+			  4,"0.5 microsecond",
+			  5,"0.1 microsecond",
+			  6,"0.0 microsecond";
+
+	Param12=
+			  0,,,			$ Reserved, link size, link path
+			  0x0002,		$ Descriptor (Enum)
+			  0xC6,1,		$ USINT
+			  "Filter Time: OFF-ON","",
+			  "Select OFF to ON filter time for group 1 inputs.",
+			  0,6,0,,,,,,,,,;
+	Enum12 =
+			  0,"8.0 milliseconds",
+			  1,"4.0 milliseconds",
+			  2,"2.0 microseconds",
+			  3,"1.0 microsecond",
+			  4,"0.5 microsecond",
+			  5,"0.1 microsecond",
+			  6,"0.0 microsecond";
+
+	Param13=  0,,,			$ Reserved, link size, link path
+			  0x0002,		$ Descriptor (Enum)
+			  0xC6,1,		$ USINT
+			  "Filter Time: ON-OFF","",
+			  "Select ON to OFF filter time for group 1 inputs.",
+			  0,6,0,,,,,,,,,;
+	Enum13 =
+			  0,"8.0 milliseconds",
+			  1,"4.0 milliseconds",
+			  2,"2.0 microseconds",
+			  3,"1.0 microsecond",
+			  4,"0.5 microsecond",
+			  5,"0.1 microsecond",
+			  6,"0.0 microsecond";
+
+
+	$***********************************
+	$	Input array data
+	$***********************************
+	Param20 =
+			 ,,,0x0010,             $ Descriptor (Read Only)
+			 0xD2, 2,               $ WORD
+			 "Data","",
+			 "Contains the current state of the field input points.",
+			 0,0xFFFF,0,,,,,,,,,;
+
+
+[Assembly]
+
+	ProxiedAssem101 =
+		"Input Array",,,,,,
+		16,Param20;
+
+	$ Configuration File (4 words)
+	ProxiedAssem4 =
+
+		"Channel Configuration",,,,,,
+
+		$--- Configuration Word 0 ---
+		4,Param10,			$ Group 0 Off to On Filter
+		4,Param11,			$ Group 0 On to Off Filter
+		4,Param12,			$ Group 1 Off to On Filter
+		4,Param13,			$ Group 1 On to Off Filter
+
+		$--- Configuration Word 1 - Reserved
+		16,0,
+
+		$--- Configuration Word 2 - Reserved
+		16,0,
+
+		$--- Configuration Word 3 - Reserved
+		16,0;
+
+
+[Groups]
+	Group1 = "Filters",4,10,11,12,13;

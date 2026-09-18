@@ -1,0 +1,577 @@
+[File]
+	DescText = "1793-IB16/A Flex module EDS";
+	CreateDate = 05-12-1999;
+	CreateTime = 08:40:00;
+	ModDate = 04-28-2003;
+	ModTime = 12:30:00;
+	Revision = 6.9;
+	HomeURL = "http://www.ab.com/networks/eds/XX/0001000700580100.eds";
+
+[Device]
+	VendCode = 1;
+	VendName = "Allen-Bradley";
+	ProdType = 7;
+	ProdTypeStr = "General Purpose Discrete I/O";
+	ProdCode= 88;
+	MajRev = 1;
+	MinRev = 1;
+	ProdName = "16 Point 24V DC Input, Sink 1793-IB16/A";
+	Catalog = "1793-IB16/A";
+	Icon = "94BLUE.ICO";
+	
+
+	1_Revision_Alpha = "Yes";
+	1_RSNetWorx_NoAutoEnter = "Yes";
+
+[Device Classification]
+	Class1 = 1_RSNetWorx_1794, 1_RSNetWorx_Connectable_Module;
+
+[Params]
+      Param1 =
+        0,          $ first field shall equal 0
+        ,,          $ path size,path
+        0x0002,     $ descriptor - read only
+        0xc7,          $ data type : 16-bit Unsigned Integer
+        2,          $ data size in bytes
+        "Points 0-11 Input Filter Time", $ name
+        "",            $ units
+        "",            $ help string
+        0,7,0,         $ min,max,default data values
+        0,0,0,0,    $ mult,dev,base,offset scaling not used
+        0,0,0,0,    $ mult,dev,base,offset link not used
+        0;          $ decimal places not used
+      Enum1 =
+        0,"On->Off/Off->On= 0.25 ms",
+        1,"On->Off/Off->On= 0.5 ms",
+        2,"On->Off/Off->On= 1 ms",
+        3,"On->Off/Off->On= 2 ms",
+	  4,"On->Off/Off->On= 4 ms",
+	  5,"On->Off/Off->On= 8 ms",
+	  6,"On->Off/Off->On= 16 ms",
+	  7,"On->Off/Off->On= 32 ms";
+
+      Param2 =
+        0,          $ first field shall equal 0
+        ,,          $ path size,path
+        0x0002,     $ descriptor - read only
+        0xc7,          $ data type : 16-bit Unsigned Integer
+        2,          $ data size in bytes
+        "Points 12-15 Input Filter Time", $ name
+        "",            $ units
+        "",            $ help string
+        0,7,0,         $ min,max,default data values
+        0,0,0,0,    $ mult,dev,base,offset scaling not used
+        0,0,0,0,    $ mult,dev,base,offset link not used
+        0;          $ decimal places not used
+      Enum2 =
+        0,"On->Off/Off->On= 0.25 ms",
+        1,"On->Off/Off->On= 0.5 ms",
+        2,"On->Off/Off->On= 1 ms",
+        3,"On->Off/Off->On= 2 ms",
+	  4,"On->Off/Off->On= 4 ms",
+	  5,"On->Off/Off->On= 8 ms",
+	  6,"On->Off/Off->On= 16 ms",
+	  7,"On->Off/Off->On= 32 ms";
+
+      Param3 =
+        0,          $ first field shall equal 0
+        ,,          $ path size,path
+        0x0002,     $ descriptor - read only
+        0xc1,          $ data type : 8-bit Unsigned Integer
+        1,          $ data size in bytes
+        "Counter Enable/Disable", $ name
+        "",            $ units
+        "",            $ help string
+        0,1,0,         $ min,max,default data values
+        0,0,0,0,    $ mult,dev,base,offset scaling not used
+        0,0,0,0,    $ mult,dev,base,offset link not used
+        0;          $ decimal places not used
+      Enum3 =
+        0,"Enabled",
+        1,"Disabled";
+
+      Param4 =
+        0,          $ first field shall equal 0
+        ,,          $ path size,path
+        0x0002,     $ descriptor - read only
+        0xc1,          $ data type : 8-bit Unsigned Integer
+        1,          $ data size in bytes
+        "Filter Enable/Disable", $ name
+        "",            $ units
+        "",            $ help string
+        0,1,0,         $ min,max,default data values
+        0,0,0,0,    $ mult,dev,base,offset scaling not used
+        0,0,0,0,    $ mult,dev,base,offset link not used
+        0;          $ decimal places not used
+      Enum4 =
+        0,"Enabled",
+        1,"Disabled";
+
+
+      Param5 =
+        0,          $ first field shall equal 0
+        ,,          $ path size,path
+        0x0012,     $ descriptor - read only
+        0xc1,          $ data type : 8-bit Unsigned Integer
+        1,          $ data size in bytes
+        "Point 0 ", $ name
+        "",         $ units
+        "",         $ help string
+        0,1,0,      $ min,max,default data values
+        0,0,0,0,    $ mult,dev,base,offset scaling not used
+        0,0,0,0,    $ mult,dev,base,offset link not used
+        0;          $ decimal places not used
+      Enum5 =
+        0,"Off",1,"On";
+
+      Param6 =
+        0,          $ first field shall equal 0
+        ,,          $ path size,path
+        0x0012,     $ descriptor - read only
+        0xc1,          $ data type : 8-bit Unsigned Integer
+        1,          $ data size in bytes
+        "Point 1 ", $ name
+        "",         $ units
+        "",         $ help string
+        0,1,0,      $ min,max,default data values
+        0,0,0,0,    $ mult,dev,base,offset scaling not used
+        0,0,0,0,    $ mult,dev,base,offset link not used
+        0;          $ decimal places not used
+      Enum6 =
+        0,"Off",1,"On";
+
+      Param7 =
+        0,          $ first field shall equal 0
+        ,,          $ path size,path
+        0x0012,     $ descriptor - read only
+        0xc1,          $ data type : 8-bit Unsigned Integer
+        1,          $ data size in bytes
+        "Point 2 ", $ name
+        "",         $ units
+        "",         $ help string
+        0,1,0,      $ min,max,default data values
+        0,0,0,0,    $ mult,dev,base,offset scaling not used
+        0,0,0,0,    $ mult,dev,base,offset link not used
+        0;          $ decimal places not used
+      Enum7 =
+        0,"Off",1,"On";
+
+      Param8 =
+        0,          $ first field shall equal 0
+        ,,          $ path size,path
+        0x0012,     $ descriptor - read only
+        0xc1,          $ data type : 8-bit Unsigned Integer
+        1,          $ data size in bytes
+        "Point 3 ", $ name
+        "",         $ units
+        "",         $ help string
+        0,1,0,      $ min,max,default data values
+        0,0,0,0,    $ mult,dev,base,offset scaling not used
+        0,0,0,0,    $ mult,dev,base,offset link not used
+        0;          $ decimal places not used
+      Enum8 =
+        0,"Off",1,"On";
+
+      Param9 =
+        0,          $ first field shall equal 0
+        ,,          $ path size,path
+        0x0012,     $ descriptor - read only
+        0xc1,          $ data type : 8-bit Unsigned Integer
+        1,          $ data size in bytes
+        "Point 4 ", $ name
+        "",         $ units
+        "",         $ help string
+        0,1,0,      $ min,max,default data values
+        0,0,0,0,    $ mult,dev,base,offset scaling not used
+        0,0,0,0,    $ mult,dev,base,offset link not used
+        0;          $ decimal places not used
+      Enum9 =
+        0,"Off",1,"On";
+
+      Param10 =
+        0,          $ first field shall equal 0
+        ,,          $ path size,path
+        0x0012,     $ descriptor - read only
+        0xc1,          $ data type : 8-bit Unsigned Integer
+        1,          $ data size in bytes
+        "Point 5 ", $ name
+        "",         $ units
+        "",         $ help string
+        0,1,0,      $ min,max,default data values
+        0,0,0,0,    $ mult,dev,base,offset scaling not used
+        0,0,0,0,    $ mult,dev,base,offset link not used
+        0;          $ decimal places not used
+      Enum10 =
+        0,"Off",1,"On";
+
+      Param11 =
+        0,          $ first field shall equal 0
+        ,,          $ path size,path
+        0x0012,     $ descriptor - read only
+        0xc1,          $ data type : 8-bit Unsigned Integer
+        1,          $ data size in bytes
+        "Point 6 ", $ name
+        "",         $ units
+        "",         $ help string
+        0,1,0,      $ min,max,default data values
+        0,0,0,0,    $ mult,dev,base,offset scaling not used
+        0,0,0,0,    $ mult,dev,base,offset link not used
+        0;          $ decimal places not used
+      Enum11 =
+        0,"Off",1,"On";
+
+      Param12 =
+        0,          $ first field shall equal 0
+        ,,          $ path size,path
+        0x0012,     $ descriptor - read only
+        0xc1,          $ data type : 8-bit Unsigned Integer
+        1,          $ data size in bytes
+        "Point 7 ", $ name
+        "",         $ units
+        "",         $ help string
+        0,1,0,      $ min,max,default data values
+        0,0,0,0,    $ mult,dev,base,offset scaling not used
+        0,0,0,0,    $ mult,dev,base,offset link not used
+        0;          $ decimal places not used
+      Enum12 =
+        0,"Off",1,"On";
+
+      Param13 =
+        0,          $ first field shall equal 0
+        ,,          $ path size,path
+        0x0012,     $ descriptor - read only
+        0xc1,          $ data type : 8-bit Unsigned Integer
+        1,          $ data size in bytes
+        "Point 8 ", $ name
+        "",         $ units
+        "",         $ help string
+        0,1,0,      $ min,max,default data values
+        0,0,0,0,    $ mult,dev,base,offset scaling not used
+        0,0,0,0,    $ mult,dev,base,offset link not used
+        0;          $ decimal places not used
+      Enum13 =
+        0,"Off",1,"On";
+
+      Param14 =
+        0,          $ first field shall equal 0
+        ,,          $ path size,path
+        0x0012,     $ descriptor - read only
+        0xc1,          $ data type : 8-bit Unsigned Integer
+        1,          $ data size in bytes
+        "Point 9 ", $ name
+        "",         $ units
+        "",         $ help string
+        0,1,0,      $ min,max,default data values
+        0,0,0,0,    $ mult,dev,base,offset scaling not used
+        0,0,0,0,    $ mult,dev,base,offset link not used
+        0;          $ decimal places not used
+      Enum14 =
+        0,"Off",1,"On";
+
+      Param15 =
+        0,          $ first field shall equal 0
+        ,,          $ path size,path
+        0x0012,     $ descriptor - read only
+        0xc1,          $ data type : 8-bit Unsigned Integer
+        1,          $ data size in bytes
+        "Point 10 ", $ name
+        "",         $ units
+        "",         $ help string
+        0,1,0,      $ min,max,default data values
+        0,0,0,0,    $ mult,dev,base,offset scaling not used
+        0,0,0,0,    $ mult,dev,base,offset link not used
+        0;          $ decimal places not used
+      Enum15 =
+        0,"Off",1,"On";
+
+      Param16 =
+        0,          $ first field shall equal 0
+        ,,          $ path size,path
+        0x0012,     $ descriptor - read only
+        0xc1,          $ data type : 8-bit Unsigned Integer
+        1,          $ data size in bytes
+        "Point 11 ", $ name
+        "",         $ units
+        "",         $ help string
+        0,1,0,      $ min,max,default data values
+        0,0,0,0,    $ mult,dev,base,offset scaling not used
+        0,0,0,0,    $ mult,dev,base,offset link not used
+        0;          $ decimal places not used
+      Enum16 =
+        0,"Off",1,"On";
+
+      Param17 =
+        0,          $ first field shall equal 0
+        ,,          $ path size,path
+        0x0012,     $ descriptor - read only
+        0xc1,          $ data type : 8-bit Unsigned Integer
+        1,          $ data size in bytes
+        "Point 12 ", $ name
+        "",         $ units
+        "",         $ help string
+        0,1,0,      $ min,max,default data values
+        0,0,0,0,    $ mult,dev,base,offset scaling not used
+        0,0,0,0,    $ mult,dev,base,offset link not used
+        0;          $ decimal places not used
+      Enum17 =
+        0,"Off",1,"On";
+
+      Param18 =
+        0,          $ first field shall equal 0
+        ,,          $ path size,path
+        0x0012,     $ descriptor - read only
+        0xc1,          $ data type : 8-bit Unsigned Integer
+        1,          $ data size in bytes
+        "Point 13 ", $ name
+        "",         $ units
+        "",         $ help string
+        0,1,0,      $ min,max,default data values
+        0,0,0,0,    $ mult,dev,base,offset scaling not used
+        0,0,0,0,    $ mult,dev,base,offset link not used
+        0;          $ decimal places not used
+      Enum18 =
+        0,"Off",1,"On";
+
+      Param19 =
+        0,          $ first field shall equal 0
+        ,,          $ path size,path
+        0x0012,     $ descriptor - read only
+        0xc1,          $ data type : 8-bit Unsigned Integer
+        1,          $ data size in bytes
+        "Point 14 ", $ name
+        "",         $ units
+        "",         $ help string
+        0,1,0,      $ min,max,default data values
+        0,0,0,0,    $ mult,dev,base,offset scaling not used
+        0,0,0,0,    $ mult,dev,base,offset link not used
+        0;          $ decimal places not used
+      Enum19 =
+        0,"Off",1,"On";
+
+      Param20 =
+        0,          $ first field shall equal 0
+        ,,          $ path size,path
+        0x0012,     $ descriptor - read only
+        0xc1,          $ data type : 8-bit Unsigned Integer
+        1,          $ data size in bytes
+        "Point 15 ", $ name
+        "",         $ units
+        "",         $ help string
+        0,1,0,      $ min,max,default data values
+        0,0,0,0,    $ mult,dev,base,offset scaling not used
+        0,0,0,0,    $ mult,dev,base,offset link not used
+        0;          $ decimal places not used
+      Enum20 =
+        0,"Off",1,"On";
+
+      Param21 =
+        0,          $ first field shall equal 0
+        ,,          $ path size,path
+        0x0010,     $ descriptor
+        0xc7,          $ data type : 16-bit Unsigned Integer
+        2,          $ data size in bytes
+        "Point 15 Counter Value", $ name
+        "counts",           $ units
+        "", 		$ help string
+        0,65535,0,     $ min,max,default data values
+        0,0,0,0,    $ mult,dev,base,offset scaling not used
+        0,0,0,0,    $ mult,dev,base,offset link not used
+        0;          $ decimal places not used
+
+	ProxiedParam1 = 0,
+		,,	$ Link Path Size, Link Path
+		0x0000,	 $ Descriptor
+		, ,	$ Data Type, Data Size
+		"input size",
+		"",
+		"",
+		2,4,4,
+		,,,,
+		,,,,;
+		ProxiedEnum1 = 2,"2",4,"4";
+
+	ProxiedParam2 = 0,
+		,,	$ Link Path Size, Link Path
+		0x0000,	 $ Descriptor
+		, ,	$ Data Type, Data Size
+		"module key",
+		"",
+		"",
+		525,525,525,
+		,,,,
+		,,,,
+		;
+
+	ProxiedParam3 = 0,
+		,,	$ Link Path Size, Link Path
+		0x0000,	 $ Descriptor
+		, ,	$ Data Type, Data Size
+		"module input size",
+		"",
+		"",
+		0,1,1,
+		,,,,
+		,,,,
+		;
+
+	ProxiedParam4 = 0,
+		,,	$ Link Path Size, Link Path
+		0x0000,	 $ Descriptor
+		, ,	$ Data Type, Data Size
+		"module status size",
+		"",
+		"",
+		0,1,1,
+		,,,,
+		,,,,
+		;
+
+	ProxiedParam5 = 0,
+		,,	$ Link Path Size, Link Path
+		0x0000,	 $ Descriptor
+		, ,	$ Data Type, Data Size
+		"module output size",
+		"",
+		"",
+		0,0,0,
+		,,,,
+		,,,,
+		;
+
+	ProxiedParam6 = 0,
+		,,	$ Link Path Size, Link Path
+		0x0000,	 $ Descriptor
+		, ,	$ Data Type, Data Size
+		"module config size",
+		"",
+		"",
+		0,1,1,
+		,,,,
+		,,,,
+		;
+
+	ProxiedParam7 = 0,
+		,,	$ Link Path Size, Link Path
+		0x0000,	 $ Descriptor
+		, ,	$ Data Type, Data Size
+		"output size",
+		"",
+		"",
+		0,0,0,
+		,,,,
+		,,,,
+		;
+
+	$ **********************************
+	$ NOTE: Parameters names are only listed for description of parameter. These names are not used!
+	$ **********************************
+	ProxiedParam10	= ,,,,,,"Module Object Attribute 0x03","","",0,2,0,,,,,,,,,;
+	ProxiedEnum10	= 0,"Reset to Zero", 	1,"Hold Outputs in Last State", 2,"Use Safe State Output Values";
+
+	ProxiedParam11	= ,,,,,,"Module Object Attribute 0x03","","",0,2,0,,,,,,,,,;
+	ProxiedEnum11	= 0,"Reset to Zero", 	1,"Hold Outputs in Last State", 2,"Use Safe State Output Values";
+
+	ProxiedParam12	= ,,,,,,"Module Object Attribute 0x11","","",0,1,0,,,,,,,,,;
+	ProxiedEnum12	= 0,"Output Remain in Idle State", 1,"Output Go To Fault State";
+
+	ProxiedParam13	= ,,,,,,"Module Object Attribute 0x14","","",0,1,0,,,,,,,,,;
+	ProxiedEnum13	= 0,"Zero Inputs", 1,"Hold Last Input Values";
+
+
+[Assembly]
+	Revision = 2;
+
+	ProxiedAssem1 = "module config",,
+		,0x0000,,,
+		3, Param1,
+		3, Param2,
+		6,,
+		1, Param3,
+		1, Param4,
+		2,;
+
+	ProxiedAssem2 = "real time input format",,
+		,,,,
+		1, Param5,
+		1, Param6,
+		1, Param7,
+		1, Param8,
+		1, Param9,
+		1, Param10,
+		1, Param11,
+		1, Param12,
+		1, Param13,
+		1, Param14,
+		1, Param15,
+		1, Param16,
+		1, Param17,
+		1, Param18,
+		1, Param19,
+		1, Param20;
+
+	ProxiedAssem3 = "real time output format",,
+		,0x0000,,;
+
+	ProxiedAssem4 = "real time status format",,
+		,,,,
+		16, Param21;
+
+	ProxiedAssem5 = "module config and safe state",,
+		,0x0000,,;
+
+	ProxiedAssem6 = "safe state",,
+		,,,;
+
+        ProxiedAssem7 = "module flag data",,,,,,
+		4,0x0000,		$ JSM idle action
+		4,0x0000,		$ JSM fault aciton
+		8,0x0000;		$ JSM auto match,fault from idle, hold last inputs, not used
+
+[Connection Manager]
+
+	ProxiedConnect1 = 0x00000000,
+		0x00000000,
+		,,,	$ O=>T 
+		,,,	$ T=>O
+		,,	$ Config #1
+		,,	$ Config #2
+		"",
+		"",
+		"";
+
+	ProxiedConnect2 = 0x00000000,
+		0x00000000,
+		,,,	$ O=>T 
+		,,,	$ T=>O
+		,,	$ Config #1
+		,,	$ Config #2
+		"",
+		"",
+		"";
+
+	ProxiedConnect3 = 0x00000000,
+		0x00000000,
+		,,,	$ O=>T 
+		,,,	$ T=>O
+		,,	$ Config #1
+		,,	$ Config #2
+		"",
+		"",
+		"";
+	ProxiedConnect4 = 0x00000000,
+		0x00000000,
+		,,,	$ O=>T 
+		,,,	$ T=>O
+		,,	$ Config #1
+		,,	$ Config #2
+		"",
+		"",
+		"";
+
+[Modular]
+	Width = 1;
+	Rack1 = 1,108,33,1,1,,,,
+		1,2,3,4,5,6,7,8;
+	Rack2 = 1,108,93,1,1,,,,
+		1,2,3,4,5,6,7,8;
+	ExternalID = "0d 02";

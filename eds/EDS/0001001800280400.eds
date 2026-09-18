@@ -1,0 +1,29 @@
+[File]
+	DescText   = "PanelView Plus Compact 400";
+	CreateDate = 11-14-2008;
+	CreateTime = 10:30:00;
+	ModDate    = 11-14-2008;
+	ModTime    = 10:30:00;
+	Revision   = 1.0;  
+	HomeURL    = "http://www.ab.com/networks/eds/EN/0001001800280400.eds"; 
+
+[Device]
+	VendCode    = 1;
+	VendName    = "Allen-Bradley";
+	ProdType    = 24;
+	ProdTypeStr = "Human Machine Interface";
+	ProdCode    = 40; 
+	MajRev      = 4;      
+	MinRev      = 1;
+	ProdName    = "PanelView Plus Compact 400";
+	Catalog     = "2711PC-x4xxx";
+	Icon        = "PVPlus.ico";  
+
+[Device Classification]
+	Class1 = EtherNetIP;
+
+[Port]
+        Port2 = TCP,
+                "Ethernet",
+                "20 F5 24 01",
+                2; 

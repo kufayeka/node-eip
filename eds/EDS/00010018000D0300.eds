@@ -1,0 +1,38 @@
+[File]
+	DescText   = "PanelView Plus CE 700";
+	CreateDate = 12-06-2002;
+	CreateTime = 03:30:00;
+	ModDate    = 12-26-2006;
+	ModTime    = 11:39:00;
+	Revision   = 1.2;  
+	HomeURL    = "http://www.ab.com/networks/eds/EN/00010018000D0300.eds"; 
+
+[Device]
+	VendCode    = 1;
+	VendName    = "Allen-Bradley";
+	ProdType    = 24;
+	ProdTypeStr = "Human Machine Interface";
+	ProdCode    = 13; 
+	MajRev      = 3;      
+	MinRev      = 1;
+	ProdName    = "PanelView Plus CE 700";
+	Catalog     = "2711P-x7xxx";
+	Icon        = "PVPCE.ico";  
+
+[Device Classification]
+	Class1 = EtherNetIP;
+
+[Port]
+	Port1 = 1_Virtual_Backplane,
+		"Backplane",
+		"21 00 00 03 24 01",
+		1;
+        Port2 = TCP,
+                "Ethernet",
+                "20 F5 24 01",
+                2; 
+
+[Modular]
+	Width = 1;
+	Rack1 = 1,108,165,1,1,,,,
+		0;

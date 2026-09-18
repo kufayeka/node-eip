@@ -1,0 +1,29 @@
+$ Revision History
+$ 1.001  03-30-07  jgm  Initial version taken from 1769-IQ16F and jmh modifications
+$ 1.002  07-16-07  jgm  Removed Modular, Params, Groups, and Assembly sections
+
+[File]
+	DescText    = "Embedded IQ16F EDS File";
+	CreateDate  = 03-30-2007;
+	CreateTime  = 11:00:00;
+	ModDate     = 07-16-2007;
+	ModTime     = 17:00:00;
+	Revision    = 1.002;
+	HomeURL     = "http://www.ab.com/networks/eds/XX/0001000701400300.eds";
+
+[Device]
+	VendCode    = 1;
+	VendName    = "Rockwell Automation/Allen-Bradley";
+	ProdType    = 7;
+	ProdTypeStr = "General Purpose Discrete I/O";
+	ProdCode    = 320;
+	MajRev      = 3;
+	MinRev      = 1;
+	ProdName    = "Embedded IQ16F, 16pt High Speed 24Vdc Input";
+	Catalog     = "Embedded IQ16F";
+	Icon        = "1769-Embedded-Blue.ico";
+
+[1_1769Audit]
+	1_5vdcPwrLoad  = 110;
+	1_24vdcPwrLoad = 0;
+	1_DistRating   = 8;

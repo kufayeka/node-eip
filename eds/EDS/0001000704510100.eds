@@ -1,0 +1,349 @@
+$ DeviceNet Pendant Station
+$ Description: 	The following file is the EDS for the Allen-Bradley 
+$		 DeviceNet Pendant Station
+$ Author:	Lou Smet
+$ Date:	 	03-20-2000
+$
+$ Edit History:	LS	12/17/99	Created
+
+[File]
+	DescText = "800E-PND2 Pendant Station";
+
+	CreateDate = 03-20-2000;
+	CreateTime = 12:00:00;
+	Revision = 1.2;
+
+[Device]
+	VendCode = 1;
+	ProdType = 7;
+	ProdCode = 1105;
+
+	MajRev = 1;
+	MinRev = 1;
+
+	VendName = "Allen-Bradley";
+	ProdTypeStr = "General Purpose Discrete I/O";
+	ProdName = "800E-PND2 Pendant Station";
+
+	Catalog ="800E-PND2";
+
+[IO_Info]
+
+	Default = 0x04;			$ The default I/O type is COS
+
+	PollInfo = 0x01, 0, 0;		$ Not supported
+
+	COSInfo = 0x04, 1, 1;		$ Use Input1 and Output1
+
+	StrobeInfo = 0x02, 2, 2;	$ Use Input2 and Output2
+
+	Input1 =
+		1,				$ 1 byte
+		8,				$ 8 bits used
+		0x0004,				$ COS only
+		" Output ",			$ Name
+		6,				$ Path size
+		"20 04 24 01 30 03",   			$ Path to ID value attribute
+		"Input and Status from IO_block."; 	$ Help string
+
+	Output1 =
+		1,				$ 1 byte
+		1,				$ 1 bit used
+		0x0004,				$ COS only
+		"",				$ Name
+		6,				$ Path size
+		"20 04 24 22 30 03",   		$ Path to ID value attribute
+		"";				$ Help string
+
+	Input2 =
+		1,				$ 1 byte
+		8,				$ 8 bits used
+		0x0002,				$ Strobe only
+		" Output ",			$ Name
+		6,				$ Path size
+		"20 04 24 01 30 03",   			$ Path to ID value attribute
+		"Input and Status from IO_block."; 	$ Help string
+
+	Output2 =
+		0,				$ 0 bytes
+		0,				$ 0 bits used
+		0x0002,				$ Strobe only
+		"",				$ Name
+		6,				$ Path size
+		"20 04 24 22 30 03",   		$ Path to ID value attribute
+		"";				$ Help string
+
+[ParamClass]
+	MaxInst = 16;
+	Descriptor = 0x09;
+	CfgAssembly = 0x00;
+
+[Params]
+	Param1 = 				$ Input
+		0,				$ Data Placeholder
+		6, "20 08 24 01 30 03",		$ Path size and Path to Output Attribute
+		0x12,				$ Descriptor - (Support Enumerated Strings, Read-only)
+		4, 1,				$ Data Type and Size - (Boolean)
+		"Input",			$ Name
+		"",				$ Units (Not Used)
+		"The Input state. This includes the effects of Timers.", 	$ Help
+		0,1,0,				$ min, max, default values
+		1,1,1,0,			$ mult, div, base, offset scaling (Not Used)
+		1,1,1,0,			$ mult, div, base, offset links (Not Used)
+		0;				$ decimal places
+
+	Param2 = 				$ On-Delay Timer Elapsed Time
+		0,				$ Data Placeholder
+		6, "20 ed 24 01 30 07",		$ Path size and Path to Elapsed Time Attribute
+		0x10,				$ Descriptor - (Read-only)
+		2, 2,				$ Data Type and Size - (UINT)
+		"On-Delay Elapsed Time",	$ Name
+		" ",				$ Units (Not Used)
+		"Current On-Delay Timer value",	$ Help 
+		0,65535,0,		   	$ min, max, default values
+		1,1,1,0,		      	$ mult, div, base, offset scaling (Not Used)
+		1,1,1,0,		      	$ mult, div, base, offset links (Not Used)
+		0;				$ decimal places
+
+	Param3 = 				$ Off-Delay/One-Shot Timer Elapsed Time
+		0,				$ Data Placeholder
+		6, "20 ed 24 02 30 07",		$ Path size and Path to elapsed time Attribute
+		0x10,				$ Descriptor - (Read-only)
+		2, 2,				$ Data Type and Size - (UINT)
+		"Off-Delay Elapsed Time",     	$ Name
+		" ",				$ Units (Not Used)
+		"Current Off-Delay/One-Shot Timer value",	 	$ Help 
+		0,65535,0,		     	$ min, max, default values
+		1,1,1,0,		     	$ mult, div, base, offset scaling (Not Used)
+		1,1,1,0,		     	$ mult, div, base, offset links (Not Used)
+		0;				$ decimal places
+
+	Param4 = 				$ On-Delay Timer Timebase
+		0,				$ Data Placeholder
+		6, "20 ed 24 01 30 08",		$ Path size and Path to timebase Attribute
+		0x02,				$ Descriptor - (Support Enumerated Strings)
+		8, 1,				$ Data Type and Size - (USINT)
+		"On-Delay Timebase",		$ Name
+		" ",				$ Units (Not Used)
+		"Select a timebase of 1 ms or 10 ms for the On-Delay timer",		 $ Help 
+		0,1,0,				$ min, max, default values
+		1,1,1,0,			$ mult, div, base, offset scaling (Not Used)
+		1,1,1,0,			$ mult, div, base, offset links (Not Used)
+		0;				$ decimal places
+
+	Param5 = 				$ On-Delay Timer preset
+		0,				$ Data Placeholder
+		6, "20 ed 24 01 30 04",		$ Path size and Path to preset Attribute
+		0x00,				$ Descriptor
+		2, 2,				$ Data Type and Size - (UINT)
+		"On-Delay Preset",		$ Name
+		" ",				$ Units (Not Used)
+		"Select value of On-Delay Timer.  When this value is reached On-Delay timer output is set",	 	$ Help 
+		2,65535,2,			$ min, max, default values
+		1,1,1,0,			$ mult, div, base, offset scaling (Not Used)
+		1,1,1,0,			$ mult, div, base, offset links (Not Used)
+		0;				$ decimal places
+
+	Param6 = 				$ Off-Delay/One-Shot Timer  type
+		0,				$ Data Placeholder
+		6, "20 ed 24 02 30 01",		$ Path size and Path to type Attribute
+		0x02,				$ Descriptor - (Support Enumerated Strings) 
+		8, 1,				$ Data Type and Size - (USINT)
+		"Off-Delay/One-shot Type",	$ Name
+		" ",				$ Units (Not Used)
+		"Select type of Off-Delay/One-Shot Timer",		 $ Help 
+		0,3,0,		       		$ min, max, default values
+		1,1,1,0,			$ mult, div, base, offset scaling (Not Used)
+		1,1,1,0,			$ mult, div, base, offset links (Not Used)
+		0;				$ decimal places
+
+	Param7 = 				$ Off-Delay/One-Shot Timer Timebase
+		0,				$ Data Placeholder
+		6, "20 ed 24 02 30 08",	$ Path size and Path to timebase Attribute
+		0x02,				$ Descriptor - (Support Enumerated Strings)
+		4, 1,				$ Data Type and Size - (Boolean)
+		"Off-Delay/One-shot Timebase",	$ Name
+		" ",				$ Units (Not Used)
+		"Select a timebase of 1 ms or 10 ms for Off-Delay/One-Shot Timer",		 $ Help 
+		0,1,0,		      		$ min, max, default values
+		1,1,1,0,			$ mult, div, base, offset scaling (Not Used)
+		1,1,1,0,			$ mult, div, base, offset links (Not Used)
+		0;				$ decimal places
+
+	Param8 = 				$ Off-Delay/One-Shot Timer preset
+		0,				$ Data Placeholder
+		6, "20 ed 24 02 30 04",	$ Path size and Path to preset Attribute
+		0x00,				$ Descriptor
+		2, 2,				$ Data Type and Size - (UINT)
+		"Off-Delay/One-shot Preset",	$ Name
+		" ",				$ Units (Not Used)
+		"Select value of Off-Delay/One-Shot Timer. When this value is reached Off-Delay/One-Shot Timer output is set",	 	$ Help 
+		0,65535,0,			$ min, max, default values
+		1,1,1,0,			$ mult, div, base, offset scaling (Not Used)
+		1,1,1,0,			$ mult, div, base, offset links (Not Used)
+		0;				$ decimal places
+
+
+	Param9 = 				$ Output Value
+		0,				$ Data Placeholder
+		6, "20 09 24 01 30 03",		$ Path size and Path to Operate Mode Attribute
+		0x02,				$ Descriptor - (Support Enumerated Strings)
+		4, 1,				$ Data Type and Size - (Boolean)
+		"Output Value",			$ Name
+		" ",				$ Units (Not Used)
+		"This parameter is the current value of the OUTPUT ( ON or OFF )", 	$Help
+		0,1,0,				$ min, max, default values
+		1,1,1,0,		     	$ mult, div, base, offset scaling (Not Used)
+		1,1,1,0,		     	$ mult, div, base, offset links (Not Used)
+		0;				$ decimal places
+
+	Param10 = 				$ Output Status
+		0,				$ Data Placeholder
+		6, "20 09 24 01 30 04",		$ Path size and Path to Output Attribute
+		0x12,				$ Descriptor - (Support Enumerated Strings, Read-only)
+		4, 1,				$ Data Type and Size - (Boolean)
+		"Output Status",			$ Name
+		" ",				$ Units (Not Used)
+		"This parameter is the current status of the OUTPUT.\n"
+		"It can be HEALTHY or FAULTED. ",		$ Help
+		0,1,0,				$ min, max, default values
+		1,1,1,0,			$ mult, div, base, offset scaling (Not Used)
+		1,1,1,0,			$ mult, div, base, offset links (Not Used)
+		0;				$ decimal places
+
+	Param11 = 				$ Output Fault Action
+		0,				$ Data Placeholder
+		6, "20 09 24 01 30 05",		$ Path size and Path to Operate Mode Attribute
+		0x02,				$ Descriptor - (Support Enumerated Strings)
+		4, 1,				$ Data Type and Size - (Boolean)
+		"Output Fault Action",		$ Name
+		" ",				$ Units (Not Used)
+		"Action taken on OUTPUT's value in a Fault State.\n"
+		"It can be FAULT VALUE (forcing OUTPUT to ON or OFF, depending on Parameter 12),\n"
+		"or HOLD LAST STATE.\n"
+		"The default is FAULT VALUE.",		$ Help
+		0,1,0,				$ min, max, default values
+		1,1,1,0,		     	$ mult, div, base, offset scaling (Not Used)
+		1,1,1,0,		     	$ mult, div, base, offset links (Not Used)
+		0;				$ decimal places
+
+	Param12 = 				$ Output Fault Value
+		0,				$ Data Placeholder
+		6, "20 09 24 01 30 06",		$ Path size and Path to Operate Mode Attribute
+		0x02,				$ Descriptor - (Support Enumerated Strings)
+		4, 1,				$ Data Type and Size - (Boolean)
+		"Output Fault Value",		$ Name
+		" ",				$ Units (Not Used)
+		"Value for use with Output Fault Action attribute (see Parameter 11).\n"
+		"If FAULT VALUE in Parameter 11 was chosen, this forces OUTPUT to ON or OFF in a fault state.\n"
+		"The default state is FAULT OUTPUT OFF.",		$ Help
+		0,1,0,				$ min, max, default values
+		1,1,1,0,		     	$ mult, div, base, offset scaling (Not Used)
+		1,1,1,0,		     	$ mult, div, base, offset links (Not Used)
+		0;				$ decimal places
+
+	Param13 = 				$ Output Idle Action
+		0,				$ Data Placeholder
+		6, "20 09 24 01 30 07",		$ Path size and Path to Operate Mode Attribute
+		0x02,				$ Descriptor - (Support Enumerated Strings)
+		4, 1,				$ Data Type and Size - (Boolean)
+		"Output Idle Action",		$ Name
+		" ",				$ Units (Not Used)
+		"Action taken on OUTPUT's value during a Program Mode.\n"
+		"It can be IDLE VALUE (forcing OUTPUT to ON or OFF, depending on Parameter 14),\n"
+		"or HOLD LAST STATE.\n"
+		"The default is IDLE VALUE .",		$ Help
+		0,1,0,				$ min, max, default values
+		1,1,1,0,		     	$ mult, div, base, offset scaling (Not Used)
+		1,1,1,0,		     	$ mult, div, base, offset links (Not Used)
+		0;				$ decimal places
+
+	Param14 = 				$ Output Idle Value
+		0,				$ Data Placeholder
+		6, "20 09 24 01 30 08",		$ Path size and Path to Operate Mode Attribute
+		0x02,				$ Descriptor - (Support Enumerated Strings)
+		4, 1,				$ Data Type and Size - (Boolean)
+		"Output Idle Value",		$ Name
+		" ",				$ Units (Not Used)
+		"Value for use with Output Idle Action attribute (see Parameter 13).\n"
+		"If IDLE VALUE in Parameter 13 was chosen, this forces OUTPUT to ON or OFF during a Program Mode.\n"
+		"The default state is IDLE OUTPUT OFF.",		$ Help
+		0,1,0,				$ min, max, default values
+		1,1,1,0,		     	$ mult, div, base, offset scaling (Not Used)
+		1,1,1,0,		     	$ mult, div, base, offset links (Not Used)
+		0;				$ decimal places
+
+	Param15 = 				$ Autobaud
+		0,				$ Data Placeholder
+		6, "20 03 24 01 30 64",		$ Path size and Path to Operate Mode Attribute
+		0x02,				$ Descriptor - (Support Enumerated Strings)
+		4, 1,				$ Data Type and Size - (Boolean)
+		"Autobaud",			$ Name
+		" ",				$ Units (Not Used)
+		"When enabled the device will listen to other devices on the\n"
+		"network to determine the correct baud rate to use for communciations ", $Help
+		0,1,0,				$ min, max, default values
+		1,1,1,0,			$ mult, div, base, offset scaling (Not Used)
+		1,1,1,0,			$ mult, div, base, offset links (Not Used)
+		0;				$ decimal places
+
+	Param16 = 				$ Configuration Consistency Value
+		0,				$ Data Placeholder
+		6, "20 01 24 01 30 09",	$ Path size and Path to CCV Attribute
+		0x10,				$ Descriptor - (Read-only)
+		2, 2,				$ Data Type and Size - (UINT)
+		"Configuration Consistency Value",	$ Name
+		" ",				$ Units (Not Used)
+		"Value of current configuration",	$ Help 
+		0,65535,0,		     	$ min, max, default values
+		1,1,1,0,		     	$ mult, div, base, offset scaling (Not Used)
+		1,1,1,0,		     	$ mult, div, base, offset links (Not Used)
+		0;				$ decimal places
+
+[EnumPar]
+	Param1 =			$ Input Enumerated Strings
+		"Input OFF",		$ For value = 0
+		"Input ON";			$ For value = 1
+
+	Param4 =			$ On-Delay Timer Timebase
+		" 1 ms",		$ For value = 0
+		"10 ms";		$ For value = 1
+
+	Param6 =			$ Off-Delay/One-Shot Timer  type
+		"Disabled",		$ For value = 0
+		"One-Shot",		$ For value = 1
+		"Not supported",	$ For value = 2
+		"Off-Delay";		$ For value = 3
+
+	Param7 =			$ Off-Delay/One-Shot Timer Timebase
+		"1 ms",			$ For value = 0
+		"10 ms";		$ For value = 1
+
+	Param9 =					$ Output Value
+		"Output OFF",			$ For value = 0
+		"Output ON";			$ For value = 1
+	
+	Param10 =			$ Output Status
+		"Healthy",	   	$ For value = 0
+		"Faulted";		$ For value = 1
+
+	Param11 =			$ Output Fault Action
+		"Fault Value",	   	$ For value = 0
+		"Hold Last State";	 	$ For value = 1
+
+	Param12 =			$ Output Fault Value
+		"Fault Output OFF", 	$ For value = 0
+		"Fault Output ON";  		$ For value = 1
+
+	Param13 =			$ Output Idle Action
+		"Idle Value",	   	$ For value = 0
+		"Hold Last State";	 	$ For value = 1
+
+	Param14 =			$ Output Idle Value
+		"Idle Output OFF",	 	$ For value = 0
+		"Idle Output ON";	  	$ For value = 1
+
+	Param15 =			$ Autobaud
+		"Enabled",		$ For value = 0
+		"Disabled";		$ For value = 1
+

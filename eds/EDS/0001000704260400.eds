@@ -1,0 +1,453 @@
+$ Electronic Data Sheet for DeviceNet Starter Auxiliary
+
+[File]
+    DescText = "DSA 4 24V In / 2 Relay Out 22.5mm EDS File";
+    CreateDate = 03-27-1998;
+    CreateTime = 11:00:00;
+    ModDate = 12-14-2005;
+    ModTime = 14:30:00;
+    Revision = 4.6;
+    HomeURL = "http://www.ab.com/networks/eds/DN/0001000704260400.eds";
+
+[Device]
+    VendCode = 1;
+    VendName = "Rockwell Automation/Allen-Bradley";
+    ProdType = 7;
+    ProdTypeStr = "General Purpose Discrete I/O";
+    ProdCode = 1062;
+    MajRev = 4;
+    MinRev = 5;
+    ProdName = "DSA 4/2 (100-DNY42R) 22.5 mm";
+    Catalog = "100-DNY42R";
+    Icon = "DSA_225.ico";
+
+[IO_Info]
+    1_COSetPathNotSupported = 1;
+    1_COSetSizeNotSupported = 1;
+
+    Default = 0x0001;        $ The default I/O type is polled I/O.
+
+    PollInfo =
+      0x0005,                $ OK to combine Poll and COS.
+      1,                     $ Input1 entry is the default input connection.
+      1;                     $ Output1 entry is the default output connection.
+
+    COSInfo =
+      0x0005,                $ OK to combine Poll and COS.
+      1,                     $ Input1 entry is the default input connection.
+      1;                     $ Output1 entry is the default output connection.
+
+    Input1 =
+      1,                     $ The size in bytes that this connection produces.
+      0,                     $ All bits of this connection are significant.
+      0x0005,                $ OK for Poll and/or COS.
+      "Status",              $ Name of Connection.
+      6,                     $ Path length.
+      "20 04 24 69 30 03",   $ Path to I/O Production Assembly.
+                             $ Help string follows
+      "Contains input data at bits 0-3, output status at bits 4-5, and sensor source voltage status at bit 7.";
+			
+    Output1 =
+      1,                     $ The size in bytes that this connection consumes.
+      2,                     $ Only the two least significant bits of this connection are used.
+      0x0005,                $ OK for Poll and/or COS.
+      "Command",             $ Name of Connection.
+      6,                     $ Path length.
+      "20 04 24 20 30 03",   $ Path to I/O Consumption Assembly.
+                             $ Help string follows
+      "Contains data for two outputs.";
+			 
+[ParamClass]
+    MaxInst = 15;          $ 6 configurable and 7 read-only parameters.
+    Descriptor =  0x09;    $ Stub param instances in eeprom.
+    CfgAssembly = 0x68;    $ The config assembly is instance #104 of assy obj.		
+
+
+[Params]
+
+Param1 =
+   0,                      $ reserved
+   6, "20 03 24 01 30 64", $ Link Path.
+   0X0002,                 $ Value is gettable and Settable.  Enumerated strings are supported.
+   4, 1,                   $ Data Type - boolean, Data Size - 1 byte
+   "Autobaud",             $ Parameter Name
+   "",                     $ Units String
+                           $ Help string follows
+   "When ENABLED, allows the DSA to automatically detect\n"
+   "and connect using the current network baud rate.\n"
+   "When DISABLED, the DSA uses the baud rate selected in\n"
+   "the DeviceNet object's baud rate attribute.\n"
+   "This parameter's setting only takes effect after a\n"
+   "module reset or at power-on.",
+   0,1,                    $ Min, Max values
+   0,                      $ Default value
+   1,1,1,0,                $ Scaling factors
+   0,0,0,0,                $ Scaling links
+   0;                      $ Decimal Places
+
+Param2 =
+   0,                      $ reserved
+   6, "20 0F 24 02 30 01", $ Link Path.
+   0X0002,                 $ Value is gettable and Settable. Enumerated strings are supported.
+   2, 2,                   $ Data Type - unsigned int, Data Size - 2 bytes
+   "Off-to-On Delay",      $ Parameter Name
+   "",                     $ Units String
+                           $ Help string follows
+   "Input signal must be present for this delay period before module detects the change.",
+   0,4,                    $ Min, Max (max enumeration #) values
+   0,                      $ Default value
+   1,1,1,0,                $ Scaling factors
+   0,0,0,0,                $ Scaling links
+   0;                      $ Decimal Places
+
+Param3 =
+   0,                      $ reserved
+   6, "20 0F 24 03 30 01", $ Link Path.
+   0X0002,                 $ Value is gettable and Settable.  Enumerated strings are supported.
+   2, 2,                   $ Data Type - unsigned int, Data Size - 2 bytes
+   "On-to-Off Delay",      $ Parameter Name
+   "",                     $ Units String
+                           $ Help string follows
+   "Input signal must be absent for this delay period before module detects the change.",
+   0,4,                    $ Min, Max (max enumeration #) values
+   0,                      $ Default value
+   1,1,1,0,                $ Scaling factors
+   0,0,0,0,                $ Scaling links
+   0;                      $ Decimal Places
+
+Param4 =
+   0,                      $ reserved
+   6, "20 1E 24 01 30 07", $ Link Path to DOG object's fault state attribute.
+   0X0002,                 $ Value is gettable and Settable.  Enumerated strings are supported.
+   4, 1,                   $ Data Type - boolean, Data Size - 1 byte
+   "Fault State",          $ Parameter Name
+   "",                     $ Units String
+                           $ Help string follows
+   "Defines the hardware output device's behavior in the event of a\n"
+   "loss of network communications (i.e. connection timeout).",
+   0,1,                    $ Min, Max (max enumeration #) values
+   0,                      $ Default value
+   1,1,1,0,                $ Scaling factors
+   0,0,0,0,                $ Scaling links
+   0;                      $ Decimal Places
+
+Param5 =
+   0,                      $ reserved
+   6, "20 1E 24 01 30 09", $ Link Path to DOG object's idle state attribute.
+   0X0002,                 $ Value is gettable and settable.  Enumerated strings are supported.
+   4, 1,                   $ Data Type - boolean, Data Size - 1 byte
+   "Idle State",           $ Parameter Name
+   "",                     $ Units String
+                           $ Help string follows
+   "Defines the hardware output device's behavior in the event of\n"
+   "no data received in the current I/O message (i.e. idle message).",
+   0,1,                    $ Min, Max (max enumeration #) values
+   0,                      $ Default value
+   1,1,1,0,                $ Scaling factors
+   0,0,0,0,                $ Scaling links
+   0;                      $ Decimal Places
+
+Param6 =
+   0,                      $ reserved
+   6, "20 0F 24 06 30 01", $ Link Path to param instance.
+   0X0002,                 $ Value is gettable and settable.  Enumerated strings are supported.
+   8, 1,                   $ Data Type - unsigned short int, Data Size - 1 byte
+   "Reset Faulted IO",     $ Parameter Name
+   "",                     $ Units String
+                           $ Help string follows
+   "This resets the voltage supplied to sensors or, a faulted output.\n"
+   "A reset will only be accepted if a fault exists.",
+   0,3,                    $ Min, Max (max enumeration #) values
+   0,                      $ Default value
+   1,1,1,0,                $ Scaling factors
+   0,0,0,0,                $ Scaling links
+   0;                      $ Decimal Places
+
+Param7 =
+   0,                      $ reserved
+   6, "20 08 24 01 30 03", $ Link Path to Input 0 value attribute.
+   0X0030,                 $ Read Only - Monitor.
+   8, 1,                   $ Data Type - unsigned short int, Data Size - 1 byte
+   "Input 0 Value",        $ Parameter Name
+   "",                     $ Units String
+                           $ Help string follows
+   "This parameter indicates the current value of Input 0.",
+   0,1,                    $ Min, Max values
+   0,                      $ Default value
+   1,1,1,0,                $ Scaling factors
+   0,0,0,0,                $ Scaling links
+   0;                      $ Decimal Places
+
+Param8 =
+   0,                      $ reserved
+   6, "20 08 24 02 30 03", $ Link Path to Input 1 value attribute.
+   0X0030,                 $ Read Only - Monitor.
+   8, 1,                   $ Data Type - unsigned short int, Data Size - 1 byte
+   "Input 1 Value",        $ Parameter Name
+   "",                     $ Units String
+                           $ Help string follows
+   "This parameter indicates the current value of Input 1.",
+   0,1,                    $ Min, Max values
+   0,                      $ Default values
+   1,1,1,0,                $ Scaling factors
+   0,0,0,0,                $ Scaling links
+   0;                      $ Decimal Places
+
+Param9 =
+   0,                      $ reserved
+   6, "20 08 24 03 30 03", $ Link Path to Input 2 value attribute.
+   0X0030,                 $ Read Only - Monitor.
+   8, 1,                   $ Data Type - unsigned short int, Data Size - 1 byte
+   "Input 2 Value",        $ Parameter Name
+   "",                     $ Units String
+                           $ Help string follows
+   "This parameter indicates the current value of Input 2.",
+   0,1,                    $ Min, Max values
+   0,                      $ Default value
+   1,1,1,0,                $ Scaling factors
+   0,0,0,0,                $ Scaling links
+   0;                      $ Decimal Places
+
+Param10 =
+   0,                      $ reserved
+   6, "20 08 24 04 30 03", $ Link Path to Input 3 value attribute.
+   0X0030,                 $ Read Only - Monitor.
+   8, 1,                   $ Data Type - unsigned short int, Data Size - 1 byte
+   "Input 3 Value",        $ Parameter Name
+   "",                     $ Units String
+                           $ Help string follows
+   "This parameter indicates the current value of Input 3.",
+   0,1,                    $ Min, Max values
+   0,                      $ Default value
+   1,1,1,0,                $ Scaling factors
+   0,0,0,0,                $ Scaling links
+   0;                      $ Decimal Places
+
+Param11 =
+   0,                      $ reserved
+   6, "20 1D 24 01 30 05", $ Link Path to Dicrete Input Group status attribute.
+   0X0032,                 $ Read Only - Monitor. Enumerated strings are supported.
+   8, 1,                   $ Data Type - unsigned short int, Data Size - 1 byte
+   "Input Status",         $ Parameter Name
+   "",                     $ Units String
+                           $ Help string follows
+   "This parameter indicates the current status of the input signal supply voltage.",
+   0,1,                    $ Min, Max values
+   0,                      $ Default value
+   1,1,1,0,                $ Scaling factors
+   0,0,0,0,                $ Scaling links
+   0;                      $ Decimal Places
+
+Param12 =
+   0,                      $ reserved
+   6, "20 09 24 01 30 04", $ Link Path to Output 1 status attribute.
+   0X0032,                 $ Read Only - Monitor. Enumerated strings are supported.
+   8, 1,                   $ Data Type - unsigned short int, Data Size - 1 byte
+   "Output A Status",      $ Parameter Name
+   "",                     $ Units String
+                           $ Help string follows
+   "This parameter indicates the current fault status of Output 1.",
+   0,1,                    $ Min, Max values
+   0,                      $ Default value
+   1,1,1,0,                $ Scaling factors
+   0,0,0,0,                $ Scaling links
+   0;                      $ Decimal Places
+
+Param13 =
+   0,                      $ reserved
+   6, "20 09 24 02 30 04", $ Link Path to Output 2 status attribute.
+   0X0032,                 $ Read Only - Monitor. Enumerated strings are supported.
+   8, 1,                   $ Data Type - unsigned short int, Data Size - 1 byte
+   "Output B Status",      $ Parameter Name
+   "",                     $ Units String
+                           $ Help string follows
+   "This parameter indicates the current fault status of Output 2.",
+   0,1,                    $ Min, Max values
+   0,                      $ Default value
+   1,1,1,0,                $ Scaling factors
+   0,0,0,0,                $ Scaling links
+   0;                      $ Decimal Places
+
+Param14 =
+   0,                      $ reserved
+   6, "20 09 24 01 30 03", $ Link Path to Output 1 status attribute.
+   0X0032,                 $ Read Only - Monitor. Enumerated strings are supported.
+   8, 1,                   $ Data Type - unsigned short int, Data Size - 1 byte
+   "Output A Value",       $ Parameter Name
+   "",                     $ Units String
+                           $ Help string follows
+   "This parameter indicates the current value of Output 1.",
+   0,1,                    $ Min, Maxt values
+   0,                      $ Default value
+   1,1,1,0,                $ Scaling factors
+   0,0,0,0,                $ Scaling links
+   0;                      $ Decimal Places
+
+Param15 =
+   0,                      $ reserved
+   6, "20 09 24 02 30 03", $ Link Path to Output 2 status attribute.
+   0X0032,                 $ Read Only - Monitor. Enumerated strings are supported.
+   8, 1,                   $ Data Type - unsigned short int, Data Size - 1 byte
+   "Output B Value",       $ Parameter Name
+   "",                     $ Units String
+                           $ Help string follows
+   "This parameter indicates the current value of Output 2.",
+   0,1,                    $ Min, Max values
+   0,                      $ Default values
+   1,1,1,0,                $ Scaling factors
+   0,0,0,0,                $ Scaling links
+   0;                      $ Decimal Places
+
+$ The following ParamN definitions are for Invisible Parameters
+$ that do not exist in the device.  They are here to provide
+$ names for Assembly members in this EDS whose corresponding
+$ on-line member names are encoded in Symbolic EPATHs.
+
+Param1000=
+  0,0,"",0x200,
+  0x04,1,
+  "Output A Fault"
+  ,"",""
+  ,0,1,0,,,,,,,,,,,,;
+
+Param1001=
+  0,0,"",0x200,
+  0x04,1,
+  "Output B Fault"
+  ,"",""
+  ,0,1,0,,,,,,,,,,,,;
+
+Param1002=
+  0,0,"",0x200,
+  0x04,1,
+  "Input Fault"
+  ,"",""
+  ,0,1,0,,,,,,,,,,,,;
+
+Param1003=
+  0,0,"",0x200,
+  0x04,1,
+  "Output A"
+  ,"",""
+  ,0,1,0,,,,,,,,,,,,;
+
+Param1004=
+  0,0,"",0x200,
+  0x04,1,
+  "Output B"
+  ,"",""
+  ,0,1,0,,,,,,,,,,,,;
+
+Param1005=
+  0,0,"",0x200,
+  0x04,1,
+  "Input 0"
+  ,"",""
+  ,0,1,0,,,,,,,,,,,,;
+
+Param1006=
+  0,0,"",0x200,
+  0x04,1,
+  "Input 1"
+  ,"",""
+  ,0,1,0,,,,,,,,,,,,;
+
+Param1007=
+  0,0,"",0x200,
+  0x04,1,
+  "Input 2"
+  ,"",""
+  ,0,1,0,,,,,,,,,,,,;
+
+Param1008=
+  0,0,"",0x200,
+  0x04,1,
+  "Input 3"
+  ,"",""
+  ,0,1,0,,,,,,,,,,,,;
+
+
+
+[EnumPar]
+
+ Param1 = 
+  "Enable",
+  "Disable";
+
+ Param2 = 
+  "0 ms",
+  "2 ms",
+  "4 ms",
+  "8 ms",
+  "16 ms";
+
+ Param3 = 
+  "0 ms",
+  "2 ms",
+  "4 ms",
+  "8 ms",
+  "16 ms";
+
+ Param4 = 
+  "Reset Outputs",
+  "Hold Last State";
+
+ Param5 = 
+  "Reset Outputs",
+  "Hold Last State";
+
+ Param6 = 
+  "Nothing Selected",
+  "Output A",
+  "Output B",
+  "Inputs";
+
+ Param11 = 
+  "Healthy",
+  "Faulted";
+
+ Param12 = 
+  "Healthy",
+  "Faulted";
+
+ Param13 = 
+  "Healthy",
+  "Faulted";
+
+ Param14 = 
+  "OFF",
+  "ON";
+
+ Param15 = 
+  "OFF",
+  "ON";
+
+[Groups]
+
+ Group1="Configuration",5,1,2,3,4,5;
+
+ Group2="I/O",10,6,7,8,9,10,11,12,13,14,15;
+
+
+[Assembly]
+
+Assem32 =
+  "Command",
+  "20 04 24 20 30 03",
+  1, 0,,,
+  1, Param1003,
+  1, Param1004,
+  6, ;
+
+Assem105 =
+  "Status",
+  "20 04 24 69 30 03",
+  1, 0,,,
+  1, Param1005,
+  1, Param1006,
+  1, Param1007,
+  1, Param1008,
+  1, Param1000,
+  1, Param1001,
+  1, ,
+  1, Param1002;

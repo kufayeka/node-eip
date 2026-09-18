@@ -1,0 +1,1297 @@
+$ Electronic Data Sheet for ArmorPoint  (1738-SSIM23/A)
+$ Copyright 2006 by Rockwell Automation
+$ Universal version for: DeviceNet, ControlNet, and EthernetIP
+
+$ Revision History
+$ Revision	Date		Change
+$	1.1	04Jan2004	Started with revision 3.1 of 1734-SSI/C
+$	1.2	07Jan2004	Added Param24-28 and structured to Assem102
+$	1.3	11Jan2004	Updated Device Revision to 4.3
+$	2.1	30Nov2004	Added Assem124 - Changed CNXNs for 3rd Party
+$	3.1	26Feb2006	Update to new DeviceNet Premier Integration EDS Guidelines
+$				Removed Assem124 from Listen Only Connection
+
+[File]
+	DescText    = "ArmorPoint 1738-SSIM23/A";
+	CreateDate  = 03-21-2003;
+	CreateTime  = 10:00:00;
+	ModDate     = 02-26-2006;
+	ModTime     = 14:09:00;
+	Revision    = 3.1;
+	HomeURL     = "http://www.ab.com/networks/eds/DN/0001007300820400.eds";
+
+[Device]
+	VendCode    = 1;                                  $ Vendor Code
+	ProdType    = 115;                                $ Product Type
+	ProdCode    = 130;                                $ Product Code
+
+	MajRev      = 4;                                  $ Major Rev
+	MinRev      = 3;                                  $ Minor Rev
+	VendName    = "Rockwell Automation/Allen-Bradley";
+	ProdTypeStr = "Rockwell Automation Miscellaneous";
+	ProdName    = "ArmorPoint Synchronous Serial Interface";
+	Catalog     = "1738-SSIM23/A";
+	Icon	      = "1738-1M23PURPLE.ico";
+	1_RSNetWorx_DNetTool = "RSI.DeviceNet.EDSApplet";
+	1_RSNetWorx_NoAutoEnter = "Yes";
+
+[Device Classification]
+     Class1 =      DeviceNet;
+
+[IO_Info]
+	1_COSetPathNotSupported = 1;                      $ Cnxn Obj does not support direct path setting
+
+	Default =     0X0004;                    $ COS is default
+
+	PollInfo =    0X000D,                    $ Compatable with poll,cyclic,COS
+                    1,                         $ input 1
+                    1;                         $ output 1
+
+      COSInfo =     0X0005,                    $ Compatable with poll
+                    1,                         $ input 1
+                    1;                         $ output1
+
+      CyclicInfo =  0X0009,                    $ Compatable with poll
+                    1,                         $ input 1
+                    1;                         $ output1
+
+      Input1 =      10,                        $ size = 10 bytes
+                     0,                        $ all bits significant
+                    0X000D,                    $ compatible w/Poll, COS, CYC
+              "Data - with Status",            $ name string
+                     6,                        $ path length
+              "20 04 24 65 30 03",             $ assy obj 4, inst 101, attr 3
+              "Present/Latched SSI data w/status";
+
+      Output1 =     2,				     $ size = 2 bytes
+                    8,                         $ only first eight significant
+                    0X000D,                    $ compatible w/Poll, COS, CYC
+              "Control",                       $ name string
+                     6,                        $ path length
+              "20 04 24 66 30 03",             $ assy obj 4, inst 102, attr 3
+              "Master Ack Byte";
+
+[ParamClass]
+	MaxInst     = 102;
+	Descriptor  = 0x09;                    $ Individual parameters settable
+                                             $ Automatically stored in EERPOM
+	CfgAssembly = 0x7B;                    $ the custom config assembly is 123d
+
+[Assembly]
+        Assem101 =  "Data - with Status",
+                    "",                       $ Path is implied (Assy obj attr3)
+                    10,                       $ total length in bytes
+                    0,,,                      $ no changes, ",,"= reserved
+                    32,Param31,               $ Present Data
+                    32,Param32,               $ Latched Data
+                    16,Param33;               $ Status
+
+        Assem102 =  "Control",
+                    "",                      $ Path is implied (Assy obj attr3)
+                    2,                       $ total length in bytes
+                    0,,,                     $ no changes, ",,"= reserved
+                    8,Param34,               $ Control byte
+                    8,;                      $ Pad
+
+        Assem123 =  "1738-SSIM23 Configuration Assembly",
+                    "",                       $ Path is implied (Assy obj attr3)
+                    26,                       $ total length in bytes
+                    0,,,                      $ descriptor, ",,"= reserved
+                    1,Param4,                 $ # bits
+                    7,,
+                    1,Param5,                 $ # bits
+                    7,,
+                    5,Param6,                 $ # bits
+                    3,,
+                    4,Param7,                 $ # bits
+                    4,,
+                    1,Param8,                 $ # bits
+                    7,,
+                    1,Param10,                $ # bits
+                    7,,
+                    16,Param9,                $ 2 bytes
+                    5,Param11,                $ # bits
+                    3,,
+                    2,Param14,                $ # bits
+                    6,,
+                    16,Param12,               $ 2 bytes
+                    16,Param13,               $ 2 bytes
+                    3,Param19,                $ # bits
+			  5,,
+                    8,,                       $ Pad byte
+                    32,Param16,               $ 4 bytes
+                    32,Param18,               $ 4 bytes
+                    2,Param15,                $ # bits
+                    6,,
+                    2,Param17,                $ # bits
+                    6,
+                    ;
+
+    Assem124 =                  $ Private config in Forward Open, Module
+        "3rd Party Private Assembly",
+        ,                       $ Path
+        ,                       $ Length in bytes
+        ,                       $ descriptor
+        ,,                      $ reserved
+        16,Param101,            $ configuration revision (only valid value is 1)
+        16,;                    $ reserved - zeros
+
+    Assem125 =                  $ Private config in Forward Open, Module
+        "Adapter Config Assembly",
+        ,                       $ Path
+        ,                       $ Length in bytes
+        ,                       $ descriptor
+        ,,                      $ reserved
+        16,Param102,            $ Non-Logix Header (constant 0x7001)
+        16,1_RackSize,          $ number of slots
+        16,Param101,            $ configuration revision (only valid value is 1)
+        16,;                    $ reserved - zeros
+
+    Assem126 =                  $ O2T (output data)
+        "Ouput Data Assembly",
+        ,                       $ Path
+        ,                       $ Length in bytes
+        ,                       $ descriptor
+        ,,                      $ reserved
+        ,Assem102;              $ Assembly sent to module
+
+    Assem127 =                  $ T2O (input data)
+        "Input Data Assembly",
+        ,                       $ Path
+        ,                       $ Length in bytes
+        ,                       $ descriptor
+        ,,                      $ reserved
+        32,,                    $ Fault bits
+        ,Assem101;              $ Assembly passed from module
+
+[Params]
+
+      Param1 =                                $ present SSI word
+                    0,                        $ reserved
+                    0,                        $ link path size
+                   "",                        $ link path
+               0x0030,                        $ Value is gettable only.
+                    0XC8,                     $ udint   $ 9 EEP
+                    4,                        $ 4 bytes
+                    "Present SSI Data",       $ Parameter Name
+                    "",                       $ Units String
+                    "Raw sensor count of present SSI data",    $ help string                       
+                    0,4294967295,0,           $ min,max,default values
+                    1,1,1,0,0,0,0,0,0;        $ Not Used
+
+      Param2 =                                $ latched SSI word
+                    0,                        $ reserved
+                    0,                        $ link path size
+                   "",                        $ link path
+               0x0030,                        $ Value is gettable only.
+                    0XC8,                     $ udint
+                    4,                        $ 4 bytes
+                    "Latched SSI Data",       $ Parameter Name
+                    "",                       $ Units String
+                    "Raw sensor count of latched SSI data. NOTE: Latched data is stored only when one of the active modes of the Data Latch Parameter is selected, and the I1 input changes state accordingly. Its default value is zero.",  $ help string              
+                    0,4294967295,0,           $ min,max,default values
+                    1,1,1,0,0,0,0,0,0;        $ Not Used
+
+      Param3 =                                $ SSI status word
+                    0,                        $ reserved
+                    0,                        $ link path size
+                    "",                       $ link path
+                    0x0032,                   $ Value is gettable only.
+                    0xD2,                     $ uint
+                    2,                        $ 2 bytes
+                    "SSI Status Word",        $ Parameter Name
+                    "",                       $ Units String
+                    "See User's Manual for bit definitions",  $ help string                       
+                    0,65535,0,                $ min,max,default values
+                    1,1,1,0,0,0,0,0,0;        $ Not Used
+
+           Enum3 =  0, "Input Status",
+                    1, "Run",
+                    2, "Decreasing Count",
+                    3, "Increasing Count",
+                    4, "Compare 0 Reached",
+                    5, "Compare 1 Reached",
+                    6, "Compare 0 Status",
+                    7, "Compare 1 Status",
+                    8, "Power Fault",
+                    9, "Config Fault",
+                    10,"Comm Fault",
+                    11,"Input Data Fault",
+                    12,"Data Latched";
+
+      Param4 =                                $ Run
+                    0,                        $ reserved
+                    0,                        $ link path size
+                   "",                        $ link path
+               0x0002,                        $ enum string
+                    0xC6,                     $ uchar
+                    1,                        $ 1 byte
+                    "Run",                    $ Parameter Name
+                    "",                       $ Units String
+                    "SSI Clock Output and RUN LED control",  $ help string                       
+                    0,1,1,                    $ min,max,default values
+                    1,1,1,0,0,0,0,0,0;        $ Not Used
+
+ 		Enum4 = 0, "OFF", 1, "ON";
+
+      Param5 =                                $ Gray/Bin
+                    0,                        $ reserved
+                    0,                        $ link path size
+                   "",                        $ link path
+               0x0002,                        $ enum string
+                    0xC6,                     $ uchar
+                    1,                        $ 1 byte
+                    "Data Type",              $ Parameter Name
+                    "",                       $ Units String
+                    "SSI sensor data type",  $ help string                       
+                    0,1,1,                    $ min,max,default values
+                    1,1,1,0,0,0,0,0,0;        $ Not Used
+
+		Enum5 = 0, "Binary", 1, "Gray";
+
+      Param6 =                                $ Word Length
+                    0,                        $ reserved
+                    0,                        $ link path size
+                   "",                        $ link path
+               0x0000,                        $ no enumerated string support
+                    0xC6,                     $ uchar
+                    1,                        $ 1 byte
+                    "SSI Word Length",        $ Parameter Name
+                    "bits",                   $ Units String
+                    "Number of bits per SSI word",   $ help string                       
+                    2,31,13,                  $ min,max,default values
+                    1,1,1,0,0,0,0,0,0;        $ Not Used
+
+      Param7 =                                $ Word Length
+                    0,                        $ reserved
+                    0,                        $ link path size
+                   "",                        $ link path
+               0x0002,                        $ enum string
+                    0xC6,                     $ uchar
+                    1,                        $ 1 byte
+                    "Data Rate",              $ Parameter Name
+                    "baud",                   $ Units String
+                    "Frequency of SSI clock output",   $ help string                       
+                    5,9,5,                    $ min,max,default values
+                    1,1,1,0,0,0,0,0,0;        $ Not Used
+
+		Enum7 = 5,"125k", 6,"250k", 7,"500k", 8,"1M", 9,"2M";
+
+	Param8 =                                $ gray/bin convert
+                    0,                        $ reserved
+                    0,                        $ link path size
+                   "",                        $ link path
+               0x0002,                        $ enum string
+                    0xC6,                     $ uchar
+                    1,                        $ 1 byte
+                    "Gray-to-Binary",         $ Parameter Name
+                    "",                       $ Units String
+                    "Convert gray code to binary",  $ help string                       
+                    0,1,0,                    $ min,max,default values
+                    1,1,1,0,0,0,0,0,0;        $ Not Used
+
+		Enum8 = 0, "OFF", 1, "ON";
+
+	Param9 =                                $ Word Length
+                    0,                        $ reserved
+                    0,                        $ link path size
+                   "",                        $ link path
+               0x0000,                        $ no enumerated string support
+                    0xC7,                     $ uint
+                    2,                        $ 2 bytes
+                    "SSI Word Delay",         $ Parameter Name
+                    "us",                     $ Units String
+      "Delay time in micro-seconds between successive SSI words", $ help string 
+                    16,65535,64,              $ min,max,default values
+                    1,1,1,0,0,0,0,0,0;        $ Not Used
+
+      Param10 =                               $ standardization
+                    0,                        $ reserved
+                    0,                        $ link path size
+                   "",                        $ link path
+               0x0002,                        $ enum string
+                    0xC6,                     $ uchar
+                    1,                        $ 1 byte
+                    "Standardization",        $ Parameter Name
+                    "",                       $ Units String
+                    "Right-shift of SSI data word the number of bits specified in the Trailing Bits Parameter",  $ help string                       
+                    0,1,0,                    $ min,max,default values
+                    1,1,1,0,0,0,0,0,0;        $ Not Used
+
+		Enum10 = 0, "OFF", 1, "ON";
+
+      Param11 =                               $ trailing bits
+                    0,                        $ reserved
+                    0,                        $ link path size
+                   "",                        $ link path
+               0x0000,                        $ no enum string
+                    0xC6,                     $ uchar
+                    1,                        $ 1 byte
+                    "Trailing Bits",          $ Parameter Name
+                    "bits",                   $ Units String
+                    "If the Standardization Parameter is set to ON, right-shift the SSI data word the specified number of bits",  $ help string 
+                    0,16,0,                   $ min,max,default values
+                    1,1,1,0,0,0,0,0,0;        $ Not Used
+
+	
+
+	Param12 =                               $ sensor resolution
+                    0,                        $ reserved
+                    0,                        $ link path size
+                   "",                        $ link path
+               0x0000,                        $ no enum string
+                    0xC7,                     $ uint
+                    2,                        $ 2 bytes
+                    "Sensor Res.",             $ Parameter Name
+                    "",                       $ Units String
+                    "The number of counts/rev of a rotary encoder, counts/stroke of a linear encoder, or counts/segment an optical encoder",  $ help string 
+                    1,65535,1,                $ min,max,default values
+                    1,1,1,0,0,0,0,0,0;        $ Not Used
+
+	Param13 =                               $ sensor cycles
+                    0,                        $ reserved
+                    0,                        $ link path size
+                   "",                        $ link path
+               0x0000,                        $ no enum string
+                    0xC7,                     $ uint
+                    2,                        $ 2 bytes
+                    "Sensor Cycles",          $ Parameter Name
+                    "",                       $ Units String
+                    "The number revolutions of a rotary encoder, strokes of a linear encoder, or number of segments of an optical encoder",  $ help string 
+                    1,65535,1,                $ min,max,default values
+                    1,1,1,0,0,0,0,0,0;        $ Not Used
+
+	Param14 =                               $ latch input control
+                    0,                        $ reserved
+                    0,                        $ link path size
+                   "",                        $ link path
+               0x0002,                        $ enum string
+                    0xC6,                     $ uchar
+                    1,                        $ 1 byte
+                    "Data Latch",             $ Parameter Name
+                    "",                       $ Units String
+                    "Freeze SSI data collection on rising, falling, or both rising and falling edges of I1 input",        $ help string 
+                    0,3,0,                    $ min,max,default values
+                    1,1,1,0,0,0,0,0,0;        $ Not Used
+
+		Enum14 = 0, "OFF", 1, "Falling", 2, "Rising", 3, "Both";
+
+	Param15 =                               $ comp1 control
+                    0,                        $ reserved
+                    0,                        $ link path size
+                   "",                        $ link path
+                    0x0002,                   $ enum string
+                    0xC6,                     $ uchar
+                    1,                        $ 1 byte
+                    "Comp1 Control",          $ Parameter Name
+                    "",                       $ Units String
+                    "Comparator 1 value attained on increasing, decreasing or both increasing and decreasing SSI data count. NOTE: Only one of the comparators can be activated at any given time",          $ help string 
+                    0,3,0,                    $ min,max,default values
+                    1,1,1,0,0,0,0,0,0;        $ Not Used
+
+		Enum15 = 0, "OFF", 1, "Increasing", 2, "Decreasing", 3, "Both";
+
+	Param16 =                               $ comp1 value
+                    0,                        $ reserved
+                    0,                        $ link path size
+                   "",                        $ link path
+               0x0000,                        $ enum string
+                    0xC8,                     $ udint
+                    4,                        $ 1 byte
+                    "Comp1 Value",            $ Parameter Name
+                    "",                       $ Units String
+                    "SSI data value for Comparator 1",  $ help string 
+                    0, 4294967295,0,          $ min,max,default values
+                    1,1,1,0,0,0,0,0,0;        $ Not Used
+
+	Param17 =                               $ comp2 control
+                    0,                        $ reserved
+                    0,                        $ link path size
+                   "",                        $ link path
+               0x0002,                        $ enum string
+                    0xC6,                     $ uchar
+                    1,                        $ 1 byte
+                    "Comp2 Control",          $ Parameter Name
+                    "",                       $ Units String
+                    "Comparator 2 value attained on increasing, decreasing or both increasing and decreasing SSI data count. NOTE: Only one of the comparators can be activated at any given time", $ help string 
+                    0,3,0,                    $ min,max,default values
+                    1,1,1,0,0,0,0,0,0;        $ Not Used
+
+		Enum17 = 0, "OFF", 1, "Increasing", 2, "Decreasing", 3, "Both";
+
+	Param18 =                               $ comp1 value
+                    0,                        $ reserved
+                    0,                        $ link path size
+                   "",                        $ link path
+               0x0000,                        $ enum string
+                    0xC8,                     $ udint
+                    4,                        $ 1 byte
+                    "Comp2 Value",            $ Parameter Name
+                    "",                       $ Units String
+                    "SSI data value for Comparator 2",  $ help string 
+                    0, 4294967295,0,          $ min,max,default values
+                    1,1,1,0,0,0,0,0,0;        $ Not Used
+
+	Param19 =                               $ Word Length
+                    0,                        $ reserved
+                    0,                        $ link path size
+                   "",                        $ link path
+               0x0002,                        $ enum string
+                    0xC6,                     $ uchar
+                    1,                        $ 1 byte
+                    "SSI Word Filter Control",$ Parameter Name
+                    "",                       $ Units String
+                    "Level of SSI Word Filtering",   $ help string                       
+                    1,5,5,                    $ min,max,default values
+                    1,1,1,0,0,0,0,0,0;        $ Not Used
+
+		Enum19 = 1,"OFF", 2,"LOW", 3,"MED", 4,"HIGH", 5,"MAX";
+
+$ Autobaud
+      Param20 =     $ Disable Autobaud
+                    0,                        $ reserved
+                    6,                        $ Link Path Size
+                    "20 03 24 01 30 64",      $ Link Path to disable
+                                              $ autobaud attribute.
+                    0x0002,                   $ enum string
+                    0xC1,                     $ Data Type - boolean
+                    1,                        $ Data Size
+                    "Autobaud",               $ Parameter Name
+                    "",                       $ Units String
+                    "Autobaud allows module to match the baud rate of existing devices on a network.\n\nChanges to this attribute take effect after next powerup.\nIf 'enabled', the Baud Rate Attribute can not be set.", $help string
+                    0,1,0,                    $ Min, Max, and Default
+                    1,1,1,0,0,0,0,0,0;        $ Not Used
+
+		Enum20 = 0,"Enable",1,"Disable";        $ Autobaud 
+
+$Point Object stuff
+      Param21 =     $ AutoAddress
+                    0,                        $ reserved
+                    7,                        $ Link Path Size
+                    "21 12 03 24 01 30 03",   $ Link Path to AutoAddress attrib.
+                    0x0002,                   $ enum string
+                    0xC1,                     $ Data Type - boolean
+                    1,                        $ Data Size
+                    "Sequential AutoAddress", $ Parameter Name
+                    "",                       $ Units String
+                    "Sequential AutoAddress will re-assign the node address of ever module to the right.\nEach module will change it's node address to one greater than then it's neighbor.\n\nMAKE SURE THE NODE ADDRESS OF THIS MODULE IS THE DESIRED VALUE BEFORE ISSUING THIS COMMAND.\n\nWhen this command is set, each module to the right will get a new address one greater than it's neighbor.\nThe address will ripple through a line of Point I/O modules.\n\nSteps to Auto Address a line of Point I/O modules:\n 1.) Set the address of the first module (next to PDN or adapter).\n 2.) Send the Auto Address command to 'Sequential Address.'\n 3.) All modules in line will reset with new sequential addresses.\n\nExample:\nIf there are 5 Point modules in a line, and the address of the first module is 10.\nAfter the 'Sequential Address' command is sent to the first module, the node address of the line will be:\n 10, 11, 12, 13, and 14.",
+                    0,1,0,                      $ Min, Max, default
+                    1,1,1,0,0,0,0,0,0;          $ Not Used
+
+		Enum21 = 0, "Do Nothing", 1, "Sequential Address"; $ Auto address
+
+      Param22 =      $ Baud Rate
+                    0,                          $ reserved
+                    7,                          $ Link Path Size
+                    "21 12 03 24 01 30 05",     $ Link Path BR. attrib.
+                    0x0002,                     $ enum string
+                    0xC6,                       $ uchar
+                    1,                          $ Data Size
+                    "Broadcast Baud Rate",      $ Parameter Name
+                    "",                         $ Units String
+                    "This command will change the baud rate of this and every module to the right\nto the value indicated.\nIf AutoBaud is ENABLED, this command will not change the operation of the module at power up.",
+                    0,3,0,                      $ Min, Max, and Default
+                    1,1,1,0,0,0,0,0,0;          $ Not Used
+
+		Enum22 = 0,"Do Nothing",1,"125 kHz",2,"250 kHz",3,"500kHz";
+
+      Param23 =     $ Set Disable AutoBaud
+                    0,                          $ reserved
+                    7,                          $ Link Path Size
+                    "21 12 03 24 01 30 06",     $ Link Path to BAB attr.
+                    0x0002,                     $ enum string
+                    0xC6,                       $ uchar
+                    1,                          $ Data Size
+                    "Broadcast AutoBaud",       $ Parameter Name
+                    "",                         $ Units String
+                    "This command will change the AutoBaud attribute of this and every module to the right\nto the value indicated.\nIf AutoBaud is 'disabled,' the Baud Rate parameter will set the baud rate next time the module is powered up.",
+                    0,2,0,                      $ Min, Max, default
+                    1,1,1,0,0,0,0,0,0;          $ Not Used
+
+		Enum23 = 0,"Do Nothing",1,"Enable",2,"Disable"; $ Autobaud 
+
+$ 'Fake' Parameters to describe Consume Assembly
+      Param24 =     $ Input 1 Latch Acknowledge
+                    0,                                  $ reserved
+                    ,                                   $ Link Path Size
+                    ,                                   $ No Path.
+                    0x0002,                             $ Non-display and enums
+                    0xC1,                               $ Data Type - boolean
+                    1,                                  $ Data Size
+                    "Latch Acknowledge",                $ Parameter Name
+                    "",                                 $ Units String
+                    "No help available; see manual",
+                    0,1,0,                              $ Min, Max (max enumeration #), and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Enum24 =      0,"No Fault", 1,"Unlatch";
+
+      Param25 =     $ Clear Comparator 1
+                    0,                                  $ reserved
+                    ,                                   $ Link Path Size
+                    ,                                   $ No Path.
+                    0x0002,                             $ Non-display and enums
+                    0xC1,                               $ Data Type - boolean
+                    1,                                  $ Data Size
+                    "Clear Comparator 1",               $ Parameter Name
+                    "",                                 $ Units String
+                    "No help available; see manual",
+                    0,1,0,                              $ Min, Max (max enumeration #), and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Enum25 =      0,"Do Nothing", 1,"Clear";
+
+      Param26 =     $ Clear Comparator 2
+                    0,                                  $ reserved
+                    ,                                   $ Link Path Size
+                    ,                                   $ No Path.
+                    0x0002,                             $ Non-display and enums
+                    0xC1,                               $ Data Type - boolean
+                    1,                                  $ Data Size
+                    "Clear Comparator 2",               $ Parameter Name
+                    "",                                 $ Units String
+                    "No help available; see manual",
+                    0,1,0,                              $ Min, Max (max enumeration #), and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Enum26 =      0,"Do Nothing", 1,"Clear";
+
+      Param27 =     $ Set Comparator 1
+                    0,                                  $ reserved
+                    ,                                   $ Link Path Size
+                    ,                                   $ No Path.
+                    0x0002,                             $ Non-display and enums
+                    0xC1,                               $ Data Type - boolean
+                    1,                                  $ Data Size
+                    "Set Comparator 1",                 $ Parameter Name
+                    "",                                 $ Units String
+                    "No help available; see manual",
+                    0,1,0,                              $ Min, Max (max enumeration #), and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Enum27 =      0,"Inactive", 1,"Active";
+
+      Param28 =     $ Set Comparator 2
+                    0,                                  $ reserved
+                    ,                                   $ Link Path Size
+                    ,                                   $ No Path.
+                    0x0002,                             $ Non-display and enums
+                    0xC1,                               $ Data Type - boolean
+                    1,                                  $ Data Size
+                    "Set Comparator 2",                 $ Parameter Name
+                    "",                                 $ Units String
+                    "No help available; see manual",
+                    0,1,0,                              $ Min, Max (max enumeration #), and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Enum28 =      0,"Inactive", 1,"Active";
+
+$ DeviceNet Premier Integration 
+      Param31 =                               $ present SSI word
+                    0,                        $ reserved
+                    0,                        $ link path size
+                     ,                        $ link path
+               0x0230,                        $ Value is gettable only.
+                    0XC8,                     $ udint   $ 9 EEP
+                    4,                        $ 4 bytes
+                    "PresentData",            $ Parameter Name
+                    "",                       $ Units String
+                    "Raw sensor count of present SSI data",    $ help string                       
+                    0,4294967295,0,           $ min,max,default values
+                    1,1,1,0,0,0,0,0,0;        $ Not Used
+
+      Param32 =                                $ latched SSI word
+                    0,                        $ reserved
+                    0,                        $ link path size
+                     ,                        $ link path
+               0x0230,                        $ Value is gettable only.
+                    0XC8,                     $ udint
+                    4,                        $ 4 bytes
+                    "LatchedData",            $ Parameter Name
+                    "",                       $ Units String
+                    "Raw sensor count of latched SSI data. NOTE: Latched data is stored only when one of the active modes of the Data Latch Parameter is selected, and the I1 input changes state accordingly. Its default value is zero.",  $ help string              
+                    0,4294967295,0,           $ min,max,default values
+                    1,1,1,0,0,0,0,0,0;        $ Not Used
+
+      Param33 =                                $ SSI status word
+                    0,                        $ reserved
+                    0,                        $ link path size
+                    "",                       $ link path
+                    0x0232,                   $ Value is gettable only.
+                    0xD2,                     $ uint
+                    2,                        $ 2 bytes
+                    "Status",                 $ Parameter Name
+                    "",                       $ Units String
+                    "See User's Manual for bit definitions",  $ help string                       
+                    0,65535,0,                $ min,max,default values
+                    1,1,1,0,0,0,0,0,0;        $ Not Used
+
+           Enum33 = 0, "InputStatus",
+                    1, "Run",
+                    2, "DecreasingCount",
+                    3, "IncreasingCount",
+                    4, "Compare0Reached",
+                    5, "Compare1Reached",
+                    6, "Compare0Status",
+                    7, "Compare1Status",
+                    8, "PowerFault",
+                    9, "ConfigFault",
+                    10,"CommFault",
+                    11,"InputDataFault",
+                    12,"DataLatched";
+
+	Param34 = 0,
+		0,,          $ No Path, Internal Parameter
+		0x0202,	 $ Descriptor
+		0xD1, 1,	$ Data Type, Data Size
+		"Control",
+		"",
+		"",
+		0,1,0,
+		1,1,1,0,
+		0,0,0,0,
+		0;
+
+	Enum34 =	0,"LatchAck", 
+			1,"Compare0Ack",
+			2,"Compare1Ack",
+			3,"Compare0Select",
+			4,"Compare1Select";
+
+      Param101 =                    $ Revision of Configuration Assembly
+        0,                          $ first field shall equal 0
+        ,,                          $ path size,path
+        0x0210,                     $ descriptor (readonly, no display)
+        0xC7,                       $ data type : 16-bit Unsigned Integer
+        2,                          $ data size in bytes
+        "Configuration revision",   $ name
+        "",                         $ units
+        "",                         $ help string
+        1,1,1,                      $ min,max,default data values
+        0,0,0,0,                    $ mult,dev,base,offset scaling not used
+        0,0,0,0,                    $ mult,dev,base,offset link not used
+        0;                          $ decimal places not used
+
+      Param102 =                    $ non-Logix header
+        0,                          $ first field shall equal 0
+        ,,                          $ path size,path
+        0x0210,                     $ descriptor (readonly, no display)
+        0xC7,                       $ data type : 16-bit Unsigned Integer
+        2,                          $ data size in bytes
+        "Non-Logix Header",         $ name
+        "",                         $ units
+        "",                         $ help string
+        0x7001,0x7001,0x7001,       $ min,max,default data values
+        0,0,0,0,                    $ mult,dev,base,offset scaling not used
+        0,0,0,0,                    $ mult,dev,base,offset link not used
+        0;                          $ decimal places not used
+
+[Groups]
+      Group1 =      "SSI Data", 3,1,2,3;               $ input value and status
+	Group2 =      "Configuration",16,4,5,6,7,8,9,
+                                    10,11,19,12,13,14,
+                                    15,16,17,18;
+      Group3 =      "PointBus",4,20,21,22,23;     	 $ autoaddr, brate, auto baud
+
+ 
+[Connection Manager]
+    Connection7 =       $ Exclusive Owner (Direct to Module)
+                        $ Catalogs        1734-OE2C, OE2V, SSI
+                        $ Config Assem    123	
+                        $ Consume Assem   102	
+                        $ Produce Assem   101	
+        0x04030002,     $ trigger & transport
+        0x44240405,     $ point/multicast & priority & realtime format
+        ,,Assem126,     $ O=>T default,description
+        ,,Assem127,     $ T=>O default,description
+        ,Assem124,      $ config part 1
+        ,Assem123,      $ config part 2
+        "Direct Exclusive Owner",  $ connection name
+        "Direct Exclusive Owner Connection - Output data controls the state (analog level) of each of the outputs. Input data contains status of each of the outputs.",   $ Help string
+        "20 04 24 7B 2C 66 2C 65";
+
+$   Connection27 =      $ No Input Only Connection
+
+    Connection47 =      $ Listen Only (non-Logix Direct to Module)
+                        $ Catalogs        1734-OE2C, OE2V, SSI	
+                        $ Config Assem    123	
+                        $ Consume Assem   0xBF (Listen Only)	
+                        $ Produce Assem   101	
+        0x01030002,     $ trigger & transport
+        0x44240305,     $ point/multicast & priority & realtime format
+        ,0,,            $ O=>T default,description
+        ,,Assem127,     $ T=>O default,description
+        ,,              $ config part 1
+        ,,              $ config part 2
+        "Direct Listen Only",  $ connection name
+        "Direct Listen Only Connection - Input data contains the STATUS of each of the outputs. There is NO output data.",   $ Help string
+        "20 04 24 7B 2C BF 2C 65";
+
+[Port]
+      Port1 =       DeviceNet,                          $ or maybe 1_Virtual_Backplane
+                    "PointIO Backplane",                $ Name of backplane
+                    "20 03 24 01",                      $ Path to DeviceNet Object Instance 1
+                    1;                                  $ Port number 1
+
+[Modular]
+      Width =       1;
+
+$ I/O Module EDS
+$ Number of slots in rack = Product Code - 199
+$ Number of I/O modules in rack = Product Code - 200
+$ Note Rack# does not match in Adapter EDS, Adapter EDS includes one for Slot 0
+
+	Rack1 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 201,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+            1;                $ Legal Slots
+
+	Rack2 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 202,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+            1,2;              $ Legal Slots
+
+	Rack3 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 203,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+            1,2,3;            $ Legal Slots
+
+	Rack4 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 204,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+            1,2,3,4;          $ Legal Slots
+
+	Rack5 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 205,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+            1,2,3,4,5;        $ Legal Slots
+
+	Rack6 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 206,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+            1,2,3,4,5,6;      $ Legal Slots
+
+	Rack7 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 207,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+            1,2,3,4,5,6,7;    $ Legal Slots
+
+	Rack8 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 208,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+            1,2,3,4,5,6,7,8,9;$ Legal Slots
+
+	Rack9 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 209,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10;
+                              $ Legal Slots
+
+	Rack10 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 210,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11;
+                              $ Legal Slots
+
+	Rack11 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 211,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12;
+                              $ Legal Slots
+
+	Rack12 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 212,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13;
+                              $ Legal Slots
+
+	Rack13 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 213,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14;
+                              $ Legal Slots
+
+	Rack14 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 214,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15;
+                              $ Legal Slots
+
+	Rack15 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 215,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16;
+                              $ Legal Slots
+
+	Rack16 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 216,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17;
+                              $ Legal Slots
+
+	Rack17 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 217,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18;
+                              $ Legal Slots
+
+	Rack18 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 218,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19;
+                              $ Legal Slots
+
+	Rack19 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 219,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20;
+                              $ Legal Slots
+
+	Rack20 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 220,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21;               $ Legal Slots
+
+	Rack21 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 221,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22;            $ Legal Slots
+
+	Rack22 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 222,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23;         $ Legal Slots
+
+	Rack23 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 223,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24;      $ Legal Slots
+
+	Rack24 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 224,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25;   $ Legal Slots
+
+	Rack25 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 225,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26;
+                              $ Legal Slots
+
+	Rack26 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 226,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27;
+                              $ Legal Slots
+
+	Rack27 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 227,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28;
+                              $ Legal Slots
+
+	Rack28 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 228,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29;
+                              $ Legal Slots
+
+	Rack29 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 229,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30;
+                              $ Legal Slots
+
+	Rack30 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 230,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31;
+                              $ Legal Slots
+
+	Rack31 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 231,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32;
+                              $ Legal Slots
+
+	Rack32 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 232,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33;
+                              $ Legal Slots
+
+	Rack33 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 233,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34;
+                              $ Legal Slots
+
+	Rack34 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 234,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35;
+                              $ Legal Slots
+
+	Rack35 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 235,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36;
+                              $ Legal Slots
+
+	Rack36 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 236,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37;
+                              $ Legal Slots
+
+	Rack37 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 237,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38;
+                              $ Legal Slots
+
+	Rack38 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 238,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39;
+                              $ Legal Slots
+
+	Rack39 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 239,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40;
+                              $ Legal Slots
+
+	Rack40 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 240,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,
+            41;               $ Legal Slots
+
+	Rack41 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 241,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,
+            41,42;            $ Legal Slots
+
+	Rack42 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 242,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,
+            41,42,43;         $ Legal Slots
+
+	Rack43 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 243,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,
+            41,42,43,44;      $ Legal Slots
+
+	Rack44 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 244,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,
+            41,42,43,44,45;   $ Legal Slots
+
+	Rack45 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 245,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,
+            41,42,43,44,45,46;
+                              $ Legal Slots
+
+	Rack46 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 246,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,
+            41,42,43,44,45,46,47;
+                              $ Legal Slots
+
+	Rack47 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 247,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,
+            41,42,43,44,45,46,47,48;
+                              $ Legal Slots
+
+	Rack48 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 248,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,
+            41,42,43,44,45,46,47,48,49;
+                              $ Legal Slots
+
+	Rack49 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 249,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,
+            41,42,43,44,45,46,47,48,49,50;
+                              $ Legal Slots
+
+	Rack50 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 250,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,
+            41,42,43,44,45,46,47,48,49,50,51;
+                              $ Legal Slots
+
+	Rack51 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 251,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,
+            41,42,43,44,45,46,47,48,49,50,51,52;
+                              $ Legal Slots
+
+	Rack52 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 252,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,
+            41,42,43,44,45,46,47,48,49,50,51,52,53;
+                              $ Legal Slots
+
+	Rack53 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 253,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,
+            41,42,43,44,45,46,47,48,49,50,51,52,53,54;
+                              $ Legal Slots
+
+	Rack54 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 254,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,
+            41,42,43,44,45,46,47,48,49,50,51,52,53,54,55;
+                              $ Legal Slots
+
+	Rack55 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 255,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,
+            41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56;
+                              $ Legal Slots
+
+	Rack56 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 256,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,
+            41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57;
+                              $ Legal Slots
+
+	Rack57 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 257,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,
+            41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58;
+                              $ Legal Slots
+
+	Rack58 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 258,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,
+            41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59;
+                              $ Legal Slots
+
+	Rack59 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 259,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,
+            41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60;
+                              $ Legal Slots
+
+	Rack60 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 260,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,
+            41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,
+            61;               $ Legal Slots
+
+	Rack61 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 261,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,
+            41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,
+            61,62;            $ Legal Slots
+
+	Rack62 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 262,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,
+            41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,
+            61,62,63;         $ Legal Slots
+
+	Rack63 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 263,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,
+            41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,
+            61,62,63,64;      $ Legal Slots
+

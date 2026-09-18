@@ -1,0 +1,1511 @@
+$ Electronic Data Sheet for ArmorPoint (1738-OB2EM12/A)
+$ Copyright 2006 by Rockwell Automation
+$ Universal version for: DeviceNet, ControlNet, and EthernetIP
+
+$ Revision History
+$ Revision	Date		Change
+$	1.1	04Jan2004	Started with revision 3.1 of 1734-OB2E/C
+$	1.2	11Jan2004	Updated Device Revision to 3.10
+$	2.1	30Nov2004	Added Assem124 - Changed CNXNs for 3rd Party
+$	3.1	26Feb2006	Update to new DeviceNet Premier Integration EDS Guidelines
+$				Removed Assem124 from Listen Only Connection
+$	3.2	18Mar2006	Added pading to IO assems
+
+[File]
+	DescText =    "ArmorPoint 1738-OB2EM12/A";                   
+	CreateDate  = 01-30-2002;
+	CreateTime  = 15:00:00;
+	ModDate     = 03-18-2006;
+	ModTime     = 15:00:00;
+	Revision =    3.2;
+	HomeURL     = "http://www.ab.com/networks/eds/DN/0001000700C00300.eds";
+
+[Device]
+	VendCode    = 1;                                  $ Vendor Code
+	ProdType    = 7;                                  $ Product Type
+	ProdCode    = 192;                                $ Product Code
+
+	MajRev      = 3;                                  $ Major Rev
+	MinRev      = 10;                                 $ Minor Rev
+	VendName    = "Rockwell Automation/Allen-Bradley";
+	ProdTypeStr = "General Purpose Discrete I/O";
+	ProdName    = "ArmorPoint 2pt 24Vdc Source Out Enhd M12";
+	Catalog     = "1738-OB2EM12/A";
+	Icon        = "1738-2M12GREEN.ico";
+	1_RSNetWorx_DNetTool = "RSI.DeviceNet.EDSApplet";
+	1_RSNetWorx_NoAutoEnter = "Yes";
+
+[Device Classification]
+     Class1 =      DeviceNet;
+
+[IO_Info]
+	1_COSetPathNotSupported = 1;                      $ Cnxn Obj does not support direct path setting
+
+	Default     = 0X0004;
+
+	PollInfo    = 0X000F,                             $ compatable with all
+                    1,                                  $ input 1
+                    1;                                  $ output 1
+
+      StrobeInfo =  0X000F,                             $ Compatable with all
+                    1,                                  $ input 1
+                    0;                                  $ no consumed connection
+
+      COSInfo =     0X0007,                             $ Compatable with all
+                    1,                                  $ input 1
+                    1;                                  $ output 1
+
+      CyclicInfo =  0X000B,                             $ Compatable with all
+                    1,                                  $ input 1
+                    1;                                  $ output 1
+
+	Input1 =      1,                                  $ size = 1 byte
+                    2,                                  $ 2 significant bits
+                    0X000F,                             $ compatible with all conections
+                    "Status",                           $ name string
+                    6,                                  $ path length
+                    "20 04 24 2A 30 03",                $ assy obj, inst 42d, attr 3
+                    "Producing connection contains the status of the outputs";
+
+	Output1 =     1,                                  $ size = 1 byte
+                    2,                                  $ 2 significant bits
+                    0X000D,                             $ compatible with polled connection
+                    "Data",                             $ name string
+                    6,                                  $ path length
+                    "20 04 24 20 30 03",                $ assy obj, inst 32d(0x20), attr 3
+                    "Consuming connection contains state of the two outputs";
+
+[ParamClass]
+	MaxInst =     102;
+	Descriptor  = 0x09;                               $ Bit 0: 1= parameter instances exist
+                                                        $ Bit 1: 0= not full
+                                                        $ Bit 2: 0= NVS command not needed
+                                                        $ Bit 3: 1= Automaticly stored in EERPOM                                                          
+
+	CfgAssembly = 0x7B;                               $ the custom config assembly is 123d
+
+[Assembly]
+        Assem32=    "Data",
+                    "",                                 $ Path is implied (Assy obj attr3)
+                    1,                                  $ total length in bytes
+                    0,,,                                $ no changes, ",,"= reserved
+                    2, Param39,                         $ # bits, Value for Output
+                    6,;                                 $ Pad bits
+
+        Assem42=    "Status",
+                    "",                                 $ Path is implied (Assy obj attr3)
+                    1,                                  $ total length in bytes
+                    0,,,                                $ no changes, ",,"= reserved
+                    2, Param40,                         $ # bits, Status of Output
+                    6,;                                 $ Pad bits
+
+        Assem123 =  "1738-OB2EM12 Configuration Assembly",
+                    "",                                 $ Path is implied (Assy obj attr3)
+                    8,                                  $ total length in bytes
+                    0,,,                                $ descriptor, ",,"= reserved
+                    1,Param13,                          $ # bits, Fault State selection for output 0
+                    1,Param15,                          $ # bits, Fault State selection for output 1
+                    6,,                                 $ pad bits
+                    1,Param14,                          $ # bits, Fault Value selection for output 0
+                    1,Param16,                          $ # bits, Fault Value selection for output 1
+                    6,,                                 $ pad bits
+                    1,Param17,                          $ # bits, Idle State selection for output 0
+                    1,Param19,                          $ # bits, Idle State selection for output 1
+                    6,,                                 $ pad bits
+                    1,Param18,                          $ # bits, Idle Value selection for output 0
+                    1,Param20,                          $ # bits, Idle Value selection for output 1
+                    6,,                                 $ pad bits
+                    1,Param23,                          $ # bits, Enable No Load for output 0
+                    1,Param24,                          $ # bits, Enable No Load for output 1
+                    6,,                                 $ pad bits
+                    1,Param25,                          $ # bits, Reset Mode for output 0
+                    1,Param26,                          $ # bits, Reset Mode for output 1
+                    6,,                                 $ pad bits
+                    1,Param21,                          $ # bits, Enable Latched Alarms for output 0
+                    1,Param22,                          $ # bits, Enable Latched Alarms for output 1
+                    6,,                                 $ pad bits
+                    8,;                                 $ pad byte (for word boundary)
+
+    Assem124 =                  $ Private config in Forward Open, Module
+        "3rd Party Private Assembly",
+        ,                       $ Path
+        ,                       $ Length in bytes
+        ,                       $ descriptor
+        ,,                      $ reserved
+        16,Param101,            $ configuration revision (only valid value is 1)
+        16,;                    $ reserved - zeros
+
+    Assem125 =                  $ Private config in Forward Open, Module
+        "Adapter Config Assembly",
+        ,                       $ Path
+        ,                       $ Length in bytes
+        ,                       $ descriptor
+        ,,                      $ reserved
+        16,Param102,            $ Non-Logix Header (constant 0x7001)
+        16,1_RackSize,          $ number of slots
+        16,Param101,            $ configuration revision (only valid value is 1)
+        16,;                    $ reserved - zeros
+
+    Assem126 =                  $ O2T (output data)
+        "Ouput Data Assembly",
+        ,                       $ Path
+        ,                       $ Length in bytes
+        ,                       $ descriptor
+        ,,                      $ reserved
+        ,Assem32;               $ Assembly sent to module
+
+    Assem127 =                  $ T2O (input data)
+        "Input Data Assembly",
+        ,                       $ Path
+        ,                       $ Length in bytes
+        ,                       $ descriptor
+        ,,                      $ reserved
+        32,,                    $ Fault bits
+        ,Assem42;               $ Assembly passed from module
+
+      ProxiedAssem1 =
+                    "DC Output Rack Configuration Assembly",
+                    "01 SLOT 20 04 24 78 30 03",        $ Path to Assy Obj (4) inst 120d attr 3
+                    ,                                   $ total length in bytes
+                    0x0000,                             $ descriptor
+                    ,,                                  $ ",,"= reserved
+                    1,Param32,                          $ Group Fault Action
+                    1,Param33,                          $ Group Fault Value
+                    1,Param34,                          $ Group Idle Action
+                    1,Param35,                          $ Group Idle Value
+                    1,Param36,                          $ Group No Load Enable
+                    1,Param37,                          $ Group Reset Mode
+                    1,Param38,                          $ Group Latch Alarms
+                    1,;                                 $ Pad bit
+
+      ProxiedAssem3 = 
+                    "Real Time Input Format",
+                    ,                                   $ No Path
+                    ,                                   $ Length
+                    0x0000,                             $ Descriptor
+                    ,,                                  $ ",,"= reserved
+                    8,Assem42;
+
+      ProxiedAssem4 = 
+                    "Real Time Output Format",
+                    ,                                   $ No Path
+                    ,                                   $ Length
+                    0x0000,                             $ Descriptor
+                    ,,                                  $ ",,"= reserved
+                    8,Assem32;
+
+[Params]
+$ Output state
+      Param1 =      $ Value for Output #0
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 09 24 01 30 03",                $ Link Path to DOP object's value attribute.
+                    0x0022,                             $ No support for: settable path, scaling, scaling links.
+                                                        $ Real time update of value.  Value is gettable and Settable.
+                    0xC1,                               $ Data Type - boolean
+                    1,                                  $ Data Size
+                    "Output Value #0",                  $ Parameter Name
+                    "",                                 $ Units String
+                    "Value of output point.  'ON' or 'OFF'\nNOT SETTABLE when I/O conection is established.",
+                    0,1,0,                              $ Min, Max (max enumeration #), and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+	Enum1 =       0,"OFF", 1,"ON";
+
+      Param2 =      $ Value for Output #1
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 09 24 02 30 03",                $ Link Path to DOP object's value attribute.
+                    0x0022,                             $ No support for: settable path, scaling, scaling links.
+                                                        $ Real time update of value.  Value is gettable and Settable.
+                    0xC1,                               $ Data Type - boolean
+                    1,                                  $ Data Size
+                    "Output Value #1",                  $ Parameter Name
+                    "",                                 $ Units String
+                    "Value of output point.  'ON' or 'OFF'\nNOT SETTABLE when I/O conection is established.",
+                    0,1,0,                              $ Min, Max (max enumeration #), and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+	Enum2 =       0,"OFF", 1,"ON";
+
+$ Output status
+      Param3 =      $ Status of Output 0
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 09 24 01 30 04",                $ Link Path to DOP object's status attribute.
+                    0x0032,                             $ No support for: settable path, scaling, scaling links.
+                                                        $ Real time update of value.  Value is gettable only.
+                    0xC1,                               $ Data Type - boolean
+                    1,                                  $ Data Size
+                    "Status of Output #0",              $ Parameter Name
+                    "",                                 $ Units String
+                    "This Status bit is the OR of all possible faults for this channel.\n\nPossible Faults:\n - open load\n - short circuit\n - over current\n - no field power\n\nNote: Status could be 'latched' in fault state.",
+                    0,1,0,                              $ Min, Max (max enumeration #), and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Enum3 =       0,"No Fault", 1,"FAULT";
+
+      Param4 =      $ Status of Output 1
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 09 24 02 30 04",                $ Link Path to DOP object's status attribute.
+                    0x0032,                             $ No support for: settable path, scaling, scaling links.
+                                                        $ Real time update of value.  Value is gettable only.
+                    0xC1,                               $ Data Type - boolean
+                    1,                                  $ Data Size
+                    "Status of Output #1",              $ Parameter Name
+                    "",                                 $ Units String
+                    "This Status bit is the OR of all possible faults for this channel.\n\nPossible Faults:\n - open load\n - short circuit\n - over current\n - no field power\n\nNote: Status could be 'latched' in fault state.",
+                    0,1,0,                              $ Min, Max (max enumeration #), and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Enum4 =       0,"No Fault", 1,"FAULT";
+
+$ No Load Diagnostic
+      Param5 =      $ No load status of 0
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 09 24 01 30 6B",                $ Link Path to DOP object's No Load attribute.
+                    0x0032,                             $ No support for: settable path, scaling, scaling links.
+                                                        $ Real time update of value.  Value is gettable only.
+                    0xC1,                               $ Data Type - boolean
+                    1,                                  $ Data Size
+                    "No Load Status #0",                $ Parameter Name
+                    "",                                 $ Units String
+                    "No Load or Open Wire status bit.\nNo load can only be detected when the channel is in the OFF state.\nField power is required to detect Open Load.\nNo Load status must be enabled.",
+                    0,1,0,                              $ Min, Max (max enumeration #), and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Enum5 =       0,"No Fault", 1,"No Load Detected";
+
+      Param6  =     $ No load status of 1
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 09 24 02 30 6B",                $ Link Path to DOP object's No Load attribute.
+                    0x0032,                             $ No support for: settable path, scaling, scaling links.
+                                                        $ Real time update of value.  Value is gettable only.
+                    0xC1,                               $ Data Type - boolean
+                    1,                                  $ Data Size
+                    "No Load Status #1",                $ Parameter Name
+                    "",                                 $ Units String
+                    "No Load or Open Wire status bit.\nNo load can only be detected when the channel is in the OFF state.\nField power is required to detect Open Load.\nNo Load status must be enabled.",
+                    0,1,0,                              $ Min, Max (max enumeration #), and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Enum6 =       0,"No Fault", 1,"No Load Detected";
+
+$ Short/Overload Diagnostic
+      Param7  =     $ Short/Overload status of 0
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 09 24 01 30 70",                $ Link Path to DOP object's Short attribute.
+                    0x0032,                             $ No support for: settable path, scaling, scaling links.
+                                                        $ Real time update of value.  Value is gettable only.
+                    0xC1,                               $ Data Type - boolean
+                    1,                                  $ Data Size
+                    "Short/Overload Status #0",         $ Parameter Name
+                    "",                                 $ Units String
+                    "Short circuit or Overload status bit.\nError only detected in the ON state.\n\nPossible faults:\n - short circuit (0 ohm load)\n - too much current (greater than rated output current)\n - no field power\n\nError may be latched by Reset Mode ('latched off') or latching of alarms",
+                    0,1,0,                              $ Min, Max (max enumeration #), and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Enum7 =       0,"No Fault", 1,"Short/Overload Fault";
+
+      Param8  =     $ Short/Overload status of 1
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 09 24 02 30 70",                $ Link Path to DOP object's Short attribute.
+                    0x0032,                             $ No support for: settable path, scaling, scaling links.
+                                                        $ Real time update of value.  Value is gettable only.
+                    0xC1,                               $ Data Type - boolean
+                    1,                                  $ Data Size
+                    "Short/Overload Status #1",         $ Parameter Name
+                    "",                                 $ Units String
+                    "Short circuit or Overload status bit.\nError only detected in the ON state.\n\nPossible faults:\n - short circuit (0 ohm load)\n - too much current (greater than rated output current)\n - no field power\n\nError may be latched by Reset Mode ('latched off') or latching of alarms",
+                    0,1,0,                              $ Min, Max (max enumeration #), and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Enum8 =       0,"No Fault", 1,"Short/Overload Fault";
+
+$ Group Status
+      Param9  =     $ Status of Output Group
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 1E 24 01 30 05",                $ Link Path to DOG object's status attribute.
+                    0x0032,                             $ No support for: settable path, scaling, scaling links.
+                                                        $ Real time update of value.  Value is gettable only.
+                    0xC1,                               $ Data Type - boolean
+                    1,                                  $ Data Size
+                    "Output Group Status",              $ Parameter Name
+                    "",                                 $ Units String
+                    "This Status bit is the OR of all possible faults for ALL channels.\n\nPossible Faults:\n - open load\n - short circuit\n - over current\n - no field power\n\nNote: Status could be 'latched' in fault state.",
+                    0,1,0,                              $ Min, Max (max enumeration #), and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Enum9 =       0,"No Fault", 1,"FAULT";
+
+$ Clear Latched Alarm
+      Param10 =     $ Clear latached alarms 0
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 09 24 01 30 67",                $ Link Path to DOP object's Clear Latched alarm Attribute.
+                    0x0002,                             $ No support for: settable path, scaling, scaling links, or
+                                                        $ real time update of value.  Value is gettable and 
+                                                        $ Settable.  Enumerated strings are supported.
+                    0xC1,                               $ Data Type - boolean
+                    1,                                  $ Data Size
+                    "Clear Latched Alarms #0",          $ Parameter Name
+                    "",                                 $ Units String
+                    "This service will clear all latched alarms in the output point.\nIf Latching of Alarms is not enabled for this channel, this service will have no effect.\nIf the fault still exists, it will be latched again.",
+                    0,1,1,                              $ Min, Max (max enumeration #), and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Enum10 =      0,"Do Nothing", 1,"Clear Alarms";
+
+      Param11 =     $ Clear latached alarms 1
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 09 24 02 30 67",                $ Link Path to DOP object's Clear Latched alarm Attribute.
+                    0x0002,                             $ No support for: settable path, scaling, scaling links, or
+                                                        $ real time update of value.  Value is gettable and 
+                                                        $ Settable.  Enumerated strings are supported.
+                    0xC1,                               $ Data Type - boolean
+                    1,                                  $ Data Size
+                    "Clear Latched Alarms #1",          $ Parameter Name
+                    "",                                 $ Units String
+                    "This service will clear all latched alarms in the output point.\nIf Latching of Alarms is not enabled for this channel, this service will have no effect.\nIf the fault still exists, it will be latched again.",
+                    0,1,1,                              $ Min, Max (max enumeration #), and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Enum11 =      0,"Do Nothing", 1,"Clear Alarms";
+
+
+$ Group Run/Idle Command
+      Param12 =     $ Group Run/Idle Command
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 1E 24 01 30 06",                $ Link Path to DOG object's Command Attribute.
+                    0x0002,                             $ No support for: settable path, scaling, scaling links, or
+                                                        $ real time update of value.  Value is gettable and 
+                                                        $ Settable.  Enumerated strings are supported.
+                    0xC1,                               $ Data Type - boolean
+                    1,                                  $ Data Size
+                    "Group Run/Idle Command",           $ Parameter Name
+                    "",                                 $ Units String
+                    "Puts all outputs in Idle mode.\nOutput state will be determined by the Idle State parameter.",
+                    0,1,1,                              $ Min, Max (max enumeration #), and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Enum12 =      0,"Idle", 1,"Run";
+
+$ Fault Values
+      Param13 =     $ Fault State selection for output 0
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 09 24 01 30 05",                $ Link Path to DOP object's fault action attribute.
+                    0x0002,                             $ No support for: settable path, scaling, scaling links, or
+                                                        $ real time update of value.  Value is gettable and 
+                                                        $ Settable.  Enumerated strings are supported.
+                    0xC1,                               $ Data Type - boolean
+                    1,                                  $ Data Size
+                    "Fault Action #0",                  $ Parameter Name
+                    "",                                 $ Units String
+                    "Fault Action defines output behavior in the event of a communication fault.\n\nPossible States:\n - goto Fault Value (defined in Fault Value parameter)\n - Hold Last State (state of output is uneffected by fault)",
+                    0,1,0,                              $ Min, Max (max enumeration #), and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Enum13 =      0,"Fault Value", 1,"Hold Last State";
+
+      Param14 =     $ Fault Value selection for output 0
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 09 24 01 30 06",                $ Link Path to DOP object's fault value attribute.
+                    0x0002,                             $ No support for: settable path, scaling, scaling links, or
+                                                        $ real time update of value.  Value is gettable and 
+                                                        $ Settable.  Enumerated strings are supported.
+                    0xC1,                               $ Data Type - boolean
+                    1,                                  $ Data Size
+                    "Fault Value #0",                   $ Parameter Name
+                    "",                                 $ Units String
+                    "If 'Fault Value' is selected for this channel (in Fault Action parameter),\nthis field defines the output value during a fault.\n - ON\n - OFF",
+                    0,1,0,                              $ Min, Max (max enumeration #), and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Enum14 =      0,"OFF", 1,"ON";
+
+      Param15 =     $ Fault State selection for output 1
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 09 24 02 30 05",                $ Link Path to DOP object's fault action attribute.
+                    0x0002,                             $ No support for: settable path, scaling, scaling links, or
+                                                        $ real time update of value.  Value is gettable and 
+                                                        $ Settable.  Enumerated strings are supported.
+                    0xC1,                               $ Data Type - boolean
+                    1,                                  $ Data Size
+                    "Fault Action #1",                  $ Parameter Name
+                    "",                                 $ Units String
+                    "Fault Action defines output behavior in the event of a communication fault.\n\nPossible States:\n - goto Fault Value (defined in Fault Value parameter)\n - Hold Last State (state of output is uneffected by fault)",
+                    0,1,0,                              $ Min, Max (max enumeration #), and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Enum15 =      0,"Fault Value", 1,"Hold Last State";
+
+      Param16 =     $ Fault Value selection for output 1
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 09 24 02 30 06",                $ Link Path to DOP object's fault value attribute.
+                    0x0002,                             $ No support for: settable path, scaling, scaling links, or
+                                                        $ real time update of value.  Value is gettable and 
+                                                        $ Settable.  Enumerated strings are supported.
+                    0xC1,                               $ Data Type - boolean
+                    1,                                  $ Data Size
+                    "Fault Value #1",                   $ Parameter Name
+                    "",                                 $ Units String
+                    "If 'Fault Value' is selected for this channel (in Fault Action parameter),\nthis field defines the output value during a fault.\n - ON\n - OFF",
+                    0,1,0,                              $ Min, Max (max enumeration #), and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Enum16 =      0,"OFF", 1,"ON";
+
+$ Idle Values
+      Param17 =     $ Idle State selection for output 0
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 09 24 01 30 07",                $ Link Path to DOP object's idle action attribute.
+                    0x0002,                             $ No support for: settable path, scaling, scaling links, or
+                                                        $ real time update of value.  Value is gettable and 
+                                                        $ Settable.  Enumerated strings are supported.
+                    0xC1,                               $ Data Type - boolean
+                    1,                                  $ Data Size
+                    "Idle Action #0",                   $ Parameter Name
+                    "",                                 $ Units String
+                    "Idle Action defines output behavior during program or idle mode.\n\nPossible States:\n - goto Idle Value (defined in Idle Value parameter)\n - Hold Last State (state of output is uneffected by fault)",
+                    0,1,0,                              $ Min, Max (max enumeration #), and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Enum17 =      0,"Idle Value", 1,"Hold Last State";
+
+      Param18 =     $ Idle Value selection for output 0
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 09 24 01 30 08",                $ Link Path to DOP object's idle value attribute.
+                    0x0002,                             $ No support for: settable path, scaling, scaling links, or
+                                                        $ real time update of value.  Value is gettable and 
+                                                        $ Settable.  Enumerated strings are supported.
+                    0xC1,                               $ Data Type - boolean
+                    1,                                  $ Data Size
+                    "Idle Value #0",                    $ Parameter Name
+                    "",                                 $ Units String
+                    "If 'Idle Value' is selected for this channel (in Idle Action parameter),\nthis field defines the output value during a Idle or Program mode.\n - ON\n - OFF",
+                    0,1,0,                              $ Min, Max (max enumeration #), and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Enum18 =      0,"OFF", 1,"ON";
+
+      Param19 =     $ Idle State selection for output 1
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 09 24 02 30 07",                $ Link Path to DOP object's idle action attribute.
+                    0x0002,                             $ No support for: settable path, scaling, scaling links, or
+                                                        $ real time update of value.  Value is gettable and 
+                                                        $ Settable.  Enumerated strings are supported.
+                    0xC1,                               $ Data Type - boolean
+                    1,                                  $ Data Size
+                    "Idle Action #1",                   $ Parameter Name
+                    "",                                 $ Units String
+                    "Idle Action defines output behavior during program or idle mode.\n\nPossible States:\n - goto Idle Value (defined in Idle Value parameter)\n - Hold Last State (state of output is uneffected by fault)",
+                    0,1,0,                              $ Min, Max (max enumeration #), and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Enum19 =      0,"Idle Value", 1,"Hold Last State";
+
+      Param20 =     $ Idle Value selection for output 1
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 09 24 02 30 08",                $ Link Path to DOP object's idle value attribute.
+                    0x0002,                             $ No support for: settable path, scaling, scaling links, or
+                                                        $ real time update of value.  Value is gettable and 
+                                                        $ Settable.  Enumerated strings are supported.
+                    0xC1,                               $ Data Type - boolean
+                    1,                                  $ Data Size
+                    "Idle Value #1",                    $ Parameter Name
+                    "",                                 $ Units String
+                    "If 'Idle Value' is selected for this channel (in Idle Action parameter),\nthis field defines the output value during a Idle or Program mode.\n - ON\n - OFF",
+                    0,1,0,                              $ Min, Max (max enumeration #), and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Enum20 =      0,"OFF", 1,"ON";
+
+$ Enable Latched Alarms
+      Param21 =     $ Enable Latched Alarms for output 0
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 09 24 01 30 68",                $ Link Path to DOP object's latch alarm enable attribute.
+                    0x0002,                             $ No support for: settable path, scaling, scaling links, or
+                                                        $ real time update of value.  Value is gettable and 
+                                                        $ Settable.  Enumerated strings are supported.
+                    0xC1,                               $ Data Type - boolean
+                    1,                                  $ Data Size
+                    "Enable Latching Alarms #0",        $ Parameter Name
+                    "",                                 $ Units String
+                    "This parameter selects how a status bit acts after the cause of the fault is removed.\nIf 'Latching Enabled,' alarm bits will stay FAULTed if an alarm occurs.\nThe FAULT can only be cleared using the Clear Latched Alarm service for this point.\nLatching is useful for tracking transient or momentary faults.\nIf 'Latching Disabled,' alarms will refect the present state.\n\nNote:  LEDs don't reflect latched Alarms.",
+                    0,1,0,                              $ Min, Max (max enumeration #), and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Enum21 =      0,"Latching Disabled", 1,"Latching Enabled";
+
+      Param22 =     $ Enable Latched Alarms for output 1
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 09 24 02 30 68",                $ Link Path to DOP object's latch alarm enable attribute.
+                    0x0002,                             $ No support for: settable path, scaling, scaling links, or
+                                                        $ real time update of value.  Value is gettable and 
+                                                        $ Settable.  Enumerated strings are supported.
+                    0xC1,                               $ Data Type - boolean
+                    1,                                  $ Data Size
+                    "Enable Latching Alarms #1",        $ Parameter Name
+                    "",                                 $ Units String
+                    "This parameter selects how a status bit acts after the cause of the fault is removed.\nIf 'Latching Enabled,' alarm bits will stay FAULTed if an alarm occurs.\nThe FAULT can only be cleared using the Clear Latched Alarm service for this point.\nLatching is useful for tracking transient or momentary faults.\nIf 'Latching Disabled,' alarms will refect the present state.\n\nNote:  LEDs don't reflect latched Alarms.",
+                    0,1,0,                              $ Min, Max (max enumeration #), and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Enum22 =      0,"Latching Disabled", 1,"Latching Enabled";
+
+$ Enable No Load
+      Param23 =     $ Enable No Load for output 0
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 09 24 01 30 6A",                $ Link Path to DOP object's Enable No Load attribute.
+                    0x0002,                             $ No support for: settable path, scaling, scaling links, or
+                                                        $ real time update of value.  Value is gettable and 
+                                                        $ Settable.  Enumerated strings are supported.
+                    0xC1,                               $ Data Type - boolean
+                    1,                                  $ Data Size
+                    "Enable No Load #0",                $ Parameter Name
+                    "",                                 $ Units String
+                    "This parameter turns on and off No Load Detection.\nDisabling the No Load diagnostic is useful for unused channels.",
+                    0,1,1,                              $ Min, Max (max enumeration #), and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Enum23 =      0,"No Load Disabled", 1,"No Load Enabled";
+
+      Param24 =     $ Enable No Load for output 1
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 09 24 02 30 6A",                $ Link Path to DOP object's Enable No Load attribute.
+                    0x0002,                             $ No support for: settable path, scaling, scaling links, or
+                                                        $ real time update of value.  Value is gettable and 
+                                                        $ Settable.  Enumerated strings are supported.
+                    0xC1,                               $ Data Type - boolean
+                    1,                                  $ Data Size
+                    "Enable No Load #1",                $ Parameter Name
+                    "",                                 $ Units String
+                    "This parameter turns on and off No Load Detection.\nDisabling the No Load diagnostic is useful for unused channels.",
+                    0,1,1,                              $ Min, Max (max enumeration #), and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Enum24 =      0,"No Load Disabled", 1,"No Load Enabled";
+
+$ Reset Mode
+      Param25 =     $ Reset Mode for output 0
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 09 24 01 30 76",                $ Link Path to DOP object's reset mode attribute.
+                    0x0002,                             $ No support for: settable path, scaling, scaling links, or
+                                                        $ real time update of value.  Value is gettable and 
+                                                        $ Settable.  Enumerated strings are supported.
+                    0xC1,                               $ Data Type - boolean
+                    1,                                  $ Data Size
+                    "Reset Mode #0",                    $ Parameter Name
+                    "",                                 $ Units String
+                    "Reset Mode defines the action of the output during a short circuit or overload.\n\nSelect:\n - Latch Off = the output will shut OFF\n - Auto Restart = the output will continually try to turn ON\n\nNote:  Turning ON an output with no field power will cause a fault.",
+                    0,1,0,                              $ Min, Max (max enumeration #), and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Enum25 =      0,"Latch Off", 1,"Auto Restart";
+
+      Param26 =     $ Reset Mode for output 1
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 09 24 02 30 76",                $ Link Path to DOP object's reset mode attribute.
+                    0x0002,                             $ No support for: settable path, scaling, scaling links, or
+                                                        $ real time update of value.  Value is gettable and 
+                                                        $ Settable.  Enumerated strings are supported.
+                    0xC1,                               $ Data Type - boolean
+                    1,                                  $ Data Size
+                    "Reset Mode #1",                    $ Parameter Name
+                    "",                                 $ Units String
+                    "Reset Mode defines the action of the output during a short circuit or overload.\n\nSelect:\n - Latch Off = the output will shut OFF\n - Auto Restart = the output will continually try to turn ON\n\nNote:  Turning ON an output with no field power will cause a fault.",
+                    0,1,0,                              $ Min, Max (max enumeration #), and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Enum26 =      0,"Latch Off", 1,"Auto Restart";
+
+$ Autobaud
+      Param27 =     $ Disable Autobaud
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 03 24 01 30 64",                $ Link Path to disable autobaud attribute.
+                    0x0002,                             $ No support for: settable path, scaling, scaling links, or
+                                                        $ real time update of value.  Value is gettable and 
+                                                        $ Settable.  Enumerated strings are supported.
+                    0xC1,                               $ Data Type - boolean
+                    1,                                  $ Data Size
+                    "Autobaud",                         $ Parameter Name
+                    "",                                 $ Units String
+                    "Autobaud allows module to match the baud rate of existing devices on a network.\n\nChanges to this attribute take effect after next powerup.\nIf 'enabled', the Baud Rate Attribute can not be set.",
+                    0,1,0,                              $ Min, Max, and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Enum27 =      0,"Enable", 1,"Disable";
+
+$reset service
+      Param28 =     $ reset output 0
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 0F 24 01 30 01",                $ Link Path to reset service.
+                    0x0002,                             $ No support for: settable path, scaling, scaling links, or
+                                                        $ real time update of value.  Value is gettable and 
+                                                        $ Settable.  Enumerated strings are supported.
+                    0xC6,                               $ Data Type - Unsigned 8-bit int (Byte)
+                    1,                                  $ Data Size
+                    "Reset Output Service",             $ Parameter Name
+                    "",                                 $ Units String
+                    "When an output is faulted (due to a short circuit) and Latch-off mode is selected,\nthis service allows the output point to be reset.\nSelect which output to reset from a short-circuit fault.\nIf output is ON, it will turn on after reset.",
+                    0,2,1,                              $ Min, Max, and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Enum28 =      0,"Do Nothing",
+                    1,"Output #0",
+                    2,"Output #1";
+
+$Point Object stuff
+      Param29 =     $ AutoAddress
+                    0,                                  $ reserved
+                    7,                                  $ Link Path Size
+                    "21 12 03 24 01 30 03",             $ Link Path to AutoAddress attribute.
+                    0x0002,                             $ No support for: settable path, scaling, scaling links, or
+                                                        $ real time update of value.  Value is gettable and 
+                                                        $ Settable.  Enumerated strings are supported.
+                    0xC1,                               $ Data Type - boolean
+                    1,                                  $ Data Size
+                    "Sequential AutoAddress",           $ Parameter Name
+                    "",                                 $ Units String
+                    "Sequential AutoAddress will re-assign the node address of ever module to the right.\nEach module will change it's node address to one greater than then it's neighbor.\n\nMAKE SURE THE NODE ADDRESS OF THIS MODULE IS THE DESIRED VALUE BEFORE ISSUING THIS COMMAND.\n\nWhen this command is set, each module to the right will get a new address one greater than it's neighbor.\nThe address will ripple through a line of Point I/O modules.\n\nSteps to Auto Address a line of Point I/O modules:\n 1.) Set the address of the first module (next to PDN or adapter).\n 2.) Send the Auto Address command to 'Sequential Address.'\n 3.) All modules in line will reset with new sequential addresses.\n\nExample:\nIf there are 5 Point modules in a line, and the address of the first module is 10.\nAfter the 'Sequential Address' command is sent to the first module, the node address of the line will be:\n 10, 11, 12, 13, and 14.",
+                    0,1,0,                              $ Min, Max, and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Enum29 =      0,"Do Nothing", 1,"Sequential Address";
+
+      Param30 =     $ Baud Rate
+                    0,                                  $ reserved
+                    7,                                  $ Link Path Size
+                    "21 12 03 24 01 30 05",             $ Link Path to Baud Rate attribute.
+                    0x0002,                             $ No support for: settable path, scaling, scaling links, or
+                                                        $ real time update of value.  Value is gettable and 
+                                                        $ Settable.  Enumerated strings are supported.
+                    0xC6,                               $ Data Type - Unsigned 8-bit int (Byte)
+                    1,                                  $ Data Size
+                    "Broadcast Baud Rate",              $ Parameter Name
+                    "",                                 $ Units String
+                    "This command will change the baud rate of this and every module to the right\nto the value indicated.\nIf AutoBaud is ENABLED, this command will not change the operation of the module at power up.",
+                    0,3,0,                              $ Min, Max, and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Enum30 =      0,"Do Nothing",
+                    1,"125 kHz",
+                    2,"250 kHz",
+                    3,"500 kHz";
+
+      Param31 =     $ Set Disable AutoBaud
+                    0,                                  $ reserved
+                    7,                                  $ Link Path Size
+                    "21 12 03 24 01 30 06",             $ Link Path to Disable AutoBaud attribute.
+                    0x0002,                             $ No support for: settable path, scaling, scaling links, or
+                                                        $ real time update of value.  Value is gettable and 
+                                                        $ Settable.  Enumerated strings are supported.
+                    0xC6,                               $ Data Type - Unsigned 8-bit int (Byte)
+                    1,                                  $ Data Size
+                    "Broadcast AutoBaud",               $ Parameter Name
+                    "",                                 $ Units String
+                    "This command will change the AutoBaud attribute of this and every module to the right\nto the value indicated.\nIf AutoBaud is 'disabled,' the Baud Rate parameter will set the baud rate next time the module is powered up.",
+                    0,2,0,                              $ Min, Max, and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Enum31 =      0,"Do Nothing",
+                    1,"Enable",
+                    2,"Disable";
+
+      Param32 =     $ Group Fault State selection
+                    0,                                  $ reserved
+                    ,                                   $ Link Path Size
+                    ,                                   $ No Path.
+                    0x0002,                             $ Non-display and enums
+                    0xC1,                               $ Data Type - boolean
+                    1,                                  $ Data Size
+                    "Group Fault Action",               $ Parameter Name
+                    "",                                 $ Units String
+                    "Fault Action defines output behavior in the event of a communication fault.\n\nPossible States:\n - goto Fault Value (defined in Fault Value parameter)\n - Hold Last State (state of output is uneffected by fault)",
+                    0,1,0,                              $ Min, Max (max enumeration #), and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Enum32 =      0,"Fault Value", 1,"Hold Last State";
+
+      Param33 =     $ Group Fault Value selection
+                    0,                                  $ reserved
+                    ,                                   $ Link Path Size
+                    ,                                   $ No Path.
+                    0x0002,                             $ Non-display and enums
+                    0xC1,                               $ Data Type - boolean
+                    1,                                  $ Data Size
+                    "Group Fault Value",                $ Parameter Name
+                    "",                                 $ Units String
+                    "If 'Fault Value' is selected (in Fault Action parameter),\nthis field defines the output value during a fault.\n - ON\n - OFF",
+                    0,1,0,                              $ Min, Max (max enumeration #), and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Enum33 =      0,"OFF", 1,"ON";
+
+      Param34 =     $ Group Idle State selection 
+                    0,                                  $ reserved
+                    ,                                   $ Link Path Size
+                    ,                                   $ No Path.
+                    0x0002,                             $ non-display and Enums
+                    0xC1,                               $ Data Type - boolean
+                    1,                                  $ Data Size
+                    "Group Idle Action",                $ Parameter Name
+                    "",                                 $ Units String
+                    "Idle Action defines output behavior during program or idle mode.\n\nPossible States:\n - goto Idle Value (defined in Idle Value parameter)\n - Hold Last State (state of output is uneffected by fault)",
+                    0,1,0,                              $ Min, Max (max enumeration #), and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Enum34 =      0,"Idle Value", 1,"Hold Last State";
+
+      Param35 =     $ Group Idle Value selection
+                    0,                                  $ reserved
+                    ,                                   $ Link Path Size
+                    ,                                   $ No Path.
+                    0x0002,                             $ non-display and enums.
+                    0xC1,                               $ Data Type - boolean
+                    1,                                  $ Data Size
+                    "Group Idle Value",                 $ Parameter Name
+                    "",                                 $ Units String
+                    "If 'Idle Value' is selected (in Idle Action parameter),\nthis field defines the output value during a Idle or Program mode.\n - ON\n - OFF",
+                    0,1,0,                              $ Min, Max (max enumeration #), and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Enum35 =      0,"OFF", 1,"ON";
+
+      Param36 =     $ Group Enable No Load
+                    0,                                  $ reserved
+                    ,                                   $ Link Path Size
+                    ,                                   $ no path.
+                    0x0002,                             $ non-display, enums.
+                    0xC1,                               $ Data Type - boolean
+                    1,                                  $ Data Size
+                    "Group Enable No Load",             $ Parameter Name
+                    "",                                 $ Units String
+                    "This parameter turns on and off No Load Detection.\nDisabling the No Load diagnostic is useful for unused channels.",
+                    0,1,1,                              $ Min, Max (max enumeration #), and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Enum36 =      0,"No Load Disabled", 1,"No Load Enabled";
+
+      Param37 =     $ Group Reset Mode
+                    0,                                  $ reserved
+                    ,                                   $ Link Path Size
+                    ,                                   $ no path
+                    0x0002,                             $ non-display and enums.
+                    0xC1,                               $ Data Type - boolean
+                    1,                                  $ Data Size
+                    "Group Reset Mode",                 $ Parameter Name
+                    "",                                 $ Units String
+                    "Reset Mode defines the action of the output during a short circuit or overload.\n\nSelect:\n - Latch Off = the output will shut OFF\n - Auto Restart = the output will continually try to turn ON\n\nNote:  Turning ON an output with no field power will cause a fault.",
+                    0,1,0,                              $ Min, Max (max enumeration #), and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Enum37 =      0,"Latch Off", 1,"Auto Restart";
+
+      Param38 =     $ Group Enable Latched Alarms
+                    0,                                  $ reserved
+                    ,                                   $ Link Path Size
+                    ,                                   $ No Path
+                    0x0002,                             $ Non-display, enum
+                    0xC1,                               $ Data Type - boolean
+                    1,                                  $ Data Size
+                    "Group Enable Latching Alarms",     $ Parameter Name
+                    "",                                 $ Units String
+                    "This parameter selects how a status bit acts after the cause of the fault is removed.\nIf 'Latching Enabled,' alarm bits will stay FAULTed if an alarm occurs.\nThe FAULT can only be cleared using the Clear Latched Alarm service for this point.\nLatching is useful for tracking transient or momentary faults.\nIf 'Latching Disabled,' alarms will refect the present state.\n\nNote:  LEDs don't reflect latched Alarms.",
+                    0,1,0,                              $ Min, Max (max enumeration #), and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Enum38 =      0,"Latching Disabled", 1,"Latching Enabled";
+
+$ DeviceNet Premier Integration 
+      Param39 =     $ Special Hidden IO Data
+                    0,                                  $ reserved
+                    0,                                  $ Link Path Size
+                    ,                                   $ No path - internal parameter
+                    0x0200,                             $ 
+                    0xD1,                               $ Data Type - 8 bit string
+                    1,                                  $ Data Size - bytes
+                    "Data",                             $ Parameter Name
+                    "",                                 $ Units String
+                    "The current command state of each of the Output./nBit 0 = Channel 0.  0 = OFF; 1 = ON",
+                    0,255,0,                            $ Min, Max, and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Param40 =     $ Special Hidden IO Status
+                    0,                                  $ reserved
+                    0,                                  $ Link Path Size
+                    ,                                   $ No path - internal parameter
+                    0x0200,                             $ 
+                    0xD1,                               $ Data Type - 8 bit string
+                    1,                                  $ Data Size - bytes
+                    "Status",                           $ Parameter Name
+                    "",                                 $ Units String
+                    "Displays the current status of each of the outputs./nBit 0 = Channel 0.  0 = OK; 1 = Fault\nFault could be open load, no power, or over current",
+                    0,255,0,                            $ Min, Max, and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Param101 =                    $ Revision of Configuration Assembly
+        0,                          $ first field shall equal 0
+        ,,                          $ path size,path
+        0x0210,                     $ descriptor (readonly, no display)
+        0xC7,                       $ data type : 16-bit Unsigned Integer
+        2,                          $ data size in bytes
+        "Configuration revision",   $ name
+        "",                         $ units
+        "",                         $ help string
+        1,1,1,                      $ min,max,default data values
+        0,0,0,0,                    $ mult,dev,base,offset scaling not used
+        0,0,0,0,                    $ mult,dev,base,offset link not used
+        0;                          $ decimal places not used
+
+      Param102 =                    $ non-Logix header
+        0,                          $ first field shall equal 0
+        ,,                          $ path size,path
+        0x0210,                     $ descriptor (readonly, no display)
+        0xC7,                       $ data type : 16-bit Unsigned Integer
+        2,                          $ data size in bytes
+        "Non-Logix Header",         $ name
+        "",                         $ units
+        "",                         $ help string
+        0x7001,0x7001,0x7001,       $ min,max,default data values
+        0,0,0,0,                    $ mult,dev,base,offset scaling not used
+        0,0,0,0,                    $ mult,dev,base,offset link not used
+        0;                          $ decimal places not used
+
+[Groups]
+      Group1 =      "I/O - output value", 2, 1,2;       $ input value
+      Group2 =      "I/O - output status", 7 ,3,4, 5,6, $ output, noload, short, group status
+                    7,8, 9;
+      Group3 =      "Reset Services", 4, 10,11, 12, 28; $ reset latch, run/idle (faulted outs)
+      Group4 =      "Configuration", 15,                $ fault, idle, latch, noload, mode, autobaud
+                    13,14,15,16, 17,18,19,20, 
+                    21,22, 23,24, 25,26, 27;
+      Group5 =      "PointBus", 3, 29,30,31;            $dup mac, qc, autoaddr, brate, auto baud
+
+[Connection Manager]
+
+    Connection3 =       $ Exclusive Owner (Direct to Module)
+                        $ Catalogs        1734-OB2E, OV2E, OB2EP	
+                        $ Config Assem    123	
+                        $ Consume Assem   32	
+                        $ Produce Assem   42	
+        0x04030002,     $ trigger & transport
+        0x44240405,     $ point/multicast & priority & realtime format
+        ,,Assem126,     $ O=>T default,description
+        ,,Assem127,     $ T=>O default,description
+        ,Assem124,      $ config part 1 (dynamic configuration)
+        ,Assem123,      $ config part 2 (module configuration)
+        "Direct Exclusive Owner",  $ connection name
+        "Direct Exclusive Owner Connection - Output data controls the state of each of the outputs. Input data contains status of each of the outputs.",   $ Help string
+        "20 04 24 7B 2C 20 2C 2A";
+
+$   Connection23 =      $ There is NO Input Only (Direct to Module)
+
+    Connection43 =      $ Listen Only (Direct to Module)
+                        $ Catalogs        1734-OB2E, -OV2E, -OB2EP
+                        $ Config Assem    123	
+                        $ Consume Assem   0xBF (Listen Only)	
+                        $ Produce Assem   42	
+        0x01030002,     $ trigger & transport
+        0x44240305,     $ point/multicast & priority & realtime format
+        ,0,,            $ O=>T default,description
+        ,,Assem127,     $ T=>O default,description
+        ,,              $ config part 1
+        ,,              $ config part 2 (module configuration)
+        "Direct Listen Only",  $ connection name
+        "Direct Listen Only Connection - Input data contains STATUS of each of the outputs. There is NO output data.",   $ Help string
+        "20 04 24 7B 2C BF 2C 2A";
+
+[Port]
+      Port1 =       DeviceNet,                          $ or maybe 1_Virtual_Backplane
+                    "PointIO Backplane",                $ Name of backplane
+                    "20 03 24 01",                      $ Path to DeviceNet Object Instance 1
+                    1;                                  $ Port number 1
+[Modular]
+      Width =       1;
+
+$ I/O Module EDS
+$ Number of slots in rack = Product Code - 199
+$ Number of I/O modules in rack = Product Code - 200
+$ Note Rack# does not match in Adapter EDS, Adapter EDS includes one for Slot 0
+
+	Rack1 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 201,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+            1;                $ Legal Slots
+
+	Rack2 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 202,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+            1,2;              $ Legal Slots
+
+	Rack3 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 203,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+            1,2,3;            $ Legal Slots
+
+	Rack4 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 204,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+            1,2,3,4;          $ Legal Slots
+
+	Rack5 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 205,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+            1,2,3,4,5;        $ Legal Slots
+
+	Rack6 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 206,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+            1,2,3,4,5,6;      $ Legal Slots
+
+	Rack7 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 207,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+            1,2,3,4,5,6,7;    $ Legal Slots
+
+	Rack8 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 208,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+            1,2,3,4,5,6,7,8,9;$ Legal Slots
+
+	Rack9 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 209,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10;
+                              $ Legal Slots
+
+	Rack10 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 210,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11;
+                              $ Legal Slots
+
+	Rack11 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 211,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12;
+                              $ Legal Slots
+
+	Rack12 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 212,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13;
+                              $ Legal Slots
+
+	Rack13 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 213,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14;
+                              $ Legal Slots
+
+	Rack14 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 214,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15;
+                              $ Legal Slots
+
+	Rack15 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 215,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16;
+                              $ Legal Slots
+
+	Rack16 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 216,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17;
+                              $ Legal Slots
+
+	Rack17 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 217,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18;
+                              $ Legal Slots
+
+	Rack18 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 218,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19;
+                              $ Legal Slots
+
+	Rack19 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 219,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20;
+                              $ Legal Slots
+
+	Rack20 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 220,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21;               $ Legal Slots
+
+	Rack21 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 221,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22;            $ Legal Slots
+
+	Rack22 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 222,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23;         $ Legal Slots
+
+	Rack23 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 223,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24;      $ Legal Slots
+
+	Rack24 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 224,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25;   $ Legal Slots
+
+	Rack25 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 225,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26;
+                              $ Legal Slots
+
+	Rack26 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 226,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27;
+                              $ Legal Slots
+
+	Rack27 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 227,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28;
+                              $ Legal Slots
+
+	Rack28 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 228,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29;
+                              $ Legal Slots
+
+	Rack29 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 229,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30;
+                              $ Legal Slots
+
+	Rack30 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 230,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31;
+                              $ Legal Slots
+
+	Rack31 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 231,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32;
+                              $ Legal Slots
+
+	Rack32 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 232,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33;
+                              $ Legal Slots
+
+	Rack33 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 233,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34;
+                              $ Legal Slots
+
+	Rack34 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 234,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35;
+                              $ Legal Slots
+
+	Rack35 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 235,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36;
+                              $ Legal Slots
+
+	Rack36 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 236,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37;
+                              $ Legal Slots
+
+	Rack37 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 237,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38;
+                              $ Legal Slots
+
+	Rack38 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 238,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39;
+                              $ Legal Slots
+
+	Rack39 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 239,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40;
+                              $ Legal Slots
+
+	Rack40 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 240,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,
+            41;               $ Legal Slots
+
+	Rack41 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 241,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,
+            41,42;            $ Legal Slots
+
+	Rack42 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 242,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,
+            41,42,43;         $ Legal Slots
+
+	Rack43 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 243,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,
+            41,42,43,44;      $ Legal Slots
+
+	Rack44 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 244,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,
+            41,42,43,44,45;   $ Legal Slots
+
+	Rack45 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 245,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,
+            41,42,43,44,45,46;
+                              $ Legal Slots
+
+	Rack46 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 246,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,
+            41,42,43,44,45,46,47;
+                              $ Legal Slots
+
+	Rack47 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 247,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,
+            41,42,43,44,45,46,47,48;
+                              $ Legal Slots
+
+	Rack48 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 248,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,
+            41,42,43,44,45,46,47,48,49;
+                              $ Legal Slots
+
+	Rack49 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 249,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,
+            41,42,43,44,45,46,47,48,49,50;
+                              $ Legal Slots
+
+	Rack50 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 250,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,
+            41,42,43,44,45,46,47,48,49,50,51;
+                              $ Legal Slots
+
+	Rack51 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 251,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,
+            41,42,43,44,45,46,47,48,49,50,51,52;
+                              $ Legal Slots
+
+	Rack52 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 252,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,
+            41,42,43,44,45,46,47,48,49,50,51,52,53;
+                              $ Legal Slots
+
+	Rack53 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 253,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,
+            41,42,43,44,45,46,47,48,49,50,51,52,53,54;
+                              $ Legal Slots
+
+	Rack54 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 254,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,
+            41,42,43,44,45,46,47,48,49,50,51,52,53,54,55;
+                              $ Legal Slots
+
+	Rack55 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 255,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,
+            41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56;
+                              $ Legal Slots
+
+	Rack56 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 256,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,
+            41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57;
+                              $ Legal Slots
+
+	Rack57 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 257,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,
+            41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58;
+                              $ Legal Slots
+
+	Rack58 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 258,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,
+            41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59;
+                              $ Legal Slots
+
+	Rack59 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 259,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,
+            41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60;
+                              $ Legal Slots
+
+	Rack60 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 260,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,
+            41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,
+            61;               $ Legal Slots
+
+	Rack61 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 261,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,
+            41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,
+            61,62;            $ Legal Slots
+
+	Rack62 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 262,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,
+            41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,
+            61,62,63;         $ Legal Slots
+
+
+	Rack63 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 263,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,
+            41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,
+            61,62,63,64;      $ Legal Slots
+
+      ExternalID = "C0 00 83 0A";        $ Product Code (Low, High), Compatable bit (8),Maj Rev, Min Rev

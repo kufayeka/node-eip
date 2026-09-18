@@ -1,0 +1,1390 @@
+$ Electronic Data Sheet for DeviceNet Starter Auxiliary (4-24V input / 2-Solid State Output)
+
+[File]
+    DescText = "DSA 4-24V input / 2-Solid State Output EDS File";
+    CreateDate = 04-12-2000;
+    CreateTime = 15:00:00;
+    ModDate = 11-08-2005;
+    ModTime = 15:00:00;
+    Revision = 5.5;         $ EDS revision.
+    HomeURL = "http://www.ab.com/networks/eds/DN/0001000704280500.eds";
+
+[Device]
+    VendCode = 1;
+    VendName = "Allen-Bradley Company, Inc.";
+    ProdType = 7;
+    ProdTypeStr = "General Purpose Discrete I/O";
+    ProdCode = 1064;
+    MajRev = 5;
+    MinRev = 1;
+    ProdName = "DSA 4/2 (100-DNY42S) 5.001";
+    Catalog = "100-DNY42S";
+    Icon = "DSA_225.ico";
+
+    1_RSNetWorx_DNetTool = "LeoApp.LeoDevice";
+    1_RSNetWorx_DNetToolEx = "1.00.00", "LeoApp.LeoDevice",
+			"7.00","RSI.DeviceNet.EDSApplet.1";
+    1_DNetEDSAppletPlugIn = "7.00.00", "DeviceLogixPlugIn.EDSAppletPlugIn.1";
+
+[IO_Info]
+
+    1_COSetSizeNotSupported = 1;
+    
+    Default = 0x0001;         $ The default I/O type is polled I/O.
+
+    PollInfo =
+      0x000D,                 $ OK to combine Poll and COS or Poll and Cyclic.
+      1,                      $ Input1 entry is the default input connection.
+      1;                      $ Output1 entry is the default output connection.
+
+    COSInfo =
+      0x0005,                 $ OK to combine Poll and COS.
+      1,                      $ Input1 entry is the default input connection.
+      1;                      $ Output1 entry is the default output connection.
+
+    CyclicInfo =
+      0x0009,                 $ OK to combine Poll and Cyclic.
+      1,                      $ Input1 entry is the default input connection.
+      1;                      $ Output1 entry is the default output connection.
+
+    Input1 =
+      1,                      $ The size in bytes that this connection produces.
+      0,                      $ All bits of this assembly are significant.
+      0x000D,                 $ OK for Poll, COS or Cyclic.
+      "Status",               $ Name of Assembly.
+      7,                      $ Path length.
+      "21 04 00 24 69 30 03", $ Path to Assembly 105.
+                              $ Help string follows
+     "Contains input data at bits 0-3, output status at bits 4-5, and sensor source voltage status at bit 7.";
+
+    InputExa1 =
+      ,                       $ Size from AssemN.
+      ,                       $ Bits determined by AssemN member list
+      0x000D,                 $ OK for Poll, COS or Cyclic.
+      ,                       $ Name String from AssemN.
+      ,                       $ Path Size not applicable
+      VariantExa1,            $ Variant for choosing Input Assem
+      ;                       $ Help string not applicable
+
+    Input2 =
+      1,                      $ The size in bytes that this connection produces.
+      4,                      $ First 4 bits of this assembly are significant.
+      0x000D,                 $ OK for Poll, COS or Cyclic.
+      "ODVA Status",          $ Name of Assembly.
+      7,                      $ Path length.
+      "21 04 00 24 03 30 03", $ Path to Assembly 3.
+                              $ Help string follows
+      "Contains hardware input data at bits 0-3";
+
+    InputExa2 =
+      1,                      $ The size in bytes that this connection produces.
+      4,                      $ First 4 bits of this assembly are significant.
+      0x000D,                 $ OK for Poll, COS or Cyclic.
+      "ODVA Status",          $ Name of Assembly.
+      7,                      $ Path length.
+      "21 04 00 24 03 30 03", $ Path to Assembly 3.
+                              $ Help string follows
+      "Contains hardware input data at bits 0-3";
+
+    Input3 =
+      8,                      $ 8 bytes
+      64,                     $ 64 bits are significant
+      0x000D,                 $ Poll, COS, Cyclic
+      "Parameter Based",      $ Name String
+      7,                      $ Path Size
+      "21 04 00 24 64 30 03", $ Path to Assembly 100.
+                              $ Help string follows
+      "Contents determined by params 15-18";
+
+    InputExa3 =
+      8,                      $ 8 bytes
+      64,                     $ 64 bits are significant
+      0x000D,                 $ Poll, COS, Cyclic
+      "Parameter Based",      $ Name String
+      7,                      $ Path Size
+      "21 04 00 24 64 30 03", $ Path to Assembly 100.
+                              $ Help string follows
+      "Contents determined by params 15-18";
+
+    Input4 =
+      2,                      $ The size in bytes that this connection produces.
+      4,                      $ First 4 bits of this assembly are significant.
+      0x000D,                 $ OK for Poll, COS or Cyclic.
+      "Hdw Inputs",           $ Name of Assembly.
+      7,                      $ Path length.
+      "21 04 00 24 B4 30 03", $ Path to Assembly 180.
+                              $ Help string follows
+      "Contains hardware input data at bits 0-3";
+
+    InputExa4 =
+      2,                      $ The size in bytes that this connection produces.
+      4,                      $ First 4 bits of this assembly are significant.
+      0x000D,                 $ OK for Poll, COS or Cyclic.
+      "Hdw Inputs",           $ Name of Assembly.
+      7,                      $ Path length.
+      "21 04 00 24 B4 30 03", $ Path to Assembly 180.
+                              $ Help string follows
+      "Contains hardware input data at bits 0-3";
+
+    Input5 =
+      2,                      $ The size in bytes that this connection consumes.
+      2,                      $ Only the two least significant bits of this connection are used.
+      0x000D,                 $ OK for Poll, COS or Cyclic.
+      "Hdw Outputs",          $ Name of Connection.
+      7,                      $ Path length.
+      "21 04 00 24 B5 30 03", $ Path to Assembly 181.
+                              $ Help string follows
+      "Contains value status data for two hardware outputs.";
+
+    InputExa5 =
+      2,                      $ The size in bytes that this connection consumes.
+      2,                      $ Only the two least significant bits of this connection are used.
+      0x000D,                 $ OK for Poll, COS or Cyclic.
+      "Hdw Outputs",          $ Name of Connection.
+      7,                      $ Path length.
+      "21 04 00 24 B5 30 03", $ Path to Assembly 181.
+                              $ Help string follows
+      "Contains value status data for two hardware outputs.";
+
+    Input6 =
+      2,                      $ The size in bytes that this connection produces.
+      3,                      $ First 3 bits of this assembly are significant.
+      0x000D,                 $ OK for Poll, COS or Cyclic.
+      "IO Flt Status",        $ Name of Assembly.
+      7,                      $ Path length.
+      "21 04 00 24 B6 30 03", $ Path to Assembly 182.
+                              $ Help string follows
+      "Contains input fault status at bits 0, output A fault status at bit 1, output B status at bit 2";
+
+    InputExa6 =
+      2,                      $ The size in bytes that this connection produces.
+      3,                      $ First 3 bits of this assembly are significant.
+      0x000D,                 $ OK for Poll, COS or Cyclic.
+      "IO Flt Status",        $ Name of Assembly.
+      7,                      $ Path length.
+      "21 04 00 24 B6 30 03", $ Path to Assembly 182.
+                              $ Help string follows
+      "Contains input fault status at bits 0, output A fault status at bit 1, output B status at bit 2";
+
+    Input7 =
+      2,                      $ The size in bytes that this connection produces.
+      0,                      $ All bits of this assembly are significant.
+      0x000D,                 $ OK for Poll, COS or Cyclic.
+      "Network Outputs",      $ Name of Assembly.
+      7,                      $ Path length.
+      "21 04 00 24 B8 30 03", $ Path to Assembly 184.
+                              $ Help string follows
+      "Contains Produced Network Output Bits";
+
+    InputExa7 =
+      2,                      $ The size in bytes that this connection produces.
+      0,                      $ All bits of this assembly are significant.
+      0x000D,                 $ OK for Poll, COS or Cyclic.
+      "Network Outputs",      $ Name of Assembly.
+      7,                      $ Path length.
+      "21 04 00 24 B8 30 03", $ Path to Assembly 184.
+                              $ Help string follows
+      "Contains Produced Network Output Bits";
+
+    Input8 =
+      2,                      $ The size in bytes that this connection produces.
+      0,                      $ All bits of this assembly are significant.
+      0x000D,                 $ OK for Poll, COS or Cyclic.
+      "Module Status",        $ Name of Assembly.
+      7,                      $ Path length.
+      "21 04 00 24 B9 30 03", $ Path to Assembly 185.
+                              $ Help string follows
+      "Contains module status bits";
+
+    InputExa8 =
+      2,                      $ The size in bytes that this connection produces.
+      0,                      $ All bits of this assembly are significant.
+      0x000D,                 $ OK for Poll, COS or Cyclic.
+      "Module Status",        $ Name of Assembly.
+      7,                      $ Path length.
+      "21 04 00 24 B9 30 03", $ Path to Assembly 185.
+                              $ Help string follows
+      "Contains module status bits";
+
+    Input9 =
+      2,                      $ The size in bytes that this connection produces.
+      0,                      $ All bits of this assembly are significant.
+      0x000D,                 $ OK for Poll, COS or Cyclic.
+      "FB Outs 1-16",         $ Name of Assembly.
+      7,                      $ Path length.
+      "21 04 00 24 BA 30 03", $ Path to Assembly 186.
+                              $ Help string follows
+      "Contains the output of function blocks 1-16";
+
+    InputExa9 =
+      2,                      $ The size in bytes that this connection produces.
+      0,                      $ All bits of this assembly are significant.
+      0x000D,                 $ OK for Poll, COS or Cyclic.
+      "FB Outs 1-16",         $ Name of Assembly.
+      7,                      $ Path length.
+      "21 04 00 24 BA 30 03", $ Path to Assembly 186.
+                              $ Help string follows
+      "Contains the output of function blocks 1-16";
+
+    Input10 =
+      2,                      $ The size in bytes that this connection produces.
+      0,                      $ All bits of this assembly are significant.
+      0x000D,                 $ OK for Poll, COS or Cyclic.
+      "FB Outs 17-32",        $ Name of Assembly.
+      7,                      $ Path length.
+      "21 04 00 24 BB 30 03", $ Path to Assembly 187.
+                              $ Help string follows
+      "Contains the output of function blocks 17-32";
+
+    InputExa10 =
+      2,                      $ The size in bytes that this connection produces.
+      0,                      $ All bits of this assembly are significant.
+      0x000D,                 $ OK for Poll, COS or Cyclic.
+      "FB Outs 17-32",        $ Name of Assembly.
+      7,                      $ Path length.
+      "21 04 00 24 BB 30 03", $ Path to Assembly 187.
+                              $ Help string follows
+      "Contains the output of function blocks 17-32";
+
+    Input11 =
+      2,                      $ The size in bytes that this connection produces.
+      0,                      $ All bits of this assembly are significant.
+      0x000D,                 $ OK for Poll, COS or Cyclic.
+      "FB Outs 33-42",        $ Name of Assembly.
+      7,                      $ Path length.
+      "21 04 00 24 BB 30 03", $ Path to Assembly 188.
+                              $ Help string follows
+      "Contains the output of function blocks 33-42";
+
+    InputExa11 =
+      2,                      $ The size in bytes that this connection produces.
+      0,                      $ All bits of this assembly are significant.
+      0x000D,                 $ OK for Poll, COS or Cyclic.
+      "FB Outs 33-42",        $ Name of Assembly.
+      7,                      $ Path length.
+      "21 04 00 24 BB 30 03", $ Path to Assembly 188.
+                              $ Help string follows
+      "Contains the output of function blocks 33-42";
+
+
+    Output1 =
+      1,                      $ The size in bytes that this connection consumes.
+      2,                      $ Only the two least significant bits of this connection are used.
+      0x000D,                 $ OK for Poll, COS or Cyclic.
+      "Command",              $ Name of Connection.
+      7,                      $ Path length.
+      "21 04 00 24 20 30 03", $ Path to Assembly 32.
+                              $ Help string follows
+      "Contains data for two hardware outputs.";
+
+     OutputExa1 =
+      ,                       $ Size from AssemN
+      ,                       $ Bits determined by AssemN member list
+      0x000D,                 $ OK for Poll, COS or Cyclic.
+      ,                       $ Name String from AssemN
+      ,                       $ Path Size not applicable
+      VariantExa2,            $ Variant for choosing Output Assem
+      ;                       $ Help string not applicable
+
+   Output2 =
+      2,                      $ The size in bytes that this connection consumes.
+      2,                      $ Only the two least significant bits of this connection are used.
+      0x000D,                 $ OK for Poll, COS or Cyclic.
+      "DeviceLogix Cmd",      $ Name of Connection.
+      7,                      $ Path length.
+      "21 04 00 24 B7 30 03", $ Path to I/O Consumption Assembly.
+                              $ Help string follows
+      "Contains Consumed Network Input Bits.";
+
+   OutputExa2 =
+      2,                      $ The size in bytes that this connection consumes.
+      2,                      $ Only the two least significant bits of this connection are used.
+      0x000D,                 $ OK for Poll, COS or Cyclic.
+      "DeviceLogix Cmd",      $ Name of Connection.
+      7,                      $ Path length.
+      "21 04 00 24 B7 30 03", $ Path to I/O Consumption Assembly.
+                              $ Help string follows
+      "Contains Consumed Network Input Bits.";
+
+[ParamClass]
+     MaxInst = 35;
+     Descriptor =  0x08;      $ Params are stored in nonvolatile storage.
+     CfgAssembly = 176;       $ The config assembly is instance #176 of assy obj.		
+
+[Params]
+
+Param1 =
+   0,                         $ reserved
+   7, "21 04 00 24 B4 30 03", $ Link Path.  
+   0x0032,                    $ Read-only - Monitor.  Enumerated strings supported.
+   1, 2,                      $ Data Type - WORD, Data Size - 2 bytes
+   "Hdw In States",           $ Parameter Name
+   "",                        $ Units String
+   "Current state of the hardware inputs.",  $ Help string
+   0,15,0,                    $ Min, Max, Default values
+   1,1,1,0,		      $ Scaling factors
+   0,0,0,0,		      $ Scaling links
+   0;                         $ Decimal Places
+
+Param2 =
+   0,                         $ reserved
+   7, "21 04 00 24 B5 30 03", $ Link Path.
+   0x0032,                    $ Read-only - Monitor.  Enumerated strings supported.
+   1, 2,                      $ Data Type - WORD, Data Size - 2 bytes
+   "Hdw Out States",          $ Parameter Name
+   "",                        $ Units String
+   "Current state of the hardware outputs.",  $ Help string
+   0,3,0,                     $ Min, Max, Default values
+   1,1,1,0,		      $ Scaling factors
+   0,0,0,0,		      $ Scaling links
+   0;                         $ Decimal Places
+
+Param3 =
+   0,                         $ reserved
+   7, "21 04 00 24 B6 30 03", $ Link Path.
+   0x0032,                    $ Read-only - Monitor.  Enumerated strings supported.
+   1, 2,                      $ Data Type - WORD, Data Size - 2 bytes
+   "I/O Fault Status",        $ Parameter Name
+   "",                        $ Units String
+                              $ Help string follows
+   "Current I/O Fault status.\n"
+   "Byte 0, Bit 0 - Input Fault (0=Ok, 1=Fault)\n"
+   "Byte 0, Bit 1 - Output A Fault (0=Ok, 1=Fault)\n"
+   "Byte 0, Bit 2 - Output B Fault (0=Ok, 1=Fault)",
+   0,7,0,                     $ Min, Max, Default values
+   1,1,1,0,                   $ Scaling factors
+   0,0,0,0,                   $ Scaling links
+   0;                         $ Decimal Places
+
+Param4 =
+   0,                         $ reserved
+   7, "21 04 00 24 B7 30 03", $ Link Path.
+   0x0032,                    $ Read-only - Monitor.  Enumerated strings supported.
+   1, 2,                      $ Data Type - WORD, Data Size - 2 bytes
+   "Network Inputs",          $ Parameter Name
+   "",                        $ Units String
+   "Current Network Inputs status.",  $ Help string
+   0,65535,0,                 $ Min, Max, Default values
+   1,1,1,0,                   $ Scaling factors
+   0,0,0,0,                   $ Scaling links
+   0;                         $ Decimal Places
+
+Param5 =
+   0,                         $ reserved
+   7, "21 04 00 24 B8 30 03", $ Link Path.
+   0x0032,                    $ Read-only - Monitor.  Enumerated strings supported.
+   1, 2,                      $ Data Type - WORD, Data Size - 2 bytes
+   "Network Outputs",         $ Parameter Name
+   "",                        $ Units String
+   "Current Network Outputs status.",  $ Help string
+   0,255,0,                   $ Min, Max, Default values
+   1,1,1,0,                   $ Scaling factors
+   0,0,0,0,                   $ Scaling links
+   0;                         $ Decimal Places
+
+Param6 =
+   0,                         $ reserved
+   7, "21 04 00 24 B9 30 03", $ Link Path.
+   0x0032,                    $ Read-only - Monitor.  Enumerated strings supported.
+   1, 2,                      $ Data Type - WORD, Data Size - 2 bytes
+   "Module Status",           $ Parameter Name
+   "",                        $ Units String
+                              $ Help string follows
+   "Current Module Status.\n"
+   "Byte 0, Bit 0 - Explicit Message Connection Exists (0=No,1=Yes)\n"
+   "Byte 0, Bit 1 - Poll Message Connection Exists (0=No,1=Yes)\n"
+   "Byte 0, Bit 2 - COS Message Connection Exists (0=No,1=Yes)\n"
+   "Byte 0, Bit 3 - Explicit Message Connection Fault (0=No,1=Yes)\n"
+   "Byte 0, Bit 4 - Poll Message Connection Fault (0=No,1=Yes)\n"
+   "Byte 0, Bit 5 - COS Message Connection Fault (0=No,1=Yes)\n"
+   "Byte 0, Bit 6 - Poll Message Connection Idle (0=No,1=Yes)\n"
+   "Byte 0, Bit 7 - COS Message Connection Idle (0=No,1=Yes)\n"
+   "Byte 1, Bit 0 - Network Fault (0=No,1=Yes)\n"
+   "Byte 1, Bit 1 - Minor Fault (0=No,1=Yes)",
+   0,1023,0,                  $ Min, Max, Default values
+   1,1,1,0,                   $ Scaling factors
+   0,0,0,0,                   $ Scaling links
+   0;                         $ Decimal Places
+
+Param7 =
+   0,                         $ reserved
+   7, "21 04 00 24 BA 30 03", $ Link Path.
+   0x0032,                    $ Read-only - Monitor.  Enumerated strings supported.
+   1, 2,                      $ Data Type - WORD, Data Size - 2 bytes
+   "Fn Blocks 1-16",          $ Parameter Name
+   "",                        $ Units String
+   "Fn Blocks 1-16 Output Bit States",  $ Help string
+   0,65535,0,                 $ Min, Max, Default values
+   1,1,1,0,                   $ Scaling factors
+   0,0,0,0,                   $ Scaling links
+   0;                         $ Decimal Places
+
+Param8 =
+   0,                         $ reserved
+   7, "21 04 00 24 BB 30 03", $ Link Path.
+   0x0032,                    $ Read-only - Monitor.  Enumerated strings supported.
+   1, 2,                      $ Data Type - WORD, Data Size - 2 bytes
+   "Fn Blocks 17-32",         $ Parameter Name
+   "",                        $ Units String
+   "Fn Blocks 17-32 Output Bit States",  $ Help string
+   0,65535,0,                 $ Min, Max, Default values
+   1,1,1,0,                   $ Scaling factors
+   0,0,0,0,                   $ Scaling links
+   0;                         $ Decimal Places
+
+Param9 =
+   0,                         $ reserved
+   7, "21 04 00 24 BC 30 03", $ Link Path.
+   0x0032,                    $ Read-only - Monitor.  Enumerated strings supported.
+   1, 2,                      $ Data Type - WORD, Data Size - 2 bytes
+   "Fn Blocks 33-42",         $ Parameter Name
+   "",                        $ Units String
+   "Fn Blocks 33-42 Output Bit States",  $ Help string
+   0,1023,0,                  $ Min, Max, Default values
+   1,1,1,0,                   $ Scaling factors
+   0,0,0,0,                   $ Scaling links
+   0;                         $ Decimal Places
+
+Param10 =
+   0,                         $ reserved
+   7, "21 B4 00 24 01 30 0F", $ Link Path.
+   0x0002,                    $ Value is gettable and Settable.  Enumerated strings are supported.
+   4, 1,                      $ Data Type - boolean, Data Size - 1 byte
+   "Autobaud Enable",         $ Parameter Name
+   "",                        $ Units String
+                              $ Help string follows
+   "When enabled, the DSA automatically communicates at the\n"
+   "network baud rate detected at power-on.  When disabled,\n"
+   "the baud rate must be set correctly by the user during\n"
+   "node commissioning.  This parameter's setting takes effect\n"
+   "after a module reset or at power-on.\n",
+   0,1,1,                     $ Min, Max, Default values
+   1,1,1,0,                   $ Scaling factors
+   0,0,0,0,                   $ Scaling links
+   0;                         $ Decimal Places
+
+Param11 =
+   0,                         $ reserved
+   7, "21 1D 00 24 01 30 06", $ Link Path.
+   0x0000,                    $ Value is gettable and Settable.
+   2, 2,                      $ Data Type - unsigned int, Data Size - 2 bytes
+   "Off-to-On Delay",         $ Parameter Name
+   "us",                      $ Units String
+                              $ Help string follows
+   "An input signal must be fully present for this delay period\n"
+   "before the DSA reports an ON state.  The value must be set\n"
+   "in units of microseconds.\n"
+   "Valid values are:\n"
+   "0:\tNo delay\n"
+   "1000:\t1 millisecond delay\n"
+   "2000:\t2 millisecond delay\n" 
+   "4000:\t4 millisecond delay\n" 
+   "8000:\t8 millisecond delay\n" 
+   "16000:\t16 millisecond delay",
+   0,16000,                   $ Min, Max values
+   2000,                      $ Default value
+   1,1,1,0,                   $ Scaling factors
+   0,0,0,0,                   $ Scaling links
+   0;                         $ Decimal Places
+
+Param12 =
+   0,                         $ reserved
+   7, "21 1D 00 24 01 30 07", $ Link Path.
+   0x0000,                    $ Value is gettable and Settable.
+   2, 2,                      $ Data Type - unsigned int, Data Size - 2 bytes
+   "On-to-Off Delay",         $ Parameter Name
+   "us",                      $ Units String
+                              $ Help string follows
+   "An input signal must be fully absent for this delay period before\n"
+   "the DSA reports an OFF state.  The value must be set in units of\n"
+   "microseconds.\n"
+   "Valid values are:\n"
+   "0:\tNo delay\n"
+   "1000:\t1 millisecond delay\n"
+   "2000:\t2 millisecond delay\n" 
+   "4000:\t4 millisecond delay\n" 
+   "8000:\t8 millisecond delay\n" 
+   "16000:\t16 millisecond delay",
+   0,16000,                   $ Min, Max values
+   2000,                      $ Default value
+   1,1,1,0,                   $ Scaling factors
+   0,0,0,0,                   $ Scaling links
+   0;                         $ Decimal Places
+
+Param13 =
+   0,                         $ reserved
+   7, "21 B4 00 24 01 30 10", $ Link Path.
+   0x0000,                    $ Value is gettable and Settable.
+   8, 1,                      $ Data Type - unsigned short int, Data Size - 1 byte
+   "Consumed IO Assembly",    $ Parameter Name
+   "",                        $ Units String
+                              $ Help string follows
+   "The Consumed (or output) assembly defines the\n"
+   "consumed IO data size and format.\n"
+   "Valid values are:\n"
+   "32:\tDefault 2 Output (1 byte)\n"
+   "183:\tA-B  DeviceLogix Network Input (2 bytes)",
+   0,183,                     $ Min, Max values
+   32,                        $ Default value
+   1,1,1,0,                   $ Scaling factors
+   0,0,0,0,                   $ Scaling links
+   0;                         $ Decimal Places
+
+Param14 =
+   0,                         $ reserved
+   7, "21 B4 00 24 01 30 11", $ Link Path.
+   0x0000,                    $ Value is gettable and Settable.
+   8, 1,                      $ Data Type - unsigned short int, Data Size - 1 byte
+   "Produced IO Assembly",    $ Parameter Name
+   "",                        $ Units String
+                              $ Help string follows
+   "The Produced (or input ) assembly defines the\n"
+   "produced IO data size and format.\n"
+   "Valid values are:\n"
+   "3:\tODVA 4 Input (1 byte)\n"
+   "100:\tA-B  Customizable (Uses: In Assy Word 0-3)\n"
+   "105:\tA-B  4 Input w/status (1 byte)\n"
+   "180:\tA-B  DeviceLogix Hardware Input (2 bytes)\n"
+   "181:\tA-B  Hardware Output Status (2 bytes)\n"
+   "182:\tA-B  I/O Fault Status (2 bytes)\n"
+   "184:\tA-B  DeviceLogix Network Output (2 bytes)\n"
+   "185:\tA-B  DeviceLogix Module Status (2 bytes)\n"
+   "186:\tA-B  DeviceLogix Function Block 1-16 Output (2 bytes)\n"
+   "187:\tA-B  DeviceLogix Function Block 17-32 Output (2 bytes)\n" 
+   "188:\tA-B  DeviceLogix Function Block 33-42 Output (2 bytes)",
+   0,188,                     $ Min, Max values
+   105,                       $ Default value
+   1,1,1,0,                   $ Scaling factors
+   0,0,0,0,                   $ Scaling links
+   0;                         $ Decimal Places
+
+Param15 =
+   0,                         $ reserved
+   7, "21 B4 00 24 01 30 07", $ Link Path.
+   0x400,                     $ Value is gettable and Settable. Indirect Ref Parameter
+   8, 1,                      $ Data Type - unsigned short int, Data Size - 1 byte
+   "Produced Assy Word 0",    $ Parameter Name
+   "",                        $ Units String
+                              $ Help string follows
+   "Produced assembly word 0 selects the data to be produced\n"
+   "in the first two bytes of the Customizable Produced Assembly\n"
+   "(Assembly 100).\n"
+   "Valid values are:\n"
+   "0:\tProduce no data from this and following positions\n"
+   "1:\tHardware In States\n"
+   "2:\tHardware Out States\n"
+   "3:\tI/O Fault Status\n"
+   "4:\tNetwork Inputs\n"
+   "5:\tNetwork Outputs\n"
+   "6:\tModule Status\n"
+   "7:\tFunction Blocks 1-16\n"
+   "8:\tFunction Blocks 17-32\n"
+   "9:\tFunction Blocks 33-42\n",
+   0,9,                       $ Min, Max values
+   1,                         $ Default value
+   1,1,1,0,                   $ Scaling factors
+   0,0,0,0,                   $ Scaling links
+   0;                         $ Decimal Places
+
+Param16 =
+   0,                         $ reserved
+   7, "21 B4 00 24 01 30 08", $ Link Path.
+   0x400,                     $ Value is gettable and Settable. Indirect Ref Parameter
+   8, 1,                      $ Data Type - unsigned short int, Data Size - 1 byte
+   "Produced Assy Word 1",    $ Parameter Name
+   "",                        $ Units String
+                              $ Help string follows
+   "Produced assembly word 1 selects the data to be produced\n"
+   "in the second two bytes of the Customizable Produced Assembly\n"
+   "(Assembly 100).\n"
+   "Valid values are:\n"
+   "0:\tProduce no data from this and following positions\n"
+   "1:\tHardware In States\n"
+   "2:\tHardware Out States\n"
+   "3:\tI/O Fault Status\n"
+   "4:\tNetwork Inputs\n"
+   "5:\tNetwork Outputs\n"
+   "6:\tModule Status\n"
+   "7:\tFunction Blocks 1-16\n"
+   "8:\tFunction Blocks 17-32\n"
+   "9:\tFunction Blocks 33-42\n",
+   0,9,                       $ Min, Max values
+   3,                         $ Default value
+   1,1,1,0,                   $ Scaling factors
+   0,0,0,0,                   $ Scaling links
+   0;                         $ Decimal Places
+
+Param17 =
+   0,                         $ reserved
+   7, "21 B4 00 24 01 30 09", $ Link Path.
+   0x400,                     $ Value is gettable and Settable. Indirect Ref Parameter
+   8, 1,                      $ Data Type - unsigned short int, Data Size - 1 byte
+   "Produced Assy Word 2",    $ Parameter Name
+   "",                        $ Units String
+                              $ Help string follows
+   "Produced assembly word 2 selects the data to be produced\n"
+   "in the third two bytes of the Customizable Produced Assembly\n"
+   "(Assembly 100).\n"
+   "Valid values are:\n"
+   "0:\tProduce no data from this and following positions\n"
+   "1:\tHardware In States\n"
+   "2:\tHardware Out States\n"
+   "3:\tI/O Fault Status\n"
+   "4:\tNetwork Inputs\n"
+   "5:\tNetwork Outputs\n"
+   "6:\tModule Status\n"
+   "7:\tFunction Blocks 1-16\n"
+   "8:\tFunction Blocks 17-32\n"
+   "9:\tFunction Blocks 33-42\n",
+   0,9,                       $ Min, Max values
+   5,                         $ Default value
+   1,1,1,0,                   $ Scaling factors
+   0,0,0,0,                   $ Scaling links
+   0;                         $ Decimal Places
+
+Param18 =
+   0,                         $ reserved
+   7, "21 B4 00 24 01 30 0A", $ Link Path.
+   0x400,                     $ Value is gettable and Settable. Indirect Ref Parameter
+   8, 1,                      $ Data Type - unsigned short int, Data Size - 1 byte
+   "Produced Assy Word 3",    $ Parameter Name
+   "",                        $ Units String
+                              $ Help string follows
+   "Produced assembly word 3 selects the data to be produced\n"
+   "in the fourth two bytes of the Customizable Produced Assembly\n"
+   "(Assembly 100).\n"
+   "Valid values are:\n"
+   "0:\tProduce no data from this and following positions\n"
+   "1:\tHardware In States\n"
+   "2:\tHardware Out States\n"
+   "3:\tI/O Fault Status\n"
+   "4:\tNetwork Inputs\n"
+   "5:\tNetwork Outputs\n"
+   "6:\tModule Status\n"
+   "7:\tFunction Blocks 1-16\n"
+   "8:\tFunction Blocks 17-32\n"
+   "9:\tFunction Blocks 33-42\n",
+   0,9,                       $ Min, Max values
+   6,                         $ Default value
+   1,1,1,0,                   $ Scaling factors
+   0,0,0,0,                   $ Scaling links
+   0;                         $ Decimal Places
+
+Param19 =
+   0,                         $ reserved
+   7, "21 B4 00 24 01 30 0D", $ Link Path.
+   0x0002,                    $ Value is gettable and Settable.  Enumerated strings supported.
+   1, 2,                      $ Data Type - WORD, Data Size - 2 bytes
+   "Input COS Mask",          $ Parameter Name
+   "",                        $ Units String
+   "Each selected bit will trigger data production when it's state changes.", $ Help string
+   0,15,                      $ Min, Max values
+   15,                        $ Default value
+   1,1,1,0,                   $ Scaling factors
+   0,0,0,0,                   $ Scaling links
+   0;                         $ Decimal Places
+
+Param20 =
+   0,                         $ reserved
+   7, "21 B4 00 24 01 30 28", $ Link Path.
+   0x0002,                    $ Value is gettable and Settable.  Enumerated strings supported.
+   1, 2,                      $ Data Type - WORD, Data Size - 2 bytes
+   "Module COS Mask",         $ Parameter Name
+   "",                        $ Units String
+                              $ Help string follows
+   "Each selected bit will trigger data production when it's state changes.\n"
+   "Byte 0, Bit 0 - Explicit Message Connection Exist (0=No,1=Yes)\n"
+   "Byte 0, Bit 1 - Poll Message Connection Exist (0=No,1=Yes)\n"
+   "Byte 0, Bit 2 - COS Message Connection Exist (0=No,1=Yes)\n"
+   "Byte 0, Bit 3 - Explicit Message Connection Fault (0=No,1=Yes)\n"
+   "Byte 0, Bit 4 - Poll Message Connection Fault (0=No,1=Yes)\n"
+   "Byte 0, Bit 5 - COS Message Connection Fault (0=No,1=Yes)\n"
+   "Byte 0, Bit 6 - Poll Message Connection Idle (0=No,1=Yes)\n"
+   "Byte 0, Bit 7 - COS Message Connection Idle (0=No,1=Yes)\n"
+   "Byte 1, Bit 0 - Network Fault (0=No,1=Yes)\n"
+   "Byte 1, Bit 1 - Minor Fault (0=No,1=Yes)",
+   0,1023,                    $ Min, Max values
+   0,                         $ Default value
+   1,1,1,0,                   $ Scaling factors
+   0,0,0,0,                   $ Scaling links
+   0;                         $ Decimal Places
+
+Param21 =
+   0,                         $ reserved
+   7, "21 B4 00 24 01 30 29", $ Link Path.
+   0x0002,                    $ Value is gettable and Settable.  Enumerated strings are supported.
+   1, 2,                      $ Data Type - WORD, Data Size - 2 bytes
+   "FB1-16 COS Mask",         $ Parameter Name
+   "",                        $ Units String
+                         
+   "Each selected bit will trigger data production when it's state changes.", $ Help string
+   0,65535,                   $ Min, Max values
+   0,                         $ Default value
+   1,1,1,0,                   $ Scaling factors
+   0,0,0,0,                   $ Scaling links
+   0;                         $ Decimal Places
+
+Param22 =
+   0,                         $ reserved
+   7, "21 B4 00 24 01 30 2A", $ Link Path.
+   0x0002,                    $ Value is gettable and Settable.  Enumerated strings are supported.
+   1, 2,                      $ Data Type - WORD, Data Size - 2 bytes
+   "FB17-32 COS Mask",        $ Parameter Name
+   "",                        $ Units String
+  "Each selected bit will trigger data production when it's state changes.", $ Help string
+   0,65535,                   $ Min, Max values
+   0,                         $ Default value
+   1,1,1,0,                   $ Scaling factors
+   0,0,0,0,                   $ Scaling links
+   0;                         $ Decimal Places
+
+Param23 =
+   0,                         $ reserved
+   7, "21 B4 00 24 01 30 2B", $ Link Path.
+   0x0002,                    $ Value is gettable and Settable.  Enumerated strings are supported.
+   1, 2,                      $ Data Type - WORD, Data Size - 2 bytes
+   "FB33-42 COS Mask",        $ Parameter Name
+   "",                        $ Units String
+                         
+   "Each selected bit will trigger data production when it's state changes.", $ Help string 
+   0,1023,                    $ Min, Max values
+   0,                         $ Default value
+   1,1,1,0,                   $ Scaling factors
+   0,0,0,0,                   $ Scaling links
+   0;                         $ Decimal Places
+
+Param24 =
+   0,                         $ reserved
+   7, "21 B4 00 24 01 30 13", $ Link Path.
+   0x0002,                    $ Value is gettable and Settable.  Enumerated strings are supported.
+   4, 1,                      $ Data Type - boolean, Data Size - 1 byte
+   "Set to Defaults",         $ Parameter Name
+   "",                        $ Units String
+                              $ Help string follows
+   "Sets all parameters to their default values.\n"
+   "NOTE: Logic will also be cleared.",
+   0,1,                       $ Min, Max values
+   0,                         $ Default value
+   1,1,1,0,                   $ Scaling factors
+   0,0,0,0,                   $ Scaling links
+   0;                         $ Decimal Places
+
+Param25 =
+   0,                         $ reserved
+   7, "21 03 00 24 01 30 08", $ Link Path.
+   0x0030,                    $ Read only Monitor.
+   8, 1,                      $ Data Type - unsigned short int, Data Size - 1 bytes
+   "MAC ID Switches",         $ Parameter Name
+   "",                        $ Units String
+                              $ Help string follows
+   "Reports the current setting of the MAC ID switches.\n"
+   "0-63 Hardware set MAC ID\n"
+   "64-99 Software settable MAC ID",
+   0,99,                      $ Min, Max values
+   99,                        $ Default value
+   1,1,1,0,                   $ Scaling factors
+   0,0,0,0,                   $ Scaling links
+   0;                         $ Decimal Places
+
+Param26 =
+   0,                         $ reserved
+   7, "21 1E 00 24 01 30 68", $ Link Path.
+   0x0002,                    $ Value is gettable and Settable.  Enumerated strings are supported.
+   4, 1,                      $ Data Type - Boolean, Data Size - 1 byte
+   "Network Override",        $ Parameter Name
+   "",                        $ Units String
+                              $ Help string follows
+   "Enabling this parameter allows local logic to\n"
+   "override normal output behavior in the event\n"
+   "of a Network Fault.  Network Faults include,\n"
+   "Duplicate MacId failure and Module Bus Off\n"
+   "conditions.  The default is Disabled.\n"
+   "For more details, consult the product documentation.",
+   0,1,                       $ Min, Max values
+   0,                         $ Default value
+   1,1,1,0,                   $ Scaling factors
+   0,0,0,0,                   $ Scaling links
+   0;                         $ Decimal Places
+
+Param27 = 
+   0,                         $ reserved
+   7, "21 1E 00 24 01 30 69", $ Link Path.
+   0x0002,                    $ Value is gettable and Settable.  Enumerated strings are supported.
+   4, 1,                      $ Data Type - Boolean, Data Size - 1 byte
+   "Comm Override",           $ Parameter Name
+   "",                        $ Units String
+                              $ Help string follows
+   "Enabling this parameter allows local logic to override\n"
+   "normal output behavior in the event of a Communication\n"
+   "Status change.  These events include all states where\n"
+   "the module is without an I/O connection in the run state.\n"
+   "This can happen if the I/O connection does not exist, \n"
+   "has timed out, has been deleted, or is currently idle.\n"
+   "The default is Disabled.  For more details, consult the\n"
+   "product documentation.",
+   0,1,                       $ Min, Max values
+   0,                         $ Default value
+   1,1,1,0,                   $ Scaling factors
+   0,0,0,0,                   $ Scaling links
+   0;                         $ Decimal Places
+
+
+Param28 =
+   0,                         $ reserved
+   7, "21 09 00 24 01 30 05", $ Link Path.
+   0x0002,                    $ Value is gettable and Settable.  Enumerated strings are supported.
+   4, 1,                      $ Data Type - Boolean, Data Size - 1 byte
+   "OutA Fault State",        $ Parameter Name
+   "",                        $ Units String
+                         
+   "What action to take after a loss of network communications.",  $ Help string 
+   0,1,                       $ Min, Max values
+   0,                         $ Default value
+   1,1,1,0,                   $ Scaling factors
+   0,0,0,0,                   $ Scaling links
+   0;                         $ Decimal Places
+
+Param29 = 
+   0,                         $ reserved
+   7, "21 09 00 24 01 30 06", $ Link Path.
+   0x0002,                    $ Value is gettable and Settable.  Enumerated strings are supported.
+   4, 1,                      $ Data Type - Boolean, Data Size - 1 byte
+   "OutA Fault Value",        $ Parameter Name
+   "",                        $ Units String
+    "What value (OFF/ON) to set the output to after a loss of network communications.", $ Help string
+   0,1,                       $ Min, Max values
+   0,                         $ Default value
+   1,1,1,0,                   $ Scaling factors
+   0,0,0,0,                   $ Scaling links
+   0;                         $ Decimal Places
+
+Param30 =
+   0,                         $ reserved
+   7, "21 09 00 24 01 30 07", $ Link Path.
+   0x0002,                    $ Value is gettable and Settable.  Enumerated strings are supported.
+   4, 1,                      $ Data Type - Boolean, Data Size - 1 byte
+   "OutA Idle State",         $ Parameter Name
+   "",                        $ Units String
+   "What action to take during 'idle' network communications.",  $ Help string
+   0,1,                       $ Min, Max values
+   0,                         $ Default value
+   1,1,1,0,                   $ Scaling factors
+   0,0,0,0,                   $ Scaling links
+   0;                         $ Decimal Places
+
+Param31 =
+   0,                         $ reserved
+   7, "21 09 00 24 01 30 08", $ Link Path.
+   0x0002,                    $ Value is gettable and Settable.  Enumerated strings are supported.
+   4, 1,                      $ Data Type - Boolean, Data Size - 1 byte
+   "OutA Idle Value",         $ Parameter Name
+   "",                        $ Units String
+   "What value (OFF/ON) to set the output to during 'idle' network communications.",  $ Help string
+   0,1,                       $ Min, Max values
+   0,                         $ Default value
+   1,1,1,0,                   $ Scaling factors
+   0,0,0,0,                   $ Scaling links
+   0;                         $ Decimal Places
+
+Param32 =
+   0,                         $ reserved
+   7, "21 09 00 24 02 30 05", $ Link Path.
+   0x0002,                    $ Value is gettable and Settable.  Enumerated strings are supported.
+   4, 1,                      $ Data Type - Boolean, Data Size - 1 byte
+   "OutB Fault State",        $ Parameter Name
+   "",                        $ Units String
+   "What action to take after a loss of network communications.",  $ Help string
+   0,1,                       $ Min, Max values
+   0,                         $ Default value
+   1,1,1,0,                   $ Scaling factors
+   0,0,0,0,                   $ Scaling links
+   0;                         $ Decimal Places
+
+Param33 =
+   0,                         $ reserved
+   7, "21 09 00 24 02 30 06", $ Link Path.
+   0x0002,                    $ Value is gettable and Settable.  Enumerated strings are supported.
+   4, 1,                      $ Data Type - Boolean, Data Size - 1 byte
+   "OutB Fault Value",        $ Parameter Name
+   "",                        $ Units String
+   "What value (OFF/ON) to set the output to after a loss of network communications.",  $ Help string
+   0,1,                       $ Min, Max values
+   0,                         $ Default value
+   1,1,1,0,                   $ Scaling factors
+   0,0,0,0,                   $ Scaling links
+   0;                         $ Decimal Places
+
+Param34 =
+   0,                         $ reserved
+   7, "21 09 00 24 02 30 07", $ Link Path.
+   0x0002,                    $ Value is gettable and Settable.  Enumerated strings are supported.
+   4, 1,                      $ Data Type - Boolean, Data Size - 1 byte
+   "OutB Idle State",         $ Parameter Name
+   "",                        $ Units String
+   "What action to take during 'idle' network communications.",  $ Help string
+   0,1,                       $ Min, Max values
+   0,                         $ Default value
+   1,1,1,0,                   $ Scaling factors
+   0,0,0,0,                   $ Scaling links
+   0;                         $ Decimal Places
+
+Param35 =
+   0,                         $ reserved
+   7, "21 09 00 24 02 30 08", $ Link Path.
+   0x0002,                    $ Value is gettable and Settable.  Enumerated strings are supported.
+   4, 1,                      $ Data Type - Boolean, Data Size - 1 byte
+   "OutB Idle Value",         $ Parameter Name
+   "",                        $ Units String
+   "What value (OFF/ON) to set the output to during 'idle' network communications.",  $ Help string
+   0,1,                       $ Min, Max values
+   0,                         $ Default value
+   1,1,1,0,                   $ Scaling factors
+   0,0,0,0,                   $ Scaling links
+   0;                         $ Decimal Places
+
+
+$ The following ParamN definitions are for Invisible Parameters
+$ that do not exist in the device.  They are here to provide
+$ names for Assembly members in this EDS whose corresponding
+$ on-line member names are encoded in Symbolic EPATHs.
+
+Param1000=
+  0,0,"",0x200,
+  0x04,1,
+  "Output A Fault"
+  ,"",""
+  ,0,1,0,,,,,,,,,,,,;
+
+Param1001=
+  0,0,"",0x200,
+  0x04,1,
+  "Output B Fault"
+  ,"",""
+  ,0,1,0,,,,,,,,,,,,;
+
+Param1002=
+  0,0,"",0x200,
+  0x04,1,
+  "Input Fault"
+  ,"",""
+  ,0,1,0,,,,,,,,,,,,;
+
+
+[EnumPar]
+
+Param1 = "Input 0",
+         "Input 1",
+         "Input 2",
+         "Input 3";
+
+Param2 = "Output A",
+         "Output B";
+
+Param3 = "Input Fault",
+         "Output A Fault",
+         "Output B Fault";
+
+Param4 = "Net In 0/Out A",
+         "Net In 1/Out B",
+         "Network Input 2",
+         "Network Input 3",
+         "Network Input 4",
+         "Network Input 5",
+         "Network Input 6",
+         "Network Input 7",
+         "Network Input 8",
+         "Network Input 9",
+         "Network Input 10",
+         "Network Input 11",
+         "Network Input 12",
+         "Network Input 13",
+         "Network Input 14",
+         "Network Input 15";
+
+Param5 = "Network Output 0",
+         "Network Output 1",
+         "Network Output 2",
+         "Network Output 3",
+         "Network Output 4",
+         "Network Output 5",
+         "Network Output 6",
+         "Network Output 7";
+
+Param6 = "Exp Cnxn Exists",
+         "Poll Cnxn Exists",
+         "COS Cnxn Exists",
+         "Exp Cnxn Fault",
+         "Poll Cnxn Fault",
+         "COS Cnxn Fault",
+         "Poll Cnxn Idle",
+         "COS Cnxxn Idle",
+         "Network Fault",
+         "Module Fault";
+
+Param7 = "FB 1 Output",
+         "FB 2 Output",
+         "FB 3 Output",
+         "FB 4 Output",
+         "FB 5 Output",
+         "FB 6 Output",
+         "FB 7 Output",
+         "FB 8 Output",
+         "FB 9 Output",
+         "FB 10 Output",
+         "FB 11 Output",
+         "FB 12 Output",
+         "FB 13 Output",
+         "FB 14 Output",
+         "FB 15 Output",
+         "FB 16 Output";
+
+Param8 = "FB 17 Output",
+         "FB 18 Output",
+         "FB 19 Output",
+         "FB 20 Output",
+         "FB 21 Output",
+         "FB 22 Output",
+         "FB 23 Output",
+         "FB 24 Output",
+         "FB 25 Output",
+         "FB 26 Output",
+         "FB 27 Output",
+         "FB 28 Output",
+         "FB 29 Output",
+         "FB 30 Output",
+         "FB 31 Output",
+         "FB 32 Output";
+
+Param9 = "FB 33 Output",
+         "FB 34 Output",
+         "FB 35 Output",
+         "FB 36 Output",
+         "FB 37 Output",
+         "FB 38 Output",
+         "FB 39 Output",
+         "FB 40 Output",
+         "FB 41 Output",
+         "FB 42 Output";
+
+Param10 = "Disable",
+         "Enable";
+
+Param19 = "Input 0 COS",
+         "Input 1 COS",
+         "Input 2 COS",
+         "Input 3 COS";
+
+Param20 = "Exp Exists COS",
+         "Poll Exists COS",
+         "COS Exists COS",
+         "Exp Fault COS",
+         "Poll Fault COS",
+         "COS Fault COS",
+         "Poll Idle COS",
+         "COS Idle COS",
+         "Network Flt COS",
+         "Module Flt COS";
+
+Param21 = "FB 1 Out COS",
+         "FB 2 Out COS",
+         "FB 3 Out COS",
+         "FB 4 Out COS",
+         "FB 5 Out COS",
+         "FB 6 Out COS",
+         "FB 7 Out COS",
+         "FB 8 Out COS",
+         "FB 9 Out COS",
+         "FB 10 Out COS",
+         "FB 11 Out COS",
+         "FB 12 Out COS",
+         "FB 13 Out COS",
+         "FB 14 Out COS",
+         "FB 15 Out COS",
+         "FB 16 Out COS";
+
+Param22 = "FB 17 Out COS",
+         "FB 18 Out COS",
+         "FB 19 Out COS",
+         "FB 20 Out COS",
+         "FB 21 Out COS",
+         "FB 22 Out COS",
+         "FB 23 Out COS",
+         "FB 24 Out COS",
+         "FB 25 Out COS",
+         "FB 26 Out COS",
+         "FB 27 Out COS",
+         "FB 28 Out COS",
+         "FB 29 Out COS",
+         "FB 30 Out COS",
+         "FB 31 Out COS",
+         "FB 32 Out COS";
+
+Param23 = "FB 33 Out COS",
+         "FB 34 Out COS",
+         "FB 35 Out COS",
+         "FB 36 Out COS",
+         "FB 37 Out COS",
+         "FB 38 Out COS",
+         "FB 39 Out COS",
+         "FB 40 Out COS",
+         "FB 41 Out COS",
+         "FB 42 Out COS";
+
+Param24 = "No Action",
+         "Reset";
+
+Param26 = "Off",
+         "On";
+
+Param27 = "Off",
+         "On";
+
+Param28 = "Go to Value",
+         "Hold Last State";
+
+Param29 = "OFF",
+         "ON";
+
+Param30 = "Go to Value",
+         "Hold Last State";
+
+Param31 = "OFF",
+         "ON";
+
+Param32 = "Go to Value",
+         "Hold Last State";
+
+Param33 = "OFF",
+         "ON";
+
+Param34 = "Go to Value",
+         "Hold Last State";
+
+Param35 = "OFF",
+         "ON";
+
+
+[Groups]
+  Group1 = "Monitor Params",9,1,2,3,4,5,6,7,8,9;
+  Group2 = "DNet Setup",16,10,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27;
+  Group3 = "I/O Setup", 10,11,12,28,29,30,31,32,33,34,35;
+
+
+[Assembly]
+
+Assem3 =
+  "ODVA Status",
+  "21 04 00 24 03 30 03",
+  1, 0,,,
+  4, Param1,
+  4, ;
+
+Assem32 =
+  "Command",
+  "21 04 00 24 20 30 03",
+  1, 0,,,
+  2, Param2,
+  6, ;
+
+Assem100 =
+  "Parameter Based",
+  "21 04 00 24 64 30 03",
+  , 0x20,,,
+  16, Param15,
+  16, Param16,
+  16, Param17,
+  16, Param18;
+
+Assem105 =
+  "Status",
+  "21 04 00 24 69 30 03",
+  1, 0,,,
+  4, Param1,
+  1, Param1000,
+  1, Param1001,
+  1, ,
+  1, Param1002;
+
+Assem180 =
+  "Hdw Inputs",
+  "21 04 00 24 B4 30 03",
+  2, 0,,,
+  4, Param1,
+  12, ;
+
+Assem181 = 
+  "Hdw Outputs",
+  "21 04 00 24 B5 30 03",
+  2, 0,,,
+  2, Param2,
+  14, ;
+
+Assem182 =
+  "IO Flt Status",
+  "21 04 00 24 B6 30 03",
+  2, 0,,,
+  3, Param3,
+  13, ;
+
+Assem183 =
+  "DeviceLogix Cmd",
+  "21 04 00 24 B7 30 03",
+  2, 0,,,
+  16, Param4;
+
+Assem184 =
+  "Network Outputs",
+  "21 04 00 24 B8 30 03",
+  2, 0,,,
+  8, Param5,
+  8, ;
+
+Assem185 =
+  "Module Status",
+  "21 04 00 24 B9 30 03",
+  2, 0,,,
+  10, Param6,
+  6, ;
+
+Assem186 =
+  "FB Outs 1-16",
+  "21 04 00 24 BA 30 03",
+  2, 0,,,
+  16, Param7;
+
+Assem187 =
+  "FB Outs 17-32",
+  "21 04 00 24 BB 30 03",
+  2, 0,,,
+  16, Param8;
+
+Assem188 =
+  "FB Outs 33-42",
+  "21 04 00 24 BC 30 03",
+  2, 0,,,
+  10, Param9,
+  6, ;
+
+
+VariantExa1 =
+    ,,,,,
+    Param14,
+    0x3, Assem3,
+    0x64, Assem100,
+    0x69, Assem105,
+    0xb4, Assem180,
+    0xb5, Assem181,
+    0xb6, Assem182,
+    0xb8, Assem184,
+    0xb9, Assem185,
+    0xba, Assem186,
+    0xbb, Assem187,
+    0xbc, Assem188;
+
+VariantExa2 =
+    ,,,,,
+    Param13,
+    0x20, Assem32,
+    0xb7, Assem183;
+
+
+[1_LEOSUPPORT]
+
+1_FBLOCK_CLASSES_IMPLEMENTED = 775, 776, 777, 778;	$ 4 classes are supported
+1_NUM_OF_FBLOCKS = 42;					$ 16 blocks are supported
+1_DATA_TABLE_SIZE = 22;	                $ Size in bytes of Data Table
+1_LICENSE_KEY = 0xDC9A5B0E;
+
+[1_BOOLEAN]
+1_MAX_GATE_INPUTS = 4;
+1_VALID_TYPES = 0, 5, 6, 7, 8, 9, 10, 11;
+1_CLASS_ATTR_SUPPORT = 1, 8;
+1_INST_ATTR_SUPPORT = 1, 2, 3;
+
+[1_COUNTER]
+1_VALID_TYPES = 0, 1, 3;
+1_CLASS_ATTR_SUPPORT = 1, 8;
+1_INST_ATTR_SUPPORT = 1, 2, 3, 5, 6, 7, 9;
+
+[1_BISTABLE]
+1_VALID_TYPES = 0, 1, 2;
+1_CLASS_ATTR_SUPPORT = 1, 8;
+1_INST_ATTR_SUPPORT = 1, 2, 3, 4;
+
+[1_TIMER]
+1_VALID_TYPES = 0, 1, 2, 3;
+1_CLASS_ATTR_SUPPORT = 1, 8;
+1_INST_ATTR_SUPPORT = 1, 2, 4, 5, 6, 7, 8;
+
+
+[1_BINDING_PATHS]
+1_DISCRETE_INPUT_POINT =
+	1, "Input 0", "60 C6 40", 8, 0,
+	2, "Input 1", "60 C6 41", 8, 1,
+	3, "Input 2", "60 C6 42", 8, 2,
+	4, "Input 3", "60 C6 43", 8, 3;
+	
+1_DISCRETE_OUTPUT_POINT =
+	1, "Output A", "60 C6 60", 12, 0,
+	2, "Output B", "60 C6 61", 12, 1;
+
+1_HARDWARE_INPUT_FAULT =
+	"60 C6 50", 10, 0, 0, , , "Input Fault",
+         4, $ DIP Relations Count
+         1, 2, 3, 4; $ DIP Relations
+	
+1_HARDWARE_OUTPUT_FAULT =
+	"60 C6 70", 14, 0, 0, , , "Output A Fault",
+         1, $ DOP Relations Count
+         1, $ DOP Relations
+	"60 C6 71", 14, 1, 0, , , "Output B Fault",
+         1, $ DOP Relations Count
+         2; $ DOP Relations
+	
+1_FUNCTION_BLOCK_OUTPUT =
+	1, "60 C6 80", 16, 0,	2, "60 C6 81", 16, 1,	3, "60 C6 82", 16, 2,
+	4, "60 C6 83", 16, 3,	5, "60 C6 84", 16, 4,	6, "60 C6 85", 16, 5,
+	7, "60 C6 86", 16, 6,	8, "60 C6 87", 16, 7,
+	9, "60 C6 88", 17, 0,	10, "60 C6 89", 17, 1,	11, "60 C6 8A", 17, 2,
+	12, "60 C6 8B", 17, 3,	13, "60 C6 8C", 17, 4,	14, "60 C6 8D", 17, 5,
+	15, "60 C6 8E", 17, 6,	16, "60 C6 8F", 17, 7,
+	17, "60 C6 90", 18, 0,	18, "60 C6 91", 18, 1,	19, "60 C6 92", 18, 2,
+	20, "60 C6 93", 18, 3,	21, "60 C6 94", 18, 4,	22, "60 C6 95", 18, 5,
+	23, "60 C6 96", 18, 6,	24, "60 C6 97", 18, 7,
+	25, "60 C6 98", 19, 0,	26, "60 C6 99", 19, 1,	27, "60 C6 9A", 19, 2,
+	28, "60 C6 9B", 19, 3,	29, "60 C6 9C", 19, 4,	30, "60 C6 9D", 19, 5,
+	31, "60 C6 9E", 19, 6,	32, "60 C6 9F", 19, 7,
+	33, "60 C6 A0", 20, 0,	34, "60 C6 A1", 20, 1,	35, "60 C6 A2", 20, 2,
+	36, "60 C6 A3", 20, 3,	37, "60 C6 A4", 20, 4,	38, "60 C6 A5", 20, 5,
+	39, "60 C6 A6", 20, 6,	40, "60 C6 A7", 20, 7,
+	41, "60 C6 A8", 21, 0,	42, "60 C6 A9", 21, 1;
+	
+1_CONSUMED_NETWORK_BIT =
+	1, "Network Input 0", "60 C6 00", 0, 0,	2, "Network Input 1", "60 C6 01", 0, 1,
+	3, "Network Input 2", "60 C6 02", 0, 2,	4, "Network Input 3", "60 C6 03", 0, 3,
+	5, "Network Input 4", "60 C6 04", 0, 4,	6, "Network Input 5", "60 C6 05", 0, 5,
+	7, "Network Input 6", "60 C6 06", 0, 6,	8, "Network Input 7", "60 C6 07", 0, 7,
+	9, "Network Input 8", "60 C6 08", 1, 0,	10, "Network Input 9", "60 C6 09", 1, 1,
+	11, "Network Input 10", "60 C6 0A", 1, 2, 12, "Network Input 11", "60 C6 0B", 1, 3,
+	13, "Network Input 12", "60 C6 0C", 1, 4, 14, "Network Input 13", "60 C6 0D", 1, 5,
+	15, "Network Input 14", "60 C6 0E", 1, 6, 16, "Network Input 15", "60 C6 0F", 1, 7;
+
+1_PRODUCED_NETWORK_BIT =
+	1, "Network Output 0", "60 C6 30", 6, 0,	2, "Network Output 1", "60 C6 34", 6, 1,
+	3, "Network Output 2", "60 C6 31", 6, 2,	4, "Network Output 3", "60 C6 35", 6, 3,
+	5, "Network Output 4", "60 C6 32", 6, 4,	6, "Network Output 5", "60 C6 36", 6, 5,
+	7, "Network Output 6", "60 C6 33", 6, 6,	8, "Network Output 7", "60 C6 37", 6, 7;
+
+1_MISCELLANEOUS_BITS = 
+	"Explicit Msg Cnxn Exists", "60 C6 20", 4, 0,
+	"Polled Cnxn Exists", "60 C6 21", 4, 1,
+	"COS/Cyclic Cnxn Exists", "60 C6 22", 4, 2,
+	"Explicit Msg Cnxn Deferred Delete", "60 C6 23", 4, 3,
+	"Polled Cnxn Fault", "60 C6 24", 4, 4,
+	"COS/Cyclic Cnxn Fault", "60 C6 25", 4, 5,
+	"Poll Cnxn Idle", "60 C6 26", 4, 6,
+	"Network Fault", "60 C6 28", 5, 0,
+	"Minor Module Fault", "60 C6 29", 5, 1;
+
+
+

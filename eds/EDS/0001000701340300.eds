@@ -1,0 +1,1456 @@
+$ Electronic Data Sheet for Point I/O  (1738-IB4DM12/A)
+$ Copyright 2006 by Rockwell Automation
+$ Universal version for: DeviceNet, ControlNet, and EthernetIP
+
+$ Revision History
+$ Revision	Date		Change
+$	1.0	25Aug2006	Initial release
+$	1.1	22Jan2007	Fixed Assem126 and ProxiedAssem4
+
+[File]
+	DescText    = "ArmorPoint 1738-IB4DM12/A";
+	CreateDate  = 08-25-2006;
+	CreateTime  = 15:00:00;
+	ModDate     = 01-22-2007;
+	ModTime     = 15:01:00;
+	Revision    = 1.1;
+	HomeURL    = "http://www.ab.com/networks/eds/DN/0001000701340300.eds";
+
+[Device]
+	VendCode    = 1;                                  $ Vendor Code
+	ProdType    = 7;                                  $ Product Type
+	ProdCode    = 308;                                $ Product Code
+
+	MajRev      = 3;                                  $ Major Rev
+	MinRev      = 10;                                 $ Minor Rev
+	VendName    = "Rockwell Automation/Allen-Bradley";
+	ProdTypeStr = "General Purpose Discrete I/O";
+	ProdName    = "ArmorPoint 4pt 24Vdc Sink Input with Diagnostics";
+	Catalog     = "1738-IB4DM12/A";
+	Icon        = "1738-4M12BLUE.ico";
+	1_RSNetWorx_DNetTool = "RSI.DeviceNet.EDSApplet";
+	1_RSNetWorx_NoAutoEnter = "Yes";
+
+[Device Classification]
+     Class1 =      DeviceNet;
+
+[IO_Info]
+	1_COSetSizeNotSupported = 1;                      $ Cnxn Obj does not support direct connection size setting
+
+	Default =     0X0004;                             $ COS is default
+
+	PollInfo =    0X000F,                             $ Compatable with all
+                    1,                                  $ input 1
+                    0;                                  $ no consumed connection
+
+      StrobeInfo =  0X000F,                             $ Compatable with all
+                    1,                                  $ input 1
+                    0;                                  $ no consumed connection
+
+      COSInfo =     0X0007,                             $ Compatable with all but cyclic
+                    1,                                  $ input 1
+                    0;                                  $ no consumed connection
+
+      CyclicInfo =  0X000B,                             $ Compatable with all but COS
+                    1,                                  $ input 1
+                    0;                                  $ no consumed connection
+
+	Input1 =      2,                                  $ size = 2 byte
+                    0,                                  $ 16 significant bits
+                    0X000F,                             $ compatible with all conections
+                    "Data - with Extended Status",      $ name string
+                    6,                                  $ path length
+                    "20 04 24 65 30 03",                $ assy obj, inst 101, attr 3
+                    "Producing connection contains state of the four inputs (bits 0-3) and S.C. or O.W. faults (bits 4-7) in byte 1.  Byte 2 contains O.W.(bits 0-3) and S.C.(bits 4-7)";
+
+	Input2 =      1,                                  $ size = 8 byte
+                    0,                                  $ 8 significant bits
+                    0X000F,                             $ compatible with all conections
+                    "Data - with Status",               $ name string
+                    6,                                  $ path length
+                    "20 04 24 17 30 03",                $ assy obj, inst 101, attr 3
+                    "Producing connection contains state of the four inputs (bits 0-3) and S.C. or O.W. faults (bits 4-7)";
+
+	InputExa1 =
+			  ,               			  $ Size from AssemN
+			  ,               			  $ Bits determined by AssemN member list
+			  0x000F,         			  $ Poll, COS, Cyclic
+			  ,               			  $ Name String from AssemN
+			  ,               		        $ Path Size not applicable
+			  VariantExa1,    			  $ Variant for choosing Input Assem
+			  ;               			  $ Help string not applicable
+		 
+
+[ParamClass]
+	MaxInst     = 102;
+	Descriptor  = 0x09;                               $ Bit 0: 1= parameter instances exist
+                                                        $ Bit 1: 0= not full
+                                                        $ Bit 2: 0= NVS command not needed
+                                                        $ Bit 3: 1= Automaticly stored in EERPOM
+	CfgAssembly = 0x67;                               $ the custom config assembly is 103d
+
+[Assembly]
+
+	VariantExa1 = "Produced IO Assembly Instance"
+    		,,,,,
+    		Param28,
+    		0x00, Assem101,
+    		0x01, Assem23;
+
+ 	Assem23 =   "Data - with Status",
+            "",                                 $ Path is implied (Assy obj attr3)
+            1,                                  $ total length in bytes
+            0,,,                                $ no changes, ",,"= reserved
+            4, Param18,                         $ # bits, Group Value of inputs
+            4, Param38;                         $ # bits, Group Value of fault status
+
+ 	Assem101 =  "Data - with Extended Status",
+            "",                                 $ Path is implied (Assy obj attr3)
+            2,                                  $ total length in bytes
+            0,,,                                $ no changes, ",,"= reserved
+            4, Param18,                         $ # bits, Group Value of inputs
+            4, Param38,                         $ # bits, Group Value of fault status
+            4, Param23,                         $ # bits, Group Value of input status
+            4, Param39;                         $ # bits, Group Value of input status
+
+	Assem103 =  "Configuration Assembly",
+      	"",                                 $ Path is implied (Assy obj attr3)
+            18,                                 $ total length in bytes
+            0,,,                                $ changes, ",,"= reserved
+            16, Param5,                         $ # bits, Off2On Filter 0
+            16, Param6,                         $ # bits, On2Off Filter 0
+            16, Param7,                         $ # bits, Off2On Filter 1
+        	16, Param8,                         $ # bits, On2Off Filter 1
+        	16, Param9,                         $ # bits, Off2On Filter 2
+            16, Param10,                        $ # bits, On2Off Filter 2
+            16, Param11,                        $ # bits, Off2On Filter 3
+            16, Param12,                        $ # bits, On2Off Filter 3
+            1,  Param24,                        $ # bits, Open Wire Active 0
+            1,  Param25,                        $ # bits, Open Wire Active 0
+            1,  Param26,                        $ # bits, Open Wire Active 0
+            1,  Param27,                        $ # bits, Open Wire Active 0
+            3,,						$ Pad bits
+		1,Param13,				  	$ AutoBaud Disable                                 
+		8, Param28;				  	$ Produced Assembly
+	
+	Assem124 =                  $ Private config in Forward Open, Module
+        	"3rd Party Private Assembly",
+        	,                       $ Path
+        	,                       $ Length in bytes
+        	,                       $ descriptor
+        	,,                      $ reserved
+        	16,Param101,            $ configuration revision (only valid value is 1)
+        	16,;                    $ reserved - zeros
+
+$    	Assem125 =                  $ Private config in Forward Open, Module
+$        	"Adapter Config Assembly",
+$        	,                       $ Path
+$        	,                       $ Length in bytes
+$        	,                       $ descriptor
+$        	,,                      $ reserved
+$        	16,Param102,            $ Non-Logix Header (constant 0x7001)
+$        	16,1_RackSize,          $ number of slots
+$        	16,Param101,            $ configuration revision (only valid value is 1)
+$        	16, ;                   $ reserved - zeros
+
+    	Assem126 =                  $ O2T (output data)
+        	"Ouput Data Assembly",
+        	,                       $ Path
+        	,                       $ Length in bytes
+        	,                       $ descriptor
+        	,                       $ reserved
+        	;                       $ No Assembly sent to module
+
+    	Assem127 =                  $ T2O (input data)
+        	"Input Data Assembly",
+        	,                       $ Path
+        	,                       $ Length in bytes
+        	,                       $ descriptor
+        	,,                      $ reserved
+        	32,,                    $ Fault bits
+        	,Assem101;               $ Assembly passed from module
+
+
+    	Assem128 =                  $ T2O (input data)
+        	"Input Data Assembly",
+        	,                       $ Path
+        	,                       $ Length in bytes
+        	,                       $ descriptor
+        	,,                      $ reserved
+        	32,,                    $ Fault bits
+        	,Assem23;               $ Assembly passed from module
+
+
+
+
+
+	$ These proxied assemblies are used for non-Logix rack connections which are not currently implemented.
+
+      ProxiedAssem1 =
+     		"DC Input Rack Configuration Assembly",
+            "01 SLOT 20 04 24 78 30 03",        $ Path to Assy Obj (4) inst 120d attr 3
+            ,                                   $ total length in bytes
+            0x0000,                             $ descriptor
+            ,,                                  $ ",,"= reserved
+            16, Param17;                        $ # bits, Value for all input filters
+
+      ProxiedAssem3 = 
+            "Real Time Input Format",
+            ,                                   $ No Path
+            ,                                   $ Length
+            0x0000,                             $ Descriptor
+            ,,                                  $ ",,"= reserved
+            16,Assem101;
+
+      ProxiedAssem4 = 
+            "Real Time Output Format",
+            ,                                   $ No Path
+            ,                                   $ Length
+            0x0000,                             $ Descriptor
+            ,                                   $ ",,"= reserved
+            ;                                   $ Nothing
+
+[Params]
+$ Input Values
+      Param1 =      $ Value for Input #0
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 08 24 01 30 03",                $ Link Path to DIP object's value attribute.
+                    0x0032,                             $ No support for: settable path, scaling, scaling links.
+                                                        $ Real time update of value.  Value is gettable only.
+                    0xC1,                               $ Data Type - boolean
+                    1,                                  $ Data Size
+                    "Input Value #0",                   $ Parameter Name
+                    "",                                 $ Units String
+                    "Value of input point.  ON or OFF.",
+                    0,1,0,                              $ Min, Max (max enumeration #), and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+	Enum1 =       0,"OFF", 1,"ON";
+
+      Param2 =      $ Value for Input #1
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 08 24 02 30 03",                $ Link Path to DOP object's value attribute.
+                    0x0032,                             $ No support for: settable path, scaling, scaling links.
+                                                        $ Real time update of value.  Value is gettable only.
+                    0xC1,                               $ Data Type - boolean
+                    1,                                  $ Data Size
+                    "Input Value #1",                   $ Parameter Name
+                    "",                                 $ Units String
+                    "Value of input point.  ON or OFF.",
+                    0,1,0,                              $ Min, Max (max enumeration #), and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+	Enum2 =       0,"OFF", 1,"ON";
+
+      Param3 =      $ Value for Input #2
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 08 24 03 30 03",                $ Link Path to DIP object's value attribute.
+                    0x0032,                             $ No support for: settable path, scaling, scaling links.
+                                                        $ Real time update of value.  Value is gettable only.
+                    0xC1,                               $ Data Type - boolean
+                    1,                                  $ Data Size
+                    "Input Value #2",                   $ Parameter Name
+                    "",                                 $ Units String
+                    "Value of input point.  ON or OFF.",
+                    0,1,0,                              $ Min, Max (max enumeration #), and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+	Enum3 =       0,"OFF", 1,"ON";
+
+      Param4 =      $ Value for Input #3
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 08 24 04 30 03",                $ Link Path to DOP object's value attribute.
+                    0x0032,                             $ No support for: settable path, scaling, scaling links.
+                                                        $ Real time update of value.  Value is gettable only.
+                    0xC1,                               $ Data Type - boolean
+                    1,                                  $ Data Size
+                    "Input Value #3",                   $ Parameter Name
+                    "",                                 $ Units String
+                    "Value of input point.  ON or OFF.",
+                    0,1,0,                              $ Min, Max (max enumeration #), and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+	Enum4 =       0,"OFF", 1,"ON";
+
+$ Filter Values
+      Param5 =      $ Off2On Filter 0
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 08 24 01 30 05",                $ Link Path to DOP object's fault action attribute.
+                    0x0000,                             $ No support for: settable path, scaling, scaling links, or
+                                                        $ real time update of value.  Value is gettable and 
+                                                        $ Settable.  Enumerated strings are NOT supported.
+                    0xC7,                               $ Data Type - unsigned int
+                    2,                                  $ Data Size - bytes
+                    "Off-to-On Filter 0",               $ Parameter Name
+                    "us",                               $ Units String
+                    "OFF to ON transition filter constant.\nA high signal must be present for this amount of time\nbefore the module will report an ON.\nValue entered in microseconds (us).\nDefault is 1 ms (1000 us).",
+                    0,65535,1000,                       $ Min, Max, and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Param6 =      $ On2Off Filter 0
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 08 24 01 30 06",                $ Link Path to DOP object's fault action attribute.
+                    0x0000,                             $ No support for: settable path, scaling, scaling links, or
+                                                        $ real time update of value.  Value is gettable and 
+                                                        $ Settable.  Enumerated strings are NOT supported.
+                    0xC7,                               $ Data Type - unsigned int
+                    2,                                  $ Data Size - bytes
+                    "On-to-Off Filter 0",               $ Parameter Name
+                    "us",                               $ Units String
+                    "ON to OFF transition filter constant.\nA low signal must be present for this amount of time\nbefore the module will report an OFF.\nValue entered in microseconds (us).\nDefault is 1 ms (1000 us).",
+                    0,65535,1000,                       $ Min, Max, and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Param7 =      $ Off2On Filter 1
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 08 24 02 30 05",                $ Link Path to DOP object's fault action attribute.
+                    0x0000,                             $ No support for: settable path, scaling, scaling links, or
+                                                        $ real time update of value.  Value is gettable and 
+                                                        $ Settable.  Enumerated strings are NOT supported.
+                    0xC7,                               $ Data Type - unsigned int
+                    2,                                  $ Data Size - bytes
+                    "Off-to-On Filter 1",               $ Parameter Name
+                    "us",                               $ Units String
+                    "OFF to ON transition filter constant.\nA high signal must be present for this amount of time\nbefore the module will report an ON.\nValue entered in microseconds (us).\nDefault is 1 ms (1000 us).",
+                    0,65535,1000,                       $ Min, Max, and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Param8 =      $ On2Off Filter 1
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 08 24 02 30 06",                $ Link Path to DOP object's fault action attribute.
+                    0x0000,                             $ No support for: settable path, scaling, scaling links, or
+                                                        $ real time update of value.  Value is gettable and 
+                                                        $ Settable.  Enumerated strings are NOT supported.
+                    0xC7,                               $ Data Type - unsigned int
+                    2,                                  $ Data Size - bytes
+                    "On-to-Off Filter 1",               $ Parameter Name
+                    "us",                               $ Units String
+                    "ON to OFF transition filter constant.\nA low signal must be present for this amount of time\nbefore the module will report an OFF.\nValue entered in microseconds (us).\nDefault is 1 ms (1000 us).",
+                    0,65535,1000,                       $ Min, Max, and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Param9 =      $ Off2On Filter 2
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 08 24 03 30 05",                $ Link Path to DOP object's fault action attribute.
+                    0x0000,                             $ No support for: settable path, scaling, scaling links, or
+                                                        $ real time update of value.  Value is gettable and 
+                                                        $ Settable.  Enumerated strings are NOT supported.
+                    0xC7,                               $ Data Type - unsigned int
+                    2,                                  $ Data Size - bytes
+                    "Off-to-On Filter 2",               $ Parameter Name
+                    "us",                               $ Units String
+                    "OFF to ON transition filter constant.\nA high signal must be present for this amount of time\nbefore the module will report an ON.\nValue entered in microseconds (us).\nDefault is 1 ms (1000 us).",
+                    0,65535,1000,                       $ Min, Max, and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Param10 =     $ On2Off Filter 2
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 08 24 03 30 06",                $ Link Path to DOP object's fault action attribute.
+                    0x0000,                             $ No support for: settable path, scaling, scaling links, or
+                                                        $ real time update of value.  Value is gettable and 
+                                                        $ Settable.  Enumerated strings are NOT supported.
+                    0xC7,                               $ Data Type - unsigned int
+                    2,                                  $ Data Size - bytes
+                    "On-to-Off Filter 2",               $ Parameter Name
+                    "us",                               $ Units String
+                    "ON to OFF transition filter constant.\nA low signal must be present for this amount of time\nbefore the module will report an OFF.\nValue entered in microseconds (us).\nDefault is 1 ms (1000 us).",
+                    0,65535,1000,                       $ Min, Max, and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Param11 =     $ Off2On Filter 3
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 08 24 04 30 05",                $ Link Path to DOP object's fault action attribute.
+                    0x0000,                             $ No support for: settable path, scaling, scaling links, or
+                                                        $ real time update of value.  Value is gettable and 
+                                                        $ Settable.  Enumerated strings are NOT supported.
+                    0xC7,                               $ Data Type - unsigned int
+                    2,                                  $ Data Size - bytes
+                    "Off-to-On Filter 3",               $ Parameter Name
+                    "us",                               $ Units String
+                    "OFF to ON transition filter constant.\nA high signal must be present for this amount of time\nbefore the module will report an ON.\nValue entered in microseconds (us).\nDefault is 1 ms (1000 us).",
+                    0,65535,1000,                       $ Min, Max, and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Param12 =     $ On2Off Filter 3
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 08 24 04 30 06",                $ Link Path to DOP object's fault action attribute.
+                    0x0000,                             $ No support for: settable path, scaling, scaling links, or
+                                                        $ real time update of value.  Value is gettable and 
+                                                        $ Settable.  Enumerated strings are NOT supported.
+                    0xC7,                               $ Data Type - unsigned int
+                    2,                                  $ Data Size - bytes
+                    "On-to-Off Filter 3",               $ Parameter Name
+                    "us",                               $ Units String
+                    "ON to OFF transition filter constant.\nA low signal must be present for this amount of time\nbefore the module will report an OFF.\nValue entered in microseconds (us).\nDefault is 1 ms (1000 us).",
+                    0,65535,1000,                       $ Min, Max, and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+$ Autobaud
+      Param13 =     $ Disable Autobaud
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 03 24 01 30 64",                $ Link Path to disable autobaud attribute.
+                    0x0002,                             $ No support for: settable path, scaling, scaling links, or
+                                                        $ real time update of value.  Value is gettable and not 
+                                                        $ Settable.  Enumerated strings are supported.
+                    0xC1,                               $ Data Type - boolean
+                    1,                                  $ Data Size
+                    "Autobaud",                         $ Parameter Name
+                    "",                                 $ Units String
+                    "Autobaud allows module to match the baud rate of existing devices on a network.\n\nChanges to this attribute take effect after next powerup.\nIf 'enabled', the Baud Rate Attribute can not be set.",
+                    0,1,0,                              $ Min, Max, and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Enum13 =      0,"Enable", 1,"Disable";
+
+
+      Param17 =     $ Special Hidden Module Filter
+                    0,                                  $ reserved
+                    0,                                  $ Link Path Size
+                    ,                                   $ No path - internal parameter
+                    0x0200,                             $ 
+                    0xC7,                               $ Data Type - unsigned int
+                    2,                                  $ Data Size - bytes
+                    "Module Filter",                    $ Parameter Name
+                    "us",                               $ Units String
+                    "Filter value applied to all channel.\nIncludes OFF to ON and ON to OFF transition filter constants.\nA signal change (ON or OFF) must be present for this amount of time\nbefore the module will report the other state.\nThe value is applied to all filters in the module.\nValue entered in microseconds (us).\nDefault is 1 ms (1000 us).",
+                    0,65535,1000,                       $ Min, Max, and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Param18 =     $ Special Hidden IO Data
+                    0,                                  $ reserved
+                    0,                                  $ Link Path Size
+                    ,                                   $ No path - internal parameter
+                    0x0200,                             $ 
+                    0xD1,                               $ Data Type - 8 bit string
+                    1,                                  $ Data Size - bytes
+                    "Data",                             $ Parameter Name
+                    "",                                 $ Units String
+                    "Displays the current state of each of the inputs./nBit 0-3 = Channel 0-3.  0 = OFF; 1 = ON",
+                    0,15,0,                             $ Min, Max, and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+$Diagsnostics	
+      Param19 =     $ Open Wire status for Input #0
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 08 24 01 30 67",                $ Link Path to DIP object's value attribute.
+                    0x0032,                             $ No support for: settable path, scaling, scaling links.
+                                                        $ Real time update of value.  Value is gettable only.
+                    0xC1,                               $ Data Type - boolean
+                    1,                                  $ Data Size
+                    "Open Wire #0",                     $ Parameter Name
+                    "",                                 $ Units String
+                    "Open wire status of input point.  Fault or OK.",
+                    0,1,0,                              $ Min, Max (max enumeration #), and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+	Enum19 =      0,"OK", 1,"Fault";
+
+      Param20 =     $ Open Wire status for Input #1
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 08 24 02 30 67",                $ Link Path to DIP object's value attribute.
+                    0x0032,                             $ No support for: settable path, scaling, scaling links.
+                                                        $ Real time update of value.  Value is gettable only.
+                    0xC1,                               $ Data Type - boolean
+                    1,                                  $ Data Size
+                    "Open Wire #1",                     $ Parameter Name
+                    "",                                 $ Units String
+                    "Open wire status of input point.  Fault or OK.",
+                    0,1,0,                              $ Min, Max (max enumeration #), and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+	Enum20 =      0,"OK", 1,"Fault";
+
+      Param21 =     $ Open Wire status for Input #2
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 08 24 03 30 67",                $ Link Path to DIP object's value attribute.
+                    0x0032,                             $ No support for: settable path, scaling, scaling links.
+                                                        $ Real time update of value.  Value is gettable only.
+                    0xC1,                               $ Data Type - boolean
+                    1,                                  $ Data Size
+                    "Open Wire #2",                     $ Parameter Name
+                    "",                                 $ Units String
+                    "Open wire status of input point.  Fault or OK.",
+                    0,1,0,                              $ Min, Max (max enumeration #), and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+	Enum21 =      0,"OK", 1,"Fault";
+
+      Param22 =     $ Open Wire status for Input #3
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 08 24 04 30 67",                $ Link Path to DIP object's value attribute.
+                    0x0032,                             $ No support for: settable path, scaling, scaling links.
+                                                        $ Real time update of value.  Value is gettable only.
+                    0xC1,                               $ Data Type - boolean
+                    1,                                  $ Data Size
+                    "Open Wire #3",                     $ Parameter Name
+                    "",                                 $ Units String
+                    "Open wire status of input point.  Fault or OK.",
+                    0,1,0,                              $ Min, Max (max enumeration #), and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+	Enum22 =      0,"OK", 1,"Fault";
+      
+	Param23 =     $ Special Hidden IO Open Wire Data
+                    0,                                  $ reserved
+                    0,                                  $ Link Path Size
+                    ,                                   $ No path - internal parameter
+                    0x0200,                             $ 
+                    0xD1,                              $ Data Type - 8 bit string
+                    1,                                  $ Data Size - bytes
+                    "OpenWire",                         $ Parameter Name
+                    "",                                 $ Units String
+                    "Displays the current status of each of the inputs./nBit 0-3 = Channel 0-3.  0 = OFF; 1 = OPEN WIRE.",
+                    0,15,0,                             $ Min, Max, and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Param24 =     $ Open Wire Active 0
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 08 24 01 30 66",                $ Link Path to DIP object's value attribute.
+                    0x0022,                             $ No support for: settable path, scaling, scaling links.
+                                                        $ Real time update of value.  Value is gettable only.
+                    0xC1,                               $ Data Type - boolean
+                    1,                                  $ Data Size
+                    "Open Wire Active 0",               $ Parameter Name
+                    "",                                 $ Units String
+                    "Open Wire Active 0.",
+                    0,1,1,                              $ Min, Max (max enumeration #), and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+	Enum24 =      0,"Off", 1,"On";
+
+
+      Param25 =     $ Open Wire Active 1
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 08 24 02 30 66",                $ Link Path to DIP object's value attribute.
+                    0x0022,                             $ No support for: settable path, scaling, scaling links.
+                                                        $ Real time update of value.  Value is gettable only.
+                    0xC1,                               $ Data Type - boolean
+                    1,                                  $ Data Size
+                    "Open Wire Active 1",               $ Parameter Name
+                    "",                                 $ Units String
+                    "Open Wire Active 1.",
+                    0,1,1,                              $ Min, Max (max enumeration #), and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+	Enum25 =      0,"Off", 1,"On";
+
+
+      Param26 =     $ Open Wire Active 2
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 08 24 03 30 66",                $ Link Path to DIP object's value attribute.
+                    0x0022,                             $ No support for: settable path, scaling, scaling links.
+                                                        $ Real time update of value.  Value is gettable only.
+                    0xC1,                               $ Data Type - boolean
+                    1,                                  $ Data Size
+                    "Open Wire Active 2",               $ Parameter Name
+                    "",                                 $ Units String
+                    "Open Wire Active 2.",
+                    0,1,1,                              $ Min, Max (max enumeration #), and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+	Enum26 =      0,"Off", 1,"On";
+
+
+      Param27 =     $ Open Wire Active 3
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 08 24 04 30 66",                $ Link Path to DIP object's value attribute.
+                    0x0022,                             $ No support for: settable path, scaling, scaling links.
+                                                        $ Real time update of value.  Value is gettable only.
+                    0xC1,                               $ Data Type - boolean
+                    1,                                  $ Data Size
+                    "Open Wire Active 3",               $ Parameter Name
+                    "",                                 $ Units String
+                    "Open Wire Active 3.",
+                    0,1,1,                              $ Min, Max (max enumeration #), and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+	Enum27 =      0,"Off", 1,"On";
+
+
+      Param28 =     $ Produced I/O Assembly
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 0F 24 01 30 01",                			  $ Link Path to DIP object's value attribute.
+                    0x0022,                             $ No support for: settable path, scaling, scaling links.
+                                                        $ Real time update of value.  Value is gettable only.
+                    0xC6,                               $ Data Type - unsigned short int
+                    1,                                  $ Data Size
+                    "Produced I/O Assembly",            $ Parameter Name
+                    "",                                 $ Units String
+                    "Choose the I/O assembly that you would like this module to produce.  The assemblies are defined in the module's installation instructions. Note!  You must change the scanner's consumed (Rx) data size for this module to match the assembly that you have chosen.  This can be done by selecting 'Edit I/O parameters' from the scanner's scanlist tab.",
+                    0,1,0,                              $ Min, Max (max enumeration #), and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+	Enum28 =      0,"Default Assembly (2 Bytes)", 1,"Input/Fault data ONLY (1 Byte)";
+
+
+      Param29 =     $ Short Circuit status for Input #0
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 08 24 01 30 76",                $ Link Path to DIP object's value attribute.
+                    0x0032,                             $ No support for: settable path, scaling, scaling links.
+                                                        $ Real time update of value.  Value is gettable only.
+                    0xC1,                               $ Data Type - boolean
+                    1,                                  $ Data Size
+                    "Short Circuit #0",                     $ Parameter Name
+                    "",                                 $ Units String
+                    "Short circuit status of input point.  Fault or OK.",
+                    0,1,0,                              $ Min, Max (max enumeration #), and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+	Enum29 =      0,"OK", 1,"Fault";
+
+      Param30 =     $ Short Circuit status for Input #1
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 08 24 02 30 76",                $ Link Path to DIP object's value attribute.
+                    0x0032,                             $ No support for: settable path, scaling, scaling links.
+                                                        $ Real time update of value.  Value is gettable only.
+                    0xC1,                               $ Data Type - boolean
+                    1,                                  $ Data Size
+                    "Short Circuit #1",                 $ Parameter Name
+                    "",                                 $ Units String
+                    "Short circuit status of input point.  Fault or OK.",
+                    0,1,0,                              $ Min, Max (max enumeration #), and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+	Enum30 =      0,"OK", 1,"Fault";
+
+      Param31 =     $ Short Circuit status for Input #2
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 08 24 03 30 76",                $ Link Path to DIP object's value attribute.
+                    0x0032,                             $ No support for: settable path, scaling, scaling links.
+                                                        $ Real time update of value.  Value is gettable only.
+                    0xC1,                               $ Data Type - boolean
+                    1,                                  $ Data Size
+                    "Short Circuit #2",                 $ Parameter Name
+                    "",                                 $ Units String
+                    "Short circuit status of input point.  Fault or OK.",
+                    0,1,0,                              $ Min, Max (max enumeration #), and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+	Enum31 =      0,"OK", 1,"Fault";
+
+      Param32 =     $ Short Circuit status for Input #3
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 08 24 04 30 76",                $ Link Path to DIP object's value attribute.
+                    0x0032,                             $ No support for: settable path, scaling, scaling links.
+                                                        $ Real time update of value.  Value is gettable only.
+                    0xC1,                               $ Data Type - boolean
+                    1,                                  $ Data Size
+                    "Short Circuit #3",                 $ Parameter Name
+                    "",                                 $ Units String
+                    "Short circuit status of input point.  Fault or OK.",
+                    0,1,0,                              $ Min, Max (max enumeration #), and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+	Enum32 =      0,"OK", 1,"Fault";
+      
+      Param33 =     $ Produced I/O Assembly
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 0F 24 01 30 01",                			  $ Link Path to DIP object's value attribute.
+                    0x0232,                             $ No support for: settable path, scaling, scaling links.
+                                                        $ Real time update of value.  Value is gettable only.
+									  $ Not Displayed 
+                    0xC6,                               $ Data Type - unsigned short int
+                    1,                                  $ Data Size
+                    "Produced I/O Assembly",            $ Parameter Name
+                    "",                                 $ Units String
+                    "Choose the I/O assembly that you would like this module to produce.  The assemblies are defined in the module's installation instructions. Note!  You must change the scanner's consumed (Rx) data size for this module to match the assembly that you have chosen.  This can be done by selecting 'Edit I/O parameters' from the scanner's scanlist tab.",
+                    0,1,0,                              $ Min, Max (max enumeration #), and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+	Enum33 =      0,"Default Assembly (2 Bytes)", 1,"Input/Fault data ONLY (1 Byte)";
+
+
+      Param34 =     $ Disable Autobaud
+                    0,                                  $ reserved
+                    6,                                  $ Link Path Size
+                    "20 03 24 01 30 64",                $ Link Path to disable autobaud attribute.
+                    0x0212,                             $ No support for: settable path, scaling, scaling links, or
+                                                        $ real time update of value.  Value is gettable and 
+                                                        $ Settable.  Enumerated strings are supported.
+									  $ Not Displayed 
+                    0xC1,                               $ Data Type - boolean
+                    1,                                  $ Data Size
+                    "Autobaud",                         $ Parameter Name
+                    "",                                 $ Units String
+                    "Autobaud allows module to match the baud rate of existing devices on a network.\n\nChanges to this attribute take effect after next powerup.\nIf 'enabled', the Baud Rate Attribute can not be set.",
+                    0,1,0,                              $ Min, Max, and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Enum34 =      0,"Enable", 1,"Disable";
+
+$Point Object stuff
+      Param35 =     $ AutoAddress
+                    0,                                  $ reserved
+                    7,                                  $ Link Path Size
+                    "21 12 03 24 01 30 03",             $ Link Path to AutoAddress attribute.
+                    0x0002,                             $ No support for: settable path, scaling, scaling links, or
+                                                        $ real time update of value.  Value is gettable and 
+                                                        $ Settable.  Enumerated strings are supported.
+                    0xC1,                               $ Data Type - boolean
+                    1,                                  $ Data Size
+                    "Sequential AutoAddress",           $ Parameter Name
+                    "",                                 $ Units String
+                    "Sequential AutoAddress will re-assign the node address of ever module to the right.\nEach module will change it's node address to one greater than then it's neighbor.\n\nMAKE SURE THE NODE ADDRESS OF THIS MODULE IS THE DESIRED VALUE BEFORE ISSUING THIS COMMAND.\n\nWhen this command is set, each module to the right will get a new address one greater than it's neighbor.\nThe address will ripple through a line of Point I/O modules.\n\nSteps to Auto Address a line of Point I/O modules:\n 1.) Set the address of the first module (next to PDN or adapter).\n 2.) Send the Auto Address command to 'Sequential Address.'\n 3.) All modules in line will reset with new sequential addresses.\n\nExample:\nIf there are 5 Point modules in a line, and the address of the first module is 10.\nAfter the 'Sequential Address' command is sent to the first module, the node address of the line will be:\n 10, 11, 12, 13, and 14.",
+                    0,1,0,                              $ Min, Max, and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Enum35 =      0,"Do Nothing", 1,"Sequential Address";
+
+      Param36 =     $ Baud Rate
+                    0,                                  $ reserved
+                    7,                                  $ Link Path Size
+                    "21 12 03 24 01 30 05",             $ Link Path to Baud Rate attribute.
+                    0x0002,                             $ No support for: settable path, scaling, scaling links, or
+                                                        $ real time update of value.  Value is gettable and 
+                                                        $ Settable.  Enumerated strings are supported.
+                    0xC6,                               $ Data Type - byte
+                    1,                                  $ Data Size
+                    "Broadcast Baud Rate",              $ Parameter Name
+                    "",                                 $ Units String
+                    "This command will change the baud rate of this and every module to the right\nto the value indicated.\nIf AutoBaud is ENABLED, this command will not change the operation of the module at power up.",
+                    0,3,0,                              $ Min, Max, and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Enum36 =      0,"Do Nothing", 1,"125 kHz", 2,"250 kHz", 3,"500kHz";
+
+      Param37 =     $ Set Disable AutoBaud
+                    0,                                  $ reserved
+                    7,                                  $ Link Path Size
+                    "21 12 03 24 01 30 06",             $ Link Path to Disable AutoBaud attribute.
+                    0x0002,                             $ No support for: settable path, scaling, scaling links, or
+                                                        $ real time update of value.  Value is gettable and 
+                                                        $ Settable.  Enumerated strings are supported.
+                    0xC6,                               $ Data Type - byte
+                    1,                                  $ Data Size
+                    "Broadcast AutoBaud",               $ Parameter Name
+                    "",                                 $ Units String
+                    "This command will change the AutoBaud attribute of this and every module to the right\nto the value indicated.\nIf AutoBaud is 'disabled,' the Baud Rate parameter will set the baud rate next time the module is powered up.",
+                    0,2,0,                              $ Min, Max, and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+      Enum37 =      0,"Do Nothing", 1,"Enable", 2,"Disable";
+
+
+      Param38 =     $ Special Hidden IO Fault Status.  Fault bit = Short or OpenWire
+                    0,                                  $ reserved
+                    0,                                  $ Link Path Size
+                    ,                                   $ No path - internal parameter
+                    0x0200,                             $ 
+                    0xD1,                               $ Data Type - 8 bit string
+                    1,                                  $ Data Size - bytes
+                    "Fault",                             $ Parameter Name
+                    "",                                 $ Units String
+                    "Displays the current fault status of each of the inputs./nBit 0-3 = Channel 0-3 .  0 = OFF; 1 = FAULT (Short or Open wire)",
+                    0,15,0,                             $ Min, Max, and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+
+ 	Param39 =     $ Special Hidden IO Short Circuit Data
+                    0,                                  $ reserved
+                    0,                                  $ Link Path Size
+                    ,                                   $ No path - internal parameter
+                    0x0200,                             $ 
+                    0xD1,                               $ Data Type - 8 bit string
+                    1,                                  $ Data Size - bytes
+                    "ShortCircuit",                     $ Parameter Name
+                    "",                                 $ Units String
+                    "Displays the current short circuit status of each of the inputs./nBit 0-3 = Channel 0-3.  0 = OFF; 1 = SHORT CIRCUIT",
+                    0,15,0,                             $ Min, Max, and Default values
+                    1,1,1,0,0,0,0,0,0;                  $ Not Used
+
+  	Param101 =                    $ Revision of Configuration Assembly
+        0,                          $ first field shall equal 0
+        ,,                          $ path size,path
+        0x0210,                     $ descriptor (readonly, no display)
+        0xC7,                       $ data type : 16-bit Unsigned Integer
+        2,                          $ data size in bytes
+        "Configuration revision",   $ name
+        "",                         $ units
+        "",                         $ help string
+        1,1,1,                      $ min,max,default data values
+        ,,,,                        $ mult,dev,base,offset scaling not used
+        0,0,0,0,                    $ mult,dev,base,offset link not used
+        0;                          $ decimal places not used
+
+      Param102 =                    $ non-Logix header
+        0,                          $ first field shall equal 0
+        ,,                          $ path size,path
+        0x0210,                     $ descriptor (readonly, no display)
+        0xC7,                       $ data type : 16-bit Unsigned Integer
+        2,                          $ data size in bytes
+        "Non-Logix Header",         $ name
+        "",                         $ units
+        "",                         $ help string
+        0x7001,0x7001,0x7001,       $ min,max,default data values
+        ,,,,                        $ mult,dev,base,offset scaling not used
+        0,0,0,0,                    $ mult,dev,base,offset link not used
+        0;                          $ decimal places not used
+
+[Groups]
+      Group1 =      "I/O", 12, 1,2,3,4,19,20,21,22,29,30,31,32;  		$ input value and status
+      Group2 =      "Configuration", 11, 5,6,7,8,9,10,11,12,13,33,34;	$ filters, autobaud, IO Assy.
+      Group3 =      "PointBus", 3, 35,36,37;            			$dup mac, qc, autoaddr, brate, auto baud
+
+[Connection Manager]
+$   Connection1 =       $ There is No Exclusive Owner Connection
+
+    Connection22 =      $ 3rd Party Input Only (Direct to Module) Produced Assembly 101 (Default)
+                        $ Catalogs        1738-IB4DM12
+                        $ Config Assem    103	
+                        $ Consume Assem   0xBE (Input Only)	
+                        $ Produce Assem   101	
+        0x02030002,     $ trigger & transport
+        0x44240305,     $ point/multicast & priority & realtime format
+        ,0,,            $ O=>T default,description
+        ,,Assem127,     $ T=>O default,description
+        ,Assem124,      $ config part 1
+        ,Assem103,      $ config part 2 (module configuration)
+        "Direct Input Only Extended Diags",                $ connection name
+        "Direct Input Only Connection - Input data contains the state of each of the inputs. There is NO output data.",   $ Help string
+        "20 04 24 67 2C BE 2C 65";
+
+    Connection23 =      $ 3rd Party Input Only (Direct to Module) 
+                        $ Catalogs        1738-IB4DM12
+                        $ Config Assem    103	
+                        $ Consume Assem   0xBE (Input Only)	
+                        $ Produce Assem   23	
+        0x02030002,     $ trigger & transport
+        0x44240305,     $ point/multicast & priority & realtime format
+        ,0,,            $ O=>T default,description
+        ,,Assem128,     $ T=>O default,description
+        ,Assem124,      $ config part 1
+        ,Assem103,      $ config part 2 (module configuration)
+        "Direct Input Only",                $ connection name
+        "Direct Input Only Connection - Input data contains the state of each of the inputs. There is NO output data.",   $ Help string
+        "20 04 24 67 2C BE 2C 17";
+
+    Connection42 =      $ 3rd Party Listen Only (non-Logix Direct to Module)
+                        $ Catalogs        1738-IB4DM12	
+                        $ Config Assem    103	
+                        $ Consume Assem   0xBF (Listen Only)	
+                        $ Produce Assem   101	
+        0x01030002,     $ trigger & transport
+        0x44240305,     $ point/multicast & priority & realtime format
+        ,0,,            $ O=>T default,description
+        ,,Assem127,     $ T=>O default,description
+        ,,              $ config part 1
+        ,,              $ config part 2 (module configuration)
+        "Direct Listen Only Extended Diags",                 $ connection name
+        "Direct Listen Only Connection - Input data contains the state of each of the inputs.",   $ Help string
+        "20 04 24 67 2C BF 2C 65";
+
+    Connection43 =      $ 3rd Party Listen Only (non-Logix Direct to Module)
+                        $ Catalogs        1738-IB4DM12	
+                        $ Config Assem    103	
+                        $ Consume Assem   0xBF (Listen Only)	
+                        $ Produce Assem   23	
+        0x01030002,     $ trigger & transport
+        0x44240305,     $ point/multicast & priority & realtime format
+        ,0,,            $ O=>T default,description
+        ,,Assem128,     $ T=>O default,description
+        ,,              $ config part 1
+        ,,              $ config part 2 (module configuration)
+        "Direct Listen Only",                 $ connection name
+        "Direct Listen Only Connection - Input data contains the state of each of the inputs.",   $ Help string
+        "20 04 24 67 2C BF 2C 17";
+
+[Port]
+      Port1 =       DeviceNet,                          $ or maybe 1_Virtual_Backplane
+                    "PointIO Backplane",                $ Name of backplane
+                    "20 03 24 01",                      $ Path to DeviceNet Object Instance 1
+                    1;                                  $ Port number 1
+
+[Modular]
+      Width =       1;
+
+$ I/O Module EDS
+$ Number of slots in rack = Product Code - 199
+$ Number of I/O modules in rack = Product Code - 200
+$ Note Rack# does not match in Adapter EDS, Adapter EDS includes one for Slot 0
+
+	Rack1 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 201,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+            1;                $ Legal Slots
+
+	Rack2 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 202,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+            1,2;              $ Legal Slots
+
+	Rack3 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 203,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+            1,2,3;            $ Legal Slots
+
+	Rack4 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 204,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+            1,2,3,4;          $ Legal Slots
+
+	Rack5 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 205,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+            1,2,3,4,5;        $ Legal Slots
+
+	Rack6 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 206,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+            1,2,3,4,5,6;      $ Legal Slots
+
+	Rack7 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 207,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+            1,2,3,4,5,6,7;    $ Legal Slots
+
+	Rack8 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 208,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+            1,2,3,4,5,6,7,8,9;$ Legal Slots
+
+	Rack9 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 209,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10;
+                              $ Legal Slots
+
+	Rack10 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 210,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11;
+                              $ Legal Slots
+
+	Rack11 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 211,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12;
+                              $ Legal Slots
+
+	Rack12 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 212,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13;
+                              $ Legal Slots
+
+	Rack13 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 213,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14;
+                              $ Legal Slots
+
+	Rack14 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 214,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15;
+                              $ Legal Slots
+
+	Rack15 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 215,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16;
+                              $ Legal Slots
+
+	Rack16 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 216,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17;
+                              $ Legal Slots
+
+	Rack17 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 217,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18;
+                              $ Legal Slots
+
+	Rack18 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 218,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19;
+                              $ Legal Slots
+
+	Rack19 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 219,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20;
+                              $ Legal Slots
+
+	Rack20 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 220,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21;               $ Legal Slots
+
+	Rack21 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 221,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22;            $ Legal Slots
+
+	Rack22 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 222,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23;         $ Legal Slots
+
+	Rack23 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 223,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24;      $ Legal Slots
+
+	Rack24 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 224,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25;   $ Legal Slots
+
+	Rack25 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 225,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26;
+                              $ Legal Slots
+
+	Rack26 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 226,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27;
+                              $ Legal Slots
+
+	Rack27 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 227,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28;
+                              $ Legal Slots
+
+	Rack28 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 228,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29;
+                              $ Legal Slots
+
+	Rack29 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 229,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30;
+                              $ Legal Slots
+
+	Rack30 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 230,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31;
+                              $ Legal Slots
+
+	Rack31 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 231,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32;
+                              $ Legal Slots
+
+	Rack32 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 232,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33;
+                              $ Legal Slots
+
+	Rack33 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 233,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34;
+                              $ Legal Slots
+
+	Rack34 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 234,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35;
+                              $ Legal Slots
+
+	Rack35 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 235,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36;
+                              $ Legal Slots
+
+	Rack36 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 236,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37;
+                              $ Legal Slots
+
+	Rack37 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 237,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38;
+                              $ Legal Slots
+
+	Rack38 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 238,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39;
+                              $ Legal Slots
+
+	Rack39 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 239,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40;
+                              $ Legal Slots
+
+	Rack40 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 240,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,
+            41;               $ Legal Slots
+
+	Rack41 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 241,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,
+            41,42;            $ Legal Slots
+
+	Rack42 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 242,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,
+            41,42,43;         $ Legal Slots
+
+	Rack43 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 243,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,
+            41,42,43,44;      $ Legal Slots
+
+	Rack44 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 244,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,
+            41,42,43,44,45;   $ Legal Slots
+
+	Rack45 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 245,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,
+            41,42,43,44,45,46;
+                              $ Legal Slots
+
+	Rack46 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 246,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,
+            41,42,43,44,45,46,47;
+                              $ Legal Slots
+
+	Rack47 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 247,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,
+            41,42,43,44,45,46,47,48;
+                              $ Legal Slots
+
+	Rack48 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 248,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,
+            41,42,43,44,45,46,47,48,49;
+                              $ Legal Slots
+
+	Rack49 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 249,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,
+            41,42,43,44,45,46,47,48,49,50;
+                              $ Legal Slots
+
+	Rack50 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 250,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,
+            41,42,43,44,45,46,47,48,49,50,51;
+                              $ Legal Slots
+
+	Rack51 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 251,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,
+            41,42,43,44,45,46,47,48,49,50,51,52;
+                              $ Legal Slots
+
+	Rack52 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 252,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,
+            41,42,43,44,45,46,47,48,49,50,51,52,53;
+                              $ Legal Slots
+
+	Rack53 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 253,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,
+            41,42,43,44,45,46,47,48,49,50,51,52,53,54;
+                              $ Legal Slots
+
+	Rack54 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 254,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,
+            41,42,43,44,45,46,47,48,49,50,51,52,53,54,55;
+                              $ Legal Slots
+
+	Rack55 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 255,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,
+            41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56;
+                              $ Legal Slots
+
+	Rack56 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 256,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,
+            41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57;
+                              $ Legal Slots
+
+	Rack57 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 257,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,
+            41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58;
+                              $ Legal Slots
+
+	Rack58 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 258,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,
+            41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59;
+                              $ Legal Slots
+
+	Rack59 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 259,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,
+            41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60;
+                              $ Legal Slots
+
+	Rack60 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 260,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,
+            41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,
+            61;               $ Legal Slots
+
+	Rack61 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 261,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,
+            41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,
+            61,62;            $ Legal Slots
+
+	Rack62 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 262,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,
+            41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,
+            61,62,63;         $ Legal Slots
+
+
+	Rack63 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 263,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,
+            41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,
+            61,62,63,64;      $ Legal Slots
+
+      ExternalID = "34 01 83 0A";        $ Product Code (Low, High), Compatable bit (8),Maj Rev, Min Rev
+
+
+

@@ -1,0 +1,122 @@
+$ DeviceNet DeviceLink Adapter
+$
+$ Description: 	The following file is the EDS for the Allen-Bradley
+$		DeviceNet DeviceLink Adapter
+$
+$ Author: 	BJT
+$ Date: 	11/30/94
+$
+$ Edit History: BJT	11/30/94	Created
+$		BJT	04/11/95	Added Output
+$		BJT	06/01/95	MaxInst should equal # of parameters in EDS
+$		BJT	06/23/95	Added IO Info section
+$		BJT	08/01/96	Added COS Info
+
+[File]
+	DescText = "DeviceLink EDS File";
+
+	CreateDate = 11-28-94;
+	CreateTime = 15:00:00;
+	Revision = 1.0;     	$ EDS file revision
+
+[Device]
+	VendCode = 1;
+	ProdType = 7;
+	ProdCode = 1033;
+
+	MajRev = 2;
+	MinRev = 1;
+
+	VendName = "Allen-Bradley";
+	ProdTypeStr = "Discrete I/O";
+	ProdName = "DeviceLink - mini to micro connector";
+
+	Catalog = "1485D-A2M5-R4";
+
+[IO_Info]
+
+	Default = 0x0004;		$ Strobe only
+
+	PollInfo = 0, 0, 0;		$ Not supported
+
+	StrobeInfo = 0x000, 0, 0;	$ Not Supported
+
+	COSInfo = 0x0004, 1, 1;		$ Use Input1 and Output1 for COS
+
+	Input1 =
+		1,			$ 1 byte
+		1,			$ 1 bit used
+		0x0002,			$ Strobe only
+		"DeviceLink Output",	$ Name
+		6,			$ Path size
+		"20 08 24 01 30 03",	$ Path to DI value attribute
+		"Output value from DeviceLink.";	$ Help string
+
+	Output1 =
+		0,			$ 0 byte
+		0,			$ 0 bit used
+		0x0002,			$ Strobe only
+		"",			$ Name
+		0,			$ Path size
+		"",			$ Path to DI value attribute
+		"";			$ Help string
+
+[ParamClass]
+	MaxInst = 3;
+	Descriptor = 0x09;
+
+[Params]
+	Param1 = 			$ On Delay
+		0,			$ Data Placeholder
+		6, "20 08 24 01 30 05",	$ Path size and Path to filter Attribute
+		0x02,			$ Descriptor - (Support Enumerated Strings)
+		2, 2,			$ Data Type and Size - (16 bit word)
+		"On Filter",		$ Name
+		"",			$ Units (Not Used)
+		"During a transition from the 'OFF' to 'ON' state, hold the output in the 'OFF' state\n" 
+		"until the specified time period in the 'ON' state elapses.",		$ Help
+		0,1,0,			$ min, max, default values
+		25000,1,1,0,		$ mult, div, base, offset scaling
+		0,0,0,0,		$ mult, div, base, offset links (Not Used)
+		0;			$ decimal places
+
+	Param2 = 			$ Off Delay
+		0,			$ Data Placeholder
+		6, "20 08 24 01 30 06",	$ Path size and Path to filter Attribute
+		0x02,			$ Descriptor - (Support Enumerated Strings)
+		2, 2,			$ Data Type and Size - (16 bit word)
+		"Off Filter",		$ Name
+		"",			$ Units (Not Used)
+		"During a transition from the 'ON' to 'OFF' state, hold the output in the 'ON' state\n" 
+		"until the specified time period in the 'OFF' state elapses.",	$ Help
+		0,1,0,			$ min, max, default values
+		25000,1,1,0,		$ mult, div, base, offset scaling
+		0,0,0,0,		$ mult, div, base, offset links (Not Used)
+		0;			$ decimal places
+
+	Param3 = 			$ Output
+		0,			$ Data Placeholder
+		6, "20 08 24 01 30 03",	$ Path size and Path to Output Attribute
+		0x12,			$ Descriptor - (Support Enumerated Strings, Read-only)
+		4, 1,			$ Data Type and Size - (Boolean)
+		"Output",		$ Name
+		" ",			$ Units (Not Used)
+		"The state of the device connected to DeviceLink",  			$ Help
+		0,1,0,			$ min, max, default values
+		1,1,1,0,		$ mult, div, base, offset scaling (Not Used)
+		1,1,1,0,		$ mult, div, base, offset links (Not Used)
+		0;			$ decimal places
+
+
+[EnumPar]
+	Param1 =			$ On Delay Enumerated Strings
+		" 0 ms Filter",		$ For value = 0
+		"25 ms Filter";		$ For value = 1
+
+	Param2 =			$ Off Delay Enumerated Strings
+		" 0 ms Filter",		$ For value = 0
+		"25 ms Filter";		$ For value = 1
+
+	Param3 =			$ Output Enumerated Strings
+		"Off",			$ For value = 0
+		"On";			$ For value = 1

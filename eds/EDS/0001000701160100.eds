@@ -1,0 +1,3032 @@
+$ Electronic Data Sheet for Embedded I/O (1799-D16U16VAGL)
+
+[File]
+        DescText = "1799-D16U16VAGL Embedded I/O EDS File";
+        CreateDate = 03-09-2006;
+        CreateTime = 12:00:00;
+        ModDate = 01-09-2008;
+        ModTime = 14:50:00;
+        Revision = 1.03;
+        HomeURL = "http://www.ab.com/networks/eds/DN/0001000701160100.eds";
+
+[Device]
+        VendCode = 1;
+        VendName = "Rockwell Automation/Allen-Bradley";
+        ProdType = 7;
+        ProdTypeStr = "General Purpose Discrete I/O";
+        ProdCode = 278;
+        MajRev = 1;
+        MinRev = 1;
+
+        ProdName = "1799-D16U16VAGL 16 IN / 16 SNK OUT w/Analog";
+        Catalog = "1799-D16U16VAGL";
+        Icon = "circuitboard.ico";
+        DNetQC = 0B0000000000000001,200;            $ Quick Connect supported at power up. 200ms powerup time.
+
+        1_RSNetWorx_DNetTool = "LeoApp.LeoDevice";
+        1_RSNetWorx_DNetToolEx = "1.00.00", "LeoApp.LeoDevice", "7.00.00", "RSI.DeviceNet.EDSApplet.1";
+        1_DNetEDSAppletPlugIn = "7.00.00", "DeviceLogixPlugIn.EDSAppletPlugIn.1";
+
+[Device Classification]
+        Class1 = DeviceNet;
+
+[IO_Info]
+        Default = 0x0004;       $ The default I/O type is COS I/O.
+
+        PollInfo =
+                0x000D,         $ Poll connection can be used with COS or cyclic I/O.
+                1,              $ Input1 entry is the default input connection.
+                1;              $ Output1 entry is the default output connection.
+
+        COSInfo =
+                0x0005,         $ COS connection can be used with Polled I/O.
+                1,              $ Input1 entry is the default input connection.
+                1;              $ Output1 entry is the default output connection.
+
+        CyclicInfo =
+                0x0009,         $ Cyclic connection can be used with Polled I/O.
+                1,              $ Input1 entry is the default input connection.
+                1;              $ Output1 entry is the default output connection.
+
+        Input1 =
+                11,                     $ The size in bytes that this connection produces.
+                0,                      $ All bits of this connection are significant.
+                0x000D,                 $ Polled and COS I/O device.
+                "Data",     		    $ Name of Connection.
+                7,
+                "21 04 00 24 9B 30 03", $ Path length, Path to I/O Production Assembly.
+                "This contains 11 bytes: Byte 1, bits 0-7=Inputs 0-7. Byte 2, bits 0-7=Inputs 8-15.\n"
+                "Byte 3, bit 0=Output Fault 0, bit 1= Output Fault 1, bit 2 = Output Open Wire 0, \n"
+                "bit 3 = Output Open Wire 1, bit 6 = Logic Enabled.  Byte 4=Analog Input Channel 0 data(LSB). \n"
+                "Byte 5=Analog Input Channel 0 data(MSB). Byte 6=Analog Input Channel 1 data(LSB). \n"
+                "Byte 7=Analog Input Channel 1 data(MSB). Byte 8=Analog Input Channel 0 Status. \n"
+                "Byte 9=Analog Input Channel 1 Status. Byte 10=Analog Output Channel 0 Status. \n"
+                "Byte 11=Analog Output Channel 1 Status."
+                "";    $ Help String
+
+        InputExa1 =
+                ,                       $ Size from AssemN
+                ,                       $ Bits determined by AssemN member list
+                0x000D,                 $ Poll, COS, Cyclic
+                ,                       $ Name String  from AssemN
+                ,                       $ Path Size not applicable
+                VariantExa1,            $ Variant for choosing Output Assem
+                ;                       $ Help string not applicable
+
+        Output1 =
+                6,                      $ The size in bytes that this connection consumes.
+                0,                      $ All bits of this connection are significant.
+                0x000D,                 $ Polled and COS I/O device.
+                "Data",           		$ Name of Connection.
+                7,
+                "21 04 00 24 9F 30 03", $ Path length, Path to I/O Consumption Assembly.
+                "This contains 6 bytes: Byte 1, bits 0-7=Outputs 0-7. Byte 2, bits 0-7=Outputs 8-15.\n"
+                "Byte 3=Analog Output Channel 0 data(LSB). Byte 4=Analog Output Channel 0 data(MSB). \n"
+                "Byte 5=Analog Output Channel 1 data(LSB). Byte 6=Analog Output Channel 1 data(MSB).\n"
+                "";    $ Help string
+
+        OutputExa1 =
+                ,                       $ Size from AssemN
+                ,                       $ Bits determined by AssemN member list
+                0x000D,                 $ Poll, COS, Cyclic
+                ,                       $ Name String  from AssemN
+                ,                       $ Path Size not applicable
+                VariantExa2,            $ Variant for choosing Output Assem
+                ;                       $ Help string not applicable
+
+        1_COSetPathNotSupported = 1;    $ Paths not settable.
+        1_COSetSizeNotSupported = 1;    $ Paths not settable.
+
+[ParamClass]
+        MaxInst = 110;                  $ ?? configurable and ? read-only parameters.
+        Descriptor = 0x0009;            $ Bit 0: 1= parameter instances exist
+                                        $ Bit 1: 0= not full
+                                        $ Bit 2: 0= NVS command not needed
+                                        $ Bit 3: 1= Automaticly stored in EERPOM
+
+        CfgAssembly = 0;                $ The config assembly is instance #176 of assy obj.
+        1_CfgAssembly = 0xB0;           $ Config assembly.
+
+[Params]
+    $ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+        Param1 =                        $ Disable Autobaud
+                0,                      $ Reserved
+                7,"21 03 00 24 01 30 64",    $ Link Path Size, Link Path
+                0x0002,                 $ Descriptor
+                0xC1,                   $ Data Type - Boolean
+                1,                      $ Data Size
+                "Autobaud",             $ Parameter Name
+                "",                     $ Units String
+                "Setting this parameter ON disables the Autobaud feature in the block. The\n"
+                "change occures after the next power up. Default is Enabled.",    $ Help String
+                0,1,0,                  $ Min, Max, and Default values
+                ,,,,
+                ,,,,
+                0;                      $ Not Used
+        Enum1 =
+                0,"AutoBaud Active",
+                1,"AutoBaud Inactive";
+
+    $ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+        Param2 =                        $ Input filter Off_to_On Delay selection
+                0,                      $ Reserved
+                7,"21 1D 00 24 01 30 06",    $ Link Path Size, Link Path
+                                             $ Link Path to param instance.  
+                0x0002,                 $ No support for settable path, scaling, scaling links,
+                                        $ or real time update of value.  Value is gettable and
+                                        $ Settable.  Enumerated strings are supported.
+                0xC7,                   $ Data Type - unsigned short int
+                2,                      $ Data Size - (in bytes)
+                "Off-to-On Delay",      $ Parameter Name
+                "us",                   $ Units String
+                                        $ $$$$$$$$$ Help string $$$$$$$$$$$
+                "Signal must be present for this delay period before module detects the change.",
+                0,65535,2000,                  $ Min, Max , and Default values
+                ,,,,
+                ,,,,
+                0;                      $ Not Used
+                
+
+    $ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+        Param3 =                        $ Input filter On_to_Off Delay selection
+                0,                      $ Reserved
+                7,"21 1D 00 24 01 30 07",    $ Link Path Size, Link Path
+                0x0002,                 $ Descriptor
+                0xC7,                   $ Data Type - Unsigned 16-bit integer
+                2,                      $ Data Size - (in bytes)
+                "On-to-Off Delay",      $ Parameter Name
+                "us",                   $ Units String
+                                        $ $$$$$$$$$ Help string $$$$$$$$$$$
+                "Signal must be present for this delay period before module detects the change.",
+                0,65535,2000,                  $ Min, Max , and Default values
+                ,,,,
+                ,,,,
+                0;                      $ Not Used
+
+    $ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+        Param4 =                        $ Digital Input Values (0-7)
+                0,                      $ Reserved
+                7,"21 0F 00 24 04 30 01",    $ Link Path Size, Link Path to DIP Input values attribute.
+                0x0030,                 $ Descriptor
+                0xD1,                   $ Data Type - bit string (8 bits)
+                1,                      $ Data Size - (in bytes)
+                "Input Values (7-0)",   $ Parameter Name
+                "",                     $ Units String
+                "This parameter is the current value of Inputs 0-7, either On(1) or Off(0).",    $ Help String
+                0,255,0,                $ Min, Max, and Default values
+                ,,,,
+                ,,,,
+                0;                      $ Not Used
+
+    $ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+        Param5 =                        $ Digital Input Values (8-15)
+                0,                      $ Reserved
+                7,"21 0F 00 24 05 30 01",    $ Link Path Size, Link Path to DIP Input values attribute.
+                0x0030,                 $ Descriptor
+                0xD1,                   $ Data Type - bit string (8 bits)
+                1,                      $ Data Size - (in bytes)
+                "Input Values (15-8)",  $ Parameter Name
+                "",                     $ Units String
+                "This parameter is the current value of Inputs 8-15, either On(1) or Off(0).",    $ Help String
+                0,255,0,                $ Min, Max, and Default values
+                ,,,,
+                ,,,,
+                0;                      $ Not Used
+
+    $ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+        Param6 =                        $ Produced I/O assembly selection
+                0,                      $ Reserved
+                7,"21 0F 00 24 06 30 01",    $ Link Path Size, Link Path to PARAMETER instance.
+                0x0002,                 $ Descriptor
+                0xC6,                   $ Data Type - Unsigned 8-bit integer
+                1,                      $ Data Size - (in bytes)
+                "Produced I/O Assembly",$ Parameter Name
+                "",                     $ Units String
+                "Choose the I/O assembly that you would like this module to produce. The\n"
+                "assemblies are defined in the module's installation instructions.\n"
+                "\n"
+                "Note!  You may need to change the scanner's consumed (Rx) data size for this\n"
+                "module to match the assembly that you have chosen.  This can be done by\n"
+                "selecting 'Edit I/O parameters' from the scanner's scanlist tab.",    $ Help String
+                0,2,0,                  $ Min, Max (max enumeration #), and Default values
+                ,,,,
+                ,,,,
+                0;                      $ Not Used
+        Enum6 =
+                0,"Input Data with Status",
+                1,"Input Data ONLY",
+                2,"DeviceLogix Assembly";
+
+    $ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+        Param7 =                        $ Output Fault State (group)
+                0,                      $ Reserved
+                7,"21 1E 00 24 01 30 07",    $ Link Path Size, Link Path to DOG object's fault state attribute.
+                0x0002,                 $ Descriptor
+                0xC1,                   $ Data Type - Boolean
+                1,                      $ Data Size - (in bytes)
+                "Output Fault State",   $ Parameter Name
+                "",                     $ Units String
+                "Defines digital output behavior in the event of a communications fault.",    $ Help String
+                0,1,0,                  $ Min, Max (max enumeration #), and Default values
+                ,,,,
+                ,,,,
+                0;                      $ Not Used
+        Enum7 =
+                0,"Use Fault Value",
+                1,"Hold Last State";
+
+    $ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+        Param8 =                        $ Output Fault Value (group)
+                0,                      $ Reserved
+                7,"21 1E 00 24 01 30 08",    $ Link Path Size, Link Path to DOG object's fault value attribute.
+                0x0002,                 $ Descriptor
+                0xC1,                   $ Data Type - Boolean
+                1,                      $ Data Size - (in bytes)
+                "Output Fault Value",   $ Parameter Name
+                "",                     $ Units String
+                "Defines digital output behavior in the event of a communication fault (fault value).",    $ Help String
+                0,1,0,                  $ Min, Max (max enumeration #), and Default values
+                ,,,,
+                ,,,,
+                0;                      $ Not Used
+        Enum8 =
+                0,"Reset Outputs",
+                1,"Turn Outputs On";
+
+    $ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+        Param9 =                        $ Output Idle State (group)
+                0,                      $ Reserved
+                7,"21 1E 00 24 01 30 09",    $ Link Path Size, Link Path to DOG object's idle state attribute.
+                0x0002,                 $ Descriptor
+                0xC1,                   $ Data Type - Boolean
+                1,                      $ Data Size - (in bytes)
+                "Output Idle State",    $ Parameter Name
+                "",                     $ Units String
+                "Defines digital output behavior during program mode.",    $ Help String
+                0,1,0,                  $ Min, Max (max enumeration #), and Default values
+                ,,,,
+                ,,,,
+                0;                      $ Not Used
+        Enum9 =
+                0,"Use Idle Value",
+                1,"Hold Last State";
+
+    $ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+        Param10 =                       $ Output Idle Value (group)
+                0,                      $ Reserved
+                7,"21 1E 00 24 01 30 0A",    $ Link Path Size, Link Path to DOG object's idle value attribute.
+                0x0002,                 $ Descriptor
+                0xC1,                   $ Data Type - Boolean
+                1,                      $ Data Size - (in bytes)
+                "Output Idle Value",    $ Parameter Name
+                "",                     $ Units String
+                "Defines digital output behavior during program mode (Idle value).",    $ Help String
+                0,1,0,                  $ Min, Max (max enumeration #), and Default values
+                ,,,,
+                ,,,,
+                0;                      $ Not Used
+        Enum10 =
+                0,"Reset Outputs",
+                1,"Turn Outputs On";
+
+    $ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+        Param11 =                       $ Output Fault Status (0,1,16-19)
+                0,                      $ Reserved
+                7,"21 0F 00 24 0B 30 01",    $ Link Path Size, Link Path to PARAMETER instance.
+                0x0030,                 $ Descriptor
+                0xD1,                   $ Data Type - Data Type - bit string (8 bits)
+                1,                      $ Data Size - (in bytes)
+                "Output Fault Status (0,1)",    $ Parameter Name
+                "",                     $ Units String
+                "This parameter is the current value of Digital Output Faults 0 & 1, either Faulted(1) or Not-Faulted(0).",    $ Help String
+                0,0x03,0,               $ Min, Max, and Default values
+                ,,,,
+                ,,,,
+                0;                      $ Not Used
+
+    $ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+        Param12 =                       $ Consumed I/O assembly selection
+                0,                      $ Reserved
+                7,"21 0F 00 24 0C 30 01",    $ Link Path Size, Link Path to PARAMETER instance.
+                0x0002,                 $ Descriptor
+                0xC6,                   $ Data Type - Unsigned 8-bit integer
+                1,                      $ Data Size - (in bytes)
+                "Consumed I/O Assembly",$ Parameter Name
+                "",                     $ Units String
+                "Choose the I/O assembly that you would like this module to consume.  The\n"
+                "assemblies are defined in the module's installation instructions.\n"
+                "\n"
+                "Note!  You may need to change the scanner's produced (Tx) data size for this\n"
+                "module to match the assembly that you have chosen.  This can be done by\n"
+                "selecting 'Edit I/O parameters' from the scanner's scanlist tab.",    $ Help String
+                0,5,0,                  $ Min, Max (max enumeration #), and Default values
+                ,,,,
+                ,,,,
+                0;                      $ Not Used
+        Enum12 =
+                0,"Default 6 Bytes Data",
+                1,"4 Bytes Data",
+                2,"5 Bytes Data",
+                3,"6 Bytes Data",
+                4,"7 Bytes Data",
+                5,"8 Bytes Data";
+
+    $ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+        Param13 =                       $ Network Status Override
+                0,                      $ Reserved
+                7,"21 1E 00 24 01 30 68",    $ Link Path Size, Link Path to PARAMETER instance.
+                0x0002,                 $ descriptor
+                0xC1,                   $ Data Type - Boolean
+                1,                      $ Data Size - (in bytes)
+                "Network Status Override",    $ Parameter Name
+                "",                     $ Units String
+                "Enabling this parameter allows local logic to override normal output behavior in the event of a network fault.  Default is Disabled.",    $ Help string
+                0,1,0,                  $ Min, Max (max enumeration #), and Default values
+                ,,,,
+                ,,,,
+                0;                      $ Not Used
+        Enum13 =
+                0,"Override Disabled",
+                1,"Override Enabled";
+
+    $ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+        Param14 =                       $ Comm Status Override
+                0,                      $ Reserved
+                7,"21 1E 00 24 01 30 69",    $ Link Path Size, Link Path to PARAMETER instance.
+                0x0002,                 $ No support for settable path, scaling, scaling links,
+                0xC1,                   $ Data Type - Boolean
+                1,                      $ Data Size - (in bytes)
+                "Comm Status Override", $ Parameter Name
+                "",                     $ Units String
+                "Enabling this parameter allows local logic to override normal output behavior in the event of a communication fault.  Default is Disabled.",    $ Help String
+                0,1,0,                  $ Min, Max (max enumeration #), and Default values
+                ,,,,
+                ,,,,
+                0;                      $ Not Used
+        Enum14 =
+                0,"Override Disabled",
+                1,"Override Enabled";
+
+    $ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+        Param15 =                       $ Enable Quick Start
+                0,                      $ reserved
+                7,"21 03 00 24 01 30 66",    $ Link Path Size
+                                             $ Link Path to enable Quick Start attribute.
+                0x0002,                 $ Descriptor
+                0xC1,                   $ Data Type - boolean
+                1,                      $ Data Size
+                "Quick Start",          $ Parameter Name
+                "",                     $ Units String
+                                        $ $$$$$$$$$ Help string $$$$$$$$$$$
+                "Setting this parameter ON disables Autobaud and LED test in the block. The\n"
+                "change occures after the next power up. Default is Disabled.",
+                0,1,0,                  $ Min, Max, and Default values
+                ,,,,
+                ,,,,
+                0;                      $ Not Used
+        Enum15 =
+                0,"Disabled",
+                1,"Enabled";
+
+
+    $ $$$$$$$$$$$$$$$$$$$$$$$$$  AI  $$$$$$$$$$$$$$$$$$$$$$$$$
+        Param16 =
+                0,
+                7,"21 20 00 24 01 30 6E",    $ Link Path Size, Link Path
+                0x0000,                 $ Descriptor
+                0xC7,
+                2,                      $ Data Type, Data Size
+                "AI Update Rate",
+                "ms",
+                "The Update Rate is used to assign the rate at which the Inputs are sampled.  \n"
+                "Valid values are from 0 to 10,000 ms.  \n"
+                "\n"
+                "The Notch Filter parameter is used to select the fastest rate possible.  \n"
+                "The Update Rate will add delay to meet system needs.",
+                0,10000,100,
+                ,,,,
+                ,,,,
+                0;
+
+    $ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+        Param17 =
+                0,
+                7,"21 20 00 24 01 30 6D",    $ Link Path Size, Link Path
+                0x0002,                 $ Descriptor
+                0xC6,
+                1,                      $ Data Type, Data Size
+                "AI Notch Filter",
+                "",
+                "Select Notch Filter for both Inputs.  \n"
+                "\n"
+                "Valid settings:\n"
+                " - 50 Hz   (120 ms update rate)\n"
+                " - 60 Hz   (100 ms)\n"
+                " - 250 Hz  (24 ms)\n"
+                " - 500 Hz  (12 ms)  \n"
+                "\n"
+                "The update rate changes for each filter setting.  \n"
+                "The rate shown is the fastest time to update both channels.  \n"
+                "The trade-off must be made between noise rejection and speed.",
+                0,6,2,
+                ,,,,
+                ,,,,
+                0;
+        Enum17 =
+                0,"10 Hz  (Invalid)",
+                1,"50 Hz",
+                2,"60 Hz",
+                3,"500 Hz (Invalid)",
+                4,"250 Hz",
+                5,"1 MHz  (Invalid)",
+                6,"500 Hz";
+
+    $ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+        Param18 =
+                0,
+                7,"21 0A 00 24 01 30 03",    $ Link Path Size, Link Path
+                0x0030,                 $ Descriptor
+                0xC3,
+                2,                      $ Data Type, Data Size
+                "AI Input Value #0",
+                "",
+                "Value of analog Input point scaled to chosen units.",
+                -32768,32767,0,
+                ,,,,
+                ,,,,
+                0;
+
+    $ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+        Param19 =
+                0,
+                7,"21 0A 00 24 02 30 03",    $ Link Path Size, Link Path
+                0x0030,                 $ Descriptor
+                0xC3,
+                2,                      $ Data Type, Data Size
+                "AI Input Value #1",
+                "",
+                "Value of analog Input point scaled to chosen units.",
+                -32768,32767,0,
+                ,,,,
+                ,,,,
+                0;
+
+    $ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+        Param20 =
+                0,
+                7,"21 0A 00 24 01 30 04",    $ Link Path Size, Link Path
+                0x0032,                 $ Descriptor
+                0xC1,
+                1,                      $ Data Type, Data Size
+                "AI Status #0",
+                "",
+                "Status of Input channel.  This bit is the OR of all channel Faults.  \n"
+                "\n"
+                "Possible Faults:\n"
+                " - Low & Low Low level Alarms\n"
+                " - High & High High level Alarms\n"
+                " - Over or Under Range Status \n"
+                " - No Field Power  \n"
+                "\n"
+                "If Alarms are 'Latched', the 'Reset Latched Alarm' parameter is needed to clear it.",
+                0,1,0,
+                ,,,,
+                ,,,,
+                0;
+        Enum20 =
+                0,"Normal Operation",
+                1,"FAULT";
+
+    $ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+        Param21 =
+                0,
+                7,"21 0A 00 24 02 30 04",    $ Link Path Size, Link Path
+                0x0032,                 $ Descriptor
+                0xC1,
+                1,                      $ Data Type, Data Size
+                "AI Status #1",
+                "",
+                "Status of Input channel.  This bit is the OR of all channel Faults.  \n"
+                "\n"
+                "Possible Faults:\n"
+                " - Low & Low Low level Alarms\n"
+                " - High & High High level Alarms\n"
+                " - Over or Under Range Status \n"
+                " - No Field Power  \n"
+                "\n"
+                "If Alarms are 'Latched', the 'Reset Latched Alarm' parameter is needed to clear it.",
+                0,1,0,
+                ,,,,
+                ,,,,
+                0;
+        Enum21 =
+                0,"Normal Operation",
+                1,"FAULT";
+
+    $ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+        Param22 =
+                0,
+                7,"21 0A 00 24 01 30 07",    $ Link Path Size, Link Path
+                0x0002,                 $ Descriptor
+                0xC6,
+                1,                      $ Data Type, Data Size
+                "AI Input Range #0",
+                "",
+                "Defines type and Range of Input signal.\n"
+                "\n"
+                "Valid Selections:\n"
+                "   0 V to +10 V\n"
+                "   4mA to 20mA\n"
+                "   0mA to 20mA\n"
+                "\n"
+                "The Range specifies the Scaling endpoints.",
+                0,9,2,
+                ,,,,
+                ,,,,
+                0;
+        Enum22 =
+                $0,"-10 V to +10 V (Invalid)",
+                $1,"0 V to 5 V (Invalid)",
+                2,"0 V to +10 V",
+                3,"4mA to 20mA",
+                $4,"-15mV to 75mV (Invalid)",
+                $5,"-15mV to 30mV (Invalid)",
+                $6,"-5 V to 5 V (Invalid)",
+                $7,"1 V to 5 V (Invalid)",
+                8,"0mA to 20mA";
+                $9,"0mA to 50mA (Invalid)";
+
+    $ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+        Param23 =
+                0,
+                7,"21 0A 00 24 02 30 07",    $ Link Path Size, Link Path
+                0x0002,                 $ Descriptor
+                0xC6,
+                1,                      $ Data Type, Data Size
+                "AI Input Range #1",
+                "",
+                "Defines type and Range of Input signal.\n"
+                "\n"
+                "Valid Selections:\n"
+                "   0 V to +10 V\n"
+                "   4mA to 20mA\n"
+                "   0mA to 20mA\n"
+                "\n"
+                "The Range specifies the Scaling endpoints.",
+                0,9,2,
+                ,,,,
+                ,,,,
+                0;
+        Enum23 =
+                $0,"-10 V to +10 V (Invalid)",
+                $1,"0 V to 5 V (Invalid)",
+                2,"0 V to +10 V",
+                3,"4mA to 20mA",
+                $4,"-15mV to 75mV (Invalid)",
+                $5,"-15mV to 30mV (Invalid)",
+                $6,"-5 V to 5 V (Invalid)",
+                $7,"1 V to 5 V (Invalid)",
+                8,"0mA to 20mA";
+                $9,"0mA to 50mA (Invalid)";
+
+    $ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+        Param24 =
+                0,
+                7,"21 0A 00 24 01 30 08",    $ Link Path Size, Link Path
+                0x0012,                 $ Descriptor
+                0xC6,
+                1,                      $ Data Type, Data Size
+                "AI Value Data Type #0",
+                "",
+                "This parameter defines the type of data (or number) the module will return for the value.  \n"
+                "It is not settable and will always return 'Signed Integer.'",
+                0,2,0,
+                ,,,,
+                ,,,,
+                0;
+        Enum24 =
+                0,"Signed Integer",
+                1,"Real",
+                2,"Unsigned Integer";
+
+    $ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+        Param25 =
+                0,
+                7,"21 0A 00 24 02 30 08",    $ Link Path Size, Link Path
+                0x0012,                 $ Descriptor
+                0xC6,
+                1,                      $ Data Type, Data Size
+                "AI Value Data Type #1",
+                "",
+                "This parameter defines the type of data (or number) the module will return for the value.  \n"
+                "It is not settable and will always return 'Signed Integer.'",
+                0,2,0,
+                ,,,,
+                ,,,,
+                0;
+        Enum25 =
+                0,"Signed Integer",
+                1,"Real",
+                2,"Unsigned Integer";
+
+    $ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+        Param26 =
+                0,
+                7,"21 0A 00 24 01 30 65",    $ Link Path Size, Link Path
+                0x0000,                 $ Descriptor
+                0xC3,
+                2,                      $ Data Type, Data Size
+                "AI Low Scaling #0",
+                "",
+                "Value returned when Input is 0 V or -10 V (depending on Range selected).  \n"
+                "Also known as Low Scaling value or Low Engineering units.",
+                -32768,32767,0,
+                ,,,,
+                ,,,,
+                0;
+
+        Param27 =
+                0,
+                7,"21 0A 00 24 02 30 65",    $ Link Path Size, Link Path
+                0x0000,                 $ Descriptor
+                0xC3,
+                2,                      $ Data Type, Data Size
+                "AI Low Scaling #1",
+                "",
+                "Value returned when Input is 0 V or -10 V (depending on Range selected).  \n"
+                "Also known as Low Scaling value or Low Engineering units.",
+                -32768,32767,0,
+                ,,,,
+                ,,,,
+                0;
+
+    $ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+        Param28 =
+                0,
+                7,"21 0A 00 24 01 30 67",    $ Link Path Size, Link Path
+                0x0000,                 $ Descriptor
+                0xC3,
+                2,                      $ Data Type, Data Size
+                "AI High Scaling #0",
+                "",
+                "Value returned when Input is +10 V.  \n"
+                "Also known as High Scaling value or High Engineering units.",
+                -32768,32767,10000,
+                ,,,,
+                ,,,,
+                0;
+
+    $ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+        Param29 =
+                0,
+                7,"21 0A 00 24 02 30 67",    $ Link Path Size, Link Path
+                0x0000,                 $ Descriptor
+                0xC3,
+                2,                      $ Data Type, Data Size
+                "AI High Scaling #1",
+                "",
+                "Value returned when Input is +10 V.  \n"
+                "Also known as High Scaling value or High Engineering units.",
+                -32768,32767,10000,
+                ,,,,
+                ,,,,
+                0;
+
+    $ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+        Param30 =
+                0,
+                7,"21 0A 00 24 01 30 68",    $ Link Path Size, Link Path
+                0x0002,                 $ Descriptor
+                0xC1,
+                1,                      $ Data Type, Data Size
+                "AI Enable Alarm Latch #0",
+                "",
+                "Alarms will Latch FAULTED until a 'Latch Reset' command is received.  \n"
+                "\n"
+                "Alarms effected:  \n"
+                " - Low & Low Low level Alarms  \n"
+                " - High & High High level Alarms  \n"
+                "\n"
+                "Status not effected:  \n"
+                " - Input Status (No Field Power)  \n"
+                " - Over and Under Range Status  \n"
+                "\n"
+                "This is useful in tracking transient or momentary errors.",
+                0,1,0,
+                ,,,,
+                ,,,,
+                0;
+        Enum30 =
+                0,"Disable",
+                1,"Enable Latching Alarms";
+
+    $ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+        Param31 =
+                0,
+                7,"21 0A 00 24 02 30 68",    $ Link Path Size, Link Path
+                0x0002,                 $ Descriptor
+                0xC1,
+                1,                      $ Data Type, Data Size
+                "AI Enable Alarm Latch #1",
+                "",
+                "Alarms will Latch FAULTED until a 'Latch Reset' command is received.  \n"
+                "\n"
+                "Alarms effected:  \n"
+                " - Low & Low Low level Alarms  \n"
+                " - High & High High level Alarms  \n"
+                "\n"
+                "Status not effected:  \n"
+                " - Input Status (No Field Power)  \n"
+                " - Over and Under Range Status  \n"
+                "\n"
+                "This is useful in tracking transient or momentary errors.",
+                0,1,0,
+                ,,,,
+                ,,,,
+                0;
+        Enum31 =
+                0,"Disabled",
+                1,"Enable Latching Alarms";
+
+    $ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+        Param32 =
+                0,
+                7,"21 0A 00 24 01 30 69",    $ Link Path Size, Link Path
+                0x0002,                 $ Descriptor
+                0xC1,
+                1,                      $ Data Type, Data Size
+                "AI Disable Alarms #0",
+                "",
+                "If Alarms are Disabled, these Alarms for this channel will show No FAULT.  \n"
+                " - Low & Low Low level Alarms  \n"
+                " - High & High High level Alarms  \n"
+                "\n"
+                "Status not effected:  \n"
+                " - Input Status (No Field Power)  \n"
+                " - Over and Under Range Status  \n"
+                "\n"
+                "This is useful for unused channels.",
+                0,1,0,
+                ,,,,
+                ,,,,
+                0;
+        Enum32 =
+                0,"Alarms Enabled",
+                1,"Alarms Disabled";
+
+    $ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+        Param33 =
+                0,
+                7,"21 0A 00 24 02 30 69",    $ Link Path Size, Link Path
+                0x0002,                 $ Descriptor
+                0xC1,
+                1,                      $ Data Type, Data Size
+                "AI Disable Alarms #1",
+                "",
+                "If Alarms are Disabled, these Alarms for this channel will show No FAULT.  \n"
+                " - Low & Low Low level Alarms  \n"
+                " - High & High High level Alarms  \n"
+                "\n"
+                "Status not effected:  \n"
+                " - Input Status (No Field Power)  \n"
+                " - Over and Under Range Status  \n"
+                "\n"
+                "This is useful for unused channels.",
+                0,1,0,
+                ,,,,
+                ,,,,
+                0;
+        Enum33 =
+                0,"Alarms Enabled",
+                1,"Alarms Disabled";
+
+    $ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+        Param34 =
+                0,
+                7,"21 0A 00 24 01 30 6B",    $ Link Path Size, Link Path
+                0x0032,                 $ Descriptor
+                0xC1,
+                1,                      $ Data Type, Data Size
+                "AI Low Alarm Status #0",
+                "",
+                "Indicates channel value is less than Low Alarm value.  \n"
+                " - 'No Fault' = channel value above Low Alarm value  \n"
+                " - 'Low Alarm FAULT' = channel value below Low Alarm value",
+                0,1,0,
+                ,,,,
+                ,,,,
+                0;
+        Enum34 =
+                0,"No Fault",
+                1,"Low Alarm FAULT";
+
+    $ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+        Param35 =
+                0,
+                7,"21 0A 00 24 02 30 6B",    $ Link Path Size, Link Path
+                0x0032,                 $ Descriptor
+                0xC1,
+                1,                      $ Data Type, Data Size
+                "AI Low Alarm Status #1",
+                "",
+                "Indicates channel value is less than Low Alarm value.  \n"
+                " - 'No Fault' = channel value above Low Alarm value  \n"
+                " - 'Low Alarm FAULT' = channel value below Low Alarm value",
+                0,1,0,
+                ,,,,
+                ,,,,
+                0;
+        Enum35 =
+                0,"No Fault",
+                1,"Low Alarm FAULT";
+
+    $ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+        Param36 =
+                0,
+                7,"21 0A 00 24 01 30 6C",    $ Link Path Size, Link Path
+                0x0032,                 $ Descriptor
+                0xC1,
+                1,                      $ Data Type, Data Size
+                "AI High Alarm Status #0",
+                "",
+                "Indicates channel value is greater than High Alarm value.  \n"
+                " - 'No Fault' = channel value below High Alarm value  \n"
+                " - 'High Alarm FAULT' = channel value above High Alarm value",
+                0,1,0,
+                ,,,,
+                ,,,,
+                0;
+        Enum36 =
+                0,"No Fault",
+                1,"High Alarm FAULT";
+
+    $ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+        Param37 =
+                0,
+                7,"21 0A 00 24 02 30 6C",    $ Link Path Size, Link Path
+                0x0032,                 $ Descriptor
+                0xC1,
+                1,                      $ Data Type, Data Size
+                "AI High Alarm Status #1",
+                "",
+                "Indicates channel value is greater than High Alarm value.  \n"
+                " - 'No Fault' = channel value below High Alarm value  \n"
+                " - 'High Alarm FAULT' = channel value above High Alarm value",
+                0,1,0,
+                ,,,,
+                ,,,,
+                0;
+        Enum37 =
+                0,"No Fault",
+                1,"High Alarm FAULT";
+
+    $ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+        Param38 =
+                0,
+                7,"21 0A 00 24 01 30 6D",    $ Link Path Size, Link Path
+                0x0032,                 $ Descriptor
+                0xC1,
+                1,                      $ Data Type, Data Size
+                "AI Low Low Alarm Status #0",
+                "",
+                "Indicates channel value is less than Low Low Alarm value.  \n"
+                " - 'No Fault' = channel value above Low Low Alarm value  \n"
+                " - 'Low Low Alarm FAULT' = channel value below Low Low Alarm value",
+                0,1,0,
+                ,,,,
+                ,,,,
+                0;
+        Enum38 =
+                0,"No Fault",
+                1,"Low Low Alarm FAULT";
+
+    $ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+        Param39 =
+                0,
+                7,"21 0A 00 24 02 30 6D",    $ Link Path Size, Link Path
+                0x0032,                 $ Descriptor
+                0xC1,
+                1,                      $ Data Type, Data Size
+                "AI Low Low Alarm Status #1",
+                "",
+                "Indicates channel value is less than Low Low Alarm value.  \n"
+                " - 'No Fault' = channel value above Low Low Alarm value  \n"
+                " - 'Low Low Alarm FAULT' = channel value below Low Low Alarm value",
+                0,1,0,
+                ,,,,
+                ,,,,
+                0;
+        Enum39 =
+                0,"No Fault",
+                1,"Low Low Alarm FAULT";
+
+    $ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+        Param40 =
+                0,
+                7,"21 0A 00 24 01 30 6E",    $ Link Path Size, Link Path
+                0x0032,                 $ Descriptor
+                0xC1,
+                1,                      $ Data Type, Data Size
+                "AI High High Alarm Status #0",
+                "",
+                "Indicates channel value is greater than High High Alarm value.  \n"
+                " - 'No Fault' = channel value below High High Alarm value  \n"
+                " - 'High High Alarm FAULT' = channel value above High High Alarm value",
+                0,1,0,
+                ,,,,
+                ,,,,
+                0;
+        Enum40 =
+                0,"No Fault",
+                1,"High High Alarm FAULT";
+
+    $ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+        Param41 =
+                0,
+                7,"21 0A 00 24 02 30 6E",    $ Link Path Size, Link Path
+                0x0032,                 $ Descriptor
+                0xC1,
+                1,                      $ Data Type, Data Size
+                "AI High High Alarm Status #1",
+                "",
+                "Indicates channel value is greater than High High Alarm value.  \n"
+                " - 'No Fault' = channel value below High High Alarm value  \n"
+                " - 'High High Alarm FAULT' = channel value above High High Alarm value",
+                0,1,0,
+                ,,,,
+                ,,,,
+                0;
+        Enum41 =
+                0,"No Fault",
+                1,"High High Alarm FAULT";
+
+    $ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+        Param42 =
+                0,
+                7,"21 0A 00 24 01 30 74",    $ Link Path Size, Link Path
+                0x0000,                 $ Descriptor
+                0xC7,
+                2,                      $ Data Type, Data Size
+                "AI Digital Filter #0",
+                "ms",
+                "Filter time constant in milliseconds.  \n"
+                "Valid values are from 0 to 10,000 ms.  \n"
+                "To disable, enter 0 ms.  \n"
+                "\n"
+                "See manual for equation.\n"
+                "",
+                0,10000,0,
+                ,,,,
+                ,,,,
+                0;
+
+    $ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+        Param43 =
+                0,
+                7,"21 0A 00 24 02 30 74",    $ Link Path Size, Link Path
+                0x0000,                 $ Descriptor
+                0xC7,
+                2,                      $ Data Type, Data Size
+                "AI Digital Filter #1",
+                "ms",
+                "Filter time constant in milliseconds.  \n"
+                "Valid values are from 0 to 10,000 ms.  \n"
+                "To disable, enter 0 ms.  \n"
+                "\n"
+                "See manual for equation.\n"
+                "",
+                0,10000,0,
+                ,,,,
+                ,,,,
+                0;
+
+    $ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+        Param44 =
+                0,
+                7,"21 0A 00 24 01 30 75",    $ Link Path Size, Link Path
+                0x0000,                 $ Descriptor
+                0xC3,
+                2,                      $ Data Type, Data Size
+                "AI Low Alarm #0",
+                "",
+                "Low Alarm Threshold.  \n"
+                "If Input value drops below this value, Low Alarm Status will Fault.  \n"
+                "Default = 500 or 500 mV.  \n"
+                "To disable, set at -32768.",
+                -32768,32767,500,
+                ,,,,
+                ,,,,
+                0;
+
+    $ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+        Param45 =
+                0,
+                7,"21 0A 00 24 02 30 75",    $ Link Path Size, Link Path
+                0x0000,                 $ Descriptor
+                0xC3,
+                2,                      $ Data Type, Data Size
+                "AI Low Alarm #1",
+                "",
+                "Low Alarm Threshold.  \n"
+                "If Input value drops below this value, Low Alarm Status will Fault.  \n"
+                "Default = 500 or 500 mV.  \n"
+                "To disable, set at -32768.",
+                -32768,32767,500,
+                ,,,,
+                ,,,,
+                0;
+
+    $ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+        Param46 =
+                0,
+                7,"21 0A 00 24 01 30 76",    $ Link Path Size, Link Path
+                0x0000,                 $ Descriptor
+                0xC3,
+                2,                      $ Data Type, Data Size
+                "AI High Alarm #0",
+                "",
+                "High Alarm Threshold.  \n"
+                "If Input value climbs above this value, High Alarm Status will Fault.  \n"
+                "Default = 9500 or 9.500 V.  \n"
+                "To disable, set at 32767.",
+                -32768,32767,9500,
+                ,,,,
+                ,,,,
+                0;
+
+     $ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+       Param47 =
+                0,
+                7,"21 0A 00 24 02 30 76",    $ Link Path Size, Link Path
+                0x0000,                 $ Descriptor
+                0xC3,
+                2,                      $ Data Type, Data Size
+                "AI High Alarm #1",
+                "",
+                "High Alarm Threshold.  \n"
+                "If Input value climbs above this value, High Alarm Status will Fault.  \n"
+                "Default = 9500 or 9.500 V.  \n"
+                "To disable, set at 32767.",
+                -32768,32767,9500,
+                ,,,,
+                ,,,,
+                0;
+
+    $ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+        Param48 =
+                0,
+                7,"21 0A 00 24 01 30 77",    $ Link Path Size, Link Path
+                0x0000,                 $ Descriptor
+                0xC3,
+                2,                      $ Data Type, Data Size
+                "AI Low Low Alarm #0",
+                "",
+                "Low Low Alarm Threshold.  \n"
+                "If Input value drops below this value, Low Low Alarm Status will Fault.  \n"
+                "Default = 200 or 200 mV.  \n"
+                "To disable, set at -32768.",
+                -32768,32767,200,
+                ,,,,
+                ,,,,
+                0;
+
+    $ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+        Param49 =
+                0,
+                7,"21 0A 00 24 02 30 77",    $ Link Path Size, Link Path
+                0x0000,                 $ Descriptor
+                0xC3,
+                2,                      $ Data Type, Data Size
+                "AI Low Low Alarm #1",
+                "",
+                "Low Low Alarm Threshold.  \n"
+                "If Input value drops below this value, Low Low Alarm Status will Fault.  \n"
+                "Default = 200 or 200 mV.  \n"
+                "To disable, set at -32768.",
+                -32768,32767,200,
+                ,,,,
+                ,,,,
+                0;
+
+    $ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+        Param50 =
+                0,
+                7,"21 0A 00 24 01 30 78",    $ Link Path Size, Link Path
+                0x0000,                 $ Descriptor
+                0xC3,
+                2,                      $ Data Type, Data Size
+                "AI High High Alarm #0",
+                "",
+                "High High Alarm Threshold.  \n"
+                "If Input value climbs above this value, High High Alarm Status will Fault.  \n"
+                "Default = 9800 or 9.800 V  \n"
+                "To disable, set at 32767.",
+                -32768,32767,9800,
+                ,,,,
+                ,,,,
+                0;
+
+    $ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+        Param51 =
+                0,
+                7,"21 0A 00 24 02 30 78",    $ Link Path Size, Link Path
+                0x0000,                 $ Descriptor
+                0xC3,
+                2,                      $ Data Type, Data Size
+                "AI High High Alarm #1",
+                "",
+                "High High Alarm Threshold.  \n"
+                "If Input value climbs above this value, High High Alarm Status will Fault.  \n"
+                "Default = 9800 or 9.800 V.  \n"
+                "To disable, set at 32767.",
+                -32768,32767,9800,
+                ,,,,
+                ,,,,
+                0;
+
+    $ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+        Param52 =
+                0,
+                7,"21 0A 00 24 01 30 80",    $ Link Path Size, Link Path
+                0x0032,                 $ Descriptor
+                0xC1,
+                1,                      $ Data Type, Data Size
+                "AI Under Range Status #0",
+                "",
+                "Indicates channel value is less than Under Range value \n"
+                "of -0.25V or -10.25 V (depending on Range selected).  \n"
+                " - 'No Fault' = channel value is above Under Range value  \n"
+                " - 'Under Range FAULT' = channel value is below Under Range value",
+                0,1,0,
+                ,,,,
+                ,,,,
+                0;
+        Enum52 =
+                0,"No Fault",
+                1,"Under Range FAULT";
+
+    $ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+        Param53 =
+                0,
+                7,"21 0A 00 24 02 30 80",    $ Link Path Size, Link Path
+                0x0032,                 $ Descriptor
+                0xC1,
+                1,                      $ Data Type, Data Size
+                "AI Under Range Status #1",
+                "",
+                "Indicates channel value is less than Under Range value \n"
+                "of -0.25V or -10.25 V (depending on Range selected).  \n"
+                " - 'No Fault' = channel value is above Under Range value  \n"
+                " - 'Under Range FAULT' = channel value is below Under Range value",
+                0,1,0,
+                ,,,,
+                ,,,,
+                0;
+        Enum53 =
+                0,"No Fault",
+                1,"Under Range FAULT";
+
+    $ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+        Param54 =
+                0,
+                7,"21 0A 00 24 01 30 81",    $ Link Path Size, Link Path
+                0x0032,                 $ Descriptor
+                0xC1,
+                1,                      $ Data Type, Data Size
+                "AI Over Range Status #0",
+                "",
+                "Indicates channel value is greater than Over Range value (+10.25 V).  \n"
+                " - 'No Fault' = channel value is below Over Range value  \n"
+                " - 'Over Range FAULT' = channel value is above Over Range value",
+                0,1,0,
+                ,,,,
+                ,,,,
+                0;
+        Enum54 =
+                0,"No Fault",
+                1,"Over Range FAULT";
+
+    $ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+        Param55 =
+                0,
+                7,"21 0A 00 24 02 30 81",    $ Link Path Size, Link Path
+                0x0032,                 $ Descriptor
+                0xC1,
+                1,                      $ Data Type, Data Size
+                "AI Over Range Status #1",
+                "",
+                "Indicates channel value is greater than Over Range value (+10.25 V).  \n"
+                " - 'No Fault' = channel value is below Over Range value  \n"
+                " - 'Over Range FAULT' = channel value is above Over Range value",
+                0,1,0,
+                ,,,,
+                ,,,,
+                0;
+        Enum55 =
+                0,"No Fault",
+                1,"Over Range FAULT";
+
+    $ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+        Param56 =
+                0,
+                7,"21 0A 00 24 01 30 83",    $ Link Path Size, Link Path
+                0x0032,                 $ Descriptor
+                0xC6,
+                1,                      $ Data Type, Data Size
+                "AI Bad Cal Status #0",
+                "",
+                "This bit shows the current status of calibration for this channel.  \n"
+                "'Good Calibration' means the data stored in EEPROM is within tolerances.\n"
+                "'Calibration Fault' means the module is not properly calibrated.  \n"
+                "'Good Calibration(Preset)' means the module is using default settings.  \n"
+                "\n"
+                "Note:  While in Calibration Mode, the status will be 'Bad Calibration.'",
+                0,2,1,
+                ,,,,
+                ,,,,
+                0;
+        Enum56 =
+                0,"Good Calibration",
+                1,"Calibration FAULT",
+                2,"Good Calibration(Preset)";
+
+    $ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+        Param57 =
+                0,
+                7,"21 0A 00 24 02 30 83",    $ Link Path Size, Link Path
+                0x0032,                 $ Descriptor
+                0xC6,
+                1,                      $ Data Type, Data Size
+                "AI Bad Cal Status #1",
+                "",
+                "This bit shows the current status of calibration for this channel.  \n"
+                "'Good Calibration' means the data stored in EEPROM is within tolerances.\n"
+                "'Calibration Fault' means the module is not properly calibrated.  \n"
+                "'Good Calibration(Preset)' means the module is using default settings.  \n"
+                "\n"
+                "Note:  While in Calibration Mode, the status will be 'Bad Calibration.'",
+                0,2,1,
+                ,,,,
+                ,,,,
+                0;
+        Enum57 =
+                0,"Good Calibration",
+                1,"Calibration FAULT",
+                2,"Good Calibration(Preset)";
+
+    $ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+        Param58 =
+                0,
+                7,"21 0F 00 24 0D 30 01",    $ Link Path Size, Link Path
+                0x0002,                 $ Descriptor
+                0xC6,
+                1,                      $ Data Type, Data Size
+                "AI Calibration Channel Select",
+                "",
+                "Choose which channel or channels to calibrate.",
+                0,3,0,
+                ,,,,
+                ,,,,
+                0;
+        Enum58 =
+                0,"None",
+                1,"Channel 0",
+                2,"Channel 1",
+                3,"Both Channels";
+
+    $ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+        Param59 =
+                0,
+                7,"21 0F 00 24 0E 30 01",    $ Link Path Size, Link Path
+                0x0002,                 $ Descriptor
+                0xC6,
+                1,                      $ Data Type, Data Size
+                "AI Calibration Command",
+                "",
+                "This command puts the module in different calibration modes.  \n"
+                "\n"
+                "Begin Calibration - Initializes the module for calibration.  \n"
+                "Accept Low Calibration - The value on the Input is a stable 0.0 V or +4.00mA.  \n"
+                "Accept High Calibration - The value on the Input is a stable +10.0 V or +20.00mA.  \n"
+                "Abort Calibration - Immediately terminates calibration process and uses \n"
+                "previous calibration data.  \n"
+                "\n"
+                "Note: Module must be stand-alone or in Idle/Program mode.  \n"
+                "Further Note: Once the 'Accept Low' and 'Accept High' Commands have \n"
+                "been sent, the module will exit calibration mode.",
+                0,4,0,
+                ,,,,
+                ,,,,
+                0;
+        Enum59 =
+                0,"Do Nothing",
+                1,"Begin Calibration",
+                2,"Accept Low Calibration",
+                3,"Accept High Calibration",
+                4,"Abort Calibration";
+
+    $ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+        Param60 =
+                0,
+                7,"21 0F 00 24 0F 30 01",    $ Link Path Size, Link Path
+                0x0002,                 $ Descriptor
+                0xC6,
+                1,                      $ Data Type, Data Size
+                "AI Reset Latched Alarms",
+                "",
+                "This parameter clears any Latched Alarms in the selected channel(s).  \n"
+                "\n"
+                "Alarms effected:  \n"
+                " - Low & Low Low level Alarms  \n"
+                " - High & High High level Alarms  \n"
+                "\n"
+                "If the Alarm condition still exists, the Fault will not be cleared.",
+                0,3,0,
+                ,,,,
+                ,,,,
+                0;
+        Enum60 =
+                0,"Do Nothing",
+                1,"Channel 0",
+                2,"Channel 1",
+                3,"Both Channels";
+
+
+    $ $$$$$$$$$$$$$$$$$$$$$$$$$  AO  $$$$$$$$$$$$$$$$$$$$$$$$$
+
+        Param61 =
+                0,
+                7,"21 0B 00 24 01 30 03",    $ Link Path Size, Link Path
+                0x0020,                 $ Descriptor
+                0xC3,
+                2,                      $ Data Type, Data Size
+                "AO Output Value #0",
+                "",
+                "Value of analog Output point.",
+                -32768,32767,0,
+                ,,,,
+                ,,,,
+                0;
+
+    $ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+        Param62 =
+                0,
+                7,"21 0B 00 24 02 30 03",    $ Link Path Size, Link Path
+                0x0020,                 $ Descriptor
+                0xC3,
+                2,                      $ Data Type, Data Size
+                "AO Output Value #1",
+                "",
+                "Value of analog Output point.",
+                -32768,32767,0,
+                ,,,,
+                ,,,,
+                0;
+
+    $ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+        Param63 =
+                0,
+                7,"21 0B 00 24 01 30 04",    $ Link Path Size, Link Path
+                0x0032,                 $ Descriptor
+                0xC1,
+                1,                      $ Data Type, Data Size
+                "AO Status #0",
+                "",
+                "Status of Output channel.  This bit is the OR of all possible channel Faults.  \n"
+                "\n"
+                "Possible Faults:\n"
+                " - Low or High Clamp Alarms\n"
+                " - No Field Power  \n"
+                "\n"
+                "If Alarms are 'Latched', the 'Reset Latched Alarm' parameter is needed to clear it.",
+                0,1,0,
+                ,,,,
+                ,,,,
+                0;
+        Enum63 =
+                0,"Normal Operation",
+                1,"FAULT";
+
+    $ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+        Param64 =
+                0,
+                7,"21 0B 00 24 02 30 04",    $ Link Path Size, Link Path
+                0x0032,                 $ Descriptor
+                0xC1,
+                1,                      $ Data Type, Data Size
+                "AO Status #1",
+                "",
+                "Status of Output channel.  This bit is the OR of all possible channel Faults.  \n"
+                "\n"
+                "Possible Faults:\n"
+                " - Low or High Clamp Alarms\n"
+                " - No Field Power  \n"
+                "\n"
+                "If Alarms are 'Latched', the 'Reset Latched Alarm' parameter is needed to clear it.",
+                0,1,0,
+                ,,,,
+                ,,,,
+                0;
+        Enum64 =
+                0,"Normal Operation",
+                1,"FAULT";
+
+    $ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+        Param65 =
+                0,
+                7,"21 0B 00 24 01 30 07",    $ Link Path Size, Link Path
+                0x0002,                 $ Descriptor
+                0xC6,
+                1,                      $ Data Type, Data Size
+                "AO Output Range #0",
+                "",
+                "Defines type and Range of Output signal.  \n"
+                "\n"
+                "Valid Selections:\n"
+                "   0 V to +10 V\n"
+                "   4mA to 20mA\n"
+                "   0mA to 20mA\n"
+                "\n"
+                "The Range specifies the Scaling endpoints.",
+                0,2,1,
+                ,,,,
+                ,,,,
+                0;
+        Enum65 =
+                0,"4mA to 20mA",
+                1,"0V to 10V",
+                2,"0mA to 20mA";
+                $3,"-10V to 10V (Invalid)",
+                $4,"0V to 5V (Invalid)",
+                $5,"-5V to 5V (Invalid)",
+                $6,"1V to 5V (Invalid)",
+                $7,"Reserved (Invalid)",
+                $8,"Reserved (Invalid)",
+                $9,"0mA to 50mA (Invalid)";
+
+    $ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+        Param66 =
+                0,
+                7,"21 0B 00 24 02 30 07",    $ Link Path Size, Link Path
+                0x0002,                 $ Descriptor
+                0xC6,
+                1,                      $ Data Type, Data Size
+                "AO Output Range #1",
+                "",
+                "Defines type and Range of Output signal.  \n"
+                "\n"
+                "Valid Selections:\n"
+                "   0 V to +10 V\n"
+                "   4mA to 20mA\n"
+                "   0mA to 20mA\n"
+                "\n"
+                "The Range specifies the Scaling endpoints.",
+                0,2,1,
+                ,,,,
+                ,,,,
+                0;
+        Enum66 =
+                0,"4mA to 20mA",
+                1,"0V to 10V",
+                2,"0mA to 20mA";
+                $3,"-10V to 10V (Invalid)",
+                $4,"0V to 5V (Invalid)",
+                $5,"-5V to 5V (Invalid)",
+                $6,"1V to 5V (Invalid)",
+                $7,"Reserved (Invalid)",
+                $8,"Reserved (Invalid)",
+                $9,"0mA to 50mA (Invalid)";
+
+    $ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+        Param67 =
+                0,
+                7,"21 0B 00 24 01 30 08",    $ Link Path Size, Link Path
+                0x0012,                 $ Descriptor
+                0xC6,
+                1,                      $ Data Type, Data Size
+                "AO Value Data Type #0",
+                "",
+                "Data type of Output value.  \n"
+                "It is not settable and will always return 'Signed Integer.'",
+                0,2,0,
+                ,,,,
+                ,,,,
+                0;
+        Enum67 =
+                0,"Signed Integer",
+                1,"Real",
+                2,"Unsigned Integer";
+
+     $ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+       Param68 =
+                0,
+                7,"21 0B 00 24 02 30 08",    $ Link Path Size, Link Path
+                0x0012,                 $ Descriptor
+                0xC6,
+                1,                      $ Data Type, Data Size
+                "AO Value Data Type #1",
+                "",
+                "Data type of Output value.  \n"
+                "It is not settable and will always return 'Signed Integer.'",
+                0,2,0,
+                ,,,,
+                ,,,,
+                0;
+        Enum68 =
+                0,"Signed Integer",
+                1,"Real",
+                2,"Unsigned Integer";
+
+    $ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+        Param69 =
+                0,
+                7,"21 0B 00 24 01 30 09",    $ Link Path Size, Link Path
+                0x0002,                 $ Descriptor
+                0xC6,
+                1,                      $ Data Type, Data Size
+                "AO Fault State #0",
+                "",
+                "The Output will go to this state during a Communication Fault.  \n"
+                "\n"
+                "Possible choices are:\n"
+                " - Hold Last State\n"
+                " - Go to Low Clamp value\n"
+                " - Go to High Clamp value\n"
+                " - Go to Fault value",
+                0,3,1,
+                ,,,,
+                ,,,,
+                0;
+        Enum69 =
+                0,"Hold Last State",
+                1,"Go to Low Clamp",
+                2,"Go to High Clamp",
+                3,"Go to Fault Value";
+
+    $ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+        Param70 =
+                0,
+                7,"21 0B 00 24 02 30 09",    $ Link Path Size, Link Path
+                0x0002,                 $ Descriptor
+                0xC6,
+                1,                      $ Data Type, Data Size
+                "AO Fault State #1",
+                "",
+                "The Output will go to this state during a Communication Fault.  \n"
+                "\n"
+                "Possible choices are:\n"
+                " - Hold Last State\n"
+                " - Go to Low Clamp value\n"
+                " - Go to High Clamp value\n"
+                " - Go to Fault value",
+                0,3,1,
+                ,,,,
+                ,,,,
+                0;
+        Enum70 =
+                0,"Hold Last State",
+                1,"Go to Low Clamp",
+                2,"Go to High Clamp",
+                3,"Go to Fault Value";
+
+    $ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+        Param71 =
+                0,
+                7,"21 0B 00 24 01 30 0a",    $ Link Path Size, Link Path
+                0x0002,                 $ Descriptor
+                0xC6,
+                1,                      $ Data Type, Data Size
+                "AO Idle State #0",
+                "",
+                "The Output will go to this state during Idle or Program mode.  \n"
+                "\n"
+                "Possible choices are:\n"
+                " - Hold Last State\n"
+                " - Go to Low Clamp value\n"
+                " - Go to High Clamp value\n"
+                " - Go to Idle value",
+                0,3,1,
+                ,,,,
+                ,,,,
+                0;
+        Enum71 =
+                0,"Hold Last State",
+                1,"Go to Low Clamp",
+                2,"Go to High Clamp",
+                3,"Go to Idle Value";
+
+    $ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+        Param72 =
+                0,
+                7,"21 0B 00 24 02 30 0a",    $ Link Path Size, Link Path
+                0x0002,                 $ Descriptor
+                0xC6,
+                1,                      $ Data Type, Data Size
+                "AO Idle State #1",
+                "",
+                "The Output will go to this state during Idle or Program mode.  \n"
+                "\n"
+                "Possible choices are:\n"
+                " - Hold Last State\n"
+                " - Go to Low Clamp value\n"
+                " - Go to High Clamp value\n"
+                " - Go to Idle value",
+                0,3,1,
+                ,,,,
+                ,,,,
+                0;
+        Enum72 =
+                0,"Hold Last State",
+                1,"Go to Low Clamp",
+                2,"Go to High Clamp",
+                3,"Go to Idle Value";
+
+    $ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+        Param73 =
+                0,
+                7,"21 0B 00 24 01 30 0B",    $ Link Path Size, Link Path
+                0x0000,                 $ Descriptor
+                0xC3,
+                2,                      $ Data Type, Data Size
+                "AO Fault Value #0",
+                "",
+                "When the Fault State is set to 'Fault Value', \n"
+                "this is the value the Output will go to during a Communication Fault.  \n"
+                "The value is bounded by the High and Low Clamps.",
+                -32768,32767,0,
+                ,,,,
+                ,,,,
+                0;
+
+    $ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+        Param74 =
+                0,
+                7,"21 0B 00 24 02 30 0B",    $ Link Path Size, Link Path
+                0x0000,                 $ Descriptor
+                0xC3,
+                2,                      $ Data Type, Data Size
+                "AO Fault Value #1",
+                "",
+                "When the Fault State is set to 'Fault Value', \n"
+                "this is the value the Output will go to during a Communication Fault.  \n"
+                "The value is bounded by the High and Low Clamps.",
+                -32768,32767,0,
+                ,,,,
+                ,,,,
+                0;
+
+     $ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+       Param75 =
+                0,
+                7,"21 0B 00 24 01 30 0C",    $ Link Path Size, Link Path
+                0x0000,                 $ Descriptor
+                0xC3,
+                2,                      $ Data Type, Data Size
+                "AO Idle Value #0",
+                "",
+                "When the Idle State is set to 'Idle Value,' \n"
+                "this is the value the Output will go to during Idle or Program mode.  \n"
+                "The value is bounded by the High and Low Clamps.",
+                -32768,32767,0,
+                ,,,,
+                ,,,,
+                0;
+
+    $ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+        Param76 =
+                0,
+                7,"21 0B 00 24 02 30 0C",    $ Link Path Size, Link Path
+                0x0000,                 $ Descriptor
+                0xC3,
+                2,                      $ Data Type, Data Size
+                "AO Idle Value #1",
+                "",
+                "When the Idle State is set to 'Idle Value,' \n"
+                "this is the value the Output will go to during Idle or Program mode.  \n"
+                "The value is bounded by the High and Low Clamps.",
+                -32768,32767,0,
+                ,,,,
+                ,,,,
+                0;
+
+    $ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+        Param77 =
+                0,
+                7,"21 0B 00 24 01 30 65",    $ Link Path Size, Link Path
+                0x0000,                 $ Descriptor
+                0xC3,
+                2,                      $ Data Type, Data Size
+                "AO Low Scaling #0",
+                "",
+                "Value to apply 0 V or -10 V (depending on Range selected) to the Output.  \n"
+                "Also known as Low Scaling value or Low Engineering units.",
+                -32768,32767,0,
+                ,,,,
+                ,,,,
+                0;
+
+     $ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+       Param78 =
+                0,
+                7,"21 0B 00 24 02 30 65",    $ Link Path Size, Link Path
+                0x0000,                 $ Descriptor
+                0xC3,
+                2,                      $ Data Type, Data Size
+                "AO Low Scaling #1",
+                "",
+                "Value to apply 0 V or -10 V (depending on Range selected) to the Output.  \n"
+                "Also known as Low Scaling value or Low Engineering units.",
+                -32768,32767,0,
+                ,,,,
+                ,,,,
+                0;
+
+    $ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+        Param79 =
+                0,
+                7,"21 0B 00 24 01 30 67",    $ Link Path Size, Link Path
+                0x0000,                 $ Descriptor
+                0xC3,
+                2,                      $ Data Type, Data Size
+                "AO High Scaling #0",
+                "",
+                "Value to apply +10 V to the Output.  \n"
+                "Also known as High Scaling value or High Engineering units.",
+                -32768,32767,10000,
+                ,,,,
+                ,,,,
+                0;
+
+    $ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+        Param80 =
+                0,
+                7,"21 0B 00 24 02 30 67",    $ Link Path Size, Link Path
+                0x0000,                 $ Descriptor
+                0xC3,
+                2,                      $ Data Type, Data Size
+                "AO High Scaling #1",
+                "",
+                "Value to apply +10 V to the Output.  \n"
+                "Also known as High Scaling value or High Engineering units.",
+                -32768,32767,10000,
+                ,,,,
+                ,,,,
+                0;
+
+     $ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+       Param81 =
+                0,
+                7,"21 0B 00 24 01 30 68",    $ Link Path Size, Link Path
+                0x0000,                 $ Descriptor
+                0xC3,
+                2,                      $ Data Type, Data Size
+                "AO Low Clamp #0",
+                "",
+                "Lowest value of the Output.  \n"
+                "If the Output value is set below this value, \n"
+                "the Output will be set to the Low Clamp value. \n"
+                "If the Low Clamp value is violated, \n"
+                "the 'Low Clamp Alarm Status' bit will FAULT.  \n"
+                "To disable, set to -32768.",
+                -32768,32767,-32768,
+                ,,,,
+                ,,,,
+                0;
+
+     $ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+       Param82 =
+                0,
+                7,"21 0B 00 24 02 30 68",    $ Link Path Size, Link Path
+                0x0000,                 $ Descriptor
+                0xC3,
+                2,                      $ Data Type, Data Size
+                "AO Low Clamp #1",
+                "",
+                "Lowest value of the Output.  \n"
+                "If the Output value is set below this value, \n"
+                "the Output will be set to the Low Clamp value. \n"
+                "If the Low Clamp value is violated, \n"
+                "the 'Low Clamp Alarm Status' bit will FAULT.  \n"
+                "To disable, set to -32768.",
+                -32768,32767,-32768,
+                ,,,,
+                ,,,,
+                0;
+
+    $ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+        Param83 =
+                0,
+                7,"21 0B 00 24 01 30 69",    $ Link Path Size, Link Path
+                0x0000,                 $ Descriptor
+                0xC3,
+                2,                      $ Data Type, Data Size
+                "AO High Clamp #0",
+                "",
+                "Highest value of the Output.  \n"
+                "If the Output value is set above this value,  \n"
+                "the Output will be the High Clamp value. \n"
+                "If the High Clamp value is violated, \n"
+                "the 'High Clamp Alarm Status' bit will FAULT.  \n"
+                "To disable, set to 32767.",
+                -32768,32767,32767,
+                ,,,,
+                ,,,,
+                0;
+
+     $ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+       Param84 =
+                0,
+                7,"21 0B 00 24 02 30 69",    $ Link Path Size, Link Path
+                0x0000,                 $ Descriptor
+                0xC3,
+                2,                      $ Data Type, Data Size
+                "AO High Clamp #1",
+                "",
+                "Highest value of the Output.  \n"
+                "If the Output value is set above this value,  \n"
+                "the Output will be the High Clamp value. \n"
+                "If the High Clamp value is violated, \n"
+                "the 'High Clamp Alarm Status' bit will FAULT.  \n"
+                "To disable, set to 32767.",
+                -32768,32767,32767,
+                ,,,,
+                ,,,,
+                0;
+
+     $ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+       Param85 =
+                0,
+                7,"21 0B 00 24 01 30 6C",    $ Link Path Size, Link Path
+                0x0002,                 $ Descriptor
+                0xC1,
+                1,                      $ Data Type, Data Size
+                "AO Enable Alarm Latch #0",
+                "",
+                "Alarms will Latch FAULTED until a 'Latch Reset' command is received.  \n"
+                "\n"
+                "Alarms effected:\n"
+                " - Low Clamp Alarm \n"
+                " - High Clamp Alarm \n"
+                "\n"
+                "Status not effected:\n"
+                " - Output Status (No Field Power)  \n"
+                "\n"
+                "This is useful in tracking transient or momentary errors.",
+                0,1,0,
+                ,,,,
+                ,,,,
+                0;
+        Enum85 =
+                0,"Disabled",
+                1,"Enable Latching Alarms";
+
+     $ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+       Param86 =
+                0,
+                7,"21 0B 00 24 02 30 6C",    $ Link Path Size, Link Path
+                0x0002,                 $ Descriptor
+                0xC1,
+                1,                      $ Data Type, Data Size
+                "AO Enable Alarm Latch #1",
+                "",
+                "Alarms will Latch FAULTED until a 'Latch Reset' command is received.  \n"
+                "\n"
+                "Alarms effected:\n"
+                " - Low Clamp Alarm \n"
+                " - High Clamp Alarm \n"
+                "\n"
+                "Status not effected:\n"
+                " - Output Status (No Field Power)  \n"
+                "\n"
+                "This is useful in tracking transient or momentary errors.",
+                0,1,0,
+                ,,,,
+                ,,,,
+                0;
+        Enum86 =
+                0,"Disabled",
+                1,"Enable Latching Alarms";
+
+     $ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+       Param87 =
+                0,
+                7,"21 0B 00 24 01 30 6D",    $ Link Path Size, Link Path
+                0x0002,                 $ Descriptor
+                0xC1,
+                1,                      $ Data Type, Data Size
+                "AO Disable Alarms #0",
+                "",
+                "If Alarms are Disabled, these Alarms for this channel will show No FAULT.  \n"
+                " - Low Clamp Alarm  \n"
+                " - High Clamp Alarm  \n"
+                "\n"
+                "Status not effected:  \n"
+                " - Output Status (No Field Power)  \n"
+                "\n"
+                "This is useful for unused channels. \n"
+                "Note:  High and Low Clamps are not Disabled.",
+                0,1,0,
+                ,,,,
+                ,,,,
+                0;
+        Enum87 =
+                0,"Alarms Enabled",
+                1,"Alarms Disabled";
+
+     $ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+       Param88 =
+                0,
+                7,"21 0B 00 24 02 30 6D",    $ Link Path Size, Link Path
+                0x0002,                 $ Descriptor
+                0xC1,
+                1,                      $ Data Type, Data Size
+                "AO Disable Alarms #1",
+                "",
+                "If Alarms are Disabled, these Alarms for this channel will show No FAULT.  \n"
+                " - Low Clamp Alarm  \n"
+                " - High Clamp Alarm  \n"
+                "\n"
+                "Status not effected:  \n"
+                " - Output Status (No Field Power)  \n"
+                "\n"
+                "This is useful for unused channels. \n"
+                "Note:  High and Low Clamps are not Disabled.",
+                0,1,0,
+                ,,,,
+                ,,,,
+                0;
+        Enum88 =
+                0,"Alarms Enabled",
+                1,"Alarms Disabled";
+
+    $ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+        Param89 =
+                0,
+                7,"21 0B 00 24 01 30 6E",    $ Link Path Size, Link Path
+                0x0032,                 $ Descriptor
+                0xC1,
+                1,                      $ Data Type, Data Size
+                "AO Low Clamp Status #0",
+                "",
+                "If Low Clamp Alarm Status is FAULTED, \n"
+                "the requested Output value is below the Clamp value.  \n"
+                "Consequently, the Output is set to the Low Clamp value.",
+                0,1,0,
+                ,,,,
+                ,,,,
+                0;
+        Enum89 =
+                0,"No Fault",
+                1,"Low Clamp FAULT";
+
+    $ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+        Param90 =
+                0,
+                7,"21 0B 00 24 02 30 6E",    $ Link Path Size, Link Path
+                0x0032,                 $ Descriptor
+                0xC1,
+                1,                      $ Data Type, Data Size
+                "AO Low Clamp Status #1",
+                "",
+                "If Low Clamp Alarm Status is FAULTED, \n"
+                "the requested Output value is below the Clamp value.  \n"
+                "Consequently, the Output is set to the Low Clamp value.",
+                0,1,0,
+                ,,,,
+                ,,,,
+                0;
+        Enum90 =
+                0,"No Fault",
+                1,"Low Clamp FAULT";
+
+    $ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+        Param91 =
+                0,
+                7,"21 0B 00 24 01 30 6F",    $ Link Path Size, Link Path
+                0x0032,                 $ Descriptor
+                0xC1,
+                1,                      $ Data Type, Data Size
+                "AO High Clamp Status #0",
+                "",
+                "If High Clamp Alarm Status is FAULTED, \n"
+                "the requested Output value is above the Clamp value.  \n"
+                "Consequently, the Output is set to the High Clamp value.",
+                0,1,0,
+                ,,,,
+                ,,,,
+                0;
+        Enum91 =
+                0,"No Fault",
+                1,"High Clamp FAULT";
+
+    $ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+        Param92 =
+                0,
+                7,"21 0B 00 24 02 30 6F",    $ Link Path Size, Link Path
+                0x0032,                 $ Descriptor
+                0xC1,
+                1,                      $ Data Type, Data Size
+                "AO High Clamp Status #1",
+                "",
+                "If High Clamp Alarm Status is FAULTED, \n"
+                "the requested Output value is above the Clamp value.  \n"
+                "Consequently, the Output is set to the High Clamp value.",
+                0,1,0,
+                ,,,,
+                ,,,,
+                0;
+        Enum92 =
+                0,"No Fault",
+                1,"High Clamp FAULT";
+
+    $ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+        Param93 =
+                0,
+                7,"21 0B 00 24 01 30 7C",    $ Link Path Size, Link Path
+                0x0032,                 $ Descriptor
+                0xC6,
+                1,                      $ Data Type, Data Size
+                "AO Bad Cal Status #0",
+                "",
+                "This bit shows the current status of calibration for this channel.  \n"
+                "'Good Calibration' means the data stored in EEPROM is within tolerances.\n"
+                "'Calibration Fault' means the module is not properly calibrated.  \n"
+                "'Good Calibration(Preset)' means the module is using default settings.  \n"
+                "\n"
+                "Note:  While in Calibration Mode, the status will be 'Bad Calibration.'",
+                0,2,1,
+                ,,,,
+                ,,,,
+                0;
+        Enum93 =
+                0,"Good Calibration",
+                1,"Calibration FAULT",
+                2,"Good Calibration(Preset)";
+
+    $ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+        Param94 =
+                0,
+                7,"21 0B 00 24 02 30 7C",    $ Link Path Size, Link Path
+                0x0032,                 $ Descriptor
+                0xC6,
+                1,                      $ Data Type, Data Size
+                "AO Bad Cal Status #1",
+                "",
+                "This bit shows the current status of calibration for this channel.  \n"
+                "'Good Calibration' means the data stored in EEPROM is within tolerances.\n"
+                "'Calibration Fault' means the module is not properly calibrated.  \n"
+                "'Good Calibration(Preset)' means the module is using default settings.  \n"
+                "\n"
+                "Note:  While in Calibration Mode, the status will be 'Bad Calibration.'",
+                0,2,1,
+                ,,,,
+                ,,,,
+                0;
+        Enum94 =
+                0,"Good Calibration",
+                1,"Calibration FAULT",
+                2,"Good Calibration(Preset)";
+
+    $ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+        Param95 =
+                0,
+                7,"21 0F 00 24 10 30 01",    $ Link Path Size, Link Path
+                0x0002,                 $ Descriptor
+                0xC6,
+                1,                      $ Data Type, Data Size
+                "AO Calibration Channel Select",
+                "",
+                "Choose which channel or channels to Calibrate.",
+                0,3,0,
+                ,,,,
+                ,,,,
+                0;
+        Enum95 =
+                0,"None",
+                1,"Channel 0",
+                2,"Channel 1",
+                3,"Both Channels";
+
+    $ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+        Param96 =
+                0,
+                7,"21 0F 00 24 11 30 01",    $ Link Path Size, Link Path
+                0x0000,                 $ Descriptor
+                0xCA,
+                4,                      $ Data Type, Data Size
+                "AO Channel 0 Low Value",
+                "V or mA",
+                "Enter the measured value at the Output terminal after issuing the \n"
+                "'Output Low Reference' command.  \n"
+                "If the channel outputs voltage, enter the value in volts (e.g. 0.0035). \n"
+                "If the channel outputs current, enter the value in mA (e.g. 4.01mA). \n",
+                -3.402823E+38,3.402823E+38,0,
+                ,,,,
+                ,,,,
+                0;
+
+    $ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+        Param97 =
+                0,
+                7,"21 0F 00 24 12 30 01",    $ Link Path Size, Link Path
+                0x0000,                 $ Descriptor
+                0xCA,
+                4,                      $ Data Type, Data Size
+                "AO Channel 0 High Value",
+                "V or mA",
+                "Enter the measured value at the Output terminal after issuing the \n"
+                "'Output High Reference' command.  \n"
+                "If the channel outputs voltage, enter the value in volts (e.g. 10.0046). \n"
+                "If the channel outputs current, enter the value in mA (e.g. 20.01mA). \n",
+                -3.402823E+38,3.402823E+38,0,
+                ,,,,
+                ,,,,
+                0;
+
+    $ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+        Param98 =
+                0,
+                7,"21 0F 00 24 13 30 01",    $ Link Path Size, Link Path
+                0x0000,                 $ Descriptor
+                0xCA,
+                4,                      $ Data Type, Data Size
+                "AO Channel 1 Low Value",
+                "V or mA",
+                "Enter the measured value at the Output terminal after issuing the \n"
+                "'Output Low Reference' command.  \n"
+                "If the channel outputs voltage, enter the value in volts (e.g. 0.0035). \n"
+                "If the channel outputs current, enter the value in mA (e.g. 4.01mA). \n",
+                -3.402823E+38,3.402823E+38,0,
+                ,,,,
+                ,,,,
+                0;
+
+    $ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+        Param99 =
+                0,
+                7,"21 0F 00 24 14 30 01",    $ Link Path Size, Link Path
+                0x0000,                 $ Descriptor
+                0xCA,
+                4,                      $ Data Type, Data Size
+                "AO Channel 1 High Value",
+                "V or mA",
+                "Enter the measured value at the Output terminal after issuing the \n"
+                "'Output High Reference' command.  \n"
+                "If the channel outputs voltage, enter the value in volts (e.g. 10.0046). \n"
+                "If the channel outputs current, enter the value in mA (e.g. 20.01mA). \n",
+                -3.402823E+38,3.402823E+38,0,
+                ,,,,
+                ,,,,
+                0;
+
+     $ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+       Param100 =
+                0,
+                7,"21 0F 00 24 15 30 01",    $ Link Path Size, Link Path
+                0x0002,                 $ Descriptor
+                0xC6,
+                1,                      $ Data Type, Data Size
+                "AO Calibration Command",
+                "",
+                "This command puts the module in different calibration modes.  \n"
+                "\n"
+                "Begin Calibration - Initializes the module for calibration.  \n"
+                "Output Low Reference - Generates approximately 0.0 V or +4.00 mA at the selected Output(s).  \n"
+                "Output High Reference - Generates approximately +10.0 V or +20.00 mA at the selected Output(s).  \n"
+                "Finish Calibration - Uses the measured values to compensate the Output(s).  \n"
+                "Abort Calibration - Immediately terminates calibration process and uses \n"
+                "previous calibration data. \n"
+                "\n"
+                "Note: Module must be stand-alone or in Idle/Program mode. \n"
+                "Further Note: The Low and High measured values must be sent to the \n"
+                "module before issuing the 'Finish Calibration' command.",
+                0,5,0,
+                ,,,,
+                ,,,,
+                0;
+        Enum100 =
+                0,"Do Nothing",
+                1,"Begin Calibration",
+                2,"Output Low Reference",
+                3,"Output High Reference",
+                4,"Finish Calibration",
+                5,"Abort Calibration";
+
+    $ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+        Param101 =
+                0,
+                7,"21 0F 00 24 16 30 01",    $ Link Path Size, Link Path
+                0x0002,                 $ Descriptor
+                0xC6,
+                1,                      $ Data Type, Data Size
+                "AO Reset Latched Alarms",
+                "",
+                "This parameter clears any Latched Alarms in the selected channel(s).  \n"
+                "\n"
+                "Alarms effected:  \n"
+                " - Low Clamp Alarm  \n"
+                " - High Clamp Alarm  \n"
+                "\n"
+                "If the Alarm condition still exists, the Fault will not be cleared.",
+                0,3,0,
+                ,,,,
+                ,,,,
+                0;
+        Enum101 =
+                0,"Do Nothing",
+                1,"Channel 0",
+                2,"Channel 1",
+                3,"Both Channels";
+
+    $ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+    $  
+    $   The following ParamN definitions are for Invisible Parameters
+    $   that do not exist in the device.  They are here to provide
+    $   names for Assembly members in this EDS whose corresponding
+    $   on-line member names are encoded in Symbolic EPATHs.
+    $  
+    $ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+
+    $ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+        Param102 =                      $ DO Output Data
+                0,
+                0,"",
+                0x0200,
+                0xC6,
+                1,
+                "DO Output Data",
+                "",
+                "",
+                0,255,0,
+                ,,,,
+                ,,,,
+                ;
+
+     
+     $ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+       Param105 =                      $ Produced DeviceLogix Data
+                0,
+                0,"",
+                0x0200,
+                0xC6,
+                1,
+                "Produced DeviceLogix Data",
+                "",
+                "",
+                0,255,0,
+                ,,,,
+                ,,,,
+                ;
+
+     $ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+       Param106 =                      $ DeviceLogix Enable
+                0,
+                0,"",
+                0x0200,
+                0xC1,
+                1,
+                "DeviceLogix Enabled",
+                "",
+                "",
+                0,1,0,
+                ,,,,
+                ,,,,
+                ;
+
+     $ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+       Param107 =                      $ Hardware Output Fault 0, DOP 1-8
+                0,
+                0,"",
+                0x0200,
+                0xC1,
+                1,
+                "Output Fault Grp 0",
+                "",
+                "",
+                0,1,0,
+                ,,,,
+                ,,,,
+                ;
+
+     $ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+       Param108 =                      $ Hardware Output Fault 1, DOP 9-16
+                0,
+                0,"",
+                0x0200,
+                0xC1,
+                1,
+                "Output Fault Grp 1",
+                "",
+                "",
+                0,1,0,
+                ,,,,
+                ,,,,
+                ;
+
+     $ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+       Param109 =                      $ Hardware Output Fault 2, AOP 1
+                0,
+                0,"",
+                0x0200,
+                0xC1,
+                1,
+                "AOP 0 Fault",
+                "",
+                "",
+                0,1,0,
+                ,,,,
+                ,,,,
+                ;
+
+     $ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+       Param110 =                      $ Hardware Output Fault 3, AOP 2
+                0,
+                0,"",
+                0x0200,
+                0xC1,
+                1,
+                "AOP 1 Fault",
+                "",
+                "",
+                0,1,0,
+                ,,,,
+                ,,,,
+                ;
+
+[Groups]
+        Group1 =
+                "Digital Configuration",
+                10,
+                1,2,3,6,7,8,9,10,12,15;
+        Group2 =
+                "Digital Monitoring",
+                3,
+                4,5,11;
+        Group3 =
+                "Analog Input Values",
+                2,
+                18,19;
+        Group4 =
+                "Analog Input Status",
+                15,
+                20,21,34,35,36,37,38,39,40,41,
+                52,53,54,55,60;
+        Group5 =
+                "Analog Input Configuration",
+                24,
+                17,16,22,23,24,25,26,27,28,29,
+                30,31,32,33,42,43,44,45,46,47,
+                48,49,50,51;
+        Group6 =
+                "Analog Input Calibration",
+                4,
+                56,57,58,59;
+        Group7 =
+                "Analog Output Values",
+                2,
+                61,62;
+        Group8 =
+                "Analog Output Status",
+                7,
+                63,64,89,90,91,92,101;
+        Group9 =
+                "Analog Output Configuration",
+                24,
+                65,66,67,68,69,70,71,72,73,74,
+                75,76,77,78,79,80,81,82,83,84,
+                85,86,87,88;
+        Group10 =
+                "Analog Output Calibration",
+                8,
+                93,94,95,96,97,98,99,100;
+        Group11 =
+                "DeviceLogix Related",
+                2,
+                13,14;
+
+[Assembly]
+        Revision = 1;
+
+        Assem159 =
+                "Data - Con",
+                "21 04 00 24 9F 30 03",
+                6,
+                0x0000,
+                ,,
+                8,Param102,             $ DO Output Values (0-7)
+                8,Param102,             $ DO Output Values (8-15)
+                16,Param61,             $ AO Output Value #0
+                16,Param62;             $ AO Output Value #1
+
+        Assem155 =
+                "Data - Input w/Status",
+                "21 04 00 24 9B 30 03",
+                11,
+                0x0000,
+                ,,
+                8,Param4,               $ DI Input Values (0-7)
+                8,Param5,               $ DI Input Values (8-15)
+                1,Param107,             $ Hardware Output Fault 0 (DOP 1-8)
+                1,Param108,             $ Hardware Output Fault 1 (DOP 9-16)
+                1,Param109,             $ Hardware Output Fault 2 (AOP 1)
+                1,Param110,             $ Hardware Output Fault 3 (AOP 2)
+                2,,
+                1,Param106,             $ DeviceLogix Enabled
+                1,,
+                16,Param18,             $ AI Input CH0 Data
+                16,Param19,             $ AI Input CH1 Data
+                1,Param20,              $ AI Status #0
+                1,,                     $ AI Calibration Mode #0
+                1,Param34,              $ AI Low Alarm Status #0
+                1,Param36,              $ AI High Alarm Status #0
+                1,Param38,              $ AI Low Low Alarm Status #0
+                1,Param40,              $ AI High High Alarm Status #0
+                1,Param52,              $ AI Under Range Status #0
+                1,Param54,              $ AI Over Range Status #0
+                1,Param21,              $ AI Status #1
+                1,,                     $ AI Calibration Mode #1
+                1,Param35,              $ AI Low Alarm Status #1
+                1,Param37,              $ AI High Alarm Status #1
+                1,Param39,              $ AI Low Low Alarm Status #1
+                1,Param41,              $ AI High High Alarm Status #1
+                1,Param53,              $ AI Under Range Status #1
+                1,Param55,              $ AI Over Range Status #1
+                1,Param63,              $ AO Status #0
+                1,,                     $ AO Calibration Mode #0
+                1,Param89,              $ AO Low Clamp Status #0
+                1,Param91,              $ AO High Clamp Status #0
+                4,,
+                1,Param64,              $ AO Status #1
+                1,,                     $ AO Calibration Mode #1
+                1,Param90,              $ AO Low Clamp Status #1
+                1,Param92,              $ AO High Clamp Status #1
+                4,;
+
+        Assem156 =
+                "Data - Input Only",
+                "21 04 00 24 9C 30 03",
+                6,
+                0x0000,
+                ,,
+                8,Param4,               $ DI Input Values (0-7)
+                8,Param5,               $ DI Input Values (8-15)
+                16,Param18,             $ AI Input CH0 Data
+                16,Param19;             $ AI Input CH1 Data
+
+        Assem157 =
+                "Data - DeviceLogix",
+                "21 04 00 24 9D 30 03",
+                18,
+                0x0000,
+                ,,
+                8,Param4,               $ DI Input Values (0-7)
+                8,Param5,               $ DI Input Values (8-15)
+                1,Param107,             $ Hardware Output Fault 0 (DOP 1-8)
+                1,Param108,             $ Hardware Output Fault 1 (DOP 9-16)
+                1,Param109,             $ Hardware Output Fault 2 (AOP 1)
+                1,Param110,             $ Hardware Output Fault 3 (AOP 2)
+                2,,
+                1,Param106,             $ DeviceLogix Enabled
+                1,,
+                8,Param102,             $ DO Output Values (0-7)
+                8,Param102,             $ DO Output Values (8-15)
+                8,Param105,             $ DeviceLogix Produced Network Data
+                16,Param18,             $ AI Input CH0 Data
+                16,Param19,             $ AI Input CH1 Data
+                1,Param20,              $ AI Status #0
+                1,,                     $ AI Calibration Mode #0
+                1,Param34,              $ AI Low Alarm Status #0
+                1,Param36,              $ AI High Alarm Status #0
+                1,Param38,              $ AI Low Low Alarm Status #0
+                1,Param40,              $ AI High High Alarm Status #0
+                1,Param52,              $ AI Under Range Status #0
+                1,Param54,              $ AI Over Range Status #0
+                1,Param21,              $ AI Status #1
+                1,,                     $ AI Calibration Mode #1
+                1,Param35,              $ AI Low Alarm Status #1
+                1,Param37,              $ AI High Alarm Status #1
+                1,Param39,              $ AI Low Low Alarm Status #1
+                1,Param41,              $ AI High High Alarm Status #1
+                1,Param53,              $ AI Under Range Status #1
+                1,Param55,              $ AI Over Range Status #1
+                16,Param61,             $ AO Output Value #0
+                16,Param62,             $ AO Output Value #1
+                1,Param63,              $ AO Status #0
+                1,,                     $ AO Calibration Mode #0
+                1,Param89,              $ AO Low Clamp Status #0
+                1,Param91,              $ AO High Clamp Status #0
+                4,,
+                1,Param64,              $ AO Status #1
+                1,,                     $ AO Calibration Mode #1
+                1,Param90,              $ AO Low Clamp Status #1
+                1,Param92,              $ AO High Clamp Status #1
+                4,;
+
+        Assem160 =                      $ 0xA0
+                "Data",                 $ Name of Connection.
+                "21 04 00 24 A0 30 03", $ Path to I/O Production Assembly.
+                4,                      $ The size in bytes that this connection produces.
+                0x0000,                 $ Not editable, not modular.
+                ,,
+                16,Param61,             $ AO Output Value #0
+                16,Param62;             $ AO Output Value #1
+
+        Assem161 =                      $ 0xA1
+                "Data",                 $ Name of Connection.
+                "21 04 00 24 A1 30 03", $ Path to I/O Production Assembly.
+                5,                      $ The size in bytes that this connection produces.
+                0x0000,
+                ,,                      $ Not editable, not modular.
+                8,Param102,             $ 8 output values (byte 0)
+                16,Param61,             $ AO Output Value #0
+                16,Param62;             $ AO Output Value #1
+
+        Assem162 =                      $ 0xA2
+                "Data",                 $ Name of Connection.
+                "21 04 00 24 A2 30 03", $ Path to I/O Production Assembly.
+                6,                      $ The size in bytes that this connection produces.
+                0x0000,                 $ Not editable, not modular.
+                ,,
+                8,Param102,             $ 8 output values (byte 0)
+                8,Param102,             $ 8 output values (byte 1)
+                16,Param61,             $ AO Output Value #0
+                16,Param62;             $ AO Output Value #1
+
+        Assem163 =                      $ 0xA3
+                "Data",                 $ Name of Connection.
+                "21 04 00 24 A3 30 03", $ Path to I/O Production Assembly.
+                7,                      $ The size in bytes that this connection produces.
+                0x0000,                 $ Not editable, not modular.
+                ,,
+                8,Param102,             $ 8 output values (byte 0)
+                8,Param102,             $ 8 output values (byte 0)
+                8,Param102,             $ 8 output values (byte 0)
+                16,Param61,             $ AO Output Value #0
+                16,Param62;             $ AO Output Value #1
+
+        Assem164 =                      $ 0xA4
+                "Data",                 $ Name of Connection.
+                "21 04 00 24 A4 30 03", $ Path to I/O Production Assembly.
+                8,                      $ The size in bytes that this connection produces.
+                0x0000,                 $ Not editable, not modular.
+                ,,
+                8,Param102,             $ 8 output values (byte 0)
+                8,Param102,             $ 8 output values (byte 0)
+                8,Param102,             $ 8 output values (byte 0)
+                8,Param102,             $ 8 output values (byte 0)
+                16,Param61,             $ AO Output Value #0
+                16,Param62;             $ AO Output Value #1
+
+        Assem176 =
+                "Configuration Assembly",
+                "21 04 00 24 B0 30 03",
+                80,
+                0x0000,
+                ,,
+                1,Param1,               $ AutoBaud
+                1,Param15,              $ Quick Start
+                1,Param13,              $ Net Override
+                1,Param14,              $ Comm Override
+                1,Param7,               $ DO Fault State
+                1,Param8,               $ DO Fault Value
+                1,Param9,               $ DO Idle State
+                1,Param10,              $ DO Idle Value
+                16,Param2,              $ DI Off to On Input filter
+                16,Param3,              $ DI On to Off Input filter
+                4,Param6,               $ Produced Assemblies
+				4,Param12,              $ Consumed Assemblies
+                16,Param26,             $ AI Low Scaling #0
+                16,Param28,             $ AI High Scaling #0
+                16,Param42,             $ AI Digital Filter #0
+                16,Param44,             $ AI Low Alarm #0
+                16,Param46,             $ AI High Alarm #0
+                16,Param48,             $ AI Low Low Alarm #0
+                16,Param50,             $ AI High High Alarm #0
+                8,Param22,              $ AI Input Range #0
+                8,Param30,              $ AI Enable Alarm Latch #0
+                8,Param32,              $ AI Disable Alarms #0
+                8,,
+                16,Param27,             $ AI Low Scaling #1
+                16,Param29,             $ AI High Sclaing #1
+                16,Param43,             $ AI Digital Filter #1
+                16,Param45,             $ AI Low Alarm #1
+                16,Param47,             $ AI High Alarm #1
+                16,Param49,             $ AI Low Low Alarm #1
+                16,Param51,             $ AI High High Alarm #1
+                8,Param23,              $ AI Input Range #1
+                8,Param31,              $ AI Enable Alarm Latch #1
+                8,Param33,              $ AI Disable Alarms #1
+                8,Param17,              $ AI Notch Filter
+                16,Param16,             $ AI Update Rate
+                16,Param73,             $ AO Fault Value #0
+                16,Param75,             $ AO Idle Value #0
+                16,Param77,             $ AO Low Scaling #0
+                16,Param79,             $ AO High Scaling #0
+                16,Param81,             $ AO Low Clamp #0
+                16,Param83,             $ AO High Clamp #0
+                8,Param65,              $ AO Output Range #0
+                8,Param69,              $ AO Fault State #0
+                8,Param71,              $ AO Idle State #0
+                8,Param85,              $ AO Enable Alarm Latch #0
+                8,Param87,              $ AO Disable Alarm #0
+                8,,
+                16,Param74,             $ AO Fault Value #1
+                16,Param76,             $ AO Idle Value #1
+                16,Param78,             $ AO Low Scaling #1
+                16,Param80,             $ AO High Scaling #1
+                16,Param82,             $ AO Low Clamp #1
+                16,Param84,             $ AO High Clamp #1
+                8,Param66,              $ AO Output Range #1
+                8,Param70,              $ AO Fault State #1
+                8,Param72,              $ AO Idle State #1
+                8,Param86,              $ AO Enable Alarm Latch #1
+                8,Param88,              $ AO Disable Alarm #1
+                8,;
+
+        VariantExa1 =
+                ,,,,,
+                Param6,                 $ Produced Assembly Selection
+                0x00,Assem155,
+                0x01,Assem156,
+                0x02,Assem157;
+
+        VariantExa2 =
+                ,,,,,
+                Param12,                $ Consumed Assembly Selection
+                0x00,Assem159,
+                0x01,Assem160,
+                0x02,Assem161,
+                0x03,Assem162,
+                0x04,Assem163,
+                0x05,Assem164;
+
+[1_LEOSUPPORT]
+1_DLX_REVISION = 2;
+1_NUM_OF_FBLOCKS = 160;
+1_LICENSE_KEY = 0xFA55B124;
+1_FBLOCK_CLASSES_IMPLEMENTED = 775, 776, 777, 778, 784, 822, 825, 827, 828, 829, 838, 839;	$ 12 classes are supported
+
+[1_DATA_TABLES]
+1_CLASS_ATTR_SUPPORT = 1, 8;
+1_INST_ATTR_SUPPORT = 1, 2, 3, 4;
+1_INST_IDS = 1, "All Digital Data",
+             2, "Function Block Output",
+             3, "Analog & Network data";
+
+[1_BOOLEAN]
+1_MAX_GATE_INPUTS = 4;
+1_VALID_TYPES = 0, 5, 6, 7, 8, 9, 10, 11;
+1_CLASS_ATTR_SUPPORT = 1, 8;
+1_INST_ATTR_SUPPORT = 1, 2, 3;
+
+[1_BISTABLE]
+1_VALID_TYPES = 0, 1, 2;
+1_CLASS_ATTR_SUPPORT = 1, 8;
+1_INST_ATTR_SUPPORT = 1, 2, 3, 4;
+
+[1_COUNTER]
+1_VALID_TYPES = 0, 1, 3;
+1_CLASS_ATTR_SUPPORT = 1, 8;
+1_INST_ATTR_SUPPORT = 1, 2, 3, 5, 6, 7, 9;
+
+[1_TIMER]
+1_VALID_TYPES = 0, 1, 2, 3;
+1_CLASS_ATTR_SUPPORT = 1, 8;
+1_INST_ATTR_SUPPORT = 1, 2, 4, 5, 6, 7, 8;
+
+[1_ARITH]
+1_VALID_TYPES = 0, 1, 2, 3, 4, 5, 6, 7;
+1_VALID_OPT_TYPES = 0, 0xc4, 0xca;
+1_CLASS_ATTR_SUPPORT = 1, 8;
+1_INST_ATTR_SUPPORT = 1, 2, 3, 4, 5, 6, 7, 9, 10, 11;
+
+[1_COMP]
+1_VALID_TYPES = 0, 1, 2, 3, 4, 5, 6;
+1_VALID_OPT_TYPES = 0, 0xc4, 0xca;
+1_CLASS_ATTR_SUPPORT = 1, 8;
+1_INST_ATTR_SUPPORT = 1, 2, 3, 4, 5, 6, 7, 9, 10;
+
+[1_MEQ]
+1_CLASS_ATTR_SUPPORT = 1, 8;
+1_INST_ATTR_SUPPORT = 1, 2, 3, 4, 5, 6, 7;
+
+[1_ALARM]
+1_VALID_OPT_TYPES = 0, 0xc4, 0xca;
+1_CLASS_ATTR_SUPPORT = 1, 8;
+1_INST_ATTR_SUPPORT = 1, 2, 3, 4, 5, 6, 7, 9, 10;
+
+[1_TDIAG]
+1_CLASS_ATTR_SUPPORT = 1, 8;
+1_INST_ATTR_SUPPORT = 1, 2, 3, 4, 5, 6, 7;
+
+[1_HLLIM]
+1_VALID_OPT_TYPES = 0, 0xc4, 0xca;
+1_CLASS_ATTR_SUPPORT = 1, 8;
+1_INST_ATTR_SUPPORT = 1, 2, 3, 4, 5, 7, 8, 9;
+
+[1_SELECT]
+1_VALID_OPT_TYPES = 0, 0xc4, 0xca;
+1_CLASS_ATTR_SUPPORT = 1, 8;
+1_INST_ATTR_SUPPORT = 1, 2, 3, 4, 5, 6, 7, 8, 10, 11, 12;
+
+[1_LPF]
+1_NUM_OF_LPF = 2;
+1_VALID_TYPES = 0, 1, 2;
+1_CLASS_ATTR_SUPPORT = 1, 8;
+1_INST_ATTR_SUPPORT = 1, 2, 3, 4, 5, 6, 8, 9, 10;
+
+[1_PND]
+1_CLASS_ATTR_SUPPORT = 1;
+1_INST_ATTR_SUPPORT = 1, 2, 3, 5, 6, 7;
+
+[1_BINDING_PATHS]
+1_DISCRETE_INPUT_POINT_2 =
+	1, "Digital Input 1", "21 6A 00 24 01 28 00", 1, 0,
+	2, "Digital Input 2", "21 6A 00 24 01 28 01", 1, 1,
+	3, "Digital Input 3", "21 6A 00 24 01 28 02", 1, 2,
+	4, "Digital Input 4", "21 6A 00 24 01 28 03", 1, 3,
+	5, "Digital Input 5", "21 6A 00 24 01 28 04", 1, 4,
+	6, "Digital Input 6", "21 6A 00 24 01 28 05", 1, 5,
+	7, "Digital Input 7", "21 6A 00 24 01 28 06", 1, 6,
+	8, "Digital Input 8", "21 6A 00 24 01 28 07", 1, 7,
+	9, "Digital Input 9", "21 6A 00 24 01 28 08", 1, 8,
+	10, "Digital Input 10", "21 6A 00 24 01 28 09", 1, 9,
+	11, "Digital Input 11", "21 6A 00 24 01 28 0A", 1, 10,
+	12, "Digital Input 12", "21 6A 00 24 01 28 0B", 1, 11,
+	13, "Digital Input 13", "21 6A 00 24 01 28 0C", 1, 12,
+	14, "Digital Input 14", "21 6A 00 24 01 28 0D", 1, 13,
+	15, "Digital Input 15", "21 6A 00 24 01 28 0E", 1, 14,
+	16, "Digital Input 16", "21 6A 00 24 01 28 0F", 1, 15;
+
+1_DISCRETE_OUTPUT_POINT_2 =
+	1, "Digital Output 1", "21 6A 00 24 01 28 10", 1, 16,
+	2, "Digital Output 2", "21 6A 00 24 01 28 11", 1, 17,
+	3, "Digital Output 3", "21 6A 00 24 01 28 12", 1, 18,
+	4, "Digital Output 4", "21 6A 00 24 01 28 13", 1, 19,
+	5, "Digital Output 5", "21 6A 00 24 01 28 14", 1, 20,
+	6, "Digital Output 6", "21 6A 00 24 01 28 15", 1, 21,
+	7, "Digital Output 7", "21 6A 00 24 01 28 16", 1, 22,
+	8, "Digital Output 8", "21 6A 00 24 01 28 17", 1, 23,
+	9, "Digital Output 9", "21 6A 00 24 01 28 18", 1, 24,
+	10, "Digital Output 10", "21 6A 00 24 01 28 19", 1, 25,
+	11, "Digital Output 11", "21 6A 00 24 01 28 1A", 1, 26,
+	12, "Digital Output 12", "21 6A 00 24 01 28 1B", 1, 27,
+	13, "Digital Output 13", "21 6A 00 24 01 28 1C", 1, 28,
+	14, "Digital Output 14", "21 6A 00 24 01 28 1D", 1, 29,
+	15, "Digital Output 15", "21 6A 00 24 01 28 1E", 1, 30,
+	16, "Digital Output 16", "21 6A 00 24 01 28 1F", 1, 31;
+
+1_HARDWARE_OUTPUT_FAULT_2 =
+	"21 6A 00 24 01 28 20", 1, 32, 0, , , "DOP 1~8 Fault Status", 8, 0x00090001, 0x00090002, 0x00090003, 0x00090004, 0x00090005, 0x00090006, 0x00090007, 0x00090008,
+	"21 6A 00 24 01 28 21", 1, 33, 0, , , "DOP 9~16 Fault Status", 8, 0x00090009, 0x0009000a, 0x0009000b, 0x0009000c, 0x0009000d, 0x0009000e, 0x0009000f, 0x00090010,
+	"21 6A 00 24 01 28 22", 1, 34, 0, , , "AOP 1 Open Wire Status", 1, 0x000b0001,
+	"21 6A 00 24 01 28 23", 1, 35, 0, , , "AOP 2 Open Wire Status", 1, 0x000b0002; 
+
+1_ANALOG_INPUT_POINT =
+	1, "Analog Input 1", "21 6A 00 24 03 28 05", 3, 5, 0xC3,
+	2, "Analog Input 2", "21 6A 00 24 03 28 06", 3, 6, 0xC3;
+
+1_ANALOG_OUTPUT_POINT =
+	1, "Analog Output 1", "21 6A 00 24 03 28 07", 3, 7, 0xC3,
+	2, "Analog Output 2", "21 6A 00 24 03 28 08", 3, 8, 0xC3;
+
+1_CONSUMED_NETWORK_DATA =
+	1, "Network Input 1", "21 6A 00 24 01 28 48", 1, 72, 0xC1,
+	2, "Network Input 2", "21 6A 00 24 01 28 49", 1, 73, 0xC1,
+	3, "Network Input 3", "21 6A 00 24 01 28 4A", 1, 74, 0xC1,
+	4, "Network Input 4", "21 6A 00 24 01 28 4B", 1, 75, 0xC1,
+	5, "Network Input 5", "21 6A 00 24 01 28 4C", 1, 76, 0xC1,
+	6, "Network Input 6", "21 6A 00 24 01 28 4D", 1, 77, 0xC1,
+	7, "Network Input 7", "21 6A 00 24 01 28 4E", 1, 78, 0xC1,
+	8, "Network Input 8", "21 6A 00 24 01 28 4F", 1, 79, 0xC1,
+	9, "Network Input 9", "21 6A 00 24 01 28 50", 1, 80, 0xC1,
+	10, "Network Input 10", "21 6A 00 24 01 28 51", 1, 81, 0xC1,
+	11, "Network Input 11", "21 6A 00 24 01 28 52", 1, 82, 0xC1,
+	12, "Network Input 12", "21 6A 00 24 01 28 53", 1, 83, 0xC1,
+	13, "Network Input 13", "21 6A 00 24 01 28 54", 1, 84, 0xC1,
+	14, "Network Input 14", "21 6A 00 24 01 28 55", 1, 85, 0xC1,
+	15, "Network Input 15", "21 6A 00 24 01 28 56", 1, 86, 0xC1,
+	16, "Network Input 16", "21 6A 00 24 01 28 57", 1, 87, 0xC1,
+	17, "Network Input 17", "21 6A 00 24 01 28 58", 1, 88, 0xC1,
+	18, "Network Input 18", "21 6A 00 24 01 28 59", 1, 89, 0xC1,
+	19, "Network Input 19", "21 6A 00 24 01 28 5A", 1, 90, 0xC1,
+	20, "Network Input 20", "21 6A 00 24 01 28 5B", 1, 91, 0xC1,
+	21, "Network Input 21", "21 6A 00 24 01 28 5C", 1, 92, 0xC1,
+	22, "Network Input 22", "21 6A 00 24 01 28 5D", 1, 93, 0xC1,
+	23, "Network Input 23", "21 6A 00 24 01 28 5E", 1, 94, 0xC1,
+	24, "Network Input 24", "21 6A 00 24 01 28 5F", 1, 95, 0xC1,
+	25, "Network Input 25", "21 6A 00 24 01 28 60", 1, 96, 0xC1,
+	26, "Network Input 26", "21 6A 00 24 01 28 61", 1, 97, 0xC1,
+	27, "Network Input 27", "21 6A 00 24 01 28 62", 1, 98, 0xC1,
+	28, "Network Input 28", "21 6A 00 24 01 28 63", 1, 99, 0xC1,
+	29, "Network Input 29", "21 6A 00 24 01 28 64", 1, 100, 0xC1,
+	30, "Network Input 30", "21 6A 00 24 01 28 65", 1, 101, 0xC1,
+	31, "Network Input 31", "21 6A 00 24 01 28 66", 1, 102, 0xC1,
+	32, "Network Input 32", "21 6A 00 24 01 28 67", 1, 103, 0xC1;
+
+1_PRODUCED_NETWORK_DATA =
+	1, "Network Output 1", "21 6A 00 24 01 28 68", 1, 104, 0xC1,
+	2, "Network Output 2", "21 6A 00 24 01 28 69", 1, 105, 0xC1,
+	3, "Network Output 3", "21 6A 00 24 01 28 6A", 1, 106, 0xC1,
+	4, "Network Output 4", "21 6A 00 24 01 28 6B", 1, 107, 0xC1,
+	5, "Network Output 5", "21 6A 00 24 01 28 6C", 1, 108, 0xC1,
+	6, "Network Output 6", "21 6A 00 24 01 28 6D", 1, 109, 0xC1,
+	7, "Network Output 7", "21 6A 00 24 01 28 6E", 1, 110, 0xC1,
+	8, "Network Output 8", "21 6A 00 24 01 28 6F", 1, 111, 0xC1,
+	9, "Network Output 9", "21 6A 00 24 01 28 70", 1, 112, 0xC1,
+	10, "Network Output 10", "21 6A 00 24 01 28 71", 1, 113, 0xC1,
+	11, "Network Output 11", "21 6A 00 24 01 28 72", 1, 114, 0xC1,
+	12, "Network Output 12", "21 6A 00 24 01 28 73", 1, 115, 0xC1,
+	13, "Network Output 13", "21 6A 00 24 01 28 74", 1, 116, 0xC1,
+	14, "Network Output 14", "21 6A 00 24 01 28 75", 1, 117, 0xC1,
+	15, "Network Output 15", "21 6A 00 24 01 28 76", 1, 118, 0xC1,
+	16, "Network Output 16", "21 6A 00 24 01 28 77", 1, 119, 0xC1;
+
+1_MISCELLANEOUS_INPUT_DATA =
+	1, "Explicit Msg Cnxn Exists", "21 6A 00 24 01 28 28", 1, 40, 0xC1,
+	2, "Polled Cnxn Exists", "21 6A 00 24 01 28 29", 1, 41, 0xC1,
+	3, "COS/Cyclic Cnxn Exists", "21 6A 00 24 01 28 2A", 1, 42, 0xC1,
+	4, "Polled Cnxn Fault", "21 6A 00 24 01 28 2C", 1, 44, 0xC1,
+	5, "COS/Cyclic Cnxn Fault", "21 6A 00 24 01 28 2D", 1, 45, 0xC1,
+	6, "Poll Cnxn Idle", "21 6A 00 24 01 28 2E", 1, 46, 0xC1,
+	7, "Network Fault", "21 6A 00 24 01 28 30", 1, 48, 0xC1,
+	8, "Minor Module Fault", "21 6A 00 24 01 28 31", 1, 49, 0xC1,
+	9, "AI CH0 Status", "21 6A 00 24 01 28 38", 1, 56, 0xC1,
+	10, "AI CH0 Calibration Mode", "21 6A 00 24 01 28 39", 1, 57, 0xC1,
+	11, "AI CH0 Low Alarm", "21 6A 00 24 01 28 3A", 1, 58, 0xC1,
+	12, "AI CH0 High Alarm", "21 6A 00 24 01 28 3B", 1, 59, 0xC1,
+	13, "AI CH0 Low Low Alarm", "21 6A 00 24 01 28 3C", 1, 60, 0xC1,
+	14, "AI CH0 High High Alarm", "21 6A 00 24 01 28 3D", 1, 61, 0xC1,
+	15, "AI CH0 Under Range", "21 6A 00 24 01 28 3E", 1, 62, 0xC1,
+	16, "AI CH0 Over Range", "21 6A 00 24 01 28 3F", 1, 63, 0xC1,
+	17, "AI CH1 Status", "21 6A 00 24 01 28 40", 1, 64, 0xC1,
+	18, "AI CH1 Calibration Mode", "21 6A 00 24 01 28 41", 1, 65, 0xC1,
+	19, "AI CH1 Low Alarm", "21 6A 00 24 01 28 42", 1, 66, 0xC1,
+	20, "AI CH1 High Alarm", "21 6A 00 24 01 28 43", 1, 67, 0xC1,
+	21, "AI CH1 Low Low Alarm", "21 6A 00 24 01 28 44", 1, 68, 0xC1,
+	22, "AI CH1 High High Alarm", "21 6A 00 24 01 28 45", 1, 69, 0xC1,
+	23, "AI CH1 Under Range", "21 6A 00 24 01 28 46", 1, 70, 0xC1,
+	24, "AI CH1 Over Range", "21 6A 00 24 01 28 47", 1, 71, 0xC1;
+
+1_FUNCTION_BLOCK_OUTPUT_2 =
+	1, "21 6A 00 24 02 28 00", 2, 0,
+	2, "21 6A 00 24 02 28 01", 2, 1,
+	3, "21 6A 00 24 02 28 02", 2, 2,
+	4, "21 6A 00 24 02 28 03", 2, 3,
+	5, "21 6A 00 24 02 28 04", 2, 4,
+	6, "21 6A 00 24 02 28 05", 2, 5,
+	7, "21 6A 00 24 02 28 06", 2, 6,
+	8, "21 6A 00 24 02 28 07", 2, 7,
+	9, "21 6A 00 24 02 28 08", 2, 8,
+	10, "21 6A 00 24 02 28 09", 2, 9,
+	11, "21 6A 00 24 02 28 0A", 2, 10,
+	12, "21 6A 00 24 02 28 0B", 2, 11,
+	13, "21 6A 00 24 02 28 0C", 2, 12,
+	14, "21 6A 00 24 02 28 0D", 2, 13,
+	15, "21 6A 00 24 02 28 0E", 2, 14,
+	16, "21 6A 00 24 02 28 0F", 2, 15,
+	17, "21 6A 00 24 02 28 10", 2, 16,
+	18, "21 6A 00 24 02 28 11", 2, 17,
+	19, "21 6A 00 24 02 28 12", 2, 18,
+	20, "21 6A 00 24 02 28 13", 2, 19,
+	21, "21 6A 00 24 02 28 14", 2, 20,
+	22, "21 6A 00 24 02 28 15", 2, 21,
+	23, "21 6A 00 24 02 28 16", 2, 22,
+	24, "21 6A 00 24 02 28 17", 2, 23,
+	25, "21 6A 00 24 02 28 18", 2, 24,
+	26, "21 6A 00 24 02 28 19", 2, 25,
+	27, "21 6A 00 24 02 28 1A", 2, 26,
+	28, "21 6A 00 24 02 28 1B", 2, 27,
+	29, "21 6A 00 24 02 28 1C", 2, 28,
+	30, "21 6A 00 24 02 28 1D", 2, 29,
+	31, "21 6A 00 24 02 28 1E", 2, 30,
+	32, "21 6A 00 24 02 28 1F", 2, 31,
+	33, "21 6A 00 24 02 28 20", 2, 32,
+	34, "21 6A 00 24 02 28 21", 2, 33,
+	35, "21 6A 00 24 02 28 22", 2, 34,
+	36, "21 6A 00 24 02 28 23", 2, 35,
+	37, "21 6A 00 24 02 28 24", 2, 36,
+	38, "21 6A 00 24 02 28 25", 2, 37,
+	39, "21 6A 00 24 02 28 26", 2, 38,
+	40, "21 6A 00 24 02 28 27", 2, 39,
+	41, "21 6A 00 24 02 28 28", 2, 40,
+	42, "21 6A 00 24 02 28 29", 2, 41,
+	43, "21 6A 00 24 02 28 2A", 2, 42,
+	44, "21 6A 00 24 02 28 2B", 2, 43,
+	45, "21 6A 00 24 02 28 2C", 2, 44,
+	46, "21 6A 00 24 02 28 2D", 2, 45,
+	47, "21 6A 00 24 02 28 2E", 2, 46,
+	48, "21 6A 00 24 02 28 2F", 2, 47,
+	49, "21 6A 00 24 02 28 30", 2, 48,
+	50, "21 6A 00 24 02 28 31", 2, 49,
+	51, "21 6A 00 24 02 28 32", 2, 50,
+	52, "21 6A 00 24 02 28 33", 2, 51,
+	53, "21 6A 00 24 02 28 34", 2, 52,
+	54, "21 6A 00 24 02 28 35", 2, 53,
+	55, "21 6A 00 24 02 28 36", 2, 54,
+	56, "21 6A 00 24 02 28 37", 2, 55,
+	57, "21 6A 00 24 02 28 38", 2, 56,
+	58, "21 6A 00 24 02 28 39", 2, 57,
+	59, "21 6A 00 24 02 28 3A", 2, 58,
+	60, "21 6A 00 24 02 28 3B", 2, 59,
+	61, "21 6A 00 24 02 28 3C", 2, 60,
+	62, "21 6A 00 24 02 28 3D", 2, 61,
+	63, "21 6A 00 24 02 28 3E", 2, 62,
+	64, "21 6A 00 24 02 28 3F", 2, 63,
+	65, "21 6A 00 24 02 28 40", 2, 64,
+	66, "21 6A 00 24 02 28 41", 2, 65,
+	67, "21 6A 00 24 02 28 42", 2, 66,
+	68, "21 6A 00 24 02 28 43", 2, 67,
+	69, "21 6A 00 24 02 28 44", 2, 68,
+	70, "21 6A 00 24 02 28 45", 2, 69,
+	71, "21 6A 00 24 02 28 46", 2, 70,
+	72, "21 6A 00 24 02 28 47", 2, 71,
+	73, "21 6A 00 24 02 28 48", 2, 72,
+	74, "21 6A 00 24 02 28 49", 2, 73,
+	75, "21 6A 00 24 02 28 4A", 2, 74,
+	76, "21 6A 00 24 02 28 4B", 2, 75,
+	77, "21 6A 00 24 02 28 4C", 2, 76,
+	78, "21 6A 00 24 02 28 4D", 2, 77,
+	79, "21 6A 00 24 02 28 4E", 2, 78,
+	80, "21 6A 00 24 02 28 4F", 2, 79,
+	81, "21 6A 00 24 02 28 50", 2, 80,
+	82, "21 6A 00 24 02 28 51", 2, 81,
+	83, "21 6A 00 24 02 28 52", 2, 82,
+	84, "21 6A 00 24 02 28 53", 2, 83,
+	85, "21 6A 00 24 02 28 54", 2, 84,
+	86, "21 6A 00 24 02 28 55", 2, 85,
+	87, "21 6A 00 24 02 28 56", 2, 86,
+	88, "21 6A 00 24 02 28 57", 2, 87,
+	89, "21 6A 00 24 02 28 58", 2, 88,
+	90, "21 6A 00 24 02 28 59", 2, 89,
+	91, "21 6A 00 24 02 28 5A", 2, 90,
+	92, "21 6A 00 24 02 28 5B", 2, 91,
+	93, "21 6A 00 24 02 28 5C", 2, 92,
+	94, "21 6A 00 24 02 28 5D", 2, 93,
+	95, "21 6A 00 24 02 28 5E", 2, 94,
+	96, "21 6A 00 24 02 28 5F", 2, 95,
+	97, "21 6A 00 24 02 28 60", 2, 96,
+	98, "21 6A 00 24 02 28 61", 2, 97,
+	99, "21 6A 00 24 02 28 62", 2, 98,
+	100, "21 6A 00 24 02 28 63", 2, 99,
+	101, "21 6A 00 24 02 28 64", 2, 100,
+	102, "21 6A 00 24 02 28 65", 2, 101,
+	103, "21 6A 00 24 02 28 66", 2, 102,
+	104, "21 6A 00 24 02 28 67", 2, 103,
+	105, "21 6A 00 24 02 28 68", 2, 104,
+	106, "21 6A 00 24 02 28 69", 2, 105,
+	107, "21 6A 00 24 02 28 6A", 2, 106,
+	108, "21 6A 00 24 02 28 6B", 2, 107,
+	109, "21 6A 00 24 02 28 6C", 2, 108,
+	110, "21 6A 00 24 02 28 6D", 2, 109,
+	111, "21 6A 00 24 02 28 6E", 2, 110,
+	112, "21 6A 00 24 02 28 6F", 2, 111,
+	113, "21 6A 00 24 02 28 70", 2, 112,
+	114, "21 6A 00 24 02 28 71", 2, 113,
+	115, "21 6A 00 24 02 28 72", 2, 114,
+	116, "21 6A 00 24 02 28 73", 2, 115,
+	117, "21 6A 00 24 02 28 74", 2, 116,
+	118, "21 6A 00 24 02 28 75", 2, 117,
+	119, "21 6A 00 24 02 28 76", 2, 118,
+	120, "21 6A 00 24 02 28 77", 2, 119,
+	121, "21 6A 00 24 02 28 78", 2, 120,
+	122, "21 6A 00 24 02 28 79", 2, 121,
+	123, "21 6A 00 24 02 28 7A", 2, 122,
+	124, "21 6A 00 24 02 28 7B", 2, 123,
+	125, "21 6A 00 24 02 28 7C", 2, 124,
+	126, "21 6A 00 24 02 28 7D", 2, 125,
+	127, "21 6A 00 24 02 28 7E", 2, 126,
+	128, "21 6A 00 24 02 28 7F", 2, 127,
+	129, "21 6A 00 24 02 28 80", 2, 128,
+	130, "21 6A 00 24 02 28 81", 2, 129,
+	131, "21 6A 00 24 02 28 82", 2, 130,
+	132, "21 6A 00 24 02 28 83", 2, 131,
+	133, "21 6A 00 24 02 28 84", 2, 132,
+	134, "21 6A 00 24 02 28 85", 2, 133,
+	135, "21 6A 00 24 02 28 86", 2, 134,
+	136, "21 6A 00 24 02 28 87", 2, 135,
+	137, "21 6A 00 24 02 28 88", 2, 136,
+	138, "21 6A 00 24 02 28 89", 2, 137,
+	139, "21 6A 00 24 02 28 8A", 2, 138,
+	140, "21 6A 00 24 02 28 8B", 2, 139,
+	141, "21 6A 00 24 02 28 8C", 2, 140,
+	142, "21 6A 00 24 02 28 8D", 2, 141,
+	143, "21 6A 00 24 02 28 8E", 2, 142,
+	144, "21 6A 00 24 02 28 8F", 2, 143,
+	145, "21 6A 00 24 02 28 90", 2, 144,
+	146, "21 6A 00 24 02 28 91", 2, 145,
+	147, "21 6A 00 24 02 28 92", 2, 146,
+	148, "21 6A 00 24 02 28 93", 2, 147,
+	149, "21 6A 00 24 02 28 94", 2, 148,
+	150, "21 6A 00 24 02 28 95", 2, 149,
+	151, "21 6A 00 24 02 28 96", 2, 150,
+	152, "21 6A 00 24 02 28 97", 2, 151,
+	153, "21 6A 00 24 02 28 98", 2, 152,
+	154, "21 6A 00 24 02 28 99", 2, 153,
+	155, "21 6A 00 24 02 28 9A", 2, 154,
+	156, "21 6A 00 24 02 28 9B", 2, 155,
+	157, "21 6A 00 24 02 28 9C", 2, 156,
+	158, "21 6A 00 24 02 28 9D", 2, 157,
+	159, "21 6A 00 24 02 28 9E", 2, 158,
+	160, "21 6A 00 24 02 28 9F", 2, 159;
+

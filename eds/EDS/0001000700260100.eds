@@ -1,0 +1,400 @@
+[File]
+	DescText = "1797-IBN16/A Flex module EDS";
+	CreateDate = 05-12-1999;
+	CreateTime = 08:40:00;
+	ModDate = 08-28-2006;	
+	ModTime = 12:30:00;
+	Revision = 8.0;
+	HomeURL = "http://www.ab.com/networks/eds/XX/0001000700260100.eds";
+
+[Device]
+	VendCode = 1;
+	VendName = "Allen-Bradley";
+	ProdType = 7;
+	ProdTypeStr = "";
+	ProdCode= 38;
+	MajRev = 1;
+	MinRev = 1;
+	ProdName = "16 Point NAMUR 8V DC Input/Counter";
+	Catalog = "1797-IBN16/A";
+	Icon = "94blue.ico";
+
+	1_Revision_Alpha = "Yes";
+	1_RSNetWorx_NoAutoEnter = "Yes";
+
+[Device Classification]
+	Class1 = 1_RSNetWorx_1794, 1_RSNetWorx_Connectable_Module;
+
+[Params]
+
+
+      Param1 =
+        0,          $ first field shall equal 0
+        ,,          $ path size,path
+        0x0022,     $ descriptor
+        0xc7,          $ data type : 16-bit Unsigned Integer
+        2,          $ data size in bytes
+        "Points 0-11 Alarm Filter Time", $ name
+        "",           $ units
+        "", 		$ help string
+        0,7,0,      $ min,max,default data values
+        0,0,0,0,    $ mult,dev,base,offset scaling not used
+        0,0,0,0,    $ mult,dev,base,offset link not used
+        0;          $ decimal places not used
+      Enum1 =
+        0,"1 mS",
+        1,"1 mS",
+	2,"2 mS",
+	3,"3 mS",
+	4,"5 mS",
+	5,"9 mS",
+	6,"17 mS",
+	7,"33 mS";
+		
+      Param2 =
+        0,          $ first field shall equal 0
+        ,,          $ path size,path
+        0x0022,     $ descriptor
+        0xc7,          $ data type : 16-bit Unsigned Integer
+        2,          $ data size in bytes
+        "Points 12-15 Alarm Filter Time", $ name
+        "",           $ units
+        "", 		$ help string
+        0,7,0,      $ min,max,default data values
+        0,0,0,0,    $ mult,dev,base,offset scaling not used
+        0,0,0,0,    $ mult,dev,base,offset link not used
+        0;          $ decimal places not used
+      Enum2 =
+        0,"1 mS",
+        1,"1 mS",
+	2,"2 mS",
+	3,"3 mS",
+	4,"5 mS",
+	5,"9 mS",
+	6,"17 mS",
+	7,"33 mS";
+		
+      Param3 =
+        0,          $ first field shall equal 0
+        ,,          $ path size,path
+        0x0022,     $ descriptor
+        0xc1,          $ data type
+        1,          $ data size in bytes
+        "Input Mode", $ name
+        "",           $ units
+        "", 		$ help string
+        0,1,0,      $ min,max,default data values
+        0,0,0,0,    $ mult,dev,base,offset scaling not used
+        0,0,0,0,    $ mult,dev,base,offset link not used
+        0;          $ decimal places not used
+      Enum3 =
+        0,"Counter",
+        1,"Fault";
+		
+      Param4 =
+        0,          $ first field shall equal 0
+        ,,          $ path size,path
+        0x0022,     $ descriptor
+        0xc1,          $ data type
+        1,          $ data size in bytes
+        "Counter Mode", $ name
+        "",           $ units
+        "", 		$ help string
+        0,1,0,      $ min,max,default data values
+        0,0,0,0,    $ mult,dev,base,offset scaling not used
+        0,0,0,0,    $ mult,dev,base,offset link not used
+        0;          $ decimal places not used
+      Enum4 =
+        0,"Enable Filter",
+        1,"Reset";
+		
+      Param5 =
+        0,          $ first field shall equal 0
+        ,,          $ path size,path
+        0x0022,     $ descriptor
+        0xc1,          $ data type
+        1,          $ data size in bytes
+        "Counter Fast/Normal", $ name
+        "",           $ units
+        "", 		$ help string
+        0,1,0,      $ min,max,default data values
+        0,0,0,0,    $ mult,dev,base,offset scaling not used
+        0,0,0,0,    $ mult,dev,base,offset link not used
+        0;          $ decimal places not used
+      Enum5 =
+        0,"Normal",
+        1,"Fast";
+		
+      Param6 =
+        0,          $ first field shall equal 0
+        ,,          $ path size,path
+        0x0000,     $ descriptor - do not display,EDS internal only
+        0xc7,          $ data type : 16-bit Unsigned Integer
+        2,          $ data size in bytes
+        "Not applicable", $ name
+        "",            $ units
+        "", 		$ help string
+        0,0,0,      $ min,max,default data values
+        0,0,0,0,    $ mult,dev,base,offset scaling not used
+        0,0,0,0,    $ mult,dev,base,offset link not used
+        0;          $ decimal places not used
+
+
+      Param7 =
+        0,          $ first field shall equal 0
+        ,,          $ path size,path
+        0x0010,     $ descriptor - read only
+        0xc7,       $ data type : 16-bit Unsigned Integer
+        2,          $ data size in bytes
+        "Data",     $ name
+        "",         $ units
+        "",         $ help string
+        0,65535,0,  $ min,max,default data values
+        0,0,0,0,    $ mult,dev,base,offset scaling not used
+        0,0,0,0,    $ mult,dev,base,offset link not used
+        0;          $ decimal places not used
+  
+		
+      		
+      Param23 =
+        0,          $ first field shall equal 0
+        ,,          $ path size,path
+        0x0030,     $ descriptor
+        0xc7,          $ data type : 16-bit Unsigned Integer
+        2,          $ data size in bytes
+        "Counter", $ name
+        "counts",           $ units
+        "", 		$ help string
+        0,65535,0,     $ min,max,default data values
+        0,0,0,0,    $ mult,dev,base,offset scaling not used
+        0,0,0,0,    $ mult,dev,base,offset link not used
+        0;          $ decimal places not used
+
+      Param24 =
+        0,          $ first field shall equal 0
+        ,,          $ path size,path
+        0x0030,     $ descriptor
+        0xd2,       $ data type : 16-bit Array
+        2,          $ data size in bytes
+        "Fault", $ name
+        "",         $ units
+        "Indicates a broken-wire or shorted input", $ help string
+        0,65535,0,         $ min,max,default data values
+        0,0,0,0,    $ mult,dev,base,offset scaling not used
+        0,0,0,0,    $ mult,dev,base,offset link not used
+        0;          $ decimal places not used
+
+   
+
+	ProxiedParam1 = 0,
+		,,	$ Link Path Size, Link Path
+		0x0000,	 $ Descriptor
+		, ,	$ Data Type, Data Size
+		"input size",
+		"",
+		"",
+		0,4,4,
+		,,,,
+		,,,,;
+		ProxiedEnum1 = 0,"0",2,"2",4,"4";
+
+
+	ProxiedParam2 = 0,
+		,,	$ Link Path Size, Link Path
+		0x0000,	 $ Descriptor
+		, ,	$ Data Type, Data Size
+		"module key",
+		"",
+		"",
+		512,512,512,
+		,,,,
+		,,,,
+		;
+
+	ProxiedParam3 = 0,
+		,,	$ Link Path Size, Link Path
+		0x0000,	 $ Descriptor
+		, ,	$ Data Type, Data Size
+		"module input size",
+		"",
+		"",
+		2,2,2,
+		,,,,
+		,,,,
+		;
+
+	ProxiedParam4 = 0,
+		,,	$ Link Path Size, Link Path
+		0x0000,	 $ Descriptor
+		, ,	$ Data Type, Data Size
+		"module status size",
+		"",
+		"",
+		0,0,0,
+		,,,,
+		,,,,
+		;
+
+	ProxiedParam5 = 0,
+		,,	$ Link Path Size, Link Path
+		0x0000,	 $ Descriptor
+		, ,	$ Data Type, Data Size
+		"module output size",
+		"",
+		"",
+		0,0,0,
+		,,,,
+		,,,,
+		;
+
+	ProxiedParam6 = 0,
+		,,	$ Link Path Size, Link Path
+		0x0000,	 $ Descriptor
+		, ,	$ Data Type, Data Size
+		"module config size",
+		"",
+		"",
+		1,1,1,
+		,,,,
+		,,,,
+		;
+
+	ProxiedParam7 = 0,
+		,,	$ Link Path Size, Link Path
+		0x0000,	 $ Descriptor
+		, ,	$ Data Type, Data Size
+		"output size",
+		"",
+		"",
+		0,0,0,
+		,,,,
+		,,,,
+		;
+
+	$ **********************************
+	$ NOTE: Parameters names are only listed for description of parameter. These names are not used!
+	$ **********************************
+	ProxiedParam10	= ,,,,,,"Module Object Attribute 0x03","","",0,2,0,,,,,,,,,;
+	ProxiedEnum10	= 0,"Reset to Zero", 	1,"Hold Outputs in Last State", 2,"Use Safe State Output Values";
+
+	ProxiedParam11	= ,,,,,,"Module Object Attribute 0x03","","",0,2,0,,,,,,,,,;
+	ProxiedEnum11	= 0,"Reset to Zero", 	1,"Hold Outputs in Last State", 2,"Use Safe State Output Values";
+
+	ProxiedParam12	= ,,,,,,"Module Object Attribute 0x11","","",0,1,0,,,,,,,,,;
+	ProxiedEnum12	= 0,"Output Remain in Idle State", 1,"Output Go To Fault State";
+
+	ProxiedParam13	= ,,,,,,"Module Object Attribute 0x14","","",0,1,0,,,,,,,,,;
+	ProxiedEnum13	= 0,"Zero Inputs", 1,"Hold Last Input Values";
+
+
+[Assembly]
+	Revision = 2;
+
+	Assem1 = "Input Mode bits",,
+		,0x0000,,,
+		1, ProxyAssem1:9;
+
+	Variant1 =			$Counter mode
+		"Counter mode",,,,,
+		Assem1,
+		0x00, Param4,	$Counter mode selection
+		0x01, Param6;   $Not applicable, not in counter mode
+
+	Variant2 =			$Counter fast/normal
+		"Counter fast/normal",,,,,
+		Assem1,
+		0x00, Param5,	$Counter mode selection
+		0x01, Param6;   $Not applicable, not in counter mode
+
+	
+
+	ProxiedAssem1 = "module config",,
+		,,,,
+		3, Param1,
+		3, Param2,
+		3,,
+		1, Param3,
+		2,,
+		1, Variant1,
+		1, Variant2,
+		2,;
+
+	ProxiedAssem2 = "real time input format",,
+		,,,,
+		16, Param7,
+
+		16, Variant3;
+
+
+	ProxiedAssem3 = "real time output format",,
+		,,,;
+
+	Variant3 =			$Counter 15/Faults
+		"Counter 15/Faults",,,,,
+		Assem1,
+		0x00, Param23,	$Fault mode
+		0x01, Param24;	$Counter mode
+
+	ProxiedAssem4 = "real time status format",,
+		,,,;
+
+	ProxiedAssem5 = "module config and safe state",,
+		,,,;
+
+	ProxiedAssem6 = "safe state",,
+		,,,;
+
+    ProxiedAssem7 = "module flag data",,,,,,
+	4,0x0000,		$ LKS idle action
+	4,0x0000,		$ LKS fault aciton
+	8,0x0000;		$ LKS auto match,fault from idle, hold last inputs, not used
+
+
+[Connection Manager]
+	ProxiedConnect1 = 0x00000000,
+		0x00000000,
+		,,,	$ O=>T 
+		,,,	$ T=>O
+		,,	$ Config #1
+		,,	$ Config #2
+		"",
+		"",
+		"";
+
+	ProxiedConnect2 = 0x00000000,
+		0x00000000,
+		,,,	$ O=>T 
+		,,,	$ T=>O
+		,,	$ Config #1
+		,,	$ Config #2
+		"",
+		"",
+		"";
+
+	ProxiedConnect3 = 0x00000000,
+		0x00000000,
+		,,,	$ O=>T 
+		,,,	$ T=>O
+		,,	$ Config #1
+		,,	$ Config #2
+		"",
+		"",
+		"";
+
+	ProxiedConnect4 = 0x00000000,
+		0x00000000,
+		,,,	$ O=>T 
+		,,,	$ T=>O
+		,,	$ Config #1
+		,,	$ Config #2
+		"",
+		"",
+		"";
+
+[Modular]
+	Width = 1;
+	Rack1 = 1,108,33,1,1,,,,
+		1,2,3,4,5,6,7,8;
+	Rack2 = 1,108,93,1,1,,,,
+		1,2,3,4,5,6,7,8;
+	ExternalID = "00 02";

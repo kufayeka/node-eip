@@ -1,0 +1,463 @@
+$ Electronic Data Sheet for ArmorBlock MaXum (1792D-2BVA2D)
+
+[File]
+DescText = "1792D-2BVA2D ArmorBlock MaXum I/O EDS File";
+CreateDate = 10-19-1998;
+CreateTime = 12:00:00;
+ModDate = 05-03-2000;
+ModTime = 15:00:00;
+Revision = 1.22;		$ EDS revision.
+
+[Device]
+VendCode = 1;
+VendName = "Allen-Bradley Company, Inc.";
+ProdType = 7;
+ProdTypeStr = "General Purpose Discrete I/O";
+ProdCode = 1071;
+MajRev = 1;
+MinRev = 4;
+ProdName = "1792D-2BVA2D 2In w/2Alarms/2Out";
+Catalog = "1792D-2BVA2D";
+1_KeepMinorRev = "Yes";
+1_Icon=0001_ArmorBlkMaXum4.ico;
+
+[IO_Info]
+Default = 0x0004;	$ The default I/O type is COS I/O.
+
+PollInfo =
+0x000D,			$ Polled connection can be used with COS or Cyclic I/O.
+1,			$ Input1 entry is the default input connection.
+1;			$ Output1 entry is the default output connection.
+
+COSInfo=
+0x0005,                 $ COS connection can be used with Polled I/O.
+1,                      $ Input1 entry is the default input connection.
+1;                      $ Output1 entry is the default output connection.
+
+CyclicInfo=
+0x0009,			$ Cyclic connection can be used with Polled I/O.
+1,			$ Input1 entry is the default input connection.
+1;			$ Output1 entry is the default output connection.
+
+Input1 =
+2,			$ The size in bytes that this connection produces.
+0,			$ All bits of this connection are significant.
+0x000D,			$ Polled, COS and Cyclic I/O device.
+"2BVA2D Production Data",  $ Name of Connection.
+6,			$ Path length.
+"20 04 24 6A 30 03",	$ Path to I/O Production Assembly.
+	$$$$$$$$$$ Help string $$$$$$$$$$$
+"This contains 2 bytes: Byte 1, bits 0&1=Inputs 0&1. Bits 2&3=Alarms 0&1.\nBits 4&5=Input Short Circuit; Connectors A&B.\nBits 6&7=Off Wire Detect: Connectors A&B.\nByte 2, bits 0&1=Output Faults 0&1. Bit 6=Output Power.";
+			
+Output1 =
+1,			$ The size in bytes that this connection consumes.
+0,			$ Only the least 2 significant bits of this 
+			$ connection are used.
+0x000D,			$ Polled, COS and Cyclic I/O device.
+"2BVA2D Consumption Data",  $ Name of Connection.
+6,			$ Path length.
+"20 04 24 20 30 03",	$ Path to I/O Consumption Assembly.
+	$$$$$$$$$$ Help string $$$$$$$$$$$
+"This contains Output data in bits 0&1 (Outputs 0&1 respectively).";
+			 
+[ParamClass]
+MaxInst = 22;		$ 13 configurable and 9 read-only parameters.
+Descriptor =  0x09;	$ Stub param instances in eeprom.
+CfgAssembly = 0x78;	$ Config assembly.		
+
+[Params]
+$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+Param1 =		$ Disable Autobaud
+0,			$ reserved
+6,			$ Link Path Size
+"20 03 24 01 30 64",	$ Link Path to disable autobaud attribute.
+0x0002,			$ No support for settable path, scaling, scaling links, or
+			$ real time update of value.  Value is gettable and 
+			$ Settable.  Enumerated strings are supported.
+4,			$ Data Type - boolean
+1,			$ Data Size
+"Autobaud",		$ Parameter Name
+"",			$ Units String
+	$$$$$$$$$$ Help string $$$$$$$$$$$
+"Setting this parameter ON disables the Autobaud feature in the block. The change\noccures after the next power up. Default is Enabled.",
+0,1,0,			$ Min, Max, and Default values
+1,1,1,0,0,0,0,0,0;		$ Not Used
+
+$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+Param2 =		$ Input filter Off_to_On Delay selection
+0,			$ reserved
+6,			$ Link Path Size
+"20 0F 24 02 30 01",	$ Link Path to param instance.  The param instance decodes
+			$ the enumerated parameter into engineering units (micro seconds).
+0x0002,			$ No support for settable path, scaling, scaling links,
+			$ or real time update of value.  Value is gettable and
+			$ Settable.  Enumerated strings are supported.
+8,			$ Data Type - unsigned short integer
+1,			$ Data Size - (in bytes)
+"Off-to-On Delay",	$ Parameter Name
+"ms",			$ Units String
+			$$$$$$$$$$ Help string $$$$$$$$$$$
+"The input must be ON for the delay period specified (0,2,4,8,16ms)\nbefore the module detects the change.",
+0,4,1,			$ Min, Max (max enumeration #), and Default values
+1,1,1,0,0,0,0,0,0;		$ Not Used
+
+$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+Param3 =		$ Input filter On_to_Off Delay selection
+0,			$ reserved
+6,			$ Link Path Size
+"20 0F 24 03 30 01",	$ Link Path to param instance.  The param instance decodes
+			$ the enumerated parameter into engineering units (micro seconds).
+0x0002,			$ No support for settable path, scaling, scaling links,
+			$ or real time update of value.  Value is gettable and
+			$ Settable.  Enumerated strings are supported.
+8,			$ Data Type - unsigned short integer
+1,			$ Data Size - (in bytes)
+"On-to-Off Delay",	$ Parameter Name
+"ms",			$ Units String
+	$$$$$$$$$$ Help string $$$$$$$$$$$
+"The input must be OFF for the delay period specified (0,2,4,8,16ms)\nbefore the module detects the change.",
+0,4,1,			$ Min, Max (max enumeration #), and Default values
+1,1,1,0,0,0,0,0,0;		$ Not Used
+
+$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+Param4 =		$ Input 0 value
+0,			$ reserved
+6,			$ Link Path Size
+"20 08 24 01 30 03",	$ Link Path to Input 0 value attribute.
+0x0030,			$ No support for settable path, scaling, or scaling links.
+			$ Value is gettable only. Enumerated strings are not
+			$ supported.
+8,			$ Data Type - unsigned short int
+1,			$ Data Size - (in bytes)
+"Input 0 Value",	$ Parameter Name
+"",			$ Units String
+	$$$$$$$$$$ Help string $$$$$$$$$$$
+"This parameter is the current value of Input 0.",
+0,1,0,			$ Min, Max, and Default values
+1,1,1,0,0,0,0,0,0;		$ Not Used
+
+$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+Param5 =		$ Alarm 0 value
+0,			$ reserved
+6,			$ Link Path Size
+"20 08 24 03 30 03",	$ Link Path to Alarm 0 value attribute.
+0x0030,			$ No support for settable path, scaling, or scaling links.
+			$ Value is gettable only. Enumerated strings are not
+			$ supported.
+8,			$ Data Type - unsigned short int
+1,			$ Data Size - (in bytes)
+"Alarm 0 Value",	$ Parameter Name
+"",			$ Units String
+	$$$$$$$$$$ Help string $$$$$$$$$$$
+"This parameter is the current value of Alarm 0.",
+0,1,0,			$ Min, Max, and Default values
+1,1,1,0,0,0,0,0,0;		$ Not Used
+
+$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+Param6 =		$ Input 1 value
+0,			$ reserved
+6,			$ Link Path Size
+"20 08 24 02 30 03",	$ Link Path to Input 1 value attribute.
+0x0030,			$ No support for settable path, scaling, or scaling links.
+			$ Value is gettable only. Enumerated strings are not
+			$ supported.
+8,			$ Data Type - unsigned short int
+1,			$ Data Size - (in bytes)
+"Input 1 Value",	$ Parameter Name
+"",			$ Units String
+	$$$$$$$$$$ Help string $$$$$$$$$$$
+"This parameter is the current value of Input 1.",
+0,1,0,			$ Min, Max, and Default values
+1,1,1,0,0,0,0,0,0;		$ Not Used
+
+$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+Param7 =		$ Alarm 1 value
+0,			$ reserved
+6,			$ Link Path Size
+"20 08 24 04 30 03",	$ Link Path to Alarm 1 value attribute.
+0x0030,			$ No support for settable path, scaling, or scaling links.
+			$ Value is gettable only. Enumerated strings are not
+			$ supported.
+8,			$ Data Type - unsigned short int
+1,			$ Data Size - (in bytes)
+"Alarm 1 Value",	$ Parameter Name
+"",			$ Units String
+	$$$$$$$$$$ Help string $$$$$$$$$$$
+"This parameter is the current value of Alarm 1.",
+0,1,0,			$ Min, Max, and Default values
+1,1,1,0,0,0,0,0,0;		$ Not Used
+
+$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+Param8 =		$ Connector A Fault Status (H, SC, OW)
+0,			$ reserved
+6,			$ Link Path Size
+"20 08 24 01 30 78",	$ Link Path to DIP status attribute.
+0x0032,			$ No support for settable path, scaling, or scaling links.
+			$ Value is gettable only. Enumerated strings are supported.
+8,			$ Data Type - unsigned short int
+1,			$ Data Size - (in bytes)
+"Connector A Fault Status", $ Parameter Name
+"",			$ Units String
+			$$$$$$$$$$ Help string $$$$$$$$$$$
+"This parameter is the current status of Connector A, either Healthy,\nShort Circuit or Open Wire.",
+0,2,0,			$ Min, Max, and Default values
+1,1,1,0,0,0,0,0,0;		$ Not Used
+
+$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+Param9 =		$ Connector B Fault Status (H, SC, OW)
+0,			$ reserved
+6,			$ Link Path Size
+"20 08 24 02 30 78",	$ Link Path to DIP status attribute.
+0x0032,			$ No support for settable path, scaling, or scaling links.
+			$ Value is gettable only. Enumerated strings are supported.
+8,			$ Data Type - unsigned short int
+1,			$ Data Size - (in bytes)
+"Connector B Fault Status", $ Parameter Name
+"",			$ Units String
+			$$$$$$$$$$ Help string $$$$$$$$$$$
+"This parameter is the current status of Connector B, either Healthy,\nShort Circuit or Open Wire.",
+0,2,0,			$ Min, Max, and Default values
+1,1,1,0,0,0,0,0,0;		$ Not Used
+
+$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+Param10 =               $ Connector A Diagnostic Enable
+0,                      $ reserved
+6,                      $ Link Path Size
+"20 08 24 01 30 66",    $ Link Path to Offwire disable attribute.
+0x0002,                 $ No support for settable path, scaling, or scaling links.
+			$ Value is settable and gettable. Enumerated strings are
+			$ supported.
+8,                      $ Data Type - unsigned short int
+1,                      $ Data Size - (in bytes)
+"Connector A Diagnostic",  $ Parameter Name
+"",                     $ Units String
+	$$$$$$$$$$ Help string $$$$$$$$$$$
+"This parameter disables the Offwire diagnostics for Connector A. The default is\nEnabled.",
+0,1,1,                  $ Min, Max, and Default values
+1,1,1,0,0,0,0,0,0;              $ Not Used
+
+$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+Param11 =               $ Connector B Diagnostic Enable
+0,                      $ reserved
+6,                      $ Link Path Size
+"20 08 24 02 30 66",    $ Link Path to Offwire disable attribute.
+0x0002,                 $ No support for settable path, scaling, or scaling links.
+			$ Value is settable and gettable. Enumerated strings are
+			$ supported.
+8,                      $ Data Type - unsigned short int
+1,                      $ Data Size - (in bytes)
+"Connector B Diagnostic",  $ Parameter Name
+"",                     $ Units String
+	$$$$$$$$$$ Help string $$$$$$$$$$$
+"This parameter disables the Offwire diagnostics for Connector B. The default is\nEnabled.",
+0,1,1,                  $ Min, Max, and Default values
+1,1,1,0,0,0,0,0,0;              $ Not Used
+
+$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+Param12 =		$ Output Fault State (group)
+0,			$ reserved
+6,			$ Link Path Size
+"20 0F 24 08 30 01",	$ Link Path to DOG status attribute.
+0x0002,			$ No support for settable path, scaling, or scaling links.
+			$ Value is gettable and settable. Enumerated strings are supported.
+24,			$ Data Type - string
+1,			$ Data Size - (in bytes)
+"Output Fault States",	$ Parameter Name
+"",			$ Units String
+			$$$$$$$$$$ Help string $$$$$$$$$$$
+"Checking these boxes causes the outputs to Hold Last State during a\ncommunications fault. Leaving them blank lets Parameter 13 determine\nwhether the outputs should be forced ON or OFF during a communications fault.",
+0,3,0,			$ Min, Max, and Default values
+1,1,1,0,0,0,0,0,0;		$ Not Used
+
+$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+Param13 =               $ Output Fault Value (group)
+0,                      $ reserved
+6,                      $ Link Path Size
+"20 0F 24 09 30 01",    $ Link Path to DOG object's fault value attribute.
+0x0002,                 $ No support for settable path, scaling, scaling links, or
+			$ real time update of value.  Value is gettable and 
+			$ Settable.  Enumerated strings are supported.
+24,                     $ Data Type - string
+1,                      $ Data Size - (in bytes)
+"Output Fault Value",   $ Parameter Name
+"",                     $ Units String
+	$$$$$$$$$$ Help string $$$$$$$$$$$
+"IF the boxes in Parameter 12 are NOT checked, checking these boxes\ncauses the outputs to turn ON during a communications fault. Leaving them blank\ncauses the outputs to turn OFF during a communications fault.",
+0,3,0,                  $ Min, Max (max enumeration #), and Default values
+1,1,1,0,0,0,0,0,0;              $ Not Used
+
+$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+Param14  =              $ Output Idle State (group)
+0,                      $ reserved
+6,                      $ Link Path Size
+"20 0F 24 0A 30 01",    $ Link Path to DOG object's idle state attribute.
+0x0002,                 $ No support for settable path, scaling, scaling links, or
+			$ real time update of value.  Value is gettable and 
+			$ Settable.  Enumerated strings are supported.
+24,                     $ Data Type - string
+1,                      $ Data Size - (in bytes)
+"Output Idle States",	$ Parameter Name
+"",                     $ Units String
+	$$$$$$$$$$ Help string $$$$$$$$$$$
+"Checking these boxes causes the outputs to Hold Last State during program\nmode. Leaving them blank lets Parameter 15 determine whether the outputs\nshould be forced ON or OFF during program mode.",
+0,3,0,                  $ Min, Max (max enumeration #), and Default values
+1,1,1,0,0,0,0,0,0;              $ Not Used
+
+$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+Param15 =               $ Output Idle Value (group)
+0,                      $ reserved
+6,                      $ Link Path Size
+"20 0F 24 0B 30 01",    $ Link Path to DOG object's idle value attribute.
+0x0002,                 $ No support for settable path, scaling, scaling links, or
+			$ real time update of value.  Value is gettable and 
+			$ Settable.  Enumerated strings are supported.
+24,                     $ Data Type - string
+1,                      $ Data Size - (in bytes)
+"Output Idle Value",    $ Parameter Name
+"",                     $ Units String
+	$$$$$$$$$$ Help string $$$$$$$$$$$
+"IF the boxes in Parameter 14 are NOT checked, checking these boxes causes\nthe outputs to turn ON during program mode. Leaving them blank causes the\noutputs to turn OFF during program mode.",
+0,3,0,                  $ Min, Max (max enumeration #), and Default values
+1,1,1,0,0,0,0,0,0;              $ Not Used
+
+$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+Param16 =		$ Output 0 Fault Status
+0,			$ reserved
+6,			$ Link Path Size
+"20 09 24 01 30 04",	$ Link Path to DOP status attribute.
+0x0032,			$ No support for settable path, scaling, or scaling links.
+			$ Value is gettable only. Enumerated strings are supported.
+4,			$ Data Type - boolean
+1,			$ Data Size - (in bytes)
+"Output 0 Fault Status",$ Parameter Name
+"",			$ Units String
+	$$$$$$$$$$ Help string $$$$$$$$$$$
+"This parameter is the current status of Output 0, either Healthy or Faulted.\nThe default is Healthy.",
+0,1,0,			$ Min, Max, and Default values
+1,1,1,0,0,0,0,0,0;		$ Not Used
+
+$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+Param17 =		$ Output 1 Fault Status
+0,			$ reserved
+6,			$ Link Path Size
+"20 09 24 02 30 04",	$ Link Path to DOP status attribute.
+0x0032,			$ No support for settable path, scaling, or scaling links.
+			$ Value is gettable only. Enumerated strings are supported.
+4,			$ Data Type - boolean
+1,			$ Data Size - (in bytes)
+"Output 1 Fault Status",$ Parameter Name
+"",			$ Units String
+	$$$$$$$$$$ Help string $$$$$$$$$$$
+"This parameter is the current status of Output 1, either Healthy or Faulted.\nThe default is Healthy.",
+0,1,0,			$ Min, Max, and Default values
+1,1,1,0,0,0,0,0,0;		$ Not Used
+
+$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+Param18 =		$ Output 0 Diagnostics Enable
+0,			$ reserved
+6,			$ Link Path Size
+"20 09 24 01 30 6A",	$ Link Path to DIP status attribute.
+0x0002,			$ No support for settable path, scaling, or scaling links.
+			$ Value is settable and gettable. Enumerated strings are supported.
+4,			$ Data Type - boolean
+1,			$ Data Size - (in bytes)
+"Output 0 Diagnostics",	$ Parameter Name
+"",			$ Units String
+	$$$$$$$$$$ Help string $$$$$$$$$$$
+"This parameter enables or disables Output 0 diagnostics. The default is\nEnabled(1).",
+0,1,1,			$ Min, Max, and Default values
+1,1,1,0,0,0,0,0,0;		$ Not Used
+
+$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+Param19 =		$ Output 1 Diagnostics Enable
+0,			$ reserved
+6,			$ Link Path Size
+"20 09 24 02 30 6A",	$ Link Path to DOP status attribute.
+0x0002,			$ No support for settable path, scaling, or scaling links.
+			$ Value is settable and gettable. Enumerated strings are supported.
+4,			$ Data Type - boolean
+1,			$ Data Size - (in bytes)
+"Output 1 Diagnostics",	$ Parameter Name
+"",			$ Units String
+	$$$$$$$$$$ Help string $$$$$$$$$$$
+"This parameter enables or disables Output 1 diagnostics. The default is\nEnabled(1).",
+0,1,1,			$ Min, Max, and Default values
+1,1,1,0,0,0,0,0,0;		$ Not Used
+
+$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+Param20 =		$ Reset Output Fault
+0,			$ reserved
+6,			$ Link Path Size
+"20 0F 24 0F 30 01",	$ Link Path to param instance.
+0x0002,			$ No support for settable path, scaling, scaling links,
+			$ or real time update of value.  Value is gettable and
+			$ Settable.  Enumerated strings are supported.
+24,			$ Data Type - string
+1,			$ Data Size - (in bytes)
+"Reset Output Fault",	$ Parameter Name
+"",			$ Units String
+	$$$$$$$$$$ Help string $$$$$$$$$$$
+"This resets a faulted output.",
+0,2,0,			$ Min, Max (max enumeration #), and Default values
+1,1,1,0,0,0,0,0,0;		$ Not Used
+
+$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+Param21 =               $ Output Reset Mode
+0,                      $ reserved
+6,                      $ Link Path Size
+"20 1E 24 01 30 78",    $ Link Path to DOG object's status attribute.
+0x0002,                 $ No support for settable path, scaling, scaling links, or
+			$ real time update of value.  Value is gettable and settable.
+			$ Enumerated strings are supported.
+4,                      $ Data Type - boolean
+1,                      $ Data Size
+"Output Reset Mode",    $ Parameter Name
+"",                     $ Units String
+	$$$$$$$$$$ Help string $$$$$$$$$$$
+"This parameter sets all outputs to either AutoRestart or Latching Off during a\nfault. The default is set to AutoRestart(1).",
+0,1,1,                  $ Min, Max, and Default values
+1,1,1,0,0,0,0,0,0;      $ Not Used
+
+$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+Param22 =		$ Auxiliary Power Status
+0,			$ reserved
+6,			$ Link Path Size
+"20 1E 24 01 30 79",	$ Link Path to DOG object's status attribute.
+0x0032,			$ No support for settable path, scaling, or scaling links.
+			$ Value is gettable only. Enumerated strings are supported.
+4,			$ Data Type - boolean
+1,			$ Data Size - (in bytes)
+"Auxiliary Power Status",$ Parameter Name
+"",			$ Units String
+			$$$$$$$$$$ Help string $$$$$$$$$$$
+"This parameter is the current status of the Auxiliary Power, either Healthy or\nFaulted. The default is Healthy.",
+0,1,0,			$ Min, Max, and Default values
+1,1,1,0,0,0,0,0,0;		$ Not Used
+
+
+[Groups]
+Group1="D'Net Configuration",5,1,12,13,14,15;
+Group2="Input Configuration",4,2,3,10,11;
+Group3="Output Configuration",4,18,19,20,21;
+Group4="Monitoring",9,4,5,6,7,8,9,16,17,22;
+
+
+[EnumPar]
+Param1="AutoBaud Active","AutoBaud Inactive";
+Param2="0 ms","2 ms","4 ms","8 ms","16 ms";
+Param3="0 ms","2 ms","4 ms","8 ms","16 ms";
+Param8="Healthy","Short Circuit","Off Wire";
+Param9="Healthy","Short Circuit","Off Wire";
+Param10="Offwire Diagnostic Inactive","Offwire Diagnostic Active";
+Param11="Offwire Diagnostic Inactive","Offwire Diagnostic Active";
+Param12="Output 0 (See Param Help)","Output 1 (See Param Help)","Not Used","Not Used","Not Used","Not Used","Not Used","Not Used";
+Param13="Output 0 (See Param Help)","Output 1 (See Param Help)","Not Used","Not Used","Not Used","Not Used","Not Used","Not Used";
+Param14="Output 0 (See Param Help)","Output 1 (See Param Help)","Not Used","Not Used","Not Used","Not Used","Not Used","Not Used";
+Param15="Output 0 (See Param Help)","Output 1 (See Param Help)","Not Used","Not Used","Not Used","Not Used","Not Used","Not Used";
+Param16="Healthy","Faulted";
+Param17="Healthy","Faulted";
+Param18="Disabled","Enabled";
+Param19="Disabled","Enabled";
+Param20="Reset Output 0","Reset Output 1","Not Used","Not Used","Not Used","Not Used","Not Used","Not Used";
+Param21="Outputs Latch","Outputs Auto Restart";
+Param22="Healthy","Faulted";

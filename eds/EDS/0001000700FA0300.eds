@@ -1,0 +1,1333 @@
+$ Electronic Data Sheet for Embedded I/O (1799-D10U10BZC) with Zone Interlocking Parameters
+
+[File]
+DescText = "1799-D10U10BZC Embedded I/O EDS File with ZIP";
+CreateDate = 7-24-2004;
+CreateTime = 13:22:00;
+ModDate = 05-15-2009;
+ModTime = 13:00:00;
+Revision = 1.10;       $ EDS revision.
+HomeURL  = "http://www.ab.com/networks/eds/DN/0001000700FA0300.eds";
+
+[Device]
+VendCode = 1;
+VendName = "Rockwell Automation/Allen-Bradley";
+ProdType = 7;
+ProdTypeStr = "General Purpose Discrete I/O";
+ProdCode = 250;
+MajRev = 3;
+MinRev = 4;
+Icon = "20pt_Omni.ico";
+
+ProdName = "1799-D10U10BZC Zone Cntl, 10in/10out sourcing";
+Catalog = "1799-D10U10BZC";
+DNetQC=0B0000000000000001, 200; $ Quick Connect supported at power up. 200ms powerup time
+
+1_RSNetWorx_DNetTool = "LeoApp.LeoDevice";
+1_RSNetWorx_DNetToolEx = "1.00.00", "LeoApp.LeoDevice", "7.00.00", "RSI.DeviceNet.EDSApplet.1";
+1_DNetEDSAppletPlugIn = "7.00.00", "DeviceLogixPlugIn.EDSAppletPlugIn.1";
+
+    
+[Device Classification]
+Class1 = DeviceNet;
+
+[IO_Info]
+1_COSetPathNotSupported = 1;   $Paths not settable.
+1_COSetSizeNotSupported = 1;   $Paths not settable.
+
+Default = 0x0004;  $ The default I/O type is COS I/O.
+
+PollInfo =
+0x000d,        $ Poll connection can be used with COS or cyclic I/O.
+1,             $ Input1 entry is the default input connection.
+1;             $ Output1 entry is the default output connection.
+
+COSInfo=
+0x0005,        $ COS connection can be used with Polled I/O.
+1,             $ Input1 entry is the default input connection.
+1;             $ Output1 entry is the default output connection.
+
+CyclicInfo=
+0x0009,        $ Cyclic connection can be used with Polled I/O.
+1,             $ Input1 entry is the default input connection.
+1;             $ Output1 entry is the default output connection.
+ 
+Input1 =
+7,                         $ The size in bytes that this connection produces.
+0,                         $ All bits of this connection are significant.
+0x000D,                    $ Polled and COS I/O device.
+"Data",                    $ Name of Connection.
+6,                         $ Path length.
+"20 04 24 99 30 03",       $ Path to I/O Production Assembly.
+   $$$$$$$$$$ Help string $$$$$$$$$$$
+"This contains 7 bytes: Byte 1, bits 0-7=Inputs 0-7. Byte 2, bits 0-1=Inputs 8-9, bit 6= logic enable."
+"  Byte 3, bits 0-7=Outputs 0-7. Byte 4, bits 0-1=Outputs 8-9.  Byte 5, bits 0-7=PNBs 0-7. Bytes 6 and 7, ZCCV.";
+           
+Output1 =
+2,                         $ The size in bytes that this connection consumes.
+10,                        $ Ten bits of this connection are significant. 
+0x000D,                    $ Polled and COS I/O device.
+"Data",                    $ Name of Connection.
+6,                         $ Path length.
+"20 04 24 25 30 03",       $ Path to I/O Consumption Assembly.
+   $$$$$$$$$$ Help string $$$$$$$$$$$
+"This contains 2 bytes: Byte 1, bits 0-7=Outputs 0-7. Byte 2, bits 0-1=Outputs 8-9.";
+            
+OutputExa1 =
+,               $ Size from AssemN
+,               $ Bits determined by AssemN member list
+0x000D,         $ Poll, COS, Cyclic
+,               $ Name String  from AssemN
+,               $ Path Size not applicable
+VariantExa1,    $ Variant for choosing Output Assem
+;               $ Help string not applicable
+
+            
+[ParamClass]
+MaxInst = 56;          $ parameters.
+Descriptor =  0x09;    $ Stub param instances in eeprom.
+CfgAssembly = 0x00;    $ The config assembly is instance #104 of assy obj.     
+1_CfgAssembly = 0xA9;  $ Config assembly.
+
+[Params]
+$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+Param1 =           $ Disable Autobaud
+0,                 $ reserved
+7,                 $ Link Path Size
+"21 03 00 24 01 30 64",    $ Link Path to disable autobaud attribute.
+0x0002,            $ No support for settable path, scaling, scaling links, or
+                   $ real time update of value.  Value is gettable and 
+                   $ Settable.  Enumerated strings are supported.
+0xC1,              $ Data Type - boolean
+1,                 $ Data Size
+"Autobaud",        $ Parameter Name
+"",                $ Units String
+   $$$$$$$$$$ Help string $$$$$$$$$$$
+"Setting this parameter ON disables the Autobaud feature in the block. The change occures after the next power up. Default is Enabled.",
+0,1,0,             $ Min, Max, and Default values
+,,,,,,,,;          $ Not Used
+
+$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+Param2 =           $ Input filter Off_to_On Delay selection
+0,                 $ reserved
+7,                 $ Link Path Size
+"21 0F 00 24 02 30 01",    $ Link Path to param instance.  The param instance decodes
+                   $ the enumerated parameter into engineering units (milliseconds).
+0x0002,            $ No support for settable path, scaling, scaling links,
+                   $ or real time update of value.  Value is gettable and
+                   $ Settable.  Enumerated strings are supported.
+0xC6,              $ Data Type - unsigned short int
+1,                 $ Data Size - (in bytes)
+"Off-to-On Delay", $ Parameter Name
+"ms",              $ Units String
+           $$$$$$$$$$ Help string $$$$$$$$$$$
+"Signal must be present for this delay period before module detects the change.",
+0,4,1,             $ Min, Max (max enumeration #), and Default values
+,,,,,,,,;          $ Not Used
+
+$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+Param3 =       $ Input filter On_to_Off Delay selection
+0,             $ reserved
+7,             $ Link Path Size
+"21 0F 00 24 03 30 01",    $ Link Path to param instance.  The param instance decodes
+               $ the enumerated parameter into engineering units (milliseconds).
+0x0002,        $ No support for settable path, scaling, scaling links,
+               $ or real time update of value.  Value is gettable and
+               $ Settable.  Enumerated strings are supported.
+0xC6,          $ Data Type - unsigned short int
+1,             $ Data Size - (in bytes)
+"On-to-Off Delay", $ Parameter Name
+"ms",          $ Units String
+   $$$$$$$$$$ Help string $$$$$$$$$$$
+"Signal must be present for this delay period before module detects the change.",
+0,4,1,     $ Min, Max (max enumeration #), and Default values
+,,,,,,,,;  $ Not Used
+
+$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+Param4 =       $ Input  Values (0-7)
+0,             $ reserved
+7,             $ Link Path Size
+"21 0F 00 24 04 30 01",    $ Link Path to DIP Input values attribute.
+0x0030,        $ No support for settable path, scaling, or scaling links.
+               $ Value is gettable only. Enumerated strings are not
+               $ supported.
+0xD1,          $ Data Type - string
+1,             $ Data Size - (in bytes)
+"Input Values (7-0)",  $ Parameter Name
+"",            $ Units String
+   $$$$$$$$$$ Help string $$$$$$$$$$$
+"This parameter is the current value of Inputs 0-7, either On(1) or Off(0).",
+0,255,0,       $ Min, Max, and Default values
+,,,,,,,,;      $ Not Used
+
+$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+Param5 =       $ Input  Values (8-15)
+0,             $ reserved
+7,             $ Link Path Size
+"21 0F 00 24 05 30 01",    $ Link Path to DIP Input values attribute.
+0x0030,        $ No support for settable path, scaling, or scaling links.
+               $ Value is gettable only. Enumerated strings are not
+               $ supported.
+0xD1,          $ Data Type - string
+1,             $ Data Size - (in bytes)
+"Input Values (9-8)",  $ Parameter Name
+"",            $ Units String
+   $$$$$$$$$$ Help string $$$$$$$$$$$
+"This parameter is the current value of Inputs 8-9, either On(1) or Off(0).",
+0,3,0,      $ Min, Max, and Default values
+,,,,,,,,;  $ Not Used
+
+$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+Param6 =                   $ Output Fault State (group)
+0,                         $ reserved
+7,                         $ Link Path Size
+"21 1E 00 24 01 30 07",    $ Link Path to DOG object's fault state attribute.
+0x0002,                    $ No support for settable path, scaling, or scaling links.
+                           $ Value is gettable and settable. Enumerated strings are supported.
+0xC1,                      $ Data Type - boolean
+1,                         $ Data Size - (in bytes)
+"Output Fault State",      $ Parameter Name
+"",                        $ Units String
+           $$$$$$$$$$ Help string $$$$$$$$$$$
+"Defines output behavior in the event of a communications fault.",
+0,1,0,                     $ Min, Max (max enumeration #), and Default values
+,,,,,,,,;                  $ Not Used
+
+$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+Param7 =                $ Output Fault Value (group)
+0,                      $ reserved
+7,                      $ Link Path Size
+"21 1E 00 24 01 30 08", $ Link Path to DOG object's fault value attribute.
+0x0002,                 $ No support for settable path, scaling, scaling links, or
+                        $ real time update of value.  Value is gettable and 
+                        $ Settable.  Enumerated strings are supported.
+0xC1,                   $ Data Type - boolean
+1,                      $ Data Size - (in bytes)
+"Output Fault Value",   $ Parameter Name
+"",                     $ Units String
+   $$$$$$$$$$ Help string $$$$$$$$$$$
+"Defines output behavior in the event of a communication fault (fault value).",
+0,1,0,                  $ Min, Max (max enumeration #), and Default values
+,,,,,,,,;               $ Not Used
+
+$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+Param8  =               $ Output Idle State (group)
+0,                      $ reserved
+7,                      $ Link Path Size
+"21 1E 00 24 01 30 09", $ Link Path to DOG object's idle state attribute.
+0x0002,                 $ No support for settable path, scaling, scaling links, or
+                        $ real time update of value.  Value is gettable and 
+                        $ Settable.  Enumerated strings are supported.
+0xC1,                   $ Data Type - boolean
+1,                      $ Data Size - (in bytes)
+"Output Idle State",    $ Parameter Name
+"",                     $ Units String
+   $$$$$$$$$$ Help string $$$$$$$$$$$
+"Defines output behavior during program mode.",
+0,1,0,                  $ Min, Max (max enumeration #), and Default values
+,,,,,,,,;               $ Not Used
+
+$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+Param9 =                $ Output Idle Value (group)
+0,                      $ reserved
+7,                      $ Link Path Size
+"21 1E 00 24 01 30 0A", $ Link Path to DOG object's idle value attribute.
+0x0002,                 $ No support for settable path, scaling, scaling links, or
+                        $ real time update of value.  Value is gettable and 
+                        $ Settable.  Enumerated strings are supported.
+0xC1,                   $ Data Type - boolean
+1,                      $ Data Size - (in bytes)
+"Output Idle Value",    $ Parameter Name
+"",                     $ Units String
+   $$$$$$$$$$ Help string $$$$$$$$$$$
+"Defines output behavior during program mode (Idle value).",
+0,1,0,                  $ Min, Max (max enumeration #), and Default values
+,,,,,,,,;               $ Not Used
+
+$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+Param10 =              $ Consumed I/O assembly selection
+0,                     $ reserved
+7,                     $ Link Path Size
+"21 0F 00 24 0B 30 01",$ Link Path to param instance.  
+0x0002,                $ No support for settable path, scaling, scaling links,
+                       $ or real time update of value.  Value is gettable and
+                       $ Settable.  Enumerated strings are supported.
+0xC6,                  $ Data Type - unsigned short int
+1,                     $ Data Size - (in bytes)
+"Consumed I/O Assembly",$ Parameter Name
+"",                    $ Units String
+           $$$$$$$$$$ Help string $$$$$$$$$$$
+"Choose the I/O assembly that you would like this module to consume.  The assemblies are defined in the module's"
+" installation instructions.  Note!  You must change the scanner's produced (Tx) data size for this  module to match"
+" the assembly that you have chosen.  This can be done by selecting 'Edit I/O parameters' from the scanner's scanlist tab.",
+0,5,0,                 $ Min, Max (max enumeration #), and Default values
+,,,,,,,,;              $ Not Used
+
+$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+Param11 =              $ Network Status Override
+0,                     $ reserved
+7,                     $ Link Path Size
+"21 1E 00 24 01 30 68",    $ Link Path to param instance.
+0x0002,                $ No support for settable path, scaling, scaling links,
+                       $ or real time update of value.  Value is gettable and
+                       $ Settable.  Enumerated strings are supported.
+0xC1,                  $ Data Type - boolean
+1,                     $ Data Size - (in bytes)
+"Network Status Override", $ Parameter Name
+"",                    $ Units String
+           $$$$$$$$$$ Help string $$$$$$$$$$$
+"Enabling this parameter allows local logic to override normal output behavior in the event of a network fault.  Default is Disabled.",
+0,1,0,                 $ Min, Max (max enumeration #), and Default values
+,,,,,,,,;              $ Not Used
+
+$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+Param12 =              $ Comm Status Override
+0,                     $ reserved
+7,                     $ Link Path Size
+"21 1E 00 24 01 30 69",    $ Link Path to param instance.
+0x0002,                $ No support for settable path, scaling, scaling links,
+                       $ or real time update of value.  Value is gettable and
+                       $ Settable.  Enumerated strings are supported.
+0xC1,                  $ Data Type - boolean
+1,                     $ Data Size - (in bytes)
+"Comm Status Override",    $ Parameter Name
+"",                    $ Units String
+           $$$$$$$$$$ Help string $$$$$$$$$$$
+"Enabling this parameter allows local logic to override normal output behavior in the event of a communications fault.  Default is Disabled.",
+0,1,0,                 $ Min, Max (max enumeration #), and Default values
+,,,,,,,,;              $ Not Used
+
+
+$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+Param13 =              $ ZIP mode
+0,                     $ reserved
+7,                     $ Link Path Size
+"21 0F 00 24 0F 30 01",    $ Link Path to param instance.
+0x0002,                $ No support for settable path, scaling, scaling links,
+                       $ or real time update of value.  Value is gettable and
+                       $ Settable.  Enumerated strings are supported.
+0xC1,                  $ Data Type - boolean
+1,                     $ Data Size - (in bytes)
+"Auto Run ZIP",        $ Parameter Name
+"",                    $ Units String
+           $$$$$$$$$$ Help string $$$$$$$$$$$
+"Enabling this parameter allows this module to produce without a master.  Default is Disabled.",
+0,1,0,                 $ Min, Max (max enumeration #), and Default values
+,,,,,,,,;              $ Not Used
+
+
+$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+Param14 =              $ Produced Zone Connection EPR
+0,                     $ reserved
+7,                     $ Link Path Size
+"21 0F 00 24 10 30 01",    $ Link Path to param instance.  The param instance decodes
+                       $ the enumerated parameter into engineering units (milliseconds).
+0x0000,                $ No support for settable path, scaling, scaling links,
+                       $ or real time update of value.  Value is gettable and
+                       $ Settable.  
+0xC7,                  $ Data Type - unsigned int
+2,                     $ Data Size - (in bytes)
+"Zone Produced - EPR", $ Parameter Name
+"",                    $ Units String
+           $$$$$$$$$$ Help string $$$$$$$$$$$
+"The Expected Packet Rate (EPR) associated with this module's production. ",
+0x0000,0xFFFF,0x00FA,  $ Min, Max (max enumeration #), and Default values
+,,,,,,,,;              $ Not Used
+
+$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+Param15 =              $ Produced Zone Connection PIT
+0,                     $ reserved
+7,                     $ Link Path Size
+"21 0F 00 24 11 30 01",    $ Link Path to param instance.  The param instance decodes
+                       $ the enumerated parameter into engineering units (milliseconds).
+0x0000,                $ No support for settable path, scaling, scaling links,
+                       $ or real time update of value.  Value is gettable and
+                       $ Settable.  
+0xC7,                  $ Data Type - unsigned int
+2,                     $ Data Size - (in bytes)
+"Zone Produced - PIT", $ Parameter Name
+"",                    $ Units String
+           $$$$$$$$$$ Help string $$$$$$$$$$$
+"The (PIT) defines Production Inhibit Time in milliseconds for this module's production",
+0x0000,0xFFFF,0x0000,  $ Min, Max (max enumeration #), and Default values
+,,,,,,,,;              $ Not Used
+
+$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+Param16 =                  $ Relative MacId Offset Disable
+0,                         $ reserved
+7,                         $ Link Path Size
+"21 0F 00 24 30 30 01",    $ Link Path to param instance.
+0x0002,                    $ No support for settable path, scaling, scaling links,
+                           $ or real time update of value.  Value is gettable and
+                           $ Settable.  Enumerated strings are supported.
+0xC1,                      $ Data Type - boolean
+1,                         $ Data Size - (in bytes)
+"Relative MacId Offset ",  $ Parameter Name
+"",                        $ Units String
+           $$$$$$$$$$ Help string $$$$$$$$$$$
+"Allows setting consumed node address relative to this module's node.  Default is Enabled.",
+0,1,0,                     $ Min, Max (max enumeration #), and Default values
+,,,,,,,,;                  $ Not Used
+
+Enum16 =       0,"Enabled", 1,"Disabled";
+
+$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+Param17 =                      $ Connection #1 Relative MacId offset
+0,                             $ reserved
+7,                             $ Link Path Size
+"21 0F 00 24 31 30 01",        $ Link Path to param instance.  The param instance decodes
+                               $ the enumerated parameter.
+0x0002,                        $ No support for settable path, scaling, scaling links,
+                               $ or real time update of value.  Value is gettable and
+                               $ Settable.  Enumerated strings are supported.
+0xC6,                          $ Data Type - unsigned short int
+1,                             $ Data Size - (in bytes)
+"Zone Conn #1 MacID offset",   $ Parameter Name
+"",                            $ Units String
+           $$$$$$$$$$ Help string $$$$$$$$$$$
+"Enter the offset from this module's MacId to the node of the device that this connection should consume data from." 
+           "Invalid value will reset the node to 64 on download. On upload it means the node is out of range",
+0,8,0,                         $ Min, Max (max enumeration #), and Default values
+,,,,,,,,;                      $ Not Used
+
+Enum17 =    0,"Invalid value", 1,"MACID - 4",2,"MACID - 3",3,"MACID - 2",4,"MACID - 1",5,"MACID + 1",6,"MACID + 2",7,"MACID + 3",8,"MACID + 4";
+
+$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+Param18 =                      $ Connection #2 Relative MacId offset
+0,                             $ reserved
+7,                             $ Link Path Size
+"21 0F 00 24 32 30 01",        $ Link Path to param instance.  The param instance decodes
+                               $ the enumerated parameter.
+0x0002,                        $ No support for settable path, scaling, scaling links,
+                               $ or real time update of value.  Value is gettable and
+                               $ Settable.  Enumerated strings are supported.
+0xC6,                          $ Data Type - unsigned short int
+1,                             $ Data Size - (in bytes)
+"Zone Conn #2 MacID Offset",   $ Parameter Name
+"",                            $ Units String
+           $$$$$$$$$$ Help string $$$$$$$$$$$
+"Enter the offset from this module's MacId to the node of the device that this connection should consume data from." 
+           "Invalid value will reset the node to 64 on download. On upload it means the node is out of range",
+0,8,0,                         $ Min, Max (max enumeration #), and Default values
+,,,,,,,,;                      $ Not Used
+
+Enum18 =  0,"Invalid value", 1,"MACID - 4",2,"MACID - 3",3,"MACID - 2",4,"MACID - 1",5,"MACID + 1",6,"MACID + 2",7,"MACID + 3",8,"MACID + 4";
+
+$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+Param19 =                      $ Connection #3 Relative MacId offset
+0,                             $ reserved
+7,                             $ Link Path Size
+"21 0F 00 24 33 30 01",        $ Link Path to param instance.  The param instance decodes
+                               $ the enumerated parameter.
+0x0002,                        $ No support for settable path, scaling, scaling links,
+                               $ or real time update of value.  Value is gettable and
+                               $ Settable.  Enumerated strings are supported.
+0xC6,                          $ Data Type - unsigned short int
+1,                             $ Data Size - (in bytes)
+"Zone Conn #3 MacID Offset",   $ Parameter Name
+"",                            $ Units String
+           $$$$$$$$$$ Help string $$$$$$$$$$$
+"Enter the offset from this module's MacId to the node of the device that this connection should consume data from." 
+           "Invalid value will reset the node to 64 on download. On upload it means the node is out of range",
+0,8,0,                         $ Min, Max (max enumeration #), and Default values
+,,,,,,,,;                      $ Not Used
+
+Enum19 =  0,"Invalid value", 1,"MACID - 4",2,"MACID - 3",3,"MACID - 2",4,"MACID - 1",5,"MACID + 1",6,"MACID + 2",7,"MACID + 3",8,"MACID + 4";
+
+$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+Param20 =                      $ Connection #4 Relative MacId offset
+0,                             $ reserved
+7,                             $ Link Path Size
+"21 0F 00 24 34 30 01",        $ Link Path to param instance.  The param instance decodes
+                               $ the enumerated parameter .
+0x0002,                        $ No support for settable path, scaling, scaling links,
+                               $ or real time update of value.  Value is gettable and
+                               $ Settable.  Enumerated strings are supported.
+0xC6,                          $ Data Type - unsigned short int
+1,                             $ Data Size - (in bytes)
+"Zone Conn #4 MacID Offset",   $ Parameter Name
+"",                            $ Units String
+           $$$$$$$$$$ Help string $$$$$$$$$$$
+"Enter the offset from this module's MacId to the node of the device that this connection should consume data from." 
+           "Invalid value will reset the node to 64 on download. On upload it means the node is out of range",
+0,8,0,                         $ Min, Max (max enumeration #), and Default values
+,,,,,,,,;                      $ Not Used
+
+Enum20 =   0,"Invalid value", 1,"MACID - 4",2,"MACID - 3",3,"MACID - 2",4,"MACID - 1",5,"MACID + 1",6,"MACID + 2",7,"MACID + 3",8,"MACID + 4";
+$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+Param21 =                  $ Connection #1 MacId
+0,                         $ reserved
+7,                         $ Link Path Size
+"21 0F 00 24 12 30 01",    $ Link Path to param instance.  The param instance decodes
+                           $ the enumerated parameter.
+0x0000,                    $ No support for settable path, scaling, scaling links,
+                           $ or real time update of value.  Value is gettable and
+                           $ Settable.  
+0xC6,                      $ Data Type - unsigned short int
+1,                         $ Data Size - (in bytes)
+"Zone Cnxn #1 - MacID",    $ Parameter Name
+"",                        $ Units String
+           $$$$$$$$$$ Help string $$$$$$$$$$$
+"Enter the MacId of the device that this connection should consume data from. If Relative MacId Offset is enabled"
+" this effectively becomes a read only parameter",
+0,64,64,                   $ Min, Max (max enumeration #), and Default values
+,,,,,,,,;                  $ Not Used
+
+$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+Param22 =                  $ Connection #2 MacId
+0,                         $ reserved
+7,                         $ Link Path Size
+"21 0F 00 24 13 30 01",    $ Link Path to param instance.  The param instance decodes
+                           $ the enumerated parameter.
+0x0000,                    $ No support for settable path, scaling, scaling links,
+                           $ or real time update of value.  Value is gettable and
+                           $ Settable.  
+0xC6,                      $ Data Type - unsigned short int
+1,                         $ Data Size - (in bytes)
+"Zone Cnxn #2 - MacID",    $ Parameter Name
+"",                        $ Units String
+           $$$$$$$$$$ Help string $$$$$$$$$$$
+"Enter the MacId of the device that this connection should consume data from. If Relative MacId Offset is enabled"
+" this effectively becomes a read only parameter",
+0,64,64,                   $ Min, Max (max enumeration #), and Default values
+,,,,,,,,;                  $ Not Used
+
+$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+Param23 =                  $ Connection #3 MacId
+0,                         $ reserved
+7,                         $ Link Path Size
+"21 0F 00 24 14 30 01",    $ Link Path to param instance.  The param instance decodes
+                           $ the enumerated parameter.
+0x0000,                    $ No support for settable path, scaling, scaling links,
+                           $ or real time update of value.  Value is gettable and
+                           $ Settable.  
+0xC6,                      $ Data Type - unsigned short int
+1,                         $ Data Size - (in bytes)
+"Zone Cnxn #3 - MacID",    $ Parameter Name
+"",                        $ Units String
+           $$$$$$$$$$ Help string $$$$$$$$$$$
+"Enter the MacId of the device that this connection should consume data from. If Relative MacId Offset is enabled"
+" this effectively becomes a read only parameter",
+0,64,64,                   $ Min, Max (max enumeration #), and Default values
+,,,,,,,,;                  $ Not Used
+
+$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+Param24 =                  $ Connection #4 MacId
+0,                         $ reserved
+7,                         $ Link Path Size
+"21 0F 00 24 15 30 01",    $ Link Path to param instance.  The param instance decodes
+                           $ the enumerated parameter .
+0x0000,                    $ No support for settable path, scaling, scaling links,
+                           $ or real time update of value.  Value is gettable and
+                           $ Settable.  
+0xC6,                      $ Data Type - unsigned short int
+1,                         $ Data Size - (in bytes)
+"Zone Cnxn #4 - MacID",    $ Parameter Name
+"",                        $ Units String
+           $$$$$$$$$$ Help string $$$$$$$$$$$
+"Enter the MacId of the device that this connection should consume data from. If Relative MacId Offset is enabled"
+" this effectively becomes a read only parameter",
+0,64,64,                   $ Min, Max (max enumeration #), and Default values
+,,,,,,,,;                  $ Not Used
+
+$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+Param25 =                  $ Connection #1 Health
+0,                         $ reserved
+7,                         $ Link Path Size
+"21 0F 00 24 26 30 01",    $ Link Path to param instance.
+0x0032,                    $ No support for settable path, scaling, scaling links,
+                           $ or real time update of value.  Value is gettable and
+                           $ Settable.  
+0xC1,                      $ Data Type - boolean
+1,                         $ Data Size - (in bytes)
+"Zone Cnxn #1 - Health ",  $ Parameter Name
+"",                        $ Units String
+           $$$$$$$$$$ Help string $$$$$$$$$$$
+"shows Zone connection status",
+0,1,0,                     $ Min, Max (max enumeration #), and Default values
+,,,,,,,,;                  $ Not Used
+
+$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+Param26 =                  $ Connection #2 Health
+0,                         $ reserved
+7,                         $ Link Path Size
+"21 0F 00 24 27 30 01",    $ Link Path to param instance.
+0x0032,                    $ No support for settable path, scaling, scaling links,
+                           $ or real time update of value.  Value is gettable and
+                           $ Settable.  
+0xC1,                      $ Data Type - boolean
+1,                         $ Data Size - (in bytes)
+"Zone Cnxn #2 - Health ",  $ Parameter Name
+"",                        $ Units String
+           $$$$$$$$$$ Help string $$$$$$$$$$$
+"shows Zone connection status",
+0,1,0,                     $ Min, Max (max enumeration #), and Default values
+,,,,,,,,;                  $ Not Used
+
+
+$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+Param27 =                  $ Connection #3 Health
+0,                         $ reserved
+7,                         $ Link Path Size
+"21 0F 00 24 28 30 01",    $ Link Path to param instance.
+0x0032,                    $ No support for settable path, scaling, scaling links,
+                           $ or real time update of value.  Value is gettable and
+                           $ Settable.  
+0xC1,                      $ Data Type - boolean
+1,                         $ Data Size - (in bytes)
+"Zone Cnxn #3 - Health ",  $ Parameter Name
+"",                        $ Units String
+           $$$$$$$$$$ Help string $$$$$$$$$$$
+"shows Zone connection status",
+0,1,0,                     $ Min, Max (max enumeration #), and Default values
+,,,,,,,,;                  $ Not Used
+
+$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+Param28 =                  $ Connection #4 Health
+0,                         $ reserved
+7,                         $ Link Path Size
+"21 0F 00 24 29 30 01",    $ Link Path to param instance.
+0x0032,                    $ No support for settable path, scaling, scaling links,
+                           $ or real time update of value.  Value is gettable and
+                           $ Settable.  
+0xC1,                      $ Data Type - boolean
+1,                         $ Data Size - (in bytes)
+"Zone Cnxn #4 - Health ",  $ Parameter Name
+"",                        $ Units String
+           $$$$$$$$$$ Help string $$$$$$$$$$$
+"shows Zone connection status",
+0,1,0,                     $ Min, Max (max enumeration #), and Default values
+,,,,,,,,;                  $ Not Used
+
+$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+Param29 =                  $ Connection #1 Mask
+0,                         $ reserved
+7,                         $ Link Path Size
+"21 0F 00 24 1A 30 01",    $ Link Path to param instance.  The param instance decodes
+                           $ the enumerated parameter.
+0x0002,                    $ No support for settable path, scaling, scaling links,
+                           $ or real time update of value.  Value is gettable and
+                           $ Settable.  Enumerated strings are supported.
+0xD1,                      $ Data Type - 8 bit string
+1,                         $ Data Size - (in bytes)
+"Zone Cnxn #1 - Mask",     $ Parameter Name
+"",                        $ Units String
+           $$$$$$$$$$ Help string $$$$$$$$$$$
+"Use this mask to specify which bytes of the Zone data are meaningful.  Each byte that is selected will be saved."
+"  Bytes not selected will be discarded.  Selected bytes will be concatenated in order. NOTE, this parameter in"
+" conjunction with the connection's offset specifies the Zone data and where it is placed.  Be careful not to exceed"
+" the total length of Zone data space.",
+0,0x1F,0,                   $ Min, Max (max enumeration #), and Default values
+,,,,,,,,;                  $ Not Used
+Enum29 =   0, "Byte 0",
+           1, "Byte 1",
+           2, "Byte 2", 
+           3, "Byte 3", 
+           4, "Byte 4";
+           
+$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+Param30 =                  $ Connection #2 Mask
+0,                         $ reserved
+7,                         $ Link Path Size
+"21 0F 00 24 1B 30 01",    $ Link Path to param instance.  The param instance decodes
+                           $ the enumerated parameter.
+0x0002,                    $ No support for settable path, scaling, scaling links,
+                           $ or real time update of value.  Value is gettable and
+                           $ Settable.  Enumerated strings are supported.
+0xD1,                      $ Data Type - 8 bit string
+1,                         $ Data Size - (in bytes)
+"Zone Cnxn #2 - Mask",     $ Parameter Name
+"",                        $ Units String
+           $$$$$$$$$$ Help string $$$$$$$$$$$
+"Use this mask to specify which bytes of the Zone data are meaningful.  Each byte that is selected will be saved."
+" Bytes not selected will be discarded.  Selected bytes will be concatenated in order. NOTE, this parameter in"
+" conjunction with the connection's offset specifies the Zone data and where it is placed.  Be careful not to"
+" exceed the total length of Zone data space.",
+0,0x1F,0,                   $ Min, Max (max enumeration #), and Default values
+,,,,,,,,;                  $ Not Used
+Enum30 =   0, "Byte 0",
+           1, "Byte 1",
+           2, "Byte 2", 
+           3, "Byte 3", 
+           4, "Byte 4";
+           
+$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+Param31 =                  $ Connection #3 Mask
+0,                         $ reserved
+7,                         $ Link Path Size
+"21 0F 00 24 1C 30 01",    $ Link Path to param instance.  The param instance decodes
+                           $ the enumerated parameter.
+0x0002,                    $ No support for settable path, scaling, scaling links,
+                           $ or real time update of value.  Value is gettable and
+                           $ Settable.  Enumerated strings are supported.
+0xD1,                      $ Data Type - 8 bit string
+1,                         $ Data Size - (in bytes)
+"Zone Cnxn #3 - Mask",     $ Parameter Name
+"",                        $ Units String
+           $$$$$$$$$$ Help string $$$$$$$$$$$
+"Use this mask to specify which bytes of the Zone data are meaningful.  Each byte that is selected will be saved."
+"  Bytes not selected will be discarded.  Selected bytes will be concatenated in order. NOTE, this parameter in"
+" conjunction with the connection's offset specifies the Zone data and where it is placed.  Be careful not to"
+" exceed the total length of Zone data space.",
+0,0x1F,0,   $ Min, Max (max enumeration #), and Default values
+,,,,,,,,;  $ Not Used
+Enum31 =   0, "Byte 0",
+           1, "Byte 1",
+           2, "Byte 2", 
+           3, "Byte 3", 
+           4, "Byte 4";
+           
+$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+Param32 =                  $ Connection #4 Mask
+0,                         $ reserved
+7,                         $ Link Path Size
+"21 0F 00 24 1D 30 01",    $ Link Path to param instance.  The param instance decodes
+                           $ the enumerated parameter.
+0x0002,                    $ No support for settable path, scaling, scaling links,
+                           $ or real time update of value.  Value is gettable and
+                           $ Settable.  Enumerated strings are supported.
+0xD1,                      $ Data Type - 8 bit string
+1,                         $ Data Size - (in bytes)
+"Zone Cnxn #4 - Mask",     $ Parameter Name
+"",                        $ Units String
+           $$$$$$$$$$ Help string $$$$$$$$$$$
+"Use this mask to specify which bytes of the Zone data are meaningful.  Each byte that is selected will be saved."
+" Bytes not selected will be discarded.  Selected bytes will be concatenated in order. NOTE, this parameter in"
+" conjunction with the connection's offset specifies the Zone data and where it is placed.  Be careful not to"
+" exceed the total length of Zone data space.",
+0,0x1F,0,                   $ Min, Max (max enumeration #), and Default values
+,,,,,,,,;                  $ Not Used
+Enum32 =   0, "Byte 0",
+           1, "Byte 1",
+           2, "Byte 2", 
+           3, "Byte 3", 
+           4, "Byte 4";
+           
+$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+Param33 =                  $ Connection #1 Offset
+0,                         $ reserved
+7,                         $ Link Path Size
+"21 0F 00 24 1E 30 01",    $ Link Path to param instance.  The param instance decodes
+                           $ the enumerated parameter.
+0x0000,                    $ No support for settable path, scaling, scaling links,
+                           $ or real time update of value.  Value is gettable and
+                           $ Settable.  
+0xC6,                      $ Data Type - unsigned short int
+1,                         $ Data Size - (in bytes)
+"Zone Cnxn #1 - Offset",   $ Parameter Name
+"",                        $ Units String
+           $$$$$$$$$$ Help string $$$$$$$$$$$
+"This parameter allows you to place Zone Connection #1's data into the Zone I/O data space. Specify the # of bytes"
+" of offset into the data space where this connection's data should begin.  NOTE, this parameter in conjunction with"
+" the connection's mask specifies the Zone data and where it is placed.  Be careful not to exceed the total length"
+" of Zone data space.",
+0,7,0,                     $ Min, Max (max enumeration #), and Default values
+,,,,,,,,;                  $ Not Used
+
+$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+Param34 =                  $ Connection #2 Offset
+0,                         $ reserved
+7,                         $ Link Path Size
+"21 0F 00 24 1F 30 01",    $ Link Path to param instance.  The param instance decodes
+                           $ the enumerated parameter.
+0x0000,                    $ No support for settable path, scaling, scaling links,
+                           $ or real time update of value.  Value is gettable and
+                           $ Settable.  
+0xC6,                      $ Data Type - unsigned short int
+1,                         $ Data Size - (in bytes)
+"Zone Cnxn #2 - Offset",   $ Parameter Name
+"",                        $ Units String
+           $$$$$$$$$$ Help string $$$$$$$$$$$
+"This parameter allows you to place Zone Connection #2's data into the Zone I/O data space. Specify the # of bytes"
+" of offset into the data space where this connection's data should begin.  NOTE, this parameter in conjunction with"
+" the connection's mask specifies the Zone data and where it is placed.  Be careful not to exceed the total length of"
+" Zone data space.",
+0,7,0,                     $ Min, Max (max enumeration #), and Default values
+,,,,,,,,;                  $ Not Used
+
+$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+Param35 =                  $ Connection #3 Offset
+0,                         $ reserved
+7,                         $ Link Path Size
+"21 0F 00 24 20 30 01",    $ Link Path to param instance.  The param instance decodes
+                           $ the enumerated parameter.
+0x0000,                    $ No support for settable path, scaling, scaling links,
+                           $ or real time update of value.  Value is gettable and
+                           $ Settable.  
+0xC6,                      $ Data Type - unsigned short int
+1,                         $ Data Size - (in bytes)
+"Zone Cnxn #3 - Offset",   $ Parameter Name
+"",                        $ Units String
+           $$$$$$$$$$ Help string $$$$$$$$$$$
+"This parameter allows you to place Zone Connection #3's data into the Zone I/O data space. Specify the # of bytes"
+" of offset into the data space where this connection's data should begin.  NOTE, this parameter in conjunction"
+" with the connection's mask specifies the Zone data and where it is placed.  Be careful not to exceed the total"
+" length of Zone data space.",
+0,7,0,                     $ Min, Max (max enumeration #), and Default values
+,,,,,,,,;                  $ Not Used
+
+$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+Param36 =                  $ Connection #4 Offset
+0,                         $ reserved
+7,                         $ Link Path Size
+"21 0F 00 24 21 30 01",    $ Link Path to param instance.  The param instance decodes
+                           $ the enumerated parameter.
+0x0000,                    $ No support for settable path, scaling, scaling links,
+                           $ or real time update of value.  Value is gettable and
+                           $ Settable.  
+0xC6,                      $ Data Type - unsigned short int
+1,                         $ Data Size - (in bytes)
+"Zone Cnxn #4 - Offset",   $ Parameter Name
+"",                        $ Units String
+           $$$$$$$$$$ Help string $$$$$$$$$$$
+"This parameter allows you to place Zone Connection #4's data into the Zone I/O data space. Specify the # of bytes"
+" of offset into the data space where this connection's data should begin.  NOTE, this parameter in conjunction with"
+" the connection's mask specifies the Zone data and where it is placed.  Be careful not to exceed the total length"
+" of Zone data space.",
+0,7,0,                     $ Min, Max (max enumeration #), and Default values
+,,,,,,,,;                  $ Not Used
+
+$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+Param37 =                  $ Connection #1 EPR
+0,                         $ reserved
+7,                         $ Link Path Size
+"21 0F 00 24 22 30 01",    $ Link Path to param instance.  The param instance decodes
+                           $ the enumerated parameter into engineering units (milliseconds).
+0x0000,                    $ No support for settable path, scaling, scaling links,
+                           $ or real time update of value.  Value is gettable and
+                           $ Settable.  
+0xC7,                      $ Data Type - unsigned int
+2,                         $ Data Size - (in bytes)
+"Zone Cnxn #1 - EPR",      $ Parameter Name
+"",                        $ Units String
+           $$$$$$$$$$ Help string $$$$$$$$$$$
+"The Expected Packet Rate (EPR) defines timing associated with this connection. If this connection does not consume"
+" data within 4xEPR the connection's fault bit will be set.",
+0x0000,0xFFFF,0x00FA,      $ Min, Max (max enumeration #), and Default values
+,,,,,,,,;                  $ Not Used
+
+$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+Param38 =                  $ Connection #2 EPR
+0,                         $ reserved
+7,                         $ Link Path Size
+"21 0F 00 24 23 30 01",    $ Link Path to param instance.  The param instance decodes
+                           $ the enumerated parameter into engineering units (milliseconds).
+0x0000,                    $ No support for settable path, scaling, scaling links,
+                           $ or real time update of value.  Value is gettable and
+                           $ Settable.  
+0xC7,                      $ Data Type - unsigned int
+2,                         $ Data Size - (in bytes)
+"Zone Cnxn #2 - EPR",      $ Parameter Name
+"",                        $ Units String
+           $$$$$$$$$$ Help string $$$$$$$$$$$
+"The Expected Packet Rate (EPR) defines timing associated with this connection. If this connection does not consume"
+" data within 4xEPR the connection's fault bit will be set.",
+0x0000,0xFFFF,0x00FA,      $ Min, Max (max enumeration #), and Default values
+,,,,,,,,;                  $ Not Used
+
+
+$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+Param39 =                  $ Connection #3 EPR
+0,                         $ reserved
+7,                         $ Link Path Size
+"21 0F 00 24 24 30 01",    $ Link Path to param instance.  The param instance decodes
+                           $ the enumerated parameter into engineering units (milliseconds).
+0x0000,                    $ No support for settable path, scaling, scaling links,
+                           $ or real time update of value.  Value is gettable and
+                           $ Settable.  
+0xC7,                      $ Data Type - unsigned int
+2,                         $ Data Size - (in bytes)
+"Zone Cnxn #3 - EPR",      $ Parameter Name
+"",                        $ Units String
+           $$$$$$$$$$ Help string $$$$$$$$$$$
+"The Expected Packet Rate (EPR) defines timing associated with this connection. If this connection does not consume"
+" data within 4xEPR the connection's fault bit will be set.",
+0x0000,0xFFFF,0x00FA,      $ Min, Max (max enumeration #), and Default values
+,,,,,,,,;                  $ Not Used
+
+
+$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+Param40 =                  $ Connection #4 EPR
+0,                         $ reserved
+7,                         $ Link Path Size
+"21 0F 00 24 25 30 01",    $ Link Path to param instance.  The param instance decodes
+                           $ the enumerated parameter into engineering units (milliseconds).
+0x0000,                    $ No support for settable path, scaling, scaling links,
+                           $ or real time update of value.  Value is gettable and
+                           $ Settable.  
+0xC7,                      $ Data Type - unsigned int
+2,                         $ Data Size - (in bytes)
+"Zone Cnxn #4 - EPR",      $ Parameter Name
+"",                        $ Units String
+           $$$$$$$$$$ Help string $$$$$$$$$$$
+"The Expected Packet Rate (EPR) defines timing associated with this connection. If this connection does not consume"
+" data within 4xEPR the connection's fault bit will be set.",
+0x0000,0xFFFF,0x00FA,      $ Min, Max (max enumeration #), and Default values
+,,,,,,,,;                  $ Not Used
+
+$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+Param41 =                  $ Update Zone 1 Data Security Key
+0,                         $ reserved
+7,                         $ Link Path Size
+"21 0F 00 24 2a 30 01",    $ Link Path to param instance.
+0x0000,                    $ No support for settable path, scaling, scaling links,
+                           $ or real time update of value.  Value is gettable and
+                           $ Settable.  
+0xC7,                      $ Data Type - unsigned int
+2,                         $ Data Size - (in bytes)
+"Cnxn 1 Security Key Value",   $ Parameter Name
+"",                        $ Units String
+           $$$$$$$$$$ Help string $$$$$$$$$$$
+"Enter the value of the security key from this connection's module for valid data if Security Key is enabled",
+0x0000,0xFFFF,0x0000,      $ Min, Max (max enumeration #), and Default values
+,,,,,,,,;                  $ Not Used
+
+$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+Param42 =                  $ Update Zone 2 Data Security Key
+0,                         $ reserved
+7,                         $ Link Path Size
+"21 0F 00 24 2b 30 01",    $ Link Path to param instance.
+0x0000,                    $ No support for settable path, scaling, scaling links,
+                           $ or real time update of value.  Value is gettable and
+                           $ Settable.  
+0xC7,                      $ Data Type - unsigned int
+2,                         $ Data Size - (in bytes)
+"Cnxn 2 Security Key Value",   $ Parameter Name
+"",                        $ Units String
+           $$$$$$$$$$ Help string $$$$$$$$$$$
+"Enter the value of the security key from this connection's module for valid data if Security Key is enabled",
+0x0000,0xFFFF,0x0000,      $ Min, Max (max enumeration #), and Default values
+,,,,,,,,;                  $ Not Used
+
+$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+Param43 =                  $ Update Zone 3 Data Security Key
+0,                         $ reserved
+7,                         $ Link Path Size
+"21 0F 00 24 2c 30 01",    $ Link Path to param instance.
+0x0000,                    $ No support for settable path, scaling, scaling links,
+                           $ or real time update of value.  Value is gettable and
+                           $ Settable.  
+0xC7,                      $ Data Type - unsigned int
+2,                         $ Data Size - (in bytes)
+"Cnxn 3 Security Key Value",   $ Parameter Name
+"",                        $ Units String
+           $$$$$$$$$$ Help string $$$$$$$$$$$
+"Enter the value of the security key from this connection's module for valid data if Security Key is enabled",
+0x0000,0xFFFF,0x0000,      $ Min, Max (max enumeration #), and Default values
+,,,,,,,,;                  $ Not Used
+
+$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+Param44 =                  $ Update Zone 4 Data Security Key
+0,                         $ reserved
+7,                         $ Link Path Size
+"21 0F 00 24 2d 30 01",    $ Link Path to param instance.
+0x0000,                    $ No support for settable path, scaling, scaling links,
+                           $ or real time update of value.  Value is gettable and
+                           $ Settable.  
+0xC7,                      $ Data Type - unsigned int
+2,                         $ Data Size - (in bytes)
+"Cnxn 4 Security Key Value",   $ Parameter Name
+"",                        $ Units String
+           $$$$$$$$$$ Help string $$$$$$$$$$$
+"Enter the value of the security key from this connection's module for valid data if Security Key is enabled",
+0x0000,0xFFFF,0x0000,      $ Min, Max (max enumeration #), and Default values
+,,,,,,,,;                  $ Not Used
+
+$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+Param45 =                  $ Module Security Key Value
+0,                         $ reserved
+7,                         $ Link Path Size
+"21 0F 00 24 2e 30 01",    $ Link Path to param instance. 
+0x0030,                    $ No support for settable path, scaling, scaling links,
+                           $ or real time update of value.  Value is gettable only.
+0xC7,                      $ Data Type - unsigned int
+2,                         $ Data Size - (in bytes)
+"Module Security Key Value",   $ Parameter Name
+"",                        $ Units String
+           $$$$$$$$$$ Help string $$$$$$$$$$$
+"Displays the 2 byte module security key which is used by other modules to validate data produced by this module",
+0x0000,0xFFFF,0x0000,      $ Min, Max (max enumeration #), and Default values
+,,,,,,,,;                  $ Not Used
+
+$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+Param46 =                  $ Data Security Disable
+0,                         $ reserved
+7,                         $ Link Path Size
+"21 0F 00 24 2f 30 01",    $ Link Path to param instance.
+0x0002,                    $ No support for settable path, scaling, scaling links,
+                           $ or real time update of value.  Value is gettable and
+                           $ Settable.  Enumerated strings are supported.
+0xC1,                      $ Data Type - boolean
+1,                         $ Data Size - (in bytes)
+"Data Security",           $ Parameter Name
+"",            $ Units String
+           $$$$$$$$$$ Help string $$$$$$$$$$$
+"Allows Zone Data security to be disabled. If Zone Data security is enabled the security of the consuming connection"
+" must match the security key of the module producing module. If the key does not match the data is ignored and"
+" the connection will time out and have a Not Healthy status ",
+0,1,0,                     $ Min, Max (max enumeration #), and Default values
+,,,,,,,,;                  $ Not Used
+                       
+$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+Param47 =                  $ Zone Control Enable
+0,                         $ reserved
+7,                         $ Link Path Size
+"21 0F 00 24 0E 30 01",    $ Link Path to param instance.
+0x0002,                    $ No support for settable path, scaling, scaling links,
+                           $ or real time update of value.  Value is gettable and
+                           $ Settable.  Enumerated strings are supported.
+0xC1,                      $ Data Type - boolean
+1,                         $ Data Size - (in bytes)
+"Zone Control",            $ Parameter Name
+"",                        $ Units String
+           $$$$$$$$$$ Help string $$$$$$$$$$$
+"Enabling this parameter sets up zone connections using connection information from the other zone parameters."
+" Logic must be disabled in order to enable Zone Control connections. Default is Disabled.",
+0,1,0,                     $ Min, Max (max enumeration #), and Default values
+,,,,,,,,;                  $ Not Used
+
+$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+Param48 =                  $ Enable Quick Start
+0,                         $ reserved
+7,                         $ Link Path Size
+"21 03 00 24 01 30 66",    $ Link Path to enable Quick Start attribute.
+0x0002,                    $ No support for settable path, scaling, scaling links, or
+                           $ real time update of value.  Value is gettable and 
+                           $ Settable.  Enumerated strings are supported.
+0xC1,                      $ Data Type - boolean
+1,                         $ Data Size
+"Quick Connect",           $ Parameter Name
+"",                        $ Units String
+   $$$$$$$$$$ Help string $$$$$$$$$$$
+"Setting this parameter Enabled disables Autobaud and LED test in the block. The change occurs at the next power up."
+" Baud rate remains at the present value. Default is Disabled.",
+0,1,0,                     $ Min, Max, and Default values
+,,,,,,,,;                  $ Not Used
+
+Enum48 =       0,"Disabled", 1,"Enabled";
+
+
+$ The following ParamN definitions are for Invisible Parameters
+$ that do not exist in the device.  They are here to provide
+$ names for Assembly members in this EDS whose corresponding
+$ on-line member names are encoded in Symbolic EPATHs.
+$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+Param50 =      $ Output Data
+ 0,0,"",0x200,
+  0xC6,1,
+  "Output Data"
+  ,"",""
+  ,0,255,0,,,,,,,,,,,,;
+
+$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+Param51 =      $ Output Data
+ 0,0,"",0x200,
+  0xC6,1,
+  "Output Data"
+  ,"",""
+  ,0,3,0,,,,,,,,,,,,;
+
+
+$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+Param55 =      $ DeviceLogix Enabled
+ 0,0,"",0x210,
+  0xC1,1,
+  "DeviceLogix Enabled"
+  ,"",""
+  ,0,1,0,,,,,,,,,,,,;
+
+$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+Param56 =      $ Produced DeviceLogix Data
+ 0,0,"",0x210,
+  0xC6,1,
+  "Produced DeviceLogix Data"
+  ,"",""
+  ,0,255,0,,,,,,,,,,,,;
+
+
+$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+
+
+
+
+[Groups]
+Group1="Configuration",11,1,2,3,6,7,8,9,10,11,12,48;
+Group2="Monitoring",6,4,5,25,26,27,28;
+Group3="ZIP Configuration",31,13,14,15,16,17,18,19,20,21,22,23,24,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47;
+
+
+[EnumPar]
+Param1="AutoBaud Active","AutoBaud Inactive";
+Param2="0 ms","2 ms","4 ms","8 ms","16 ms";
+Param3="0 ms","2 ms","4 ms","8 ms","16 ms";
+Param6="Use Fault Value","Hold Last State";
+Param7="Reset Outputs","Turn Outputs On";
+Param8="Use Idle Value","Hold Last State";
+Param9="Reset Outputs","Turn Outputs On";
+Param10="default 2 bytes data","0 bytes data","1 byte data",
+        "2 bytes data","3 bytes data","4 bytes data";
+Param11="Override Disabled","Override Enabled";
+Param12="Override Disabled","Override Enabled";
+Param13="Disabled","Enabled";
+Param25="Not Healthy","Healthy";
+Param26="Not Healthy","Healthy";
+Param27="Not Healthy","Healthy";
+Param28="Not Healthy","Healthy";
+Param46="Enabled","Disabled";
+Param47="Disabled","Enabled";
+
+$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+
+
+[Assembly]
+Revision = 1;
+
+Assem153 = 
+"Data - DeviceLogix",      $ Name of Connection.
+"20 04 24 99 30 03",       $ Path to I/O Production Assembly.
+7,                         $ The size in bytes that this connection produces.
+0, , ,                     $ Not editable, not modular.
+8, Param4,                 $ 8 input values (byte 0)
+2, Param5,                 $ 2 input values (byte 0)
+4, ,                       $ 
+1, Param55,                $ DeviceLogix Enabled
+1, ,                       
+8, Param50,                $ Output data
+2, Param51,                $ Output data
+6, ,   
+8, Param56,                $ Produced DeviceLogix Data
+16,Param45;                $ Security key
+
+Assem37 =                  $0x25
+"Default Consumed Data",   $ Name of Connection.
+"20 04 24 25 30 03",       $ Path to I/O Consume Assembly.
+2,                         $ The size in bytes that this connection consumes.
+0, , ,                     $ Not editable, not modular.
+8, Param50,                $ 8 output values (byte 0)
+2, Param51,                $ 2 output values (byte 0)
+6, ;
+
+Assem160 =                 $0xA0
+"No Consumed Data",        $ Name of Connection.
+"20 04 24 A0 30 03",       $ Path to I/O Consume Assembly.
+0,                         $ The size in bytes that this connection consumes.
+0, , ,                     $ Not editable, not modular.
+0,;                        $ 0 output values (byte 0)
+Assem161 =                 $0xA1
+"1 byte Consumed Data",    $ Name of Connection.
+"20 04 24 A1 30 03",       $ Path to I/O Consume Assembly.
+1,                         $ The size in bytes that this connection consumes.
+0, , ,                     $ Not editable, not modular.
+8, Param50;                $ 8 output values (byte 0)
+Assem162 =                 $0xA2
+"2 bytes Consumed Data",   $ Name of Connection.
+"20 04 24 A2 30 03",       $ Path to I/O Consume Assembly.
+2,                         $ The size in bytes that this connection consumes.
+0, , ,                     $ Not editable, not modular.
+8, Param50,                $ 8 output values (byte 0)
+8, Param50;                $ 8 output values (byte 1)
+Assem163 =                 $0xA3
+"3 bytes Consumed Data",   $ Name of Connection.
+"20 04 24 A3 30 03",       $ Path to I/O Consume Assembly.
+3,                         $ The size in bytes that this connection consumes.
+0, , ,                     $ Not editable, not modular.
+8, Param50,                $ 8 output values (byte 0)
+8, Param50,                $ 8 output values (byte 0)
+8, Param50;                $ 8 output values (byte 0)
+Assem164 =                 $0xA4
+"4 bytes Consumed Data",   $ Name of Connection.
+"20 04 24 A4 30 03",       $ Path to I/O Consume Assembly.
+4,                         $ The size in bytes that this connection consumes.
+0, , ,                     $ Not editable, not modular.
+8, Param50,                $ 8 output values (byte 0)
+8, Param50,                $ 8 output values (byte 0)
+8, Param50,                $ 8 output values (byte 0)
+8, Param50;                $ 8 output values (byte 0)
+
+
+Assem169 =                 $0xA9
+"Configuration Data",      $ Name of Connection.
+,                          $ Path to Assembly.
+4,                         $ The size in bytes.
+0, , ,                     $ Not editable, not modular.
+1,Param1,                  $ Autobaud                  (byte 0 bit 0)
+1,Param48,                 $ Quick Connect             (byte 0 bit 1)
+1,Param11,                 $ Net Overide               (byte 0 bit 2)
+1,Param12,                 $ Com Overide               (byte 0 bit 3)
+1,Param6,                  $ Fault State               (byte 0 bit 4)
+1,Param7,                  $ Fault Value               (byte 0 bit 5)
+1,Param8,                  $ Idle State 0              (byte 0 bit 6)
+1,Param9,                  $ Idle Value 0              (byte 0 bit 7)
+8,Param2,                  $ Off to On Input filter    (byte 1,2)
+8,Param3,                  $ On to Off Input filter    (byte 3,4)
+4,,
+4,Param10;                 $ assembly selection        (byte 3)
+
+
+ 
+VariantExa1 =
+    ,,,,,
+    Param10,
+    0x00, Assem37,
+    0x01, Assem160,
+    0x02, Assem161,
+    0x03, Assem162,
+    0x04, Assem163,
+    0x05, Assem164;
+
+
+[1_LEOSUPPORT]
+
+1_FBLOCK_CLASSES_IMPLEMENTED = 775, 776, 777, 778; $ 4 classes are supported
+1_NUM_OF_FBLOCKS = 72;                             $ 72 blocks are supported
+1_DATA_TABLE_SIZE = 32;                                $ Size in bytes of Data Table
+1_LICENSE_KEY = 0xa8e8e400;
+
+[1_BOOLEAN]
+1_MAX_GATE_INPUTS = 4;
+1_VALID_TYPES = 0, 5, 6, 7, 8, 9, 10, 11;
+1_CLASS_ATTR_SUPPORT = 1, 8;
+1_INST_ATTR_SUPPORT = 1, 2, 3;
+
+[1_COUNTER]
+1_VALID_TYPES = 0, 1, 3;
+1_CLASS_ATTR_SUPPORT = 1, 8;
+1_INST_ATTR_SUPPORT = 1, 2, 3, 5, 6, 7, 9;
+
+[1_BISTABLE]
+1_VALID_TYPES = 0, 1, 2;
+1_CLASS_ATTR_SUPPORT = 1, 8;
+1_INST_ATTR_SUPPORT = 1, 2, 3, 4;
+
+[1_TIMER]
+1_VALID_TYPES = 0, 1, 2, 3;
+1_CLASS_ATTR_SUPPORT = 1, 8;
+1_INST_ATTR_SUPPORT = 1, 2, 4, 5, 6, 7, 8;
+
+
+[1_BINDING_PATHS]
+1_DISCRETE_INPUT_POINT =
+   1,  "Input 0",  "60 C6 40", 8, 0,
+   2,  "Input 1",  "60 C6 41", 8, 1,
+   3,  "Input 2",  "60 C6 42", 8, 2,
+   4,  "Input 3",  "60 C6 43", 8, 3,
+   5,  "Input 4",  "60 C6 44", 8, 4,
+   6,  "Input 5",  "60 C6 45", 8, 5,
+   7,  "Input 6",  "60 C6 46", 8, 6,
+   8,  "Input 7",  "60 C6 47", 8, 7,
+   9,  "Input 8",  "60 C6 48", 9, 0,
+    10, "Input 9",  "60 C6 49", 9, 1;
+   
+1_DISCRETE_OUTPUT_POINT =
+   1,  "Output 0",  "60 C6 50", 10, 0,
+   2,  "Output 1",  "60 C6 51", 10, 1,
+   3,  "Output 2",  "60 C6 52", 10, 2,
+   4,  "Output 3",  "60 C6 53", 10, 3,
+   5,  "Output 4",  "60 C6 54", 10, 4,
+   6,  "Output 5",  "60 C6 55", 10, 5,
+   7,  "Output 6",  "60 C6 56", 10, 6,
+   8,  "Output 7",  "60 C6 57", 10, 7,
+   9,  "Output 8",  "60 C6 58", 11, 0,
+    10, "Output 9",  "60 C6 59", 11, 1;
+   
+1_FUNCTION_BLOCK_OUTPUT =
+   1, "60 C6 60", 12, 0,   2, "60 C6 61", 12, 1,   3, "60 C6 62", 12, 2,
+   4, "60 C6 63", 12, 3,   5, "60 C6 64", 12, 4,   6, "60 C6 65", 12, 5,
+   7, "60 C6 66", 12, 6,   8, "60 C6 67", 12, 7,   9, "60 C6 68", 13, 0,
+   10, "60 C6 69", 13, 1,  11, "60 C6 6A", 13, 2,  12, "60 C6 6B", 13, 3,
+   13, "60 C6 6C", 13, 4,  14, "60 C6 6D", 13, 5,  15, "60 C6 6E", 13, 6,
+   16, "60 C6 6F", 13, 7,  17, "60 C6 70", 14, 0,  18, "60 C6 71", 14, 1,  
+   19, "60 C6 72", 14, 2,  20, "60 C6 73", 14, 3,  21, "60 C6 74", 14, 4,  
+   22, "60 C6 75", 14, 5,  23, "60 C6 76", 14, 6,  24, "60 C6 77", 14, 7,
+   25, "60 C6 78", 15, 0,  26, "60 C6 79", 15, 1,  27, "60 C6 7A", 15, 2,
+   28, "60 C6 7B", 15, 3,  29, "60 C6 7C", 15, 4,  30, "60 C6 7D", 15, 5,
+   31, "60 C6 7E", 15, 6,  32, "60 C6 7F", 15, 7,  33, "60 C6 80", 16, 0,  
+   34, "60 C6 81", 16, 1,  35, "60 C6 82", 16, 2,  36, "60 C6 83", 16, 3,  
+   37, "60 C6 84", 16, 4,  38, "60 C6 85", 16, 5,  39, "60 C6 86", 16, 6,  
+   40, "60 C6 87", 16, 7,  41, "60 C6 88", 17, 0,  42, "60 C6 89", 17, 1,  
+   43, "60 C6 8A", 17, 2,  44, "60 C6 8B", 17, 3,  45, "60 C6 8C", 17, 4, 
+   46, "60 C6 8D", 17, 5,  47, "60 C6 8E", 17, 6,  48, "60 C6 8F", 17, 7,  
+   49, "60 C6 90", 18, 0,  50, "60 C6 91", 18, 1,  51, "60 C6 92", 18, 2,  
+   52, "60 C6 93", 18, 3,  53, "60 C6 94", 18, 4,  54, "60 C6 95", 18, 5,  
+   55, "60 C6 96", 18, 6,  56, "60 C6 97", 18, 7,  57, "60 C6 98", 19, 0,  
+   58, "60 C6 99", 19, 1,  59, "60 C6 9A", 19, 2,  60, "60 C6 9B", 19, 3,
+   61, "60 C6 9C", 19, 4,  62, "60 C6 9D", 19, 5,  63, "60 C6 9E", 19, 6,  
+   64, "60 C6 9F", 19, 7,  65, "60 C6 A0", 20, 0,  66, "60 C6 A1", 20, 1,  
+   67, "60 C6 A2", 20, 2,  68, "60 C6 A3", 20, 3,  69, "60 C6 A4", 20, 4,  
+   70, "60 C6 A5", 20, 5,  71, "60 C6 A6", 20, 6,  72, "60 C6 A7", 20, 7;
+
+
+
+1_CONSUMED_NETWORK_BIT =
+   1, "Network Input 0", "60 C6 00", 0, 0,     2, "Network Input 1", "60 C6 01", 0, 1,
+   3, "Network Input 2", "60 C6 02", 0, 2,     4, "Network Input 3", "60 C6 03", 0, 3,
+   5, "Network Input 4", "60 C6 04", 0, 4,     6, "Network Input 5", "60 C6 05", 0, 5,
+   7, "Network Input 6", "60 C6 06", 0, 6,     8, "Network Input 7", "60 C6 07", 0, 7,
+   9, "Network Input 8", "60 C6 08", 1, 0,     10, "Network Input 9", "60 C6 09", 1, 1,
+   11, "Network Input 10", "60 C6 0A", 1, 2,   12, "Network Input 11", "60 C6 0B", 1, 3,
+   13, "Network Input 12", "60 C6 0C", 1, 4,   14, "Network Input 13", "60 C6 0D", 1, 5,
+   15, "Network Input 14", "60 C6 0E", 1, 6,   16, "Network Input 15", "60 C6 0F", 1, 7,
+   17, "Network Input 16", "60 C6 10", 2, 0,   18, "Network Input 17", "60 C6 11", 2, 1,
+   19, "Network Input 18", "60 C6 12", 2, 2,   20, "Network Input 19", "60 C6 13", 2, 3,
+   21, "Network Input 20", "60 C6 14", 2, 4,   22, "Network Input 21", "60 C6 15", 2, 5,
+   23, "Network Input 22", "60 C6 16", 2, 6,   24, "Network Input 23", "60 C6 17", 2, 7,       
+   25, "Network Input 24", "60 C6 18", 3, 0,   26, "Network Input 25", "60 C6 19", 3, 1,
+   27, "Network Input 26", "60 C6 1A", 3, 2,   28, "Network Input 27", "60 C6 1B", 3, 3,
+   29, "Network Input 28", "60 C6 1C", 3, 4,   30, "Network Input 29", "60 C6 1D", 3, 5,
+   31, "Network Input 30", "60 C6 1E", 3, 6,   32, "Network Input 31", "60 C6 1F", 3, 7,
+   33, "Zone Data (Byte 0,Bit 0)", "60 C6 B0", 22, 0,  34, "Zone Data (Byte 0,Bit  1", "60 C6 B1", 22, 1,
+   35, "Zone Data (Byte 0,Bit 2)", "60 C6 B2", 22, 2,  36, "Zone Data (Byte 0,Bit  3", "60 C6 B3", 22, 3,
+   37, "Zone Data (Byte 0,Bit 4)", "60 C6 B4", 22, 4,  38, "Zone Data (Byte 0,Bit  5", "60 C6 B5", 22, 5,
+   39, "Zone Data (Byte 0,Bit 6)", "60 C6 B6", 22, 6,  40, "Zone Data (Byte 0,Bit  7", "60 C6 B7", 22, 7,
+   41, "Zone Data (Byte 1,Bit 0)", "60 C6 B8", 23, 0,  42, "Zone Data (Byte 1,Bit  1", "60 C6 B9", 23, 1,
+   43, "Zone Data (Byte 1,Bit 2)", "60 C6 BA", 23, 2,  44, "Zone Data (Byte 1,Bit  3", "60 C6 BB", 23, 3,
+   45, "Zone Data (Byte 1,Bit 4)", "60 C6 BC", 23, 4,  46, "Zone Data (Byte 1,Bit  5", "60 C6 BD", 23, 5,
+   47, "Zone Data (Byte 1,Bit 6)", "60 C6 BE", 23, 6,  48, "Zone Data (Byte 1,Bit  7", "60 C6 BF", 23, 7,
+   49, "Zone Data (Byte 2,Bit 0)", "60 C6 C0", 24, 0,  50, "Zone Data (Byte 2,Bit  1", "60 C6 C1", 24, 1,
+   51, "Zone Data (Byte 2,Bit 2)", "60 C6 C2", 24, 2,  52, "Zone Data (Byte 2,Bit  3", "60 C6 C3", 24, 3,
+   53, "Zone Data (Byte 2,Bit 4)", "60 C6 C4", 24, 4,  54, "Zone Data (Byte 2,Bit  5", "60 C6 C5", 24, 5,
+   55, "Zone Data (Byte 2,Bit 6)", "60 C6 C6", 24, 6,  56, "Zone Data (Byte 2,Bit  7", "60 C6 C7", 24, 7,      
+   57, "Zone Data (Byte 3,Bit 0)", "60 C6 C8", 25, 0,  58, "Zone Data (Byte 3,Bit  1", "60 C6 C9", 25, 1,
+   59, "Zone Data (Byte 3,Bit 2)", "60 C6 CA", 25, 2,  60, "Zone Data (Byte 3,Bit  3", "60 C6 CB", 25, 3,
+   61, "Zone Data (Byte 3,Bit 4)", "60 C6 CC", 25, 4,  62, "Zone Data (Byte 3,Bit  5", "60 C6 CD", 25, 5,
+   63, "Zone Data (Byte 3,Bit 6)", "60 C6 CE", 25, 6,  64, "Zone Data (Byte 3,Bit  7", "60 C6 CF", 25, 7,
+   65, "Zone Data (Byte 4,Bit 0)", "60 C6 D0", 26, 0,  66, "Zone Data (Byte 4,Bit  1", "60 C6 D1", 26, 1,
+   67, "Zone Data (Byte 4,Bit 2)", "60 C6 D2", 26, 2,  68, "Zone Data (Byte 4,Bit  3", "60 C6 D3", 26, 3,
+   69, "Zone Data (Byte 4,Bit 4)", "60 C6 D4", 26, 4,  70, "Zone Data (Byte 4,Bit  5", "60 C6 D5", 26, 5,
+   71, "Zone Data (Byte 4,Bit 6)", "60 C6 D6", 26, 6,  72, "Zone Data (Byte 4,Bit  7", "60 C6 D7", 26, 7,
+   73, "Zone Data (Byte 5,Bit 0)", "60 C6 D8", 27, 0,  74, "Zone Data (Byte 5,Bit  1", "60 C6 D9", 27, 1,
+   75, "Zone Data (Byte 5,Bit 2)", "60 C6 DA", 27, 2,  76, "Zone Data (Byte 5,Bit  3", "60 C6 DB", 27, 3,
+   77, "Zone Data (Byte 5,Bit 4)", "60 C6 DC", 27, 4,  78, "Zone Data (Byte 5,Bit  5", "60 C6 DD", 27, 5,
+   79, "Zone Data (Byte 5,Bit 6)", "60 C6 DE", 27, 6,  80, "Zone Data (Byte 5,Bit  7", "60 C6 DF", 27, 7,
+   81, "Zone Data (Byte 6,Bit 0)", "60 C6 E0", 28, 0,  82, "Zone Data (Byte 6,Bit  1", "60 C6 E1", 28, 1,
+   83, "Zone Data (Byte 6,Bit 2)", "60 C6 E2", 28, 2,  84, "Zone Data (Byte 6,Bit  3", "60 C6 E3", 28, 3,
+   85, "Zone Data (Byte 6,Bit 4)", "60 C6 E4", 28, 4,  86, "Zone Data (Byte 6,Bit  5", "60 C6 E5", 28, 5,
+   87, "Zone Data (Byte 6,Bit 6)", "60 C6 E6", 28, 6,  88, "Zone Data (Byte 6,Bit  7", "60 C6 E7", 28, 7,      
+   89, "Zone Data (Byte 7,Bit 0)", "60 C6 E8", 29, 0,  90, "Zone Data (Byte 7,Bit  1", "60 C6 E9", 29, 1,
+   91, "Zone Data (Byte 7,Bit 2)", "60 C6 EA", 29, 2,  92, "Zone Data (Byte 7,Bit  3", "60 C6 EB", 29, 3,
+   93, "Zone Data (Byte 7,Bit 4)", "60 C6 EC", 29, 4,  94, "Zone Data (Byte 7,Bit  5", "60 C6 ED", 29, 5,
+   95, "Zone Data (Byte 7,Bit 6)", "60 C6 EE", 29, 6,  96, "Zone Data (Byte 7,Bit  7", "60 C6 EF", 29, 7;
+
+1_PRODUCED_NETWORK_BIT =
+   1, "Network Output 0", "60 C6 30", 6, 0,    2, "Network Output 1", "60 C6 34", 6, 1,
+   3, "Network Output 2", "60 C6 31", 6, 2,    4, "Network Output 3", "60 C6 35", 6, 3,
+   5, "Network Output 4", "60 C6 32", 6, 4,    6, "Network Output 5", "60 C6 36", 6, 5,
+   7, "Network Output 6", "60 C6 33", 6, 6,    8, "Network Output 7", "60 C6 37", 6, 7;
+
+1_MISCELLANEOUS_BITS = 
+   "Explicit Msg Cnxn Exists", "60 C6 20", 4, 0,
+   "Polled Cnxn Exists", "60 C6 21", 4, 1,
+   "COS/Cyclic Cnxn Exists", "60 C6 22", 4, 2,
+   "Polled Cnxn Fault", "60 C6 24", 4, 4,
+   "COS/Cyclic Cnxn Fault", "60 C6 25", 4, 5,
+   "Poll Cnxn Idle", "60 C6 26", 4, 6,
+   "Network Fault", "60 C6 28", 5, 0,
+   "Minor Module Fault", "60 C6 29", 5, 1,
+   "Zone Connection #1 Data Valid", "60 C6 F0", 30, 0,
+   "Zone Connection #1 Exists",     "60 C6 F1", 30, 1,
+   "Zone Connection #2 Data Valid", "60 C6 F2", 30, 2,
+   "Zone Connection #2 Exists",     "60 C6 F3", 30, 3,
+   "Zone Connection #3 Data Valid", "60 C6 F4", 30, 4,
+   "Zone Connection #3 Exists",     "60 C6 F5", 30, 5,
+   "Zone Connection #4 Data Valid", "60 C6 F6", 30, 6,
+   "Zone Connection #4 Exists",     "60 C6 F7", 30, 7;

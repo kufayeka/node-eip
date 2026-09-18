@@ -102,6 +102,33 @@ class EthernetLinkObject {
                 // Physical Address (MAC address USINT[6])
                 return ok(parseMacAddress(this.macAddress));
             }
+            case 4: {
+                // Interface Counters (STRUCT: 11 UDINTs)
+                return ok(Buffer.alloc(44));
+            }
+            case 5: {
+                // Media Counters (STRUCT: 12 UDINTs)
+                return ok(Buffer.alloc(48));
+            }
+            case 6: {
+                // Interface Control (STRUCT: 2 words = 4 bytes)
+                const b = Buffer.alloc(4);
+                b.writeUInt16LE(0, 0); // Control Bits: Auto-negotiate
+                b.writeUInt16LE(100, 2); // Forced Speed: 100
+                return ok(b);
+            }
+            case 7: {
+                // Interface Type (USINT: 1 = Twisted pair, 2 = Optical, 3 = Internal)
+                return ok(Buffer.from([1]));
+            }
+            case 8: {
+                // Interface State (USINT: 1 = Enabled, 2 = Disabled)
+                return ok(Buffer.from([1]));
+            }
+            case 9: {
+                // Admin State (USINT: 1 = Enabled, 2 = Disabled)
+                return ok(Buffer.from([1]));
+            }
             case 10: {
                 // Interface Label (SHORT_STRING: USINT length + characters)
                 const strBuf = Buffer.from(this.interfaceLabel, 'ascii');

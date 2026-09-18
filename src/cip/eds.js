@@ -318,7 +318,7 @@ class EdsFile {
             const size = typeof arr[2] === 'number' ? arr[2] : 0;
             const descriptor = typeof arr[3] === 'number' ? arr[3] : 0;
 
-            // Extract Member entries if present in EDS (e.g. Member1 = Param1, bitOffset, bitLength)
+            // Extract Member entries if present in EDS (either Member1 = ... or inline in AssemN)
             const members = [];
             for (let m = 1; m <= 256; m++) {
                 const memVal = sec[`Member${m}`];
@@ -339,6 +339,33 @@ class EdsFile {
                     bitOffset: typeof memArr[1] === 'number' ? memArr[1] : 0,
                     bitLength: typeof memArr[2] === 'number' ? memArr[2] : 16
                 });
+            }
+
+            // If no MemberN keys, check for standard inline members in AssemN statement (indices 6..)
+            if (members.length === 0 && arr.length > 6) {
+                let bitOffset = 0;
+                let mIndex = 1;
+                for (let i = 6; i + 1 < arr.length; i += 2) {
+                    const bitLength = typeof arr[i] === 'number' ? arr[i] : (parseInt(arr[i], 10) || 0);
+                    const paramRef = arr[i + 1];
+                    let paramId = null;
+                    if (typeof paramRef === 'string') {
+                        const pMatch = paramRef.match(/Param(\d+)/i);
+                        if (pMatch) paramId = Number(pMatch[1]);
+                    } else if (typeof paramRef === 'number' && paramRef > 0) {
+                        paramId = paramRef;
+                    }
+                    if (bitLength > 0) {
+                        members.push({
+                            index: mIndex++,
+                            paramRef,
+                            paramId,
+                            bitOffset,
+                            bitLength
+                        });
+                        bitOffset += bitLength;
+                    }
+                }
             }
 
             assemblies.set(id, {

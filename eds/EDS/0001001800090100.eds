@@ -1,0 +1,150 @@
+[File]
+	DescText = "2711E-T14C15";
+	CreateDate = 05-12-1999;
+	CreateTime = 08:40:00;
+	ModDate = 05-12-1999;
+	ModTime = 08:40:00;
+	Revision = 1.0;
+
+
+[Device]
+	VendCode = 0x01;
+	VendName = "Allen-Bradley";
+	ProdType = 0x18;
+	ProdTypeStr = "";
+	ProdCode = 0x09;
+	MajRev = 1;
+	MinRev = 1;
+	ProdName = "2711E-T14C15";
+	Catalog = "2711E-T14C15";
+	Icon = "1400et.ico";
+	1_Revision_Alpha = Yes;
+
+
+[Device Classification]
+	Class1 = 1_RSNetWorx_Adapter;
+	Class2 = ControlNet;
+
+
+[Port]
+	Port2 = ControlNet_Redundant,
+			"Port A",
+			"20 F0 24 01",2;
+
+
+[Params]
+	Param2 =
+	 	0,				$ first field shall equal 0
+		,,				$ path size,path
+		0x0000,			$ descriptor
+		2,				$ data type : 16-bit Unsigned Integer
+		2,				$ data size in bytes
+		"Output Size",	$ name
+		"",				$ units
+		"",				$ help string
+		0,480,16,		$ min,max,default data values
+		0,0,0,0,		$ mult,dev,base,offset scaling not used
+		0,0,0,0,		$ mult,dev,base,offset link not used
+		0;				$ decimal places not used
+
+	Param3 =
+	 	0,				$ first field shall equal 0
+		,,				$ path size,path
+		0x0000,			$ descriptor
+		2,				$ data type : 16-bit Unsigned Integer
+		2,				$ data size in bytes
+		"Input Size",	$ name
+		"",				$ units
+		"",				$ help string
+		4,484,20,		$ min,max,default data values
+		0,0,0,0,		$ mult,dev,base,offset scaling not used
+		0,0,0,0,		$ mult,dev,base,offset link not used
+		0;				$ decimal places not used
+
+	Param4 =
+	 	0,				$ first field shall equal 0
+		,,				$ path size,path
+		0x0000,			$ descriptor
+		2,				$ data type : 16-bit Unsigned Integer
+		2,				$ data size in bytes
+		"Config Size",	$ name
+		"",				$ units
+		"",				$ help string
+		0,256,0,		$ min,max,default data values
+		0,0,0,0,		$ mult,dev,base,offset scaling not used
+		0,0,0,0,		$ mult,dev,base,offset link not used
+		0;				$ decimal places not used
+
+
+[Assembly]
+
+	Assem1 = "module config",,,,,,
+		2048,;
+
+
+[Connection Manager]
+	Connection1 =
+		0x04010002,		$ trigger & transport 
+						$	0-15	= supported transport classes (class 1)
+						$	16	= cyclic (1 = supported)
+						$	17	= change of state (0 = not supported)
+						$	18	= on demand (0 = not supported)
+						$	19-23	= reserved (must be zero)
+						$	24-27	= exclusive owner
+						$	28-30	= reserved (must be zero)
+						$	31	= client 0 (don't care for classes 0 and 1)
+		0x44240405,		$ point/multicast & priority & realtime format
+                        $   0     = O=>T fixed (1 = supported)
+                        $   1     = O=>T variable (0 = not supported)
+                        $   2     = T=>O fixed (1 = supported)
+                        $   3     = T=>O variable (0 = not supported)
+						$	4-7	= reserved (must be zero)
+						$	8-10	= O=>T header (4 byte run/idle)
+						$	11  = reserved (must be zero)
+						$	12-14	= T=>O header  (no status)
+						$	15  = reserved (must be zero)
+						$	16-19	= O=>T point-to-point
+						$	20-23	= T=>O multicast
+						$	24-27	= O=>T scheduled
+						$	28-31	= T=>O scheduled
+		,Param2,,		$ O=>T range,default,description (sizes in bytes)
+		,Param3,,		$ T=>O range,default,description (sizes in bytes)
+		,,				$ config part 1 (private configuration)
+		Param4,Assem1,	$ config part 2 (module configuration)
+		"Discrete Exclusive Owner",	$ connection name
+		"",				$ Help string
+		"20 04 24 01 2C 08 2C 07";	$ exclusive owner path
+	1_PLC5C_RTD_Format1 = 1_PLC5C_1794_Discrete_RTD_Format;
+
+	Connection2 =
+		0x04010002,		$ trigger & transport 
+						$	0-15	= supported transport classes (class 1)
+						$	16	= cyclic (1 = supported)
+						$	17	= change of state (0 = not supported)
+						$	18	= on demand (0 = not supported)
+						$	19-23	= reserved (must be zero)
+						$	24-27	= exclusive owner
+						$	28-30	= reserved (must be zero)
+						$	31	= client 0 (don't care for classes 0 and 1)
+		0x44240405,		$ point/multicast & priority & realtime format
+                        $   0     = O=>T fixed (1 = supported)
+                        $   1     = O=>T variable (0 = not supported)
+                        $   2     = T=>O fixed (1 = supported)
+                        $   3     = T=>O variable (0 = not supported)
+						$	4-7	= reserved (must be zero)
+						$	8-10	= O=>T header (4 byte run/idle)
+						$	11  = reserved (must be zero)
+						$	12-14	= T=>O header  (no status)
+						$	15  = reserved (must be zero)
+						$	16-19	= O=>T point-to-point
+						$	20-23	= T=>O multicast
+						$	24-27	= O=>T scheduled
+						$	28-31	= T=>O scheduled
+		,0,,			$ O=>T range,default,description (sizes in bytes)
+		,Param3,,		$ T=>O range,default,description (sizes in bytes)
+		,,				$ config part 1 (private configuration)
+		Param4,Assem1,	$ config part 2 (module configuration)
+		"Discrete Input Only",	$ connection name
+		"",				$ Help string
+		"20 04 24 01 2C 01 2C 07";	$ path
+	1_PLC5C_RTD_Format2 = 1_PLC5C_1794_Discrete_RTD_Format;

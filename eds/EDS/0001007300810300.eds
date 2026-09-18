@@ -1,0 +1,1544 @@
+$ DeviceNet Electronic Data Sheet
+$ Copyright (C) 2006 Rockwell Automation
+
+$ Revision History
+$ Revision	Date		Change
+$	1.1	12Jan2004	Started with 1734-232ASC/C EDS Rev 1.2 (11Jan2004)
+$				Modified for PointArmor
+$ 	2.1	27Feb2006	Update to new DeviceNet Premier Integration EDS Guidelines
+$	2.2	17Mar2006	Name/Catalog wrong: its Series A
+$				Implemented String datatype in IO Assems
+$	2.3	20Mar2006	Added varients to assems for string type
+$	2.4	26Jan2009	Corrected AssemEx102 to AssemExa102.
+
+
+[File]
+	DescText   = "ArmorPoint 1738-232ASCM12/A";
+	CreateDate = 01-09-2004;
+	CreateTime = 15:00:00;
+	ModDate    = 03-20-2006;
+	ModTime    = 15:00:00;
+	Revision   = 2.4;
+	HomeURL    = "http://www.ab.com/networks/eds/DN/0001007300810300.eds";
+
+[Device]
+	VendCode    = 1;
+      VendName = "Rockwell Automation/Allen-Bradley";
+      ProdType = 115;
+      ProdTypeStr = "Rockwell Automation Miscellaneous";
+	ProdCode    = 129;
+	MajRev      = 3;
+	MinRev      = 1;
+	ProdName    = "ArmorPoint RS-232 ASCII";
+	Catalog     = "1738-232ASCM12/A";
+	Icon        = "1738-1M12PURPLE.ico";
+	1_RSNetWorx_DNetTool = "RSI.DeviceNet.EDSApplet";
+	1_RSNetWorx_NoAutoEnter = "Yes";
+
+[Device Classification]
+     Class1 =      DeviceNet;
+
+[IO_Info]
+      1_COSetPathNotSupported = 1;    $ Cnxn Obj does not support direct path setting
+
+	Default    = 0x0004;
+
+	PollInfo   = 0x000D, 1, 1;
+
+	COSInfo    = 0x0005, 1, 1;
+
+	CyclicInfo = 0x0008, 1, 1;
+
+        Input1 =
+                24,
+                0,
+                0x000D,
+                "Data - with Status",
+                6,
+                "20 04 24 65 30 03",
+                "Received Data";
+
+        InputExa1 =
+                ,
+                0,
+                0x000D,
+                "Data - with Status",
+                6,
+                AssemExa101,
+                "Received Data";
+
+        Output1 =
+                24,
+                0,
+                0x000D,
+                "Data",
+                6,
+                "20 04 24 66 30 03",
+                "Transmit Data";
+
+        OutputExa1 =
+                ,
+                0,
+                0x000D,
+                "Data",
+                ,
+                AssemExa102,
+                "Transmit Data";
+
+[ParamClass]
+	MaxInst     = 59;
+	Descriptor  = 0x0009;
+	CfgAssembly = 0;
+
+[Params]
+
+$Serial Port Interface
+Param1=
+	0,
+	0, "",
+	0x0022, 0xC6, 1,
+	"Serial Framing",
+	"",
+	"Specify the number of databits, stop bits and the parity here.\n "
+	"This should match the framing protocol that your serial device "
+	"is configured for.",
+	0, 8, 0,
+	1, 1, 1, 0,
+	0, 0, 0, 0, 0;
+
+Param2=
+	0,
+	0, "",
+	0x0022, 0xC6, 1,
+	"Serial Baudrate",
+	"",
+	"Enter the baudrate of the ASCII port here.\n "
+	"This should match the baudrate that your serial device "
+	"is configured for.",
+	0, 5, 0,
+	1, 1, 1, 0,
+	0, 0, 0, 0, 0;
+
+$Receive Data Set-up
+Param3=
+	0,
+	0, "",
+	0x0020, 0xC6, 1,
+	"Max Receive Characters",
+	"",
+	"The Maximum number of characters that will be returned in the data field.\n "
+	"This parameter is used to compute the I/O message size.  Increasing this "
+	"parameter's value will increase the bandwidth required by the 1738-232ASC.",
+	1, 128, 20,
+	1, 1, 1, 0,
+	0, 0, 0, 0, 0;
+
+Param4=
+	0,
+	0, "",
+	0x0022, 0xC6, 1,
+	"Receive Start Delim Mode",
+	"",
+	"Specify the method you wish to use for the start delimiter. "
+	"You may choose to have the start delimiter included or "
+	"excluded from the received data field. You may also choose "
+	"to ignore the start delimiter and immediately begin copying "
+	"data from the serial port to the buffer after updating the "
+	"last received buffer.",
+	0, 2, 0,
+	1, 1, 1, 0,
+	0, 0, 0, 0, 0;
+
+Param5=
+	0,
+	0, "",
+	0x0020, 0xC6, 1,
+	"Receive Start Delimiter",
+	"",
+	"This is the character that you wish to use for the start delimiter.",
+	0, 255, 0x3A,
+	1, 1, 1, 0,
+	0, 0, 0, 0, 0;
+
+Param6=
+	0,
+	0, "",
+	0x0022, 0xC6, 1,
+	"Receive End Delim. Mode",
+	"",
+	"Specify the method you wish to use for the end delimiter. "
+	"You may choose to have the end delimiter included or "
+	"excluded from the received data field. You may also choose "
+	"to ignore the end delimiter and only update the receive buffer "
+	"on an overflow condition (when the number of characters received "
+	"equals the max receive characters parameter value).",
+	0, 2, 2,
+	1, 1, 1, 0,
+	0, 0, 0, 0, 0;
+
+Param7=
+	0,
+	0, "",
+	0x0020, 0xC6, 1,
+	"Receive End Delimiter",
+	"",
+	"This is the character that you wish to use as the end delimiter.",
+	0, 255, 13,	$0D(hex) = CR
+	1, 1, 1, 0,
+	0, 0, 0, 0, 0;
+
+Param8=
+	0,
+	0, "",
+	0x0022, 0xC6, 1,
+	"Receive Data Type",
+	"",
+	"The data type of the received string.\n"
+	"This parameter determines the number of bytes that you wish to "
+	"have the length reported as.  The default is short_string, which "
+	"causes the length to be reported as a one byte value. Most of the "
+	"examples in the manual use this format.  The string data type uses "
+	"two bytes to report the length.  The array type does not report a "
+	"length.  This parameter does not affect the I/O assembly sizes.  The "
+	"recommended data type is a short_string, unless you require another "
+	"mode for compatibility with your PLC.",
+	0, 2, 1,
+	1, 1, 1, 0,
+	0, 0, 0, 0, 0;
+
+Param9=
+	0,
+	0, "",
+	0x0022, 0xC6, 1,
+	"Pad Mode",
+	"",
+	"Pad Mode installs pad chars at the end of the RX string to complete the message.\n "
+	"Pad mode On provides compatibility for scanners "
+	"that do not support variable length IO responses.  The default for pad "
+	"mode is on.  All AB scanners require that pad mode be enabled in order "
+	"to function properly.  Turn pad mode off if your scanner supports variable "
+	"length I/O messaging or if you will be using explicit messaging to communicate "
+	"with the 1738-232ASC.  Pad mode off allows the 232ASC to conserve network bandwidth.",
+	0, 1, 1,
+	1, 1, 1, 0,
+	0, 0, 0, 0, 0;
+
+Param10=
+	0,
+	0, "",
+	0x0020, 0xC6, 1,
+	"Pad Character",
+	"",
+	"This character is used to pad the end of the string with pad mode enabled.",
+	0, 255, 0,
+	1, 1, 1, 0,
+	0, 0, 0, 0, 0;
+
+Param11=
+	0,
+	0, "",
+	0x0022, 0xC6, 1,
+	"Receive Swap Mode",
+	"",
+	"Configure the byte swapping algorithm to make data appear in "
+	"order on multi-byte word PLCs.\n  The network order of DeviceNet "
+	"is low byte first.  This causes some PLCs with multi-byte "
+	"ordering to display the data reversed along n-byte blocks.  "
+	"Use the byte-swapping capability to re-order the data into human "
+	"readable form.",
+	0, 3, 0,
+	1, 1, 1, 0,
+	0, 0, 0, 0, 0;
+
+Param12=
+	0,
+	0, "",
+	0x0022, 0xC6, 1,
+	"Handshaking Mode",
+	"",
+	"There are two handshaking modes: Master Slave Handshake and Produce Immediate.\n "
+	"Produce Immediate mode automatically increments the transaction id on the "
+	"reception of a new buffer. It excludes the receive transaction id "
+	"from the consuming connection. Handshaking mode requires the PLC to "
+	"enter in a new transaction ID on the consuming connection "
+	"in response to the new data available bit being set. This allows "
+	"the PLC more control over the data-transfer process and also allows "
+	"more control over message state.  Use Produce Immediate mode for simple, "
+	"hassle free operation.  Use handshake mode for high throughput and "
+	"guaranteed transport.",
+	0, 1, 1,
+	1, 1, 1, 0,
+	0, 0, 0, 0, 0;
+
+Param13=
+	0,
+	0, "",
+	0x0030, 0xC6, 1,
+	"DeviceNet Produce Size",
+	"",
+	"The size of the producing connection. "
+	"The total number of bytes being sent to the Master. "
+	"This is provided for easy configuration of I/O sizes. "
+	"Set your Scanner to receive this number of bytes. \n"
+	"\n"
+	"NOTE: Please remember to upload from the 232ASC "
+	"before configuring your scanner. This will "
+	"guarantee that you have the most recent "
+	"configuration data in your scanner.",
+	0, 132, 24,
+	1, 1, 1, 0,
+	0, 0, 0, 0, 0;
+
+Param14=
+	0,
+	0, "",
+	0x0030, 218, 1,
+	"Receive Serial Data",
+	"",
+	"Serial Data that you have received from the remote device.",
+	0, 128,"",
+	1, 1, 1, 0,
+	0, 0, 0, 0, 0;
+
+Param15=
+	0,
+	0, "",
+	0x0030, 0xC6, 1,
+	"Receive Serial Data Length",
+	"",
+	"The Length of the data in the data buffer.",
+	0, 128, 0,
+	1, 1, 1, 0,
+	0, 0, 0, 0, 0;
+
+Param16=
+	0,
+	0, "",
+	0x0020, 0xC6, 1,
+	"Receive Transaction ID",
+	"",
+	"The receive transaction id is used to synchronize the PLC and 232ASC. "
+	"When this number changes, new data will be written to the data buffer. "
+	"You will know that new data is available when the new data bit of the "
+	"combo status byte is set.  The 232ASC will automatically increment the receive "
+	"transaction id number when new data is available if the handshake mode is set to "
+	"Auto-Increment.",
+	0, 255, 0,
+	1, 1, 1, 0,
+	0, 0, 0, 0, 0;
+
+$Transmit Data Set-up
+Param17=
+	0,
+	0, "",
+	0x0020, 0xC6, 1,
+	"Transmit Maximum Length",
+	"",
+	"The Maximum number of characters that will be sent in the data field.\n "
+	"This parameter is used to compute the I/O message size.  Increasing this "
+	"parameter's value will increase the bandwidth required by the 1738-232ASC.",
+	1, 128, 20,
+	1, 1, 1, 0,
+	0, 0, 0, 0, 0;
+
+
+Param18=
+	0,
+	0, "",
+	0x0022, 0xC6, 1,
+	"Transmit End Delimiter Mode",
+	"",
+	"Specify the method you wish to use for the end delimiter. "
+	"You may choose to have the end delimiter included or "
+	"excluded from the transmit buffer. You may also choose "
+	"to ignore the end delimiter and transmit the entire data "
+	"field sent.  This is not recommended unless you have a "
+	"PLC that supports variable I/O message sizes.",
+	0, 2, 2,
+	1, 1, 1, 0,
+	0, 0, 0, 0, 0;
+
+Param19=
+	0,
+	0, "",
+	0x0020, 0xC6, 1,
+	"Transmit Delimiter",
+	"",
+	"The character to use for the transmit delimiter.  Remember that "
+	"the transmit delimiter is only used when the length of the data "
+	"sent to the device is specified as 0.",
+	0, 255, 0x0d,
+	1, 1, 1, 0,
+	0, 0, 0, 0, 0;
+
+Param20=
+	0,
+	0, "",
+	0x0022, 0xC6, 1,
+	"Transmit String Data Type",
+	"",
+	"The data type determines the number of bytes used to report the string length. "
+	"If you select the ARRAY type, the 232ASC assumes a length of 0 for every send "
+	"command.  This means that it will use the delimiter algorithm that you specified "
+	"under the transmit delimiter mode parameter.",
+	0, 2, 1,
+	1, 1, 1, 0,
+	0, 0, 0, 0, 0;
+
+Param21=
+	0,
+	0, "",
+	0x0022, 0xC6, 1,
+	"Transmit Swap",
+	"",
+	"Configure the byte swapping algorithm to make data appear in "
+	"order on multi-byte word PLCs.\n  The network order of DeviceNet "
+	"is low byte first.  This causes some PLCs with multi-byte "
+	"ordering to display the data reversed along n-byte blocks.  "
+	"Use the byte-swapping capability to re-order the data into human "
+	"readable form.",
+	0, 3, 0,
+	1, 1, 1, 0,
+	0, 0, 0, 0, 0;
+
+Param22=
+	0,
+	0, "",
+	0x0022, 0xC6, 1,
+	"Transmit Handshake Mode",
+	"",
+	"Selects whether header data is updated in the consume data from "
+	"the master.  In I/O messaging, this will cause a write every scan.  "
+	"This condition is not recommended.  "
+	"Use this parameter only with explicit messaging.\n  In explicit messaging, "
+	"this parameter will cause data written (to Class 71, Instance 1, Attribute 3) "
+	"to be immediately sent without regard to the transaction ID. "
+	"A message will be sent if the Transaction ID changes as well.",
+	0, 1, 0,
+	1, 1, 1, 0,
+	0, 0, 0, 0,
+	0;
+
+Param23=
+	0,
+	0, "",
+	0x0030, 0xC6, 1,
+	"DeviceNet Consume Size",
+	"",
+	"The size of the consuming connection.\n "
+	"The total number of bytes being sent to the 232ASC.\n "
+	"This is provided for easy configuration of scanner I/O sizes.  "
+	"Set your scanner's output size to this value.\n  "
+	"NOTE: Please remember to upload from the 232ASC\n "
+	"       before configuring your scanner. This will\n "
+	"       guarantee that you have the most recent\n "
+	"       configuration data in your scanner.",
+	4, 132, 24,
+	1, 1, 1, 0,
+	0, 0, 0, 0, 0;
+
+Param24=
+	0,
+	0, "",
+	0x0020, 218, 1,
+	"Transmit Serial Data String",
+	"",
+	"For testing only.  Use this parameter to set a data string to the output buffer.  This "
+	"parameter is designed to act as if you have changed the data in an I/O message or have "
+	"set the Transmit output buffer(Class 71 Instance 1 Attribute 3).  For runtime explicit "
+	"messaging, please use Class 71 for transmission and Class 72 for reception.",
+	0, 128, "",
+	1, 1, 1, 0,
+	0, 0, 0, 0, 0;
+
+Param25=
+	0,
+	0, "",
+	0x0020, 0xC6, 1,
+	"Transmit Data Length",
+	"",
+	"For testing only. This is the length of the data that you wish to send to "
+	"the remote device.  This is usually set as part of the data type "
+	"of Class 71 Instance 1 Attribute 3. "
+	"RSNetworx sets this length for you in the EDS configuration tool. "
+	"We provide this parameter so that you may experiment and change lengths "
+	"from the EDS editor.  For runtime explicit messaging please use "
+	"Class 71 for transmission and Class 72 for reception.",
+	0, 128, 0,
+	1, 1, 1, 0,
+	0, 0, 0, 0, 0;
+
+Param26=
+	0,
+	0, "",
+	0x0020, 0xC6, 1,
+	"Transmit Transaction ID",
+	"",
+	"For testing only.  When you change this parameter, you will cause "
+	"the data set in Parameters 24 and 25 to be sent over the serial link. "
+	"For runtime explicit messaging please use "
+	"Class 71 for transmission and Class 72 for reception." ,
+	0, 255, 0,
+	1, 1, 1, 0,
+	0, 0, 0, 0, 0;
+
+Param27=
+	0,
+	0, "",
+	0x0030, 0xC6, 1,
+	"Combo Status Byte",
+	"",
+	"The status byte that is returned in the poll response. \n\n"
+	"Bit 0 = Tx queue overflow \n"
+	"Bit 1 = Rx queue overflow \n"
+	"Bit 2 = Rx parity overflow \n"
+	"Bit 3 = Rx Fifo Has no room for data  \n"
+	"Bit 4 = Toggle  (Toggles on a 0-1 transition of the Rx Fifo has data bit)\n"
+	"Bit 5 = Reserved \n"
+	"Bit 6 = PLC <-> 232ASC Handshaking error (Handshaking mode only) \n"
+	"Bit 7 = New data available  (Handshaking mode only) \n",
+	0, 255, 0,
+	1, 1, 1, 0,
+	0, 0, 0, 0, 0;
+
+$ Autobaud
+Param28 = 	$ Disable Autobaud
+	0, 	$ reserved
+	6, 	$ Link Path Size
+	"20 03 24 01 30 64", 	$ Link Path to disable autobaud attribute.
+	0x0002, 	$ enum string
+	0xC1, 	$ Data Type - boolean
+	1, 	$ Data Size
+	"Autobaud", 	$ Parameter Name
+	"", 	$ Units String
+	"Autobaud allows the module to match the baud rate of existing "
+	"devices on a network.  \n\n "
+	"Changes to this attribute take effect after the next powerup. \n"
+	"If 'enabled', the Baud Rate Attribute cannot be set.", $help string
+	0,1,0,                    $ Min, Max, and Default
+	1,1,1,0,0,0,0,0,0;        $ Not Used
+
+	Enum28 =  0,"Enable", 1,"Disable";
+
+$Point Object stuff
+Param29 = 	$ AutoAddress
+	0, 	$ reserved
+	7, 	$ Link Path Size
+	"21 12 03 24 01 30 03", 	$ Link Path to AutoAddress attrib.
+	0x0002,	$ enum string
+	0xC1, 	$ Data Type - boolean
+	1, 	$ Data Size
+	"Sequential AutoAddress",	$ Parameter Name
+	"", 	$ Units String
+	"Sequential AutoAddress will reassign the node address of every module to the right.  \n"
+	"Each module will change it's node address to one greater than it's neighbor.  \n\n"
+	"MAKE SURE THE NODE ADDRESS OF THIS MODULE IS THE DESIRED VALUE BEFORE ISSUING THIS COMMAND.  \n\n"
+	"When this command is set, each module to the right will get a new address one greater than it's neighbor.  \n"
+	"The address will ripple through a line of Point I/O modules.  \n\n"
+	"Steps to Auto Address a line of Point I/O modules: \n"
+	" 1.) Set the address of the first module (next to PDN or adapter).  \n"
+	" 2.) Send the Auto Address command to 'Sequential Address.'  \n"
+	" 3.) All modules in line will reset with new sequential addresses.  \n\n"
+	"Example:\n "
+	"There are 5 Point modules in a line, and the address of the first module is 10.  \n"
+	"After the 'Sequential Address' command is sent to the first module, "
+	"the node address of the line will be:\n 10, 11, 12, 13, and 14.",
+	0,1,0, 	$ Min, Max, default
+	1,1,1,0,0,0,0,0,0; 	$ Not Used
+
+	Enum29 =  0,"Do Nothing", 1,"Sequential Address";
+
+Param30 = 	$ Baud Rate
+	0, 	$ reserved
+	7, 	$ Link Path Size
+	"21 12 03 24 01 30 05", 	$ Link Path BR. attrib.
+	0x0002, 	$ enum string
+	0xC6, 	$ Data Type - byte
+	1, 	$ Data Size
+	"Broadcast Baud Rate", 	$ Parameter Name
+	"", 	$ Units String
+	"This command will change the baud rate of this and every module to the right\n "
+	"to the value indicated.  \n  If AutoBaud is ENABLED, "
+	"this command will not change the operation of the module at power up.",
+	0,3,0, 	$ Min, Max, and Default
+	1,1,1,0,0,0,0,0,0; 	$ Not Used
+
+	Enum30 =  0,"Do Nothing", 1,"125 kHz", 2,"250 kHz", 3,"500 kHz";
+
+
+Param31 = 	$ Set Disable AutoBaud
+	0, 	$ reserved
+	7, 	$ Link Path Size
+	"21 12 03 24 01 30 06", 	$ Link Path to BAB attr.
+	0x0002, 	$ enum string
+	0xC6, 	$ Data Type path - byte
+	1, 	$ Data Size
+	"Broadcast AutoBaud", 	$ Parameter Name
+	"", 	$ Units String
+	"This command will change the AutoBaud attribute of this and every module to \n"
+	"the right to the value indicated.  \n If AutoBaud is 'disabled,' the "
+	"Baud Rate parameter will set the baud rate next time the module is powered up.",
+	0,2,0, 	$ Min, Max, default
+	1,1,1,0,0,0,0,0,0; 	$ Not Used
+
+	Enum31 =  0,"Do Nothing", 1,"Enable", 2,"Disable";
+
+$ DeviceNet Premier Integration
+        Param41 =
+                0,
+                ,,                      $ No Path, Internal Parameter
+                0x0230,                 $ Descriptor
+                0xC6,
+                1,                      $ Data Type, Data Size
+                "ReceiveRecordNumber",
+                "",
+                "",
+                0,255,0,
+                ,,,,
+                ,,,,
+                0;
+
+        Param42 =
+                0,
+                ,,                      $ No Path, Internal Parameter
+                0x0232,                 $ Descriptor
+                0xD1,
+                1,                      $ Data Type, Data Size
+                "Status",
+                "",
+                "",
+                0,255,0,
+                ,,,,
+                ,,,,
+                0;
+
+        Enum42 =
+                0,"TxOverflow",
+                1,"RxOverflow",
+                2,"RxParity",
+                3,"RxFull",
+                4,"Toggle",
+                6,"HandshakeErr",
+                7,"NewData";
+
+        Param43 =
+                0,
+                ,,                      $ No Path, Internal Parameter
+                0x0230,                 $ Descriptor
+                0xC6,
+                1,                      $ Data Type, Data Size
+                "Length",
+                "",
+                "",
+                0,255,0,
+                ,,,,
+                ,,,,
+                0;
+
+        Param44 =
+                0,
+                ,,                      $ No Path, Internal Parameter
+                0x0230,                 $ Descriptor
+                0xD0,
+                1,                      $ Data Type, Data Size (want 128)
+                "Data",
+                "",
+                "Array of bytes 1 to 128 bytes long.",
+                0,255,"",
+                ,,,,
+                ,,,,
+                0;
+
+        Param45 =
+                0,
+                ,,                      $ No Path, Internal Parameter
+                0x0000,                 $ Descriptor
+                0xC6,
+                1,                      $ Data Type, Data Size
+                "SizeOfOutputData",
+                "",
+                "Size of the Input Data in bytes.  Equals size of maximum data packet plus 4 bytes.",
+                0,132,24,
+                ,,,,
+                ,,,,
+                0;
+
+        Param46 =
+                0,
+                ,,                      $ No Path, Internal Parameter
+                0x0200,                 $ Descriptor
+                0xC6,
+                1,                      $ Data Type, Data Size
+                "Reserved",
+                "",
+                "",
+                0,0,0,
+                ,,,,
+                ,,,,
+                0;
+
+        Param47 =
+                0,
+                ,,                      $ No Path, Internal Parameter
+                0x0230,                 $ Descriptor
+                0xC6,
+                1,                      $ Data Type, Data Size
+                "TransmitRecordNumber",
+                "",
+                "",
+                0,255,0,
+                ,,,,
+                ,,,,
+                0;
+
+        Param48 =
+                0,
+                ,,                      $ No Path, Internal Parameter
+                0x0230,                 $ Descriptor
+                0xC6,
+                1,                      $ Data Type, Data Size
+                "Length",
+                "",
+                "",
+                0,255,0,
+                ,,,,
+                ,,,,
+                0;
+
+        Param49 =
+                0,
+                ,,                      $ No Path, Internal Parameter
+                0x0230,                 $ Descriptor
+                0xD0,
+                1,                      $ Data Type, Data Size  (want 128)
+                "Data",
+                "",
+                "Array of bytes 1 to 128 bytes long.",
+                0,255,"",
+                ,,,,
+                ,,,,
+                0;
+
+        Param54 =
+                0,
+                ,,                      $ No Path, Internal Parameter
+                0x0230,                 $ Descriptor
+                0xDA,
+                1,                      $ Data Type, Data Size (want 128)
+                "String",
+                "",
+                "Array of bytes 1 to 128 bytes long.",
+                0,255,"",
+                ,,,,
+                ,,,,
+                0;
+
+        Param59 =
+                0,
+                ,,                      $ No Path, Internal Parameter
+                0x0230,                 $ Descriptor
+                0xDA,
+                1,                      $ Data Type, Data Size  (want 128)
+                "String",
+                "",
+                "Array of bytes 1 to 128 bytes long.",
+                0,255,"",
+                ,,,,
+                ,,,,
+                0;
+
+[EnumPar]
+
+	Param1=
+	"7N2",
+	"7E1",
+	"7O1",
+	"8N1",
+	"8N2",
+	"8E1",
+	"8O1",
+	"7E2",
+	"7O2";
+
+	Param2=
+	"9600",
+	"1200",
+	"2400",
+	"4800",
+	"19.2k",
+	"38.4k";
+
+	Param4=
+	"None",
+	"Exclude",
+	"Include";
+
+	Param6=
+	"None",
+	"Exclude",
+	"Include";
+
+	Param8=
+	"Array (0 Byte Length)",
+	"Short String (1 Byte Length)",
+	"String (2 Byte Length)";
+
+	Param9=
+	"Disable",
+	"Enable";
+
+	Param11=
+	"Byte swap disabled",
+	"2-byte (16-bit) Swap",
+	"3-byte (24-bit) Swap",
+	"4-byte (32-bit) Swap";
+
+	Param12=
+	"Handshake (Auto-Increment RXID)",
+	"No Handshake (Produce Immediate)";
+
+	Param18=
+	"None",
+	"Exclude",
+	"Include";
+
+	Param20=
+	"Array (0 Byte Length)",
+	"Short String (1 Byte Length)",
+	"String (2 Byte Length)";
+
+	Param21=
+	"Byte swap disabled",
+	"2-byte (16-bit) Swap",
+	"3-byte (24-bit) Swap",
+	"4-byte (32-bit) Swap";
+
+	Param22=
+	"Send serial data on change of TXID",
+	"Send Serial data on every message";
+
+[Groups]
+
+	Group1 = "Serial Port Interface", 2, 1,2;
+	Group2 = "Gateway Receive Set-up", 14, 3,4,5,6,7,8,9,10,11,12,13,14,15,16;
+	Group3 = "Gateway Transmit Set-up", 11, 17,18,19,20,21,22,23,24,25,26,27;
+	Group4 = "PointBus Options", 4, 28,29,30,31;
+
+
+[Assembly]
+
+        Revision = 2;
+
+        AssemExa101 =
+                "Data - with Status",   $ name
+                "20 04 24 65 30 03",    $ Path
+                ,                       $ Size (Param40)
+                0x0000,                 $ Descriptor
+                ,,                      $ Reserved
+                8,Param41,              $ ReceiveRecordNumber
+                8,Param42,              $ Status
+                ,VariantExa1;
+
+        VariantExa1 = 
+                ,,,,,
+                Param8,
+                0, AssemExa112,	$ Array (no length data)
+                1, AssemExa113,	$ String w/ 8bit length
+                2, AssemExa114;	$ String w/ 16bit length
+
+        AssemExa112 =
+                ,                       $ name
+                ,                       $ Path
+                ,                       $ Size
+                0x0000,                 $ Descriptor
+                ,,                      $ Reserved
+                16,,
+                ,AssemExa115;           $ Data[128] (length = 1 to 128 bytes)
+
+        AssemExa113 =
+                ,                       $ name
+                ,                       $ Path
+                ,                       $ Size
+                0x0000,                 $ Descriptor
+                ,,                      $ Reserved
+                8,,		          $ Pad
+                8,Param54,              $ Length part of string
+                ,AssemExa116;           $ Data[128] (length = 1 to 128 bytes)
+
+        AssemExa114 =
+                ,                       $ name
+                ,                       $ Path
+                ,                       $ Size
+                0x0000,                 $ Descriptor
+                ,,                      $ Reserved
+                16,Param44,             $ Length part of string
+                ,AssemExa115;           $ Data[128] (length = 1 to 128 bytes)
+
+        AssemExa115 =
+                "Data",                 $ name
+                ,                       $ Path
+                Param3,                 $ Size (if less than 128 bytes, Param44 clipped)
+                0x0000,                 $ Descriptor
+                ,,                      $ Reserved
+                1024,Param44:16;        $ Data[128] (length = 1 to 128 bytes)
+                                        $ ":16" means skip the first 16 bits
+
+        AssemExa116 =
+                "Data",                 $ name
+                ,                       $ Path
+                Param3,                 $ Size (if less than 128 bytes, Param44 clipped)
+                0x0000,                 $ Descriptor
+                ,,                      $ Reserved
+                1024,Param54:8;         $ Data[128] (length = 1 to 128 bytes)
+                                        $ ":8" means skip the first 8 bits
+
+        AssemExa102 =
+                "Data",                 $ name
+                "20 04 24 66 30 03",    $ Path
+                ,                       $ Size (Param45)
+                0x0000,                 $ Descriptor
+                ,,                      $ Reserved
+                8,,                     $ Reserved
+                8,Param47,              $ TransmitRecordNumber
+                ,VariantExa2;
+
+        VariantExa2 = 
+                ,,,,,
+                Param20,
+                0, AssemExa122,	$ Array (no length data)
+                1, AssemExa123,	$ String w/ 8bit length
+                2, AssemExa124;	$ String w/ 16bit length
+
+        AssemExa122 =
+                ,                       $ name
+                ,                       $ Path
+                ,                       $ Size
+                0x0000,                 $ Descriptor
+                ,,                      $ Reserved
+                16,,
+                ,AssemExa125;           $ Data[128] (length = 1 to 128 bytes)
+
+        AssemExa123 =
+                ,                       $ name
+                ,                       $ Path
+                ,                       $ Size
+                0x0000,                 $ Descriptor
+                ,,                      $ Reserved
+                8,,	                $ Pad
+                8,Param59,              $ Length part of string
+                ,AssemExa126;           $ Data[128] (length = 1 to 128 bytes)
+
+        AssemExa124 =
+                ,                       $ name
+                ,                       $ Path
+                ,                       $ Size
+                0x0000,                 $ Descriptor
+                ,,                      $ Reserved
+                16,Param49,             $ Length part of string
+                ,AssemExa125;           $ Data[128] (length = 1 to 128 bytes)
+
+        AssemExa125 =
+                "Data",                 $ name
+                ,                       $ Path
+                Param17,                $ Size (if less than 128 bytes, Param49 clipped)
+                0x0000,                 $ Descriptor
+                ,,                      $ Reserved
+                1024,Param49:16;        $ Data[128] (length = 1 to 128 bytes)
+                                        $ ":16" means skip the first 16 bits
+
+        AssemExa126 =
+                "Data",                 $ name
+                ,                       $ Path
+                Param17,                 $ Size (if less than 128 bytes, Param49 clipped)
+                0x0000,                 $ Descriptor
+                ,,                      $ Reserved
+                1024,Param59:8;         $ Data[128] (length = 1 to 128 bytes)
+                                        $ ":8" means skip the first 8 bits
+
+Assem103 	= "Configuration",	$name (optional)
+			  , $Path (optional)
+			  , $Size (if members are not defined)
+			  , $Descriptor (optional)
+			  ,,$Reserved
+			  8,Param1,	$Member 1  size in bits, Member 1  path/Param
+			  8,Param2,	$Member 2  size in bits, Member 2  path/Param
+			  8,Param3,	$Member 3  size in bits, Member 3  path/Param
+			  8,Param4,	$Member 4  size in bits, Member 4  path/Param
+			  8,Param5,	$Member 5  size in bits, Member 5  path/Param
+			  8,Param6,	$Member 6  size in bits, Member 6  path/Param
+			  8,Param7,	$Member 7  size in bits, Member 7  path/Param
+			  8,Param8,	$Member 8  size in bits, Member 8  path/Param
+			  8,Param9,	$Member 9  size in bits, Member 9  path/Param
+			  8,Param10,	$Member 10 size in bits, Member 10 path/Param
+			  8,Param11,	$Member 11 size in bits, Member 11 path/Param
+			  8,Param12,	$Member 12 size in bits, Member 12 path/Param
+			  8,Param17,	$Member 13 size in bits, Member 13 path/Param
+			  8,Param18,	$Member 14 size in bits, Member 14 path/Param
+			  8,Param19,	$Member 15 size in bits, Member 15 path/Param
+			  8,Param20,	$Member 16 size in bits, Member 16 path/Param
+			  8,Param21,	$Member 17 size in bits, Member 17 path/Param
+			  8,Param22;	$Member 18 size in bits, Member 18 path/Param
+
+[Modular]
+      Width =       1;
+
+$ I/O Module EDS
+$ Number of slots in rack = Product Code - 199
+$ Number of I/O modules in rack = Product Code - 200
+$ Note Rack# does not match in Adapter EDS, Adapter EDS includes one for Slot 0
+
+	Rack1 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 201,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+            1;                $ Legal Slots
+
+	Rack2 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 202,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+            1,2;              $ Legal Slots
+
+	Rack3 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 203,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+            1,2,3;            $ Legal Slots
+
+	Rack4 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 204,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+            1,2,3,4;          $ Legal Slots
+
+	Rack5 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 205,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+            1,2,3,4,5;        $ Legal Slots
+
+	Rack6 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 206,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+            1,2,3,4,5,6;      $ Legal Slots
+
+	Rack7 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 207,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+            1,2,3,4,5,6,7;    $ Legal Slots
+
+	Rack8 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 208,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+            1,2,3,4,5,6,7,8,9;$ Legal Slots
+
+	Rack9 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 209,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10;
+                              $ Legal Slots
+
+	Rack10 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 210,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11;
+                              $ Legal Slots
+
+	Rack11 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 211,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12;
+                              $ Legal Slots
+
+	Rack12 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 212,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13;
+                              $ Legal Slots
+
+	Rack13 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 213,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14;
+                              $ Legal Slots
+
+	Rack14 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 214,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15;
+                              $ Legal Slots
+
+	Rack15 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 215,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16;
+                              $ Legal Slots
+
+	Rack16 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 216,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17;
+                              $ Legal Slots
+
+	Rack17 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 217,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18;
+                              $ Legal Slots
+
+	Rack18 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 218,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19;
+                              $ Legal Slots
+
+	Rack19 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 219,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20;
+                              $ Legal Slots
+
+	Rack20 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 220,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21;               $ Legal Slots
+
+	Rack21 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 221,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22;            $ Legal Slots
+
+	Rack22 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 222,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23;         $ Legal Slots
+
+	Rack23 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 223,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24;      $ Legal Slots
+
+	Rack24 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 224,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25;   $ Legal Slots
+
+	Rack25 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 225,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26;
+                              $ Legal Slots
+
+	Rack26 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 226,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27;
+                              $ Legal Slots
+
+	Rack27 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 227,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28;
+                              $ Legal Slots
+
+	Rack28 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 228,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29;
+                              $ Legal Slots
+
+	Rack29 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 229,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30;
+                              $ Legal Slots
+
+	Rack30 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 230,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31;
+                              $ Legal Slots
+
+	Rack31 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 231,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32;
+                              $ Legal Slots
+
+	Rack32 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 232,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33;
+                              $ Legal Slots
+
+	Rack33 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 233,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34;
+                              $ Legal Slots
+
+	Rack34 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 234,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35;
+                              $ Legal Slots
+
+	Rack35 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 235,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36;
+                              $ Legal Slots
+
+	Rack36 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 236,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37;
+                              $ Legal Slots
+
+	Rack37 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 237,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38;
+                              $ Legal Slots
+
+	Rack38 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 238,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39;
+                              $ Legal Slots
+
+	Rack39 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 239,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40;
+                              $ Legal Slots
+
+	Rack40 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 240,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,
+            41;               $ Legal Slots
+
+	Rack41 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 241,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,
+            41,42;            $ Legal Slots
+
+	Rack42 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 242,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,
+            41,42,43;         $ Legal Slots
+
+	Rack43 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 243,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,
+            41,42,43,44;      $ Legal Slots
+
+	Rack44 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 244,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,
+            41,42,43,44,45;   $ Legal Slots
+
+	Rack45 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 245,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,
+            41,42,43,44,45,46;
+                              $ Legal Slots
+
+	Rack46 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 246,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,
+            41,42,43,44,45,46,47;
+                              $ Legal Slots
+
+	Rack47 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 247,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,
+            41,42,43,44,45,46,47,48;
+                              $ Legal Slots
+
+	Rack48 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 248,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,
+            41,42,43,44,45,46,47,48,49;
+                              $ Legal Slots
+
+	Rack49 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 249,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,
+            41,42,43,44,45,46,47,48,49,50;
+                              $ Legal Slots
+
+	Rack50 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 250,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,
+            41,42,43,44,45,46,47,48,49,50,51;
+                              $ Legal Slots
+
+	Rack51 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 251,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,
+            41,42,43,44,45,46,47,48,49,50,51,52;
+                              $ Legal Slots
+
+	Rack52 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 252,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,
+            41,42,43,44,45,46,47,48,49,50,51,52,53;
+                              $ Legal Slots
+
+	Rack53 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 253,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,
+            41,42,43,44,45,46,47,48,49,50,51,52,53,54;
+                              $ Legal Slots
+
+	Rack54 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 254,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,
+            41,42,43,44,45,46,47,48,49,50,51,52,53,54,55;
+                              $ Legal Slots
+
+	Rack55 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 255,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,
+            41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56;
+                              $ Legal Slots
+
+	Rack56 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 256,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,
+            41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57;
+                              $ Legal Slots
+
+	Rack57 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 257,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,
+            41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58;
+                              $ Legal Slots
+
+	Rack58 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 258,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,
+            41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59;
+                              $ Legal Slots
+
+	Rack59 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 259,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,
+            41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60;
+                              $ Legal Slots
+
+	Rack60 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 260,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,
+            41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,
+            61;               $ Legal Slots
+
+	Rack61 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 261,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,
+            41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,
+            61,62;            $ Legal Slots
+
+	Rack62 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 262,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,
+            41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,
+            61,62,63;         $ Legal Slots
+
+
+	Rack63 =			$ Based on the virtual backplane (VB5FL)
+            1,			$ VendorID = Allen-Bradley
+            0x6C, 263,		$ Product Type, Product Code
+            1, 1,			$ Major Revision, Minor Revision
+            ,,,			$ Reserved
+             1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14,15,16,17,18,19,20,
+            21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,
+            41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,
+            61,62,63,64;      $ Legal Slots
+

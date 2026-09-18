@@ -1,0 +1,454 @@
+$ Electronic Data Sheet for Powermonitor 3000 - M8 - ControlNet - Class 0.5 accuracy
+$ Covers bulletin 1404-M8***-CNT devices
+$ ControlNet PM3000 does not support any parameter objects or configuration assemblies
+
+[File]
+   DescText = "EDS for PM3000 - M8 - ControlNet - Class 0.5 accuracy";
+   CreateDate = 03-21-2003;
+   CreateTime = 09:00:00;
+   ModDate = 06-07-2011;
+   ModTime = 14:47:00;
+   Revision = 1.7;              $ revision of this EDS file
+   HomeURL = "http://www.ab.com/networks/eds/EN/00010073009B0403.eds";  $ where EDS and other files can be found
+
+[Device]
+   VendCode = 1;
+   VendName = "Rockwell Automation - Allen-Bradley";
+   ProdType = 115;
+   ProdTypeStr = "Rockwell Automation Miscellaneous";
+   ProdCode = 0x9B;             $ M8 - ControlNet - Class 0.5 accuracy
+   MajRev = 4;                  $ Device Major Revision
+   MinRev = 3;                 $ Device Minor Revision
+   ProdName = "PM3000 M8 w/ControlNet, Class 0.5";
+   Catalog = "1404-M8xxx-CNT";
+   Icon = "Pm3000IconRev1.ico";
+
+[Device Classification]
+   Class1 = ControlNet;
+ 
+[Port]
+    Port2 = ControlNet_Redundant,   $ Port type
+            "ControlNet",           $ Port name
+            "20 F0 24 01",          $ Path to Port object, The CNet object for PV
+            2;                      $ Port Number
+
+[ParamClass]
+        MaxInst = 23;
+        Descriptor = 0x0000;
+        CfgAssembly = 0;
+
+[Params]			$ Since the PM3000 does not support the Parameter object, the parameters are listed below
+
+    $ Parameter section includes all single parameters
+    $ $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+        Param1 =
+                0,                      $ reserved
+                6,"20 04 24 50 30 03",  $ link path size, link path.
+                0x0030,                 $ Read only, updated real-time data
+                0xCA,                   $ 32bits real data type
+                4,                      $ Data size in bytes
+                "Average L-L Volts",    $ Parameter name
+                "V",
+                "Ave Line to Line Volts ",    $ Units string, help string
+                0,,0,                   $ Min, max, default value
+                ,,,,                    $ Scaling multiplier, divider, base, offset not used
+                ,,,,                    $ Multiplier, divisor, base, offset link not used
+                0;                      $ not used;
+
+        Param2 =
+                0,                      $ reserved
+                6,"20 04 24 51 30 03",  $ link path size, link path.
+                0x0030,                 $ Read only, updated real-time data
+                0xCA,                   $ 32bits real data type
+                4,                      $ Data size in bytes
+                "L1-L2 Volts",          $ Parameter name
+                "V",
+                "L1-L2 Voltage",        $ Units string, help string
+                0,,0,                   $ Min, max, default value
+                ,,,,                    $ Scaling multiplier, divider, base, offset not used
+                ,,,,                    $ Multiplier, divisor, base, offset link not used
+                0;                      $ not used;
+
+        Param3 =
+                0,                      $ reserved
+                6,"20 04 24 52 30 03",  $ link path size, link path.
+                0x0030,                 $ Read only, updated real-time data
+                0xCA,                   $ 32bits real data type
+                4,                      $  Data size in bytes
+                "L2-L3 Volts",          $ Parameter name
+                "V",
+                "L2-L3 Voltage",        $ Units string, help string
+                0,,0,                   $ Min, max, default value
+                ,,,,                    $ Scaling multiplier, divider, base, offset not used
+                ,,,,                    $ Multiplier, divisor, base, offset link not used
+                0;                      $ not used;
+
+        Param4 =
+                0,                      $ reserved
+                6,"20 04 24 53 30 03",  $ link path size, link path.
+                0x0030,                 $ Read only, updated real-time data
+                0xCA,                   $ 32bits real data type
+                4,                      $ Data size in bytes
+                "L3-L1 Volts",          $ Parameter name
+                "V",
+                "L3-L1 Voltage",        $ Units string, help string
+                0,,0,                   $ Min, max, default value
+                ,,,,                    $ Scaling multiplier, divider, base, offset not used
+                ,,,,                    $ Multiplier, divisor, base, offset link not used
+                0;                      $ not used;
+
+        Param5 =
+                0,                      $ reserved
+                6,"20 04 24 54 30 03",  $ link path size, link path.
+                0x0030,                 $ Read only, updated real-time data
+                0xCA,                   $ 32bits real data type
+                4,                      $ Data size in bytes
+                "L1 Current",           $ Parameter name
+                "A",
+                "L1 Current",           $ Units string, help string
+                0,,0,                   $ Min, max, default value
+                ,,,,                    $ Scaling multiplier, divider, base, offset not used
+                ,,,,                    $ Multiplier, divisor, base, offset link not used
+                0;                      $ not used;
+
+        Param6 =
+                0,                      $ reserved
+                6,"20 04 24 55 30 03",  $ link path size, link path.
+                0x0030,                 $ Read only, updated real-time data
+                0xCA,                   $ 32bits real data type
+                4,                      $ Data size in bytes
+                "L2 Current",           $ Parameter name
+                "A",
+                "L2 Current",           $ Units string, help string
+                0,,0,                   $ Min, max, default value
+                ,,,,                    $ Scaling multiplier, divider, base, offset not used
+                ,,,,                    $ Multiplier, divisor, base, offset link not used
+                0;                      $ not used;
+
+        Param7 =
+                0,                      $ reserved
+                6,"20 04 24 56 30 03",  $ link path size, link path.
+                0x0030,                 $ Read only, updated real-time data
+                0xCA,                   $ 32bits real data type
+                4,                      $ Data size in bytes
+                "L3 Current",           $ Parameter name
+                "A",
+                "L3 Current",           $ Units string, help string
+                0,,0,                   $ Min, max, default value
+                ,,,,                    $ Scaling multiplier, divider, base, offset not used
+                ,,,,                    $ Multiplier, divisor, base, offset link not used
+                0;                      $ not used;
+
+        Param8 =
+                0,                      $ reserved
+                6,"20 04 24 57 30 03",  $ link path size, link path.
+                0x0030,                 $ Read only, updated real-time data
+                0xCA,                   $ 32bits real data type
+                4,                      $ Data size in bytes
+                "L4 Current",           $ Parameter name
+                "A",
+                "L4 Current",           $ Units string, help string
+                0,,0,                   $ Min, max, default value
+                ,,,,                    $ Scaling multiplier, divider, base, offset not used
+                ,,,,                    $ Multiplier, divisor, base, offset link not used
+                0;                      $ not used;
+
+        Param9 =
+                0,                      $ reserved
+                6,"20 04 24 58 30 03",  $ link path size, link path.
+                0x007C,                 $ Read only, updated real-time data, scaled with precision
+                0xCA,                   $ 32bits real data type
+                4,                      $ Data size in bytes
+                "Demand Real Power",    $ Parameter name
+                "KW",
+                "Demand Real Power",    $ Units string, help string
+                0,,0,                   $ Min, max, default value
+                1,1,1,0,                $ Scaling multiplier, divider, base, offset not used
+                0,0,0,0,                $ Multiplier, divisor, base, offset link not used
+                3;                      $ not used;
+
+        Param10 =
+                0,                      $ reserved
+                6,"20 04 24 59 30 03",  $ link path size, link path.
+                0x007C,                 $ Read only, updated real-time data, scaled with precision
+                0xCA,                   $ 32bits real data type
+                4,                      $ Data size in bytes
+                "Demand Reactive Power",$ Parameter name
+                "KVAR",
+                "Demand Reactive Power",$ Units string, help string
+                0,,0,                   $ Min, max, default value
+                1,1,1,0,                $ Scaling multiplier, divider, base, offset not used
+                0,0,0,0,                $ Multiplier, divisor, base, offset link not used
+                3;                      $ not used;
+
+        Param11 =
+                0,                      $ reserved
+                6,"20 04 24 5A 30 03",  $ link path size, link path.
+                0x0030,                 $ Read only, updated real-time data
+                0xCA,                   $ 32bits real data type
+                4,                      $ Data size in bytes
+                "Three Phase Power Factor",    $ Parameter name
+                "%",
+                "Three Phase Power Factor",    $ Units string, help string
+                -100.0,100.0,0,         $ Min, max, default value
+                ,,,,                    $ Scaling multiplier, divider, base, offset not used
+                ,,,,                    $ Multiplier, divisor, base, offset link not used
+                0;                      $ not used;
+
+        Param12 =
+                0,                      $ reserved
+                6,"20 04 24 5B 30 03",  $ link path size, link path.
+                0x0030,                 $ Read only, updated real-time data
+                0xCA,                   $ 32bits real data type
+                4,                      $ Data size in bytes
+                "Average Current",      $ Parameter name
+                "A",
+                "Average Current",      $ Units string, help string
+                0,,0,                   $ Min, max, default value
+                ,,,,                    $ Scaling multiplier, divider, base, offset not used
+                ,,,,                    $ Multiplier, divisor, base, offset link not used
+                0;                      $ not used;
+
+        Param13 =
+                0,                      $ reserved
+                6,"20 04 24 5C 30 03",  $ link path size, link path.
+                0x0030,                 $ Read only, updated real-time data
+                0xCA,                   $ 32bits real data type
+                4,                      $ Data size in bytes
+                "Average L-N Volts",    $ Parameter name
+                "V",
+                "Average L-N Volts",    $ Units string, help string
+                0,,0,                   $ Min, max, default value
+                ,,,,                    $ Scaling multiplier, divider, base, offset not used
+                ,,,,                    $ Multiplier, divisor, base, offset link not used
+                0;                      $ not used;
+
+        Param14 =
+                0,                      $ reserved
+                6,"20 04 24 5D 30 03",  $ link path size, link path.
+                0x0030,                 $ Read only, updated real-time data
+                0xCA,                   $ 32bits real data type
+                4,                      $ Data size in bytes
+                "Frequency",            $ Parameter name
+                "Hz",
+                "Frequency",            $ Units string, help string
+                0,75.0,0,               $ Min, max, default value
+                ,,,,                    $ Scaling multiplier, divider, base, offset not used
+                ,,,,                    $ Multiplier, divisor, base, offset link not used
+                0;                      $ not used;
+
+        Param15 =
+                0,                      $ reserved
+                6,"20 04 24 5E 30 03",  $ link path size, link path.
+                0x007C,                 $ Read only, updated real-time data, scaled with precision
+                0xCA,                   $ 32bits real data type
+                4,                      $ Data size in bytes
+                "Total Real Power",     $ Parameter name
+                "KW",
+                "Total Real Power",     $ Units string, help string
+                0,,0,                   $ Min, max, default value
+                1,1,1,0,                $ Scaling multiplier,divider, base, offset not used
+                0,0,0,0,                $ Multiplier, divisor, base, offset link not used
+                3;                      $ not used;
+
+        Param16 =
+                0,                      $ reserved
+                6,"20 04 24 5F 30 03",  $ link path size, link path.
+                0x0074,                 $ Read only, updated real-time data, scaled with precision
+                0xCA,                   $ 32bits real data type
+                4,                      $ Data size in bytes
+                "Total Reactive Power", $ Parameter name
+                "KVAR",
+                "Total Reactive Power", $ Units string, help string
+                0,,0,                   $ Min, max, default value
+                1,1,1,0,                $ Scaling multiplier, divider, base, offset not used
+                ,,,,                    $ Multiplier, divisor, base, offset link not used
+                3;                      $ not used;
+
+        Param17 =
+                0,                      $ reserved
+                6,"20 04 24 60 30 03",  $ link path size, link path.
+                0x0074,                 $ Read only, updated real-time data, scaled with precision
+                0xCA,                   $ 32bits real data type
+                4,                      $ Data size in bytes
+                "Total Apparent Power", $ Parameter name
+                "KVA",
+                "Total Apparent Power", $ Units string, help string
+                0,,0,                   $ Min, max, default value
+                1,1,1,0,                $ Scaling multiplier, divider, base, offset not used
+                ,,,,                    $ Multiplier, divisor, base, offset link not used
+                3;                      $ not used;
+
+        Param18 =
+                0,                      $ reserved
+                6,"20 04 24 61 30 03",  $ link path size, link path.
+                0x0030,                 $ Read only, updated real-time data
+                0xC3,                   $ 16bits integer data type
+                2,                      $ Data size in bytes
+                "kWhx10^0",             $ Parameter name
+                "kWh",
+                "Real Energy",          $ Units string, help string
+                -999,999,0,             $ Min, max, default value
+                ,,,,                    $ Scaling multiplier, divider, base, offset not used
+                ,,,,                    $ Multiplier, divisor, base, offset link not used
+                0;                      $ not used;
+
+        Param19 =
+                0,                      $ reserved
+                6,"20 04 24 62 30 03",  $ link path size, link path.
+                0x0030,                 $ Read only, updated real-time data
+                0xC3,                   $ 16bits integer data type
+                2,                      $ Data size in bytes
+                "kWhx10^3",             $ Parameter name
+                "MWh",
+                "Real Energy",          $ Units string, help string
+                -999,999,0,             $ Min, max, default value
+                ,,,,                    $ Scaling multiplier, divider, base, offset not used
+                ,,,,                    $ Multiplier, divisor, base, offset link not used
+                0;                      $ not used;
+
+        Param20 =
+                0,                      $ reserved
+                6,"20 04 24 63 30 03",  $ link path size, link path.
+                0x0030,                 $ Read only, updated real-time data
+                0xC3,                   $ 16bits integer data type
+                2,                      $ Data size in bytes
+                "kWhx10^6",             $ Parameter name
+                "GWh",
+                "Reactive Energy",      $ Units string, help string
+                -999,999,0,             $ Min, max, default value
+                ,,,,                    $ Scaling multiplier, divider, base, offset not used
+                ,,,,                    $ Multiplier, divisor, base, offset link not used
+                0;                      $ not used;
+
+        Param21 =
+                0,                      $ reserved
+                6,"20 04 24 64 30 03",  $ link path size, link path.
+                0x0030,                 $ Read only, updated real-time data
+                0xC3,                   $ 16bits integer data type
+                2,                      $ Data size in bytes
+                "kVARhx10^0",           $ Parameter name
+                "kVARh",
+                "Reactive Energy",      $ Units string, help string
+                -999,999,0,             $ Min, max, default value
+                ,,,,                    $ Scaling multiplier, divider, base, offset not used
+                ,,,,                    $ Multiplier, divisor, base, offset link not used
+                0;                      $ not used;
+
+        Param22 =
+                0,                      $ reserved
+                6,"20 04 24 65 30 03",  $ link path size, link path.
+                0x0030,                 $ Read only, updated real-time data
+                0xC3,                   $ 16bits integer data type
+                2,                      $ Data size in bytes
+                "kVARhx10^3",           $ Parameter name
+                "MVARh",
+                "Reactive Energy",      $ Units string, help string
+                -999,999,0,             $ Min, max, default value
+                ,,,,                    $ Scaling multiplier, divider, base, offset not used
+                ,,,,                    $ Multiplier, divisor, base, offset link not used
+                0;                      $ not used;
+
+        Param23 =
+                0,                      $ reserved
+                6,"20 04 24 66 30 03",  $ link path size, link path.
+                0x0030,                 $ Read only, updated real-time data
+                0xC3,                   $ 16bits integer data type
+                2,                      $ Data size in bytes
+                "kVARhx10^6",           $ Parameter name
+                "GVARh",
+                "Reactive Energy",      $ Units string, help string
+                -999,999,0,             $ Min, max, default value
+                ,,,,                    $ Scaling multiplier, divider, base, offset not used
+                ,,,,                    $ Multiplier, divisor, base, offset link not used
+                0;                      $ not used;
+
+   	Param24 =			$ only for reference by the Assembly section
+   	0,				$ reserved
+ 	  ,,				$ link path size in bytes, link path; not used (parameter object not directly addressable)
+ 	  0x30,			$ Descriptor - Read only, updated real-time
+ 	  0xC7,			$ Data type identifier - 16 bit unsigned integer (replaces obsolete data type of 2)
+ 	  2,				$ Data size in bytes
+ 	  "Relay output status",	$ Parameter name
+ 	  " ", " ",			$ Units string, help string
+ 	  0, 3, 0,			$ Min, max, default value
+ 	  ,,,,				$ Scaling multiplier, divider, base, offset not used
+ 	  ,,,,				$ Multiplier, divder, base, offset link not used
+ 	  ;				$ Decimal precision
+
+	   Param25 = 0, ,, 0x30, 0xC7,	2, "KYZ output status",	 "", "", 0, 3, 		0, ,,,, ,,,, ;
+	   Param26 = 0, ,, 0x30, 0xC7,	2, "Alarm output word",	 "", "", 0, 0xFFFF, 	0, ,,,, ,,,, ;
+	   Param27 = 0, ,, 0x30, 0xC7,	2, "Status input state",	 "", "", 0, 3, 		0, ,,,, ,,,, ;
+	   Param28 = 0, ,, 0x30, 0xC7,	2, "Status input #1 counter",	 "", "", 0, 29999, 	0, ,,,, ,,,, ;
+	   Param29 = 0, ,, 0x30, 0xC7,	2, "Status input #2 counter",	 "", "", 0, 29999, 	0, ,,,, ,,,, ;
+	   Param30 = 0, ,, 0x20, 0xC7,	2, "Relay Output",		 "", "", 0, 1, 		0, ,,,, ,,,, ; 
+	   Param31 = 0, ,, 0x20, 0xC7,	2, "KYZ output",		 "", "", 0, 1, 		0, ,,,, ,,,, ;
+[Groups]
+$ Parameters are grouped
+ 
+ Group1 = "Voltage, Current & Frequency", 11,
+           1,  2,  3,  4,  5,  6,  7,  8, 12, 13, 14;
+ 
+ Group2 = "Power", 6,
+ 		  9, 10, 11, 15, 16, 17;
+ 
+ Group3 = "Energy", 6,
+ 		  18, 19, 20, 21, 22, 23;
+[Assembly]
+   Assem1 =					$ This Assembly Object instance supports unscheduled (Class 3 and UCMM) connections and also
+							$ a maximum of 64 scheduled (Class 1) connections.  By default, this assembly contains 12 bytes of 
+							$ PM3000 discrete result data.  This size and contents of this assembly instance can also
+							$ be changed to contain what you want; refer to publication 1404-UM001 for more info.
+   "PM3000 discrete result data",		$ Name of the assembly
+   "",						$ Logical path to data; null string indicates to point to assembly instance attribute 3
+   12,						$ Size of the assembly in bytes	
+   0,						$ Descriptor; values can not be edited
+   ,,						$ reserved fields
+   16, Param24,					$ Member size in bits, member reference
+   16, Param25,					$ Member size in bits, member reference
+   16, Param26,					$ Member size in bits, member reference
+   16, Param27,					$ Member size in bits, member reference
+   16, Param28,					$ Member size in bits, member reference
+   16, Param29;					$ Member size in bits, member reference
+  
+   Assem2 =					$ This Assembly Object instance supports unscheduled (Class 3 and UCMM) connections and also
+						$ a maximum of one (1) scheduled (Class 1) connections.  You can control the Relay and KYZ outputs
+						$ on the PM3000 by changing values in this assembly if you also have the output control parameter 
+						$ in the PM3000 advanced device config table set properly; refer to publication 1404-UM001 for more info.
+   "Control PM3000 Relay and KYZ output" ,	$ Name of the assembly
+   "",						$ Logical path to data; null string causes path to point to assembly instance attribute 3
+   4,						$ Size of the assembly in bytes	
+   1,						$ Descriptor; values can be edited
+   ,,						$ reserved fields
+   16, Param30,					$ Member size in bits, member reference
+   16, Param31;					$ Member size in bits, member reference
+
+
+[Connection Manager]
+   Connection1 =
+      0x04010002,  $ class 1, cyclic, exclusive owner
+      0x44660455,  $ O=>T scheduled, p2p or multicast, run/idle header
+                   $ T=>O scheduled, p2p or multicast, 32-bit status header
+      ,4,Assem2,  $ O=>T RPI,Size,Format
+      ,12,Assem1,      $ T=>O RPI,Size,Format
+      ,,          $ config part 1 (not used)
+      ,,          $ config part 2 (not used)
+      "Consume/Produce data", $ connection name
+      "",            $ Help string
+      "20 04 24 03 2C 02 2C 01";
+
+   1_PLC5C_RTD_Format1 = 1_PLC5C_1794_Discrete_RTD_Format;
+
+   Connection2 =
+      0x04010002,  $ class 1, cyclic, redundant owner
+      0x44660455,  $ O=>T scheduled, p2p or multicast, run/idle header
+                   $ T=>O scheduled, p2p or multicast, 32-bit status header
+      ,4,Assem2,      $ O=>T RPI,Size,Format
+      ,12,Assem1,      $ T=>O RPI,Size,Format
+      ,,          $ config part 1 (not used)
+      ,,          $ config part 2 (not used)
+      "Heartbeat", $ connection name
+      "",            $ Help string
+      "20 04 24 03 2C 63 2C 01"; $ inputs only path
+
+     1_PLC5C_RTD_Format2 = 1_PLC5C_1794_Discrete_RTD_Format;

@@ -1,0 +1,526 @@
+[File]
+	DescText = "1794-OB16P/A Flex module EDS";
+	CreateDate = 05-12-1999;
+	CreateTime = 08:40:00;
+	ModDate	= 01-10-2006;
+	ModTime	= 12:30:00;
+	Revision = 6.6;
+	HomeURL = "http://www.ab.com/networks/eds/XX/00010007002D0100.eds";
+
+[Device]
+	VendCode = 1;
+	VendName = "Allen-Bradley";
+	ProdType = 7;
+	ProdTypeStr = "General Purpose Discrete I/O";
+	ProdCode= 45;
+	MajRev = 1;
+	MinRev = 1;
+	ProdName = "16 Point 24V DC Protected Output, Source 1794-OB16P/A";
+	Catalog = "1794-OB16P/A";
+	Icon = "94GREEN.ICO";
+
+	1_Revision_Alpha = "Yes";
+	1_RSNetWorx_NoAutoEnter = "Yes";
+
+[Device Classification]
+	Class1 = 1_RSNetWorx_1794, 1_RSNetWorx_Connectable_Module;
+
+[Params]
+
+      Param1 =	$ LKS ADDED PARAM1 & PARAM2
+        0,          $ first field shall equal 0
+        ,,          $ path size,path
+        0x0002,        $ descriptor
+        0xc7,          $ data type : 16-bit Unsigned Integer
+        2,          $ data size in bytes
+        "Program Mode",   $ name
+        "",            $ units
+        "",            $ help string
+        0,2,0,         $ min,max,default data values
+        0,0,0,0,    $ mult,dev,base,offset scaling not used
+        0,0,0,0,    $ mult,dev,base,offset link not used
+        0;          $ decimal places not used
+      Enum1 =
+        0,"Reset Outputs",1,"Hold Last Outputs",2,"Apply Safe State Values to Outputs";
+
+      Param2 =
+        0,          $ first field shall equal 0
+        ,,          $ path size,path
+        0x0002,        $ descriptor
+        0xc7,          $ data type : 16-bit Unsigned Integer
+        2,          $ data size in bytes
+        "Lost Communications",  $ name
+        "",            $ units
+        "",            $ help string
+        0,2,2,         $ min,max,default data values
+        0,0,0,0,    $ mult,dev,base,offset scaling not used
+        0,0,0,0,    $ mult,dev,base,offset link not used
+        0;          $ decimal places not used
+      Enum2 =
+        0,"Reset Outputs",1,"Hold Last Outputs",2,"Apply Safe State Values to Outputs";
+
+      Param3 =
+        0,          $ first field shall equal 0
+        ,,          $ path size,path
+        0x0010,     $ descriptor
+        0xc7,       $ data type : 16-bit Unsigned Integer
+        2,          $ data size in bytes
+        "Data",     $ name
+        "",         $ units
+        "",         $ help string
+        0,65535,0,      $ min,max,default data values
+        0,0,0,0,    $ mult,dev,base,offset scaling not used
+        0,0,0,0,    $ mult,dev,base,offset link not used
+        0;          $ decimal places not used
+      
+      Param19 =
+        0,          $ first field shall equal 0
+        ,,          $ path size,path
+        0x0002,        $ descriptor
+        0xc7,          $ data type : 16-bit Unsigned Integer
+        2,          $ data size in bytes
+        "Point 0 Safe State ",  $ name
+        "",            $ units
+        "",            $ help string
+        0,1,0,         $ min,max,default data values
+        0,0,0,0,    $ mult,dev,base,offset scaling not used
+        0,0,0,0,    $ mult,dev,base,offset link not used
+        0;          $ decimal places not used
+      Enum19 =
+        0,"Off",1,"On";
+
+      Param20 =
+        0,          $ first field shall equal 0
+        ,,          $ path size,path
+        0x0002,        $ descriptor
+        0xc7,          $ data type : 16-bit Unsigned Integer
+        2,          $ data size in bytes
+        "Point 1 Safe State ",  $ name
+        "",            $ units
+        "",            $ help string
+        0,1,0,         $ min,max,default data values
+        0,0,0,0,    $ mult,dev,base,offset scaling not used
+        0,0,0,0,    $ mult,dev,base,offset link not used
+        0;          $ decimal places not used
+      Enum20 =
+        0,"Off",1,"On";
+
+      Param21 =
+        0,          $ first field shall equal 0
+        ,,          $ path size,path
+        0x0002,        $ descriptor
+        0xc7,          $ data type : 16-bit Unsigned Integer
+        2,          $ data size in bytes
+        "Point 2 Safe State ",  $ name
+        "",            $ units
+        "",            $ help string
+        0,1,0,         $ min,max,default data values
+        0,0,0,0,    $ mult,dev,base,offset scaling not used
+        0,0,0,0,    $ mult,dev,base,offset link not used
+        0;          $ decimal places not used
+      Enum21 =
+        0,"Off",1,"On";
+
+      Param22 =
+        0,          $ first field shall equal 0
+        ,,          $ path size,path
+        0x0002,        $ descriptor
+        0xc7,          $ data type : 16-bit Unsigned Integer
+        2,          $ data size in bytes
+        "Point 3 Safe State ",  $ name
+        "",            $ units
+        "",            $ help string
+        0,1,0,         $ min,max,default data values
+        0,0,0,0,    $ mult,dev,base,offset scaling not used
+        0,0,0,0,    $ mult,dev,base,offset link not used
+        0;          $ decimal places not used
+      Enum22 =
+        0,"Off",1,"On";
+
+      Param23 =
+        0,          $ first field shall equal 0
+        ,,          $ path size,path
+        0x0002,        $ descriptor
+        0xc7,          $ data type : 16-bit Unsigned Integer
+        2,          $ data size in bytes
+        "Point 4 Safe State ",  $ name
+        "",            $ units
+        "",            $ help string
+        0,1,0,         $ min,max,default data values
+        0,0,0,0,    $ mult,dev,base,offset scaling not used
+        0,0,0,0,    $ mult,dev,base,offset link not used
+        0;          $ decimal places not used
+      Enum23 =
+        0,"Off",1,"On";
+
+      Param24 =
+        0,          $ first field shall equal 0
+        ,,          $ path size,path
+        0x0002,        $ descriptor
+        0xc7,          $ data type : 16-bit Unsigned Integer
+        2,          $ data size in bytes
+        "Point 5 Safe State ",  $ name
+        "",            $ units
+        "",            $ help string
+        0,1,0,         $ min,max,default data values
+        0,0,0,0,    $ mult,dev,base,offset scaling not used
+        0,0,0,0,    $ mult,dev,base,offset link not used
+        0;          $ decimal places not used
+      Enum24 =
+        0,"Off",1,"On";
+
+      Param25 =
+        0,          $ first field shall equal 0
+        ,,          $ path size,path
+        0x0002,        $ descriptor
+        0xc7,          $ data type : 16-bit Unsigned Integer
+        2,          $ data size in bytes
+        "Point 6 Safe State ",  $ name
+        "",            $ units
+        "",            $ help string
+        0,1,0,         $ min,max,default data values
+        0,0,0,0,    $ mult,dev,base,offset scaling not used
+        0,0,0,0,    $ mult,dev,base,offset link not used
+        0;          $ decimal places not used
+      Enum25 =
+        0,"Off",1,"On";
+
+      Param26 =
+        0,          $ first field shall equal 0
+        ,,          $ path size,path
+        0x0002,        $ descriptor
+        0xc7,          $ data type : 16-bit Unsigned Integer
+        2,          $ data size in bytes
+        "Point 7 Safe State ",  $ name
+        "",            $ units
+        "",            $ help string
+        0,1,0,         $ min,max,default data values
+        0,0,0,0,    $ mult,dev,base,offset scaling not used
+        0,0,0,0,    $ mult,dev,base,offset link not used
+        0;          $ decimal places not used
+      Enum26 =
+        0,"Off",1,"On";
+
+      Param27 =
+        0,          $ first field shall equal 0
+        ,,          $ path size,path
+        0x0002,        $ descriptor
+        0xc7,          $ data type : 16-bit Unsigned Integer
+        2,          $ data size in bytes
+        "Point 8 Safe State ",  $ name
+        "",            $ units
+        "",            $ help string
+        0,1,0,         $ min,max,default data values
+        0,0,0,0,    $ mult,dev,base,offset scaling not used
+        0,0,0,0,    $ mult,dev,base,offset link not used
+        0;          $ decimal places not used
+      Enum27 =
+        0,"Off",1,"On";
+
+      Param28 =
+        0,          $ first field shall equal 0
+        ,,          $ path size,path
+        0x0002,        $ descriptor
+        0xc7,          $ data type : 16-bit Unsigned Integer
+        2,          $ data size in bytes
+        "Point 9 Safe State ",  $ name
+        "",            $ units
+        "",            $ help string
+        0,1,0,         $ min,max,default data values
+        0,0,0,0,    $ mult,dev,base,offset scaling not used
+        0,0,0,0,    $ mult,dev,base,offset link not used
+        0;          $ decimal places not used
+      Enum28 =
+        0,"Off",1,"On";
+
+      Param29 =
+        0,          $ first field shall equal 0
+        ,,          $ path size,path
+        0x0002,        $ descriptor
+        0xc7,          $ data type : 16-bit Unsigned Integer
+        2,          $ data size in bytes
+        "Point 10 Safe State ",  $ name
+        "",            $ units
+        "",            $ help string
+        0,1,0,         $ min,max,default data values
+        0,0,0,0,    $ mult,dev,base,offset scaling not used
+        0,0,0,0,    $ mult,dev,base,offset link not used
+        0;          $ decimal places not used
+      Enum29 =
+        0,"Off",1,"On";
+
+      Param30 =
+        0,          $ first field shall equal 0
+        ,,          $ path size,path
+        0x0002,        $ descriptor
+        0xc7,          $ data type : 16-bit Unsigned Integer
+        2,          $ data size in bytes
+        "Point 11 Safe State ",  $ name
+        "",            $ units
+        "",            $ help string
+        0,1,0,         $ min,max,default data values
+        0,0,0,0,    $ mult,dev,base,offset scaling not used
+        0,0,0,0,    $ mult,dev,base,offset link not used
+        0;          $ decimal places not used
+      Enum30 =
+        0,"Off",1,"On";
+
+      Param31 =
+        0,          $ first field shall equal 0
+        ,,          $ path size,path
+        0x0002,        $ descriptor
+        0xc7,          $ data type : 16-bit Unsigned Integer
+        2,          $ data size in bytes
+        "Point 12 Safe State ",  $ name
+        "",            $ units
+        "",            $ help string
+        0,1,0,         $ min,max,default data values
+        0,0,0,0,    $ mult,dev,base,offset scaling not used
+        0,0,0,0,    $ mult,dev,base,offset link not used
+        0;          $ decimal places not used
+      Enum31 =
+        0,"Off",1,"On";
+
+      Param32 =
+        0,          $ first field shall equal 0
+        ,,          $ path size,path
+        0x0002,        $ descriptor
+        0xc7,          $ data type : 16-bit Unsigned Integer
+        2,          $ data size in bytes
+        "Point 13 Safe State ",  $ name
+        "",            $ units
+        "",            $ help string
+        0,1,0,         $ min,max,default data values
+        0,0,0,0,    $ mult,dev,base,offset scaling not used
+        0,0,0,0,    $ mult,dev,base,offset link not used
+        0;          $ decimal places not used
+      Enum32 =
+        0,"Off",1,"On";
+
+      Param33 =
+        0,          $ first field shall equal 0
+        ,,          $ path size,path
+        0x0002,        $ descriptor
+        0xc7,          $ data type : 16-bit Unsigned Integer
+        2,          $ data size in bytes
+        "Point 14 Safe State ",  $ name
+        "",            $ units
+        "",            $ help string
+        0,1,0,         $ min,max,default data values
+        0,0,0,0,    $ mult,dev,base,offset scaling not used
+        0,0,0,0,    $ mult,dev,base,offset link not used
+        0;          $ decimal places not used
+      Enum33 =
+        0,"Off",1,"On";
+
+      Param34 =
+        0,          $ first field shall equal 0
+        ,,          $ path size,path
+        0x0002,        $ descriptor
+        0xc7,          $ data type : 16-bit Unsigned Integer
+        2,          $ data size in bytes
+        "Point 15 Safe State ",  $ name
+        "",            $ units
+        "",            $ help string
+        0,1,0,         $ min,max,default data values
+        0,0,0,0,    $ mult,dev,base,offset scaling not used
+        0,0,0,0,    $ mult,dev,base,offset link not used
+        0;          $ decimal places not used
+      Enum34 =
+        0,"Off",1,"On";
+
+	ProxiedParam1 = 0,
+		,,	$ Link Path Size, Link Path
+		0x0000,	 $ Descriptor
+		, ,	$ Data Type, Data Size
+		"input size",
+		"",
+		"",
+		2,2,2,
+		,,,,
+		,,,,
+		;
+
+	ProxiedParam2 = 0,
+		,,	$ Link Path Size, Link Path
+		0x0000,	 $ Descriptor
+		, ,	$ Data Type, Data Size
+		"module key",
+		"",
+		"",
+		264,264,264,
+		,,,,
+		,,,,
+		;
+
+	ProxiedParam3 = 0,
+		,,	$ Link Path Size, Link Path
+		0x0000,	 $ Descriptor
+		, ,	$ Data Type, Data Size
+		"module input size",
+		"",
+		"",
+		0,0,0,
+		,,,,
+		,,,,
+		;
+
+	ProxiedParam4 = 0,
+		,,	$ Link Path Size, Link Path
+		0x0000,	 $ Descriptor
+		, ,	$ Data Type, Data Size
+		"module status size",
+		"",
+		"",
+		1,1,1,
+		,,,,
+		,,,,
+		;
+
+	ProxiedParam5 = 0,
+		,,	$ Link Path Size, Link Path
+		0x0000,	 $ Descriptor
+		, ,	$ Data Type, Data Size
+		"module output size",
+		"",
+		"",
+		1,1,1,
+		,,,,
+		,,,,
+		;
+
+	ProxiedParam6 = 0,
+		,,	$ Link Path Size, Link Path
+		0x0000,	 $ Descriptor
+		, ,	$ Data Type, Data Size
+		"module config size",
+		"",
+		"",
+		1,1,1,
+		,,,,
+		,,,,
+		;
+
+	ProxiedParam7 = 0,
+		,,	$ Link Path Size, Link Path
+		0x0000,	 $ Descriptor
+		, ,	$ Data Type, Data Size
+		"output size",
+		"",
+		"",
+		2,2,2,
+		,,,,
+		,,,,
+		;
+
+	$ **********************************
+	$ NOTE: Parameters names are only listed for description of parameter. These names are not used!
+	$ **********************************
+	ProxiedParam10	= ,,,,,,"Module Object Attribute 0x03","","",0,2,0,,,,,,,,,;
+	ProxiedEnum10	= 0,"Reset to Zero", 	1,"Hold Outputs in Last State", 2,"Use Safe State Output Values";
+
+	ProxiedParam11	= ,,,,,,"Module Object Attribute 0x03","","",0,2,0,,,,,,,,,;
+	ProxiedEnum11	= 0,"Reset to Zero", 	1,"Hold Outputs in Last State", 2,"Use Safe State Output Values";
+
+	ProxiedParam12	= ,,,,,,"Module Object Attribute 0x11","","",0,1,0,,,,,,,,,;
+	ProxiedEnum12	= 0,"Output Remain in Idle State", 1,"Output Go To Fault State";
+
+	ProxiedParam13	= ,,,,,,"Module Object Attribute 0x14","","",0,1,0,,,,,,,,,;
+	ProxiedEnum13	= 0,"Zero Inputs", 1,"Hold Last Input Values";
+
+
+[Assembly]
+	Revision = 2;
+
+	ProxiedAssem1 = "module config",,
+		,0x0000,,,
+		16,;
+
+	ProxiedAssem2 = "real time input format",,
+		,,,;
+
+	ProxiedAssem3 = "real time output format",,
+		,0x0000,,,
+		16, Param3;
+
+	ProxiedAssem4 = "real time status format",,
+		,,,,
+		16,;
+
+	ProxiedAssem5 = "module config and safe state",,
+		,,,;
+
+	ProxiedAssem6 = "safe state",,
+		,,,,
+		1, Param19,
+		1, Param20,
+		1, Param21,
+		1, Param22,
+		1, Param23,
+		1, Param24,
+		1, Param25,
+		1, Param26,
+		1, Param27,
+		1, Param28,
+		1, Param29,
+		1, Param30,
+		1, Param31,
+		1, Param32,
+		1, Param33,
+		1, Param34;
+
+	ProxiedAssem7 = "module flag data",,,,,, $ LKS
+	        4, Param1,		$ LKS idle action
+		4, Param2,		$ LKS fault action
+		8, 0x0000;		$ LKS auto match, fault from idle, hold last inputs, not used
+
+
+[Connection Manager]
+
+	ProxiedConnect1 = 0x00000000,
+		0x00000000,
+		,,,	$ O=>T 
+		,,,	$ T=>O
+		,,	$ Config #1
+		,,	$ Config #2
+		"",
+		"",
+		"";
+
+	ProxiedConnect2 = 0x00000000,
+		0x00000000,
+		,,,	$ O=>T 
+		,,,	$ T=>O
+		,,	$ Config #1
+		,,	$ Config #2
+		"",
+		"",
+		"";
+
+	ProxiedConnect3 = 0x00000000,
+		0x00000000,
+		,,,	$ O=>T 
+		,,,	$ T=>O
+		,,	$ Config #1
+		,,	$ Config #2
+		"",
+		"",
+		"";
+
+	ProxiedConnect4 = 0x00000000,
+		0x00000000,
+		,,,	$ O=>T 
+		,,,	$ T=>O
+		,,	$ Config #1
+		,,	$ Config #2
+		"",
+		"",
+		"";
+
+[Modular]
+	Width = 1;
+	Rack1 = 1,108,33,1,1,,,,
+		1,2,3,4,5,6,7,8;
+	Rack2 = 1,108,93,1,1,,,,
+		1,2,3,4,5,6,7,8;
+	ExternalID = "08 01";

@@ -1,0 +1,117 @@
+$ Electronic Data Sheet for ArmorBlock LP I/O  (1792D-8BT0LP)
+
+[File]
+DescText = "1792D-8BT0LP ArmorBlock LP I/O EDS File";
+CreateDate = 06-25-1999;
+CreateTime = 11:31:00;
+ModDate = 08-09-1999;
+ModTime = 15:00:00;
+Revision = 1.0;		$ EDS revision.
+
+[Device]
+VendCode = 1;
+VendName = "Allen-Bradley Company, Inc.";
+ProdType = 7;
+ProdTypeStr = "General Purpose Discrete I/O";
+ProdCode = 1091;
+MajRev = 1;
+MinRev = 4;
+ProdName = "LP 2 I/O 8 sinking input";
+Catalog = "1792D-8BT0LP";
+
+[IO_Info]
+Default = 0x0004;	$ The default I/O type is COS I/O.
+
+PollInfo =
+0x000D,			$ Poll connection can be used with COS or Cyclic I/O.
+1,			$ Input1 entry is the default input connection.
+0;			$ There is no consuming connection.
+
+COSInfo=
+0x0005,                 $ COS connection can be used with Polled I/O.
+1,                      $ Input1 entry is the default input connection.
+0;                      $ There is no consuming connection.
+
+CyclicInfo=
+0x0009,			$ Cyclic connection can be used with Polled I/O.
+1,			$ Input1 entry is the default input connection.
+0;			$ There is no consuming connection.
+
+Input1 =
+2,			$ The size in bytes that this connection produces.
+0,			$ All bits of this connection are significant.
+0x000D,			$ Polled, COS and Cyclic I/O device.
+"8BT0LP Production Data",  $ Name of Connection.
+6,			$ Path length.
+"20 04 24 0E 30 03",	$ Path to I/O Production Assembly.
+	$$$$$$$$$$ Help string $$$$$$$$$$$
+"This contains 2 bytes: byte 1, bits 0-7=Inputs 0-7. Byte 2, bits 0-6=reserved.\nBit 7=Input Faults.";
+
+
+[ParamClass]
+MaxInst = 3;		$ 1 configurable and 2 read-only parameters.
+Descriptor =  0x09;	$ Stub param instances in eeprom.
+CfgAssembly = 0x79;	$ Config assembly.		
+
+[Params]
+$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+Param1 =		$ Disable Autobaud
+0,			$ reserved
+6,			$ Link Path Size
+"20 03 24 01 30 64",	$ Link Path to disable autobaud attribute.
+0x0002,			$ No support for settable path, scaling, scaling links, or
+			$ real time update of value.  Value is gettable and 
+			$ Settable.  Enumerated strings are supported.
+4,			$ Data Type - boolean
+1,			$ Data Size
+"Autobaud",		$ Parameter Name
+"",			$ Units String
+	$$$$$$$$$$ Help string $$$$$$$$$$$
+"Setting this parameter ON disables the Autobaud feature in the block. The change\noccures after the next power up. Default is Enabled.",
+0,1,0,			$ Min, Max, and Default values
+1,1,1,0,0,0,0,0,0;		$ Not Used
+
+$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+Param2 =		$ Input  Values (group)
+0,			$ reserved
+6,			$ Link Path Size
+"20 0F 24 04 30 01",	$ Link Path to DIP Input values attribute.
+0x0030,			$ No support for settable path, scaling, or scaling links.
+			$ Value is gettable only. Enumerated strings are not
+			$ supported.
+24,			$ Data Type - string
+1,			$ Data Size - (in bytes)
+"Input Values (group)",	$ Parameter Name
+"",			$ Units String
+	$$$$$$$$$$ Help string $$$$$$$$$$$
+"This parameter is the current value of all Inputs, either On(1) or Off(0).",
+0,255,0,		$ Min, Max, and Default values
+1,1,1,0,0,0,0,0,0;		$ Not Used
+
+$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+Param3 =		$ Input Fault Status (group)
+0,			$ reserved
+6,			$ Link Path Size
+"20 0F 24 05 30 01",	$ Link Path to DIG status attribute.
+0x0032,			$ No support for settable path, scaling, or scaling links.
+			$ Value is gettable only. Enumerated strings are supported.
+4,			$ Data Type - boolean
+1,			$ Data Size - (in bytes)
+"Input Fault Status",   $ Parameter Name
+"",			$ Units String
+			$$$$$$$$$$ Help string $$$$$$$$$$$
+"This parameter is the current status of Sensor Source Voltage, either Healthy or\nShort Circuit.",
+0,1,0,			$ Min, Max, and Default values
+1,1,1,0,0,0,0,0,0;		$ Not Used
+
+
+
+[Groups]
+Group1="D'Net Configuration",1,1;
+Group2="Monitoring",2,2,3;
+
+
+
+[EnumPar]
+Param1="AutoBaud Active","AutoBaud Inactive";
+Param3="Healthy","Short Circuit";
