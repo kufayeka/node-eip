@@ -1,74 +1,92 @@
 'use strict';
 
 /**
- * Demonstrates the full 'es2' device-type profile (src/delta/device-types/es2.js)
- * — read for X/Y/M/D and read+write round trips for Y/M/S/T/C, all
- * confirmed live against a real DVP32ES2-E (README Domain J):
- *   - X/Y/M/S/T/C: real bit-mode read/write via Delta's vendor Register
- *     Objects (Class 0x350-0x356) — write confirmed by watching the
- *     physical device's own live monitor turn the bit on.
- *   - D: read-only, via 8 Assembly-window mirrors (Instances 101, 103, 105,
- *     107, 109, 111, 113, 115), each covering 100 consecutive D words —
- *     together spanning the confirmed readable range D0-D799
- *     (src/delta/device-types/es2.js). Writing D is not currently
- *     possible via CIP on this device — see the "writeD" demo below.
+ * Demonstrates the Delta DVP-ES2-E device profile ('delta:es2'):
+ *   - D: 16-bit word read and write via Class 0x352 Instance 1 (Attribute = register number).
+ *   - Y/M/S/T/C: Bit-mode read and write via vendor Register Objects (Class 0x351, 0x353..0x356).
+ *   - X: Bit-mode read via Class 0x350 (Read-only).
+ *   - Octal I/O labels: Y10, X10, etc.
+ *   - Batch Operations: Native CIP Multiple Service Packet (0x0A) round-trips.
  *
- * This example writes to M/Y/S/T/C and restores them afterward — safe to
- * run against a non-production device.
- *
- * Usage: node examples/delta-es2.js <host>
+ * Usage: node examples/delta-es2.js [host]
  */
 
 const { Device } = require('../src/device');
 
 async function main() {
-    const host = process.argv[2];
-    if (!host) {
-        console.error('Usage: node examples/delta-es2.js <host>');
-        process.exit(1);
-    }
+    const host = process.argv[2] || '192.168.68.111';
 
+    console.log(`Connecting to Delta ES2-E at ${host}...`);
     const device = new Device(host, 'delta:es2');
     await device.connect();
+    console.log(`Connected! Device profile: ${device.profile.name}\n`);
 
     try {
-        console.log('--- Read (X/Y/M read-only view, D via 8 Assembly-window mirrors) ---');
-        for (let n = 0; n < 4; n++) console.log(`X${n} = ${await device.readX(n)}`);
-        for (let n = 0; n < 4; n++) console.log(`Y${n} = ${await device.readY(n)}`);
-        for (let n = 0; n < 4; n++) console.log(`M${n} = ${await device.readM(n)}`);
-        // One sample from each of the 8 confirmed D windows (D0-D799).
-        for (const n of [0, 100, 200, 300, 400, 500, 600, 700]) {
+        console.log('--- Direct Register Reading ---');
+        for (let n = 0; n < 4; n++) {
+            console.log(`X${n} = ${await device.readX(n)}`);
+        }
+        for (let n = 0; n < 4; n++) {
+            console.log(`Y${n} = ${await device.readY(n)}`);
+        }
+        for (let n = 0; n < 4; n++) {
             console.log(`D${n} = ${await device.readD(n)}`);
         }
 
-        console.log('\n--- Write round trip (M50, Y10, S10, T10, C10) ---');
+        console.log('\n--- D Register Word Read/Write (Instance 1) ---');
+        const beforeD0 = await device.readD(0);
+        await device.writeD(0, 1234);
+        const writtenD0 = await device.readD(0);
+        await device.writeD(0, beforeD0); // restore
+        console.log(`D0: before=${beforeD0}, after write(1234)=${writtenD0}, restored=${await device.readD(0)}`);
+
+        console.log('\n--- Bit Registers Read/Write Round-Trips ---');
         for (const [label, read, write, n] of [
-            ['M50', device.readM.bind(device), device.writeM.bind(device), 50],
-            ['Y10', device.readY.bind(device), device.writeY.bind(device), 10],
-            ['S10', device.readS.bind(device), device.writeS.bind(device), 10],
-            ['T10', device.readT.bind(device), device.writeT.bind(device), 10],
-            ['C10', device.readC.bind(device), device.writeC.bind(device), 10]
+            ['Y0', (i) => device.readYBit(i), (i, v) => device.writeYBit(i, v), 0],
+            ['M10', (i) => device.readM(i), (i, v) => device.writeM(i, v), 10],
+            ['S10', (i) => device.readS(i), (i, v) => device.writeS(i, v), 10],
+            ['C10', (i) => device.readC(i), (i, v) => device.writeC(i, v), 10]
         ]) {
             const before = await read(n);
             await write(n, true);
             const after = await read(n);
             await write(n, before); // restore
-            console.log(`${label}: before=${before} after(true)=${after} restored=${await read(n)}`);
+            console.log(`${label}: before=${before}, active(true)=${after}, restored=${await read(n)}`);
         }
 
-        console.log('\n--- writeD (expected to fail clearly — no confirmed write path) ---');
-        try {
-            await device.writeD(0, 123);
-            console.log('UNEXPECTED: writeD succeeded');
-        } catch (err) {
-            console.log(`writeD correctly rejected: ${err.message}`);
-        }
+        console.log('\n--- Octal I/O Labels ---');
+        const y10Before = await device.readYBitLabel('Y10');
+        await device.writeYBitLabel('Y10', true);
+        const y10Active = await device.readYBitLabel('Y10');
+        await device.writeYBitLabel('Y10', y10Before);
+        console.log(`Y10 (octal 10 = index 8): before=${y10Before}, active=${y10Active}, restored=${await device.readYBitLabel('Y10')}`);
+
+        console.log('\n--- Schema-Driven Batch Operations (CIP 0x0A) ---');
+        console.log('Sending batch write to Y0..Y3 and D0..D3 simultaneously in 1 network packet...');
+        const batchResults = await device.batch((b) => {
+            b.writeYBit(0, true);
+            b.writeYBit(1, false);
+            b.writeD(0, 500);
+            b.writeD(1, 1000);
+            b.readYBit(0);
+            b.readD(0);
+        });
+        console.log('Batch results:', batchResults);
+
+        // Clean up
+        await device.batch((b) => {
+            b.writeYBit(0, false);
+            b.writeD(0, beforeD0);
+            b.writeD(1, 0);
+        });
+
+        console.log('\nES2-E example completed successfully!');
     } finally {
-        await device.disconnect();
+        await device.close();
     }
 }
 
 main().catch((err) => {
-    console.error('FAILED:', err.message);
+    console.error('FAILED:', err);
     process.exit(1);
 });

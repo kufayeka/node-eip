@@ -28,12 +28,16 @@ async function main() {
     console.log(`\nConnected to ${host}.`);
 
     const vendorId = await scanner.getAttribute({ classId: 0x01, instance: 1, attribute: 1 });
-    console.log(`Vendor ID (generic explicit messaging): ${vendorId.readUInt16LE(0)}`);
+    console.log(`Vendor ID (Identity Object 0x01): ${vendorId.readUInt16LE(0)}`);
 
-    console.log(`D0 (Delta register convenience): ${await scanner.readD(0)}`);
+    const serialNum = await scanner.getAttribute({ classId: 0x01, instance: 1, attribute: 6 });
+    console.log(`Serial Number (Identity Object 0x01): 0x${serialNum.readUInt32LE(0).toString(16)}`);
+
+    console.log('\n(For vendor-specific PLC register access like D, Y, M, use the universal Device client: new Device(host, "delta:sx3"))');
 
     await scanner.disconnect();
-    console.log('\nDisconnected.');
+    console.log('\nDisconnected cleanly.');
+
 }
 
 main().catch((err) => {

@@ -25,13 +25,18 @@ This directory contains runnable, standalone examples demonstrating compliance w
 | [`eds-discovery.js`](./eds-discovery.js) | **Vol 1 §43, §44, §45** EDS File Parser | Ingests official vendor EDS files, verifies identity match against target, and automatically opens connections. |
 | [`io-listen.js`](./io-listen.js) | **Vol 2 §14** Real-Time Cyclic I/O (UDP 2222) | Establishes a Class 1 I/O connection and consumes real-time T->O cyclic UDP datagrams at the negotiated RPI (e.g., 20ms). |
 | [`adapter-demo.js`](./adapter-demo.js) | **Vol 2 EIP Adapter** Full Loopback Server | Hosts a local EtherNet/IP Adapter server with Identity, Assembly, TCP/IP, and Ethernet Link objects, and validates client interaction. |
-| [`scanner-demo.js`](./scanner-demo.js) | **Scanner Public API** | High-level ergonomic API wrapper showing discovery, explicit messaging, and device reading in minimal code. |
-| [`delta-registers.js`](./delta-registers.js) | **Delta Vendor Layer** | Reads and writes Delta D, M, X, Y, and 32-bit registers (AH/AS/SX3 series). |
-| [`delta-sx3-full-roundtrip.js`](./delta-sx3-full-roundtrip.js) | **Delta Vendor Layer** | Comprehensive test matrix validating every register type (word, bit, 32-bit, octal labels) on live hardware. |
+| [`scanner-demo.js`](./scanner-demo.js) | **Scanner Public API** | High-level ergonomic API wrapper showing discovery and pure explicit messaging in minimal code. |
+| [`delta-registers.js`](./delta-registers.js) | **Universal Device Client** | Demonstrates simple register read/write using the schema-driven `Device` client (`delta:sx3`). |
+| [`delta-sx3-full-roundtrip.js`](./delta-sx3-full-roundtrip.js) | **Delta SX3 Profile** | Comprehensive test matrix validating every register type (word, bit, 32-bit, octal labels) on live SX3 hardware. |
+| [`delta-es2.js`](./delta-es2.js) | **Delta ES2-E Profile** | Demonstrates ES2-E register access: 16-bit D word read/write (Instance 1), bit registers, octal labels, and batch updates. |
+| [`multi-plc-batch.js`](./multi-plc-batch.js) | **Multi-PLC Heterogeneous Batch** | Synchronized batch control across multiple different PLC models (ES2-E and SX3) running concurrently via `Promise.all`. |
+| [`custom-vendor-profile.js`](./custom-vendor-profile.js) | **3rd-Party Vendor Plug-in** | Demonstrates how 3rd-party developers define, register, and use custom PLC profiles (e.g. Omron, custom hardware) without editing core stack. |
+| [`inspect-eds.js`](./inspect-eds.js) | **EDS Inspection** | Inspects vendor EDS files and extracts assemblies and connection profiles using `EdsFile`. |
 
 ---
 
 ## Quick Execution Guide
+
 
 ### 1. Discovery & Network Services
 ```bash
@@ -83,4 +88,20 @@ node examples/fragmentation-demo.js 192.168.68.250
 # Test ANSI Extended Symbol Segment & Tag Addressing (§26, §27)
 node examples/symbolic-tag-demo.js 192.168.68.250
 ```
+
+### 6. Universal Device & Multi-PLC Batch Operations
+```bash
+# Delta SX3 comprehensive read/write roundtrip
+node examples/delta-sx3-full-roundtrip.js 192.168.68.250
+
+# Delta ES2-E D register read/write, bit mode, and batch operations
+node examples/delta-es2.js 192.168.68.111
+
+# Concurrent Multi-PLC batch control across different models (ES2 + SX3)
+node examples/multi-plc-batch.js 192.168.68.111 192.168.68.250
+
+# 3rd-Party Custom Vendor Profile definition & registration
+node examples/custom-vendor-profile.js
+```
+
 

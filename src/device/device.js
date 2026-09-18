@@ -43,6 +43,17 @@ class Device {
                     return target[prop];
                 }
 
+                // Check for write<Register>BitLabel / read<Register>BitLabel
+                const writeBitLabelMatch = /^write([A-Za-z]+)BitLabel$/.exec(prop);
+                if (writeBitLabelMatch && target.profile.hasRegister(writeBitLabelMatch[1])) {
+                    return (label, value) => target.write(writeBitLabelMatch[1], label, value, { mode: 'bit' });
+                }
+
+                const readBitLabelMatch = /^read([A-Za-z]+)BitLabel$/.exec(prop);
+                if (readBitLabelMatch && target.profile.hasRegister(readBitLabelMatch[1])) {
+                    return (label) => target.read(readBitLabelMatch[1], label, { mode: 'bit' });
+                }
+
                 // Check for write<Register>Bit / read<Register>Bit
                 const writeBitMatch = /^write([A-Za-z]+)Bit$/.exec(prop);
                 if (writeBitMatch && target.profile.hasRegister(writeBitMatch[1])) {
@@ -58,6 +69,7 @@ class Device {
                 if (readBitMatch && target.profile.hasRegister(readBitMatch[1])) {
                     return (indexOrLabel, bitIndex) => target.read(readBitMatch[1], indexOrLabel, { mode: 'bit', bitIndex });
                 }
+
 
                 // Check for write<Register> / read<Register>
                 const writeMatch = /^write([A-Za-z]+)$/.exec(prop);
@@ -85,6 +97,10 @@ class Device {
     }
 
     async disconnect() {
+        return this.scanner.disconnect();
+    }
+
+    async close() {
         return this.scanner.disconnect();
     }
 
