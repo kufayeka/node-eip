@@ -10,6 +10,14 @@ const { CipGeneralStatus, CipClassCodes } = require('../src/constants');
 describe('TCP/IP Interface (0xF5) & Ethernet Link (0xF6) Objects (§10, §11)', function () {
 
     describe('TcpIpInterfaceObject (0xF5)', function () {
+        it('answers Instance 0 class attributes (Revision/Max Instance/Number of Instances)', function () {
+            const obj = new TcpIpInterfaceObject();
+            assert.strictEqual(obj.getAttributeSingle(0, 1).data.readUInt16LE(0), 4); // Revision
+            assert.strictEqual(obj.getAttributeSingle(0, 2).data.readUInt16LE(0), 1); // Max Instance
+            assert.strictEqual(obj.getAttributeSingle(0, 3).data.readUInt16LE(0), 1); // Number of Instances
+            assert.strictEqual(obj.getAttributeSingle(0, 99).generalStatus, CipGeneralStatus.AttributeNotSupported);
+        });
+
         it('answers Status (Attr 1) as a 4-byte DWORD', function () {
             const obj = new TcpIpInterfaceObject({ status: 1 });
             const res = obj.getAttributeSingle(1, 1);
@@ -97,6 +105,14 @@ describe('TCP/IP Interface (0xF5) & Ethernet Link (0xF6) Objects (§10, §11)', 
     });
 
     describe('EthernetLinkObject (0xF6)', function () {
+        it('answers Instance 0 class attributes (Revision/Max Instance/Number of Instances)', function () {
+            const obj = new EthernetLinkObject();
+            assert.strictEqual(obj.getAttributeSingle(0, 1).data.readUInt16LE(0), 4); // Revision
+            assert.strictEqual(obj.getAttributeSingle(0, 2).data.readUInt16LE(0), 1); // Max Instance
+            assert.strictEqual(obj.getAttributeSingle(0, 3).data.readUInt16LE(0), 1); // Number of Instances
+            assert.strictEqual(obj.getAttributeSingle(0, 99).generalStatus, CipGeneralStatus.AttributeNotSupported);
+        });
+
         it('answers Interface Speed (Attr 1) and Flags (Attr 2)', function () {
             const obj = new EthernetLinkObject({ speedMbps: 100, flags: 0x13 });
             assert.strictEqual(obj.getAttributeSingle(1, 1).data.readUInt32LE(0), 100);

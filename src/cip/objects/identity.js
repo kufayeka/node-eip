@@ -39,6 +39,19 @@ class IdentityObject extends EventEmitter {
     }
 
     getAttributeSingle(instance, attribute) {
+        if (instance === 0) {
+            // Class-level attributes (CIP Vol 1, 4-4.4) — every conformant
+            // object answers these regardless of what its own Instance
+            // attributes look like; an ODVA conformance test queries them
+            // directly rather than assuming.
+            switch (attribute) {
+                case 1: { const b = Buffer.alloc(2); b.writeUInt16LE(1, 0); return ok(b); } // Revision
+                case 2: { const b = Buffer.alloc(2); b.writeUInt16LE(1, 0); return ok(b); } // Max Instance
+                case 3: { const b = Buffer.alloc(2); b.writeUInt16LE(1, 0); return ok(b); } // Number of Instances
+                default:
+                    return { generalStatus: CipGeneralStatus.AttributeNotSupported, data: Buffer.alloc(0) };
+            }
+        }
         if (instance !== 1) {
             return { generalStatus: CipGeneralStatus.PathDestinationUnknown, data: Buffer.alloc(0) };
         }

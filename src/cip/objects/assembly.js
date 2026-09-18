@@ -76,6 +76,19 @@ class AssemblyObject extends EventEmitter {
     }
 
     getAttributeSingle(instance, attribute, requestData) {
+        if (instance === 0) {
+            // Class-level attributes (CIP Vol 1, 4-4.4) — Max Instance/Number
+            // of Instances reflect whatever's actually been define()'d so
+            // far, since Assembly instances here are created dynamically
+            // rather than fixed at startup.
+            switch (attribute) {
+                case 1: { const b = Buffer.alloc(2); b.writeUInt16LE(2, 0); return ok(b); } // Revision (matches this driver's own EDS exporter's [Assembly] Revision)
+                case 2: { const b = Buffer.alloc(2); b.writeUInt16LE(this.instances.size ? Math.max(...this.instances.keys()) : 0, 0); return ok(b); } // Max Instance
+                case 3: { const b = Buffer.alloc(2); b.writeUInt16LE(this.instances.size, 0); return ok(b); } // Number of Instances
+                default:
+                    return { generalStatus: CipGeneralStatus.AttributeNotSupported, data: Buffer.alloc(0) };
+            }
+        }
         const data = this.instances.get(instance);
         if (!data) {
             return { generalStatus: CipGeneralStatus.PathDestinationUnknown, data: Buffer.alloc(0) };

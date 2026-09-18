@@ -15,6 +15,13 @@ describe('Server-side Identity Object', function () {
         serialNumber: 0x12345678
     });
 
+    it('answers Instance 0 class attributes (Revision/Max Instance/Number of Instances)', function () {
+        assert.strictEqual(identity.getAttributeSingle(0, 1).data.readUInt16LE(0), 1); // Revision
+        assert.strictEqual(identity.getAttributeSingle(0, 2).data.readUInt16LE(0), 1); // Max Instance
+        assert.strictEqual(identity.getAttributeSingle(0, 3).data.readUInt16LE(0), 1); // Number of Instances
+        assert.strictEqual(identity.getAttributeSingle(0, 99).generalStatus, CipGeneralStatus.AttributeNotSupported);
+    });
+
     it('answers Vendor ID (attribute 1) at Instance 1', function () {
         const res = identity.getAttributeSingle(1, 1);
         assert.strictEqual(res.generalStatus, CipGeneralStatus.Success);
@@ -80,6 +87,20 @@ describe('Server-side Identity Object', function () {
 });
 
 describe('Server-side Assembly Object', function () {
+    it('answers Instance 0 class attributes, reflecting whatever instances are currently defined', function () {
+        const assembly = new AssemblyObject().define(100, 4).define(101, 4).define(130, 8);
+        assert.strictEqual(assembly.getAttributeSingle(0, 1).data.readUInt16LE(0), 2); // Revision
+        assert.strictEqual(assembly.getAttributeSingle(0, 2).data.readUInt16LE(0), 130); // Max Instance
+        assert.strictEqual(assembly.getAttributeSingle(0, 3).data.readUInt16LE(0), 3); // Number of Instances
+        assert.strictEqual(assembly.getAttributeSingle(0, 99).generalStatus, CipGeneralStatus.AttributeNotSupported);
+    });
+
+    it('Instance 0 Max Instance/Number of Instances are both 0 before any instance is defined', function () {
+        const assembly = new AssemblyObject();
+        assert.strictEqual(assembly.getAttributeSingle(0, 2).data.readUInt16LE(0), 0);
+        assert.strictEqual(assembly.getAttributeSingle(0, 3).data.readUInt16LE(0), 0);
+    });
+
     it('Get_Attribute_Single Attribute 4 (Size) matches the defined instance size', function () {
         const assembly = new AssemblyObject().define(101, 200);
         const res = assembly.getAttributeSingle(101, 4);
