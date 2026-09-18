@@ -1,49 +1,226 @@
 # @kufayeka/ethernet-ip
 
-A vendor-neutral ODVA EtherNet/IP (CIP) driver for Node.js, built directly
-from the CIP Networks Library (Vol 1 Common Industrial Protocol, Vol 2
-EtherNet/IP Adaptation of CIP) — not reverse-engineered from a single
-vendor's tool.
+A vendor-neutral ODVA EtherNet/IP (CIP) communication stack and universal PLC device engine for Node.js, built directly from the official **CIP Networks Library** (*Vol 1: Common Industrial Protocol*, *Vol 2: EtherNet/IP Adaptation of CIP*).
 
-**Current focus: Delta EtherNet/IP devices** (`src/delta/` — see
-[src/delta/README.md](src/delta/README.md) and
-[docs/delta-cip-object-reference.md](docs/delta-cip-object-reference.md)).
-Rockwell/Logix-specific extensions (Read/Write Tag, Symbol Object, Template
-Object, UDT decoding) are **explicitly deferred** — they're a separate,
-additive layer on top of the generic CIP core (see §22/24/26/27/32/54
-below), not a prerequisite for anything this project needs right now.
+Architecture is strictly partitioned into two decoupled layers:
+1. **Core ODVA CIP/EIP Protocol Stack**: Pure, vendor-agnostic encapsulation, message router, connection manager, Class 1 I/O engine, EDS parser, and symbolic tag codec.
+2. **Universal Device & Pluggable Vendor Profiles**: Declarative, schema-driven PLC abstraction layer (`Device`, `DeviceProfile`, `BatchBuilder`) supporting any PLC manufacturer (Delta, Rockwell, Omron, etc.) with zero protocol hardcoding.
 
-This README tracks compliance against a full ODVA EtherNet/IP + CIP
-checklist (`README_GOAL.md`), not just "can it read/write a Delta PLC" —
-that project-specific status lives in `src/delta/README.md`. Status
-markers below: ✅ done and live-validated, 🔶 implemented but not fully
-validated/complete, ⬜ not started, ⏸ deferred (Rockwell-specific, out of
-scope for now).
+---
 
-For the detailed, dated history of every live-hardware finding, bug, and
-dead end behind these statuses, see
-[docs/PROJECT_LOG.md](docs/PROJECT_LOG.md) (this file's predecessor,
-preserved in full).
+## 1. Pemahaman Dasar EtherNet/IP (EIP) & CIP dari Nol
 
-## Quick start
+Bagi developer web, IoT, atau software engineer yang baru masuk ke dunia otomasi industri, memahami arsitektur EtherNet/IP sering kali membingungkan karena banyaknya istilah seperti *CIP*, *EPATH*, *Encapsulation*, *Assembly*, *Explicit vs Implicit*, dan *EDS*. Bagian ini mengupas cara kerja protokol ini dari lapisan terbawah (*bottom-up*).
+
+```
++-------------------------------------------------------------------------+
+|                  APLIKASI / PERANGKAT (PLC / SCADA / NODE-RED)          |
++-------------------------------------------------------------------------+
+|                        DeviceProfile / Tags / Registers                 |
+|                   (Memetakan D, Y, M, Timer, Counter ke EPATH)          |
++-------------------------------------------------------------------------+
+|                CIP (Common Industrial Protocol) - Layer 7               |
+|      Object-Oriented: Class ID -> Instance ID -> Attribute ID           |
+|      Services: GetAttribute (0x0E), SetAttribute (0x10), Batch (0x0A)  |
++-------------------------------------------------------------------------+
+|                 EtherNet/IP Encapsulation Layer                         |
+|      24-Byte Header (Command, Session Handle, Status, Sender Context)   |
+|      Command: RegisterSession (0x65), SendRRData (0x6F), NOP (0x00)     |
++-------------------------------------------------------------------------+
+|            TCP/IP & UDP Transport Layer (Standard Ethernet)             |
+|      Port 44818 (TCP/UDP Explicit Messaging & Session Management)       |
+|      Port 2222 (UDP Real-Time Implicit / Class 1 Cyclic I/O)            |
++-------------------------------------------------------------------------+
+```
+
+### 1.1 Hubungan EtherNet/IP dan CIP
+- **EtherNet/IP BUKAN protokol proprietary**. Kata "IP" di sini singkatan dari *Industrial Protocol*, bukan Internet Protocol.
+- **CIP (Common Industrial Protocol)** adalah *bahasa pesan tingkat aplikasi* (Layer 7) yang sama persis digunakan oleh DeviceNet, ControlNet, dan EtherNet/IP.
+- **EtherNet/IP** adalah *pembungkus (enkapsulasi)* CIP agar bisa dikirimkan melalui kabel Ethernet standar (IEEE 802.3) menggunakan protokol TCP/IP dan UDP standar.
+
+### 1.2 Model Objek CIP (Class, Instance, Attribute)
+Segala sesuatu di dalam perangkat CIP diorganisir sebagai **Objek Berorientasi (Object-Oriented)** dengan alamat 3 tingkat yang disebut **EPATH**:
+1. **Class ID**: Kategori atau jenis objek.
+   - *Standar ODVA*: Class `0x01` (Identity), Class `0x04` (Assembly), Class `0xF5` (TCP/IP Interface), Class `0xF6` (Ethernet Link).
+   - *Vendor-Specific*: Class `0x352` (Delta Data Register D), Class `0x351` (Delta Output Y), Class `0x64` (Omron / generic IO).
+2. **Instance ID**: Nomor unit spesifik dari Class tersebut.
+   - Contoh: Instance `1` (Unit pertama atau mode bit/word tergantung model PLC).
+3. **Attribute ID**: Data atau variabel di dalam objek tersebut.
+   - Contoh pada Identity (Class 0x01, Inst 1): Attr `1` = Vendor ID, Attr `7` = Nama Perangkat (*Product Name*).
+   - Contoh pada Delta D-Register (Class 0x352): Attr `0` = Register D0, Attr `100` = Register D100.
+
+### 1.3 Dua Metode Komunikasi Utama: Explicit vs Implicit (Class 1)
+EtherNet/IP membagi lalu lintas data menjadi dua kanal terpisah sesuai urgensi waktunya:
+
+| Karakteristik | **Explicit Messaging (TCP 44818)** | **Implicit / Class 1 I/O Messaging (UDP 2222)** |
+|---|---|---|
+| **Pola Komunikasi** | Request - Response (Klien meminta $\to$ Server menjawab) | Producer - Consumer (Streaming data berkala searah/dua arah) |
+| **Protokol Jaringan** | **TCP Port 44818** (Unconnected via `SendRRData`) | **UDP Port 2222** (Cyclic multicast/unicast) |
+| **Karakter Waktu** | Asinkron, non-realtime deterministik (cocok untuk dashboard, SCADA, HMI, config) | Real-time deterministik berkecepatan tinggi (RPI: misal tiap 10ms - 50ms) |
+| **Struktur Data** | Membawa alamat lengkap EPATH (Class, Instance, Attribute) | Hanya membawa buffer biner mentah (*Assembly Data*) tanpa header alamat |
+| **Kasus Penggunaan** | Membaca/menulis register PLC (`readD`, `writeY`, `writeM`), membaca diagnostik, batch CIP 0x0A | Mengontrol inverter drive, robot, sensor berat, modul remote I/O, inter-PLC sync |
+
+---
+
+## 2. EDS (*Electronic Data Sheet*) vs `DeviceProfile`
+
+Banyak developer bertanya: *"Jika sudah ada file EDS dari pabrikan, mengapa kita masih membutuhkan `DeviceProfile`? Dan apa bedanya?"*
+
+### 2.1 Apa itu File EDS (`.eds`)?
+File EDS adalah dokumen teks standar ODVA (CIP Vol 1 Ch 7) yang diterbitkan oleh pabrikan hardware.
+- **Fungsi EDS**: Memberitahukan software konfigurasi jaringan (seperti Rockwell RSLogix, Delta COMMGR, atau Scanner ini) **bagaimana perangkat tersebut hadir di jaringan EtherNet/IP**.
+- **Isi EDS**:
+  - `[Device]`: Vendor ID, Product Code, Device Type, Revision.
+  - `[Assembly]`: ID Assembly Input (T $\to$ O) & Output (O $\to$ T) beserta ukurannya dalam byte.
+  - `[Connection Manager]`: Jalur koneksi (*Connection Path*) untuk membuka koneksi Class 1 I/O via `Forward_Open`.
+  - `[Params]`: Konfigurasi parameter generik (IP address, timeout, baud rate).
+
+> [!CAUTION]
+> **Batasan Fatal File EDS:**
+> **File EDS resmi pabrikan PLC (seperti Delta, Mitsubishi, Omron) TIDAK PERNAH memuat peta alamat register memori internal PLC (D, Y, M, X, S, T, C)!**
+>
+> Jika Anda membaca file EDS resmi Delta ES2-E atau SX3, Anda hanya akan menemukan deklarasi generik seperti `Assem101` (Input_data 32 bytes). File EDS **sama sekali tidak mendokumentasikan** bahwa register `D` berada di CIP Class `0x352`, atau bahwa pada ES2 register `D` memakai Instance 1 sedangkan pada SX3 memakai Instance 2. Pengalamatan register PLC adalah fitur *vendor-proprietary* yang hanya dijelaskan di manual teknis PLC.
+
+### 2.2 Apa itu `DeviceProfile`?
+`DeviceProfile` adalah inovasi arsitektur di driver ini (`src/device/profile.js`) untuk memecahkan masalah ketiadaan peta memori pada EDS.
+- **Fungsi `DeviceProfile`**: Memberikan **peta kamus memori deklaratif** agar developer bisa memanggil `plc.readD(0)` atau `b.writeYBit('Y10', true)` tanpa pusing memikirkan EPATH atau keanehan tiap seri PLC.
+- **Isi `DeviceProfile`**:
+  - Pemetaan register: `D` $\to$ Class 0x352, `Y` $\to$ Class 0x351, `M` $\to$ Class 0x353.
+  - Resolusi Instance: ES2 memakai Instance 1 (16-bit word), SX3 memakai Instance 2 (16-bit word) dan Instance 1 (bit).
+  - Tipe Data & Codec: Lebar byte (INT16, DINT32, BOOL), parser label oktal (`Y10` $\to$ index 8), serta detektor dynamic range (pada ES2, counter `C < 200` adalah 16-bit INT, sedangkan `C >= 200` adalah 32-bit DINT).
+  - Kapabilitas: Apakah perangkat mendukung Multiple Service Packet (batch CIP 0x0A), Class 1 I/O, atau Symbolic Tag.
+
+### 2.3 Tabel Perbandingan Lengkap
+
+| Parameter | **File EDS (`.eds`)** | **`DeviceProfile` (Driver Ini)** |
+|---|---|---|
+| **Format** | File ASCII teks standar ODVA | Objek / File JavaScript deklaratif (`src/vendors/`) |
+| **Diterbitkan Oleh** | Pabrikan Hardware Resmi (Rockwell, Delta, Omron) | Pengembang Driver / Integrator Sistem |
+| **Level Abstraksi** | **Level Jaringan (Network/Transport)** | **Level Aplikasi & Memori (PLC Logic)** |
+| **Pengalamatan Register (D, Y, M, X)** | ❌ **Tidak Tahu** (Hanya berisi buffer Assembly kosong) | ✅ **Tahu Persis** (Class, Instance, bit/word, octal conversion) |
+| **Koneksi Class 1 I/O (UDP 2222)** | ✅ **Sangat Lengkap** (Menyediakan EPATH & RPI batas) | 🔶 Hanya mencatat flag kapabilitas (`class1IO: true`) |
+| **Batch Operation (CIP 0x0A)** | ❌ Tidak tahu bagaimana cara menyusun batch register | ✅ Menyusun `BatchBuilder` otomatis berdasarkan skema |
+| **Verifikasi Identitas Alat** | ✅ Mencocokkan Vendor ID, Device Type, Product Code | 🔶 Berdasarkan nama alias atau vendor/model string |
+
+---
+
+## 3. Panduan Keputusan: Kapan Butuh yang Mana?
+
+Gunakan diagram alur dan panduan berikut untuk menentukan apa yang perlu Anda gunakan untuk kebutuhan proyek Anda:
+
+```
+Apakah Anda ingin mengakses register memori PLC (D, Y, M, W)?
+ ├── YA  ──> Butuh DEVICE PROFILE (misal 'delta:es2' atau 'delta:sx3')
+ └── TIDAK ──> Apakah Anda ingin menghubungkan Modul I/O / Drive via UDP 2222?
+                ├── YA  ──> Butuh EDS FILE (untuk auto-config Assembly & RPI)
+                └── TIDAK ──> Butuh SCANNER CIP Murni (Explicit Messaging standar)
+```
+
+### Skenario 1: Kapan HANYA Butuh `DeviceProfile`?
+- **Kasus**: Anda membangun aplikasi Node-RED flow, SCADA, HMI, atau Web Dashboard IoT untuk membaca/menulis register PLC (misal memantau tangki di `D100`, menghidupkan motor di `Y0`, atau membaca counter di `C10`).
+- **Alasan**: Anda berkomunikasi via TCP port 44818. Yang Anda butuhkan adalah pemetaan nama register ke EPATH yang tepat. `DeviceProfile` menyelesaikan ini secara elegan dan instan.
+- **Contoh**:
+  ```js
+  const { Device } = require('@kufayeka/ethernet-ip');
+  const plc = new Device('192.168.68.111', 'delta:es2');
+  await plc.connect();
+  const speed = await plc.readD(0);
+  await plc.writeYBit(0, true);
+  ```
+
+### Skenario 2: Kapan HANYA Butuh `EDS`?
+- **Kasus**: Anda menghubungkan perangkat non-PLC (misal remote I/O block, modul pneumatic valve Festo/SMC, barcode reader industri, atau servo drive) yang mengirimkan paket I/O cyclic streaming real-time via UDP 2222.
+- **Alasan**: Perangkat tersebut tidak memiliki memori PLC register D/Y/M. Data ditransfer murni dalam bentuk blok byte Assembly I/O. File EDS memberikan informasi otomatis mengenai ukuran buffer input/output, connection path EPATH, dan nilai RPI minimum tanpa perlu Anda cari manual di datasheet setebal 500 halaman.
+- **Contoh**:
+  ```js
+  const { Scanner, EdsFile } = require('@kufayeka/ethernet-ip');
+  const eds = EdsFile.fromFile('path/to/device.eds');
+  const scanner = new Scanner('192.168.1.50');
+  await scanner.connect();
+  const connection = await scanner.openConnectionFromEds(eds, { rpiUs: 10000 });
+  ```
+
+### Skenario 3: Kapan Butuh KEDUANYA?
+- **Kasus**: **Solusi SCADA/Dashboard Hybrid Kinerja Tinggi (Ultra-Fast Monitoring)**.
+- **Alasan**:
+  1. Anda menggunakan **EDS** untuk membuka koneksi Class 1 I/O (UDP 2222) agar PLC Delta mengirimkan *Assembly 101* (berisi streaming ratusan register D) setiap 20ms tanpa overhead request/response.
+  2. Anda menggunakan **`DeviceProfile`** untuk mendekode buffer biner Assembly mentah tersebut menjadi tag register manusia (`D0`, `D1`, `D2`) dan mendeteksi perubahannya (*Change of State*).
+- **Contoh**: Digunakan pada fitur `Subscription` / Real-Time Tag Watcher driver ini:
+  ```js
+  const { Device } = require('@kufayeka/ethernet-ip');
+  const plc = new Device('192.168.68.250', 'delta:sx3');
+  await plc.connect();
+
+  const watcher = plc.createSubscription({
+      mode: 'udp', // Membuka Class 1 UDP stream (berbasis profil koneksi EDS)
+      rpiMs: 20,
+      tags: ['D0', 'D1', 'Y0'] // Diterjemahkan menggunakan DeviceProfile
+  });
+  watcher.on('change:D0', (val) => console.log('D0 berubah:', val));
+  await watcher.start();
+  ```
+
+---
+
+## 4. Quick Start
+
+### 4.1 Akses Register PLC Universal (Delta ES2-E, SX3, dll)
+Menggunakan `Device` client universal dengan schema profile otomatis:
 
 ```js
-const { Scanner } = require('./src/scanner');
+const { Device } = require('@kufayeka/ethernet-ip');
+
+// Model otomatis menentukan format CIP:
+// - 'delta:es2' menggunakan Instance 1 untuk D
+// - 'delta:sx3' menggunakan Instance 2 untuk D
+const plc = new Device('192.168.68.111', 'delta:es2');
+await plc.connect();
+
+// Baca & tulis word (16-bit)
+const d0 = await plc.readD(0);
+await plc.writeD(0, 1234);
+
+// Baca & tulis bit (BOOL)
+const y0 = await plc.readYBit(0);
+await plc.writeYBit(0, true);
+
+// Penulisan label oktal PLC (Y10 oktal = index desimal 8)
+await plc.writeYBitLabel('Y10', true);
+
+await plc.close();
+```
+
+### 4.2 Schema-Driven Batch Operations (CIP 0x0A)
+Kirim puluhan baca/tulis register dalam **1 paket jaringan tunggal**:
+
+```js
+const results = await plc.batch((b) => {
+    b.writeYBit(0, true);
+    b.writeYBit(1, false);
+    b.writeD(0, 500);
+    b.writeD(1, 1000);
+    b.readD(0);
+    b.readYBit(0);
+});
+console.log('Batch results:', results); // [true, true, true, true, 500, true]
+```
+
+### 4.3 Pure ODVA CIP Scanner (EIPSession & Explicit Messaging)
+Jika hanya membutuhkan scanner protokol CIP generik:
+
+```js
+const { Scanner } = require('@kufayeka/ethernet-ip');
+
 const scanner = new Scanner('192.168.1.10');
 await scanner.connect();
+
+// Get_Attribute_Single (Identity Object: Vendor ID)
 const vendorId = await scanner.getAttribute({ classId: 0x01, instance: 1, attribute: 1 });
+console.log('Vendor ID:', vendorId.readUInt16LE(0));
+
 await scanner.disconnect();
 ```
 
-```js
-// Delta vendor layer — explicit device-type profile (see src/delta/README.md)
-const { DeltaDevice } = require('./src/delta/device');
-const plc = new DeltaDevice('192.168.68.250', 'sx3');
-await plc.connect();
-const d100 = await plc.readD(100);
-await plc.writeD(100, 1234);
-await plc.disconnect();
-```
 
 ```js
 // Class 1 Real-Time Cyclic I/O (UDP 2222 with 32-bit Run/Idle & Sequence Tracking)
