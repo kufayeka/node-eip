@@ -9,13 +9,14 @@
  * Identity (see README Domain B/D).
  */
 
+const { EventEmitter } = require('events');
 const { CipGeneralStatus } = require('../../constants');
 
 function ok(data) {
     return { generalStatus: CipGeneralStatus.Success, data };
 }
 
-class IdentityObject {
+class IdentityObject extends EventEmitter {
     constructor({
         vendorId = 0xffff,
         deviceType = 0x0e,
@@ -26,6 +27,7 @@ class IdentityObject {
         status = 0x0060,
         state = 3
     } = {}) {
+        super();
         this.vendorId = vendorId;
         this.deviceType = deviceType;
         this.productCode = productCode;
@@ -83,6 +85,33 @@ class IdentityObject {
 
     setAttributeSingle() {
         return { generalStatus: CipGeneralStatus.AttributeNotSettable, data: Buffer.alloc(0) };
+    }
+
+    /**
+     * Reset service (0x05) — CIP Vol 1, section 5-2.5.4. Mandatory on every
+     * conformant Identity Object; an ODVA conformance test exercises it.
+     * Behavior ported from OpENer's IdentityObjectPreResetCallback (the
+     * reference implementation): optional 1-byte reset type, 0 ("emulate
+     * power cycle") and 1 ("return to factory defaults") both accepted,
+     * type 2 and anything else rejected as InvalidParameterValue, more
+     * than 1 byte of request data rejected as TooMuchData. This adapter
+     * has no real hardware to power-cycle, so both accepted types just
+     * emit a 'reset' event (type) for the caller to react to if it wants.
+     */
+    handleService(service, path, data) {
+        if (service !== 0x05) return null; // fall through to standard handling
+        if (path.instance !== undefined && path.instance !== 0 && path.instance !== 1) {
+            return { generalStatus: CipGeneralStatus.PathDestinationUnknown, data: Buffer.alloc(0) };
+        }
+        if (data && data.length > 1) {
+            return { generalStatus: CipGeneralStatus.TooMuchData, data: Buffer.alloc(0) };
+        }
+        const resetType = data && data.length === 1 ? data.readUInt8(0) : 0;
+        if (resetType !== 0 && resetType !== 1) {
+            return { generalStatus: CipGeneralStatus.InvalidParameterValue, data: Buffer.alloc(0) };
+        }
+        this.emit('reset', resetType);
+        return { generalStatus: CipGeneralStatus.Success, data: Buffer.alloc(0) };
     }
 }
 

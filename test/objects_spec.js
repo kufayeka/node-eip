@@ -41,6 +41,42 @@ describe('Server-side Identity Object', function () {
         const res = identity.setAttributeSingle(1, 1, Buffer.from([0, 0]));
         assert.strictEqual(res.generalStatus, CipGeneralStatus.AttributeNotSettable);
     });
+
+    describe('Reset service (0x05) — CIP Vol 1 5-2.5.4, ported from OpENer IdentityObjectPreResetCallback', function () {
+        it('accepts reset type 0 (emulate power cycle) with no request data (implied type 0)', function () {
+            const res = identity.handleService(0x05, { instance: 1 }, Buffer.alloc(0));
+            assert.strictEqual(res.generalStatus, CipGeneralStatus.Success);
+        });
+
+        it('accepts reset type 0 explicitly and emits a "reset" event', function (done) {
+            identity.once('reset', (type) => {
+                assert.strictEqual(type, 0);
+                done();
+            });
+            const res = identity.handleService(0x05, { instance: 1 }, Buffer.from([0]));
+            assert.strictEqual(res.generalStatus, CipGeneralStatus.Success);
+        });
+
+        it('accepts reset type 1 (return to factory defaults)', function () {
+            const res = identity.handleService(0x05, { instance: 1 }, Buffer.from([1]));
+            assert.strictEqual(res.generalStatus, CipGeneralStatus.Success);
+        });
+
+        it('rejects reset type 2 (and any other unsupported type) as InvalidParameterValue', function () {
+            const res = identity.handleService(0x05, { instance: 1 }, Buffer.from([2]));
+            assert.strictEqual(res.generalStatus, CipGeneralStatus.InvalidParameterValue);
+        });
+
+        it('rejects more than 1 byte of request data as TooMuchData', function () {
+            const res = identity.handleService(0x05, { instance: 1 }, Buffer.from([0, 0]));
+            assert.strictEqual(res.generalStatus, CipGeneralStatus.TooMuchData);
+        });
+
+        it('returns null (falls through) for any other service code', function () {
+            const res = identity.handleService(0x0e, { instance: 1 }, Buffer.alloc(0));
+            assert.strictEqual(res, null);
+        });
+    });
 });
 
 describe('Server-side Assembly Object', function () {

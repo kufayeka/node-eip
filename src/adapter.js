@@ -344,6 +344,20 @@ class EIPAdapter extends EventEmitter {
                 return { closed: true };
             }
             case EncapsulationCommands.SendRRData: {
+                // ODVA CIP Vol 2, 2-4.7: every SendRRData must carry an
+                // already-registered session handle — reject anything else
+                // with InvalidSessionHandle rather than silently servicing
+                // it (ported from OpENer's encap.c, HandleReceivedSendRequestResponseDataCommand,
+                // which calls CheckRegisteredSessions() before dispatching).
+                if (!this._sessions.has(header.sessionHandle)) {
+                    socket.write(encodeMessage({
+                        command: header.command,
+                        sessionHandle: header.sessionHandle,
+                        status: EncapsulationStatus.InvalidSessionHandle,
+                        senderContext: header.senderContext
+                    }));
+                    return {};
+                }
                 // readSendRRDataResponse()'s name is client-flavored, but the CPF
                 // unwrap it does is identical in both directions — reused here.
                 const { cipResponse: cipRequestBytes } = readSendRRDataResponse(msg);
@@ -353,6 +367,15 @@ class EIPAdapter extends EventEmitter {
             }
             case EncapsulationCommands.SendUnitData: {
                 // ODVA CIP Vol 2, section 2-4.9: Connected Explicit Messaging (Class 3)
+                if (!this._sessions.has(header.sessionHandle)) {
+                    socket.write(encodeMessage({
+                        command: header.command,
+                        sessionHandle: header.sessionHandle,
+                        status: EncapsulationStatus.InvalidSessionHandle,
+                        senderContext: header.senderContext
+                    }));
+                    return {};
+                }
                 if (!data || data.length < 6) {
                     return {};
                 }

@@ -1,9 +1,15 @@
 'use strict';
 
 const assert = require('assert');
+const net = require('net');
 const { EIPAdapter } = require('../src/adapter');
 const { Scanner } = require('../src/scanner');
 const { EIPSession, SessionState } = require('../src/client');
+const { decodeMessage } = require('../src/encapsulation/header');
+const { buildSendRRData } = require('../src/encapsulation/rrdata');
+const { buildRequest } = require('../src/cip/message-router');
+const { encodeEPath } = require('../src/cip/path');
+const { EncapsulationStatus, CipCommonServices } = require('../src/constants');
 
 describe('Session Robustness & Reconnect Engine (§2.2, §38)', function () {
     let adapter;
@@ -95,6 +101,61 @@ describe('Session Robustness & Reconnect Engine (§2.2, §38)', function () {
             assert.ok(vendorId.length >= 2);
 
             await scanner.disconnect();
+        });
+    });
+
+    describe('Session handle validation on SendRRData/SendUnitData (ported from OpENer CheckRegisteredSessions)', function () {
+        function rawConnect() {
+            return new Promise((resolve, reject) => {
+                const socket = new net.Socket();
+                socket.once('error', reject);
+                socket.connect(TEST_PORT, '127.0.0.1', () => resolve(socket));
+            });
+        }
+
+        function nextMessage(socket) {
+            return new Promise((resolve) => {
+                let buf = Buffer.alloc(0);
+                socket.on('data', (chunk) => {
+                    buf = Buffer.concat([buf, chunk]);
+                    const msg = decodeMessage(buf);
+                    if (msg) resolve(msg);
+                });
+            });
+        }
+
+        it('rejects SendRRData carrying a session handle that was never registered', async function () {
+            const socket = await rawConnect();
+            const cipRequest = buildRequest({ service: CipCommonServices.GetAttributeSingle, path: encodeEPath({ classId: 0x01, instance: 1, attribute: 1 }) });
+            const bogusSessionHandle = 0xdeadbeef;
+            socket.write(buildSendRRData(bogusSessionHandle, cipRequest));
+
+            const { header } = await nextMessage(socket);
+            assert.strictEqual(header.status, EncapsulationStatus.InvalidSessionHandle);
+            socket.destroy();
+        });
+
+        it('accepts SendRRData once the session handle has actually been registered', async function () {
+            const scanner = new Scanner('127.0.0.1', { port: TEST_PORT });
+            await scanner.connect();
+            const data = await scanner.getAttribute({ classId: 0x01, instance: 1, attribute: 1 });
+            assert.ok(data.length >= 2); // real response, not an error — session was valid
+            await scanner.disconnect();
+        });
+
+        it('rejects a session handle that WAS registered but on a different, already-closed connection', async function () {
+            const scanner = new Scanner('127.0.0.1', { port: TEST_PORT });
+            await scanner.connect();
+            const staleHandle = scanner.session.sessionHandle;
+            await scanner.disconnect(); // closes the socket -> adapter deletes the session
+
+            const socket = await rawConnect(); // a brand new, never-registered connection
+            const cipRequest = buildRequest({ service: CipCommonServices.GetAttributeSingle, path: encodeEPath({ classId: 0x01, instance: 1, attribute: 1 }) });
+            socket.write(buildSendRRData(staleHandle, cipRequest));
+
+            const { header } = await nextMessage(socket);
+            assert.strictEqual(header.status, EncapsulationStatus.InvalidSessionHandle);
+            socket.destroy();
         });
     });
 });
