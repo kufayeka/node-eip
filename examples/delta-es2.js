@@ -19,7 +19,7 @@
  * Usage: node examples/delta-es2.js <host>
  */
 
-const { DeltaDevice } = require('../src/delta/device');
+const { Device } = require('../src/device');
 
 async function main() {
     const host = process.argv[2];
@@ -28,7 +28,7 @@ async function main() {
         process.exit(1);
     }
 
-    const device = new DeltaDevice(host, 'es2');
+    const device = new Device(host, 'delta:es2');
     await device.connect();
 
     try {

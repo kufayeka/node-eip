@@ -19,7 +19,7 @@
  *   node examples/subscription-demo.js 192.168.68.250 udp 5
  */
 
-const { DeltaDevice } = require('../src/delta/device');
+const { DeltaDevice } = require('../src');
 
 async function main() {
     const host = process.argv[2] || '192.168.68.250';

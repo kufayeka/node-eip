@@ -25,7 +25,6 @@ const { decodeInterfaceConfiguration, decodeCipString } = require('./cip/objects
 const { formatMacAddress, decodeInterfaceFlags } = require('./cip/objects/ethernet-link');
 const { readLargeData, writeLargeData } = require('./cip/fragmentation');
 const { encodeType, decodeType } = require('./cip/types');
-const deltaRegisters = require('./delta/registers');
 const { Subscription } = require('./subscription');
 
 function formatCipError(label, response) {
@@ -306,7 +305,7 @@ class Scanner {
         const multiRequest = buildMultipleServiceRequest(normalizedRequests);
         const response = await this.session.sendUnconnected(multiRequest);
 
-        if (response.generalStatus === CipGeneralStatus.Success) {
+        if (response.generalStatus === CipGeneralStatus.Success || response.generalStatus === CipGeneralStatus.EmbeddedServiceError) {
             return parseMultipleServiceResponse(response.data);
         }
 
@@ -473,29 +472,6 @@ class Scanner {
             flags
         };
     }
-
-    // Delta AH/AS-series vendor-specific register convenience (README Domain J).
-    // Each delegates to delta/registers.js, bound to this scanner's session.
-    readX(n) { return deltaRegisters.readX(this.session, n); }
-    readXBit(n) { return deltaRegisters.readXBit(this.session, n); }
-    readY(n) { return deltaRegisters.readY(this.session, n); }
-    writeY(n, v) { return deltaRegisters.writeY(this.session, n, v); }
-    readYBit(n) { return deltaRegisters.readYBit(this.session, n); }
-    writeYBit(n, v) { return deltaRegisters.writeYBit(this.session, n, v); }
-    readD(n) { return deltaRegisters.readD(this.session, n); }
-    writeD(n, v) { return deltaRegisters.writeD(this.session, n, v); }
-    readM(n) { return deltaRegisters.readM(this.session, n); }
-    writeM(n, v) { return deltaRegisters.writeM(this.session, n, v); }
-    readS(n) { return deltaRegisters.readS(this.session, n); }
-    writeS(n, v) { return deltaRegisters.writeS(this.session, n, v); }
-    readT(n) { return deltaRegisters.readT(this.session, n); }
-    writeT(n, v) { return deltaRegisters.writeT(this.session, n, v); }
-    readC(n) { return deltaRegisters.readC(this.session, n); }
-    writeC(n, v) { return deltaRegisters.writeC(this.session, n, v); }
-    readHC(n) { return deltaRegisters.readHC(this.session, n); }
-    writeHC(n, v) { return deltaRegisters.writeHC(this.session, n, v); }
-    readSM(n) { return deltaRegisters.readSM(this.session, n); }
-    readSR(n) { return deltaRegisters.readSR(this.session, n); }
 
     /**
      * Creates a real-time tag subscription / watcher.

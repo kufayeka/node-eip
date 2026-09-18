@@ -15,7 +15,7 @@
  * Usage: node examples/delta-sx3-full-roundtrip.js <host>
  */
 
-const { DeltaDevice } = require('../src/delta/device');
+const { Device } = require('../src/device');
 
 async function roundTrip(label, read, write, testValue) {
     const before = await read();
@@ -35,7 +35,7 @@ async function main() {
         process.exit(1);
     }
 
-    const device = new DeltaDevice(host, 'sx3');
+    const device = new Device(host, 'delta:sx3');
     await device.connect();
     const results = [];
 

@@ -47,19 +47,4 @@ describe('Scanner (public API wrapper)', function () {
         assert.strictEqual(capturedRequest.readUInt8(0), CipCommonServices.SetAttributeSingle);
         assert.deepStrictEqual(capturedRequest.subarray(-2), Buffer.from([0xd2, 0x04]));
     });
-
-    it('exposes Delta register convenience methods bound to its own session', async function () {
-        const scanner = new Scanner('127.0.0.1');
-        let capturedRequest;
-        stubSession(scanner, async (cipRequest) => {
-            capturedRequest = cipRequest;
-            return { generalStatus: CipGeneralStatus.Success, additionalStatus: [], data: Buffer.from([0xd2, 0x04]) };
-        });
-
-        const value = await scanner.readD(100);
-
-        assert.strictEqual(value, 1234);
-        // Class 0x352 (16-bit segment), Instance 2 (word), Attribute 100
-        assert.deepStrictEqual(capturedRequest.subarray(2, 10), Buffer.from([0x21, 0x00, 0x52, 0x03, 0x24, 0x02, 0x30, 0x64]));
-    });
 });

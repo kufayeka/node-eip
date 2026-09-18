@@ -10,7 +10,7 @@
  * Usage: node examples/inspect-eds.js <path-to-eds-file>
  */
 
-const { inspectEds } = require('../src/delta/eds-inspect');
+const { EdsFile } = require('../src/cip/eds');
 
 const filePath = process.argv[2];
 if (!filePath) {
@@ -18,14 +18,15 @@ if (!filePath) {
     process.exit(1);
 }
 
-const { assemblies, connections } = inspectEds(filePath);
+const eds = EdsFile.fromFile(filePath);
 
 console.log('Assemblies:');
-for (const a of assemblies) {
-    console.log(`  Assem${a.assem}: "${a.name}" — ${a.size} bytes`);
+for (const a of eds.assemblies) {
+    console.log(`  Assem${a.id}: "${a.name}" — ${a.size} bytes`);
 }
 
 console.log('\nConnections:');
-for (const c of connections) {
-    console.log(`  Connection${c.connection}: "${c.name}" — path: ${c.path}`);
+for (const c of eds.connections) {
+    console.log(`  Connection${c.id}: "${c.name}" — type=${c.trigger}`);
 }
+

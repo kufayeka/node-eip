@@ -10,8 +10,7 @@
  * Usage: node examples/delta-registers.js <host>
  */
 
-const { EIPSession } = require('../src/client');
-const { readD, readX, readY, readM, readSR } = require('../src/delta/registers');
+const { Device } = require('../src/device');
 
 async function main() {
     const host = process.argv[2];
@@ -20,28 +19,28 @@ async function main() {
         process.exit(1);
     }
 
-    const session = new EIPSession(host);
-    await session.connect();
-    console.log(`Session registered: handle=0x${session.sessionHandle.toString(16)}`);
+    const device = new Device(host, 'delta:sx3');
+    await device.connect();
+    console.log(`Device connected to ${host} using profile ${device.profile.name}`);
 
     try {
         for (let n = 0; n < 5; n++) {
-            console.log(`D${n} = ${await readD(session, n)}`);
+            console.log(`D${n} = ${await device.readD(n)}`);
         }
         for (let n = 0; n < 3; n++) {
-            console.log(`X${n} (word) = ${await readX(session, n)}`);
+            console.log(`X${n} (word) = ${await device.readX(n)}`);
         }
         for (let n = 0; n < 3; n++) {
-            console.log(`Y${n} (word) = ${await readY(session, n)}`);
+            console.log(`Y${n} (word) = ${await device.readY(n)}`);
         }
         for (let n = 0; n < 3; n++) {
-            console.log(`M${n} = ${await readM(session, n)}`);
+            console.log(`M${n} = ${await device.readM(n)}`);
         }
         for (let n = 0; n < 3; n++) {
-            console.log(`SR${n} = ${await readSR(session, n)}`);
+            console.log(`SR${n} = ${await device.readSR(n)}`);
         }
     } finally {
-        await session.close();
+        await device.close();
         console.log('\nSession closed.');
     }
 }

@@ -11,15 +11,10 @@ const path = require('./cip/path');
 const messageRouter = require('./cip/message-router');
 const connectionManager = require('./cip/connection-manager');
 const ioConnection = require('./cip/io-connection');
-const deltaRegisters = require('./delta/registers');
-const deltaAssemblyWindow = require('./delta/assembly-window');
-const deltaDeviceTypes = require('./delta/device-types');
-const deltaEdsInspect = require('./delta/eds-inspect');
 const identityObject = require('./cip/objects/identity');
 const assemblyObject = require('./cip/objects/assembly');
 const { EIPSession } = require('./client');
 const { Scanner } = require('./scanner');
-const { DeltaDevice } = require('./delta/device');
 const { EIPAdapter } = require('./adapter');
 const { IOConnection, SequenceTracker } = require('./cip/io-connection');
 const eds = require('./cip/eds');
@@ -27,6 +22,23 @@ const { EdsFile } = eds;
 const fragmentation = require('./cip/fragmentation');
 const { FragmentReader, FragmentWriter, readLargeData, writeLargeData } = fragmentation;
 const { Subscription, normalizeTag } = require('./subscription');
+
+const {
+    Device,
+    DeviceProfile,
+    BatchBuilder,
+    registerProfile,
+    getProfile,
+    listProfiles
+} = require('./device');
+const vendors = require('./vendors');
+
+class DeltaDevice extends Device {
+    constructor(host, deviceType = 'delta:sx3', options = {}) {
+        const key = deviceType.startsWith('delta:') ? deviceType : `delta:${deviceType}`;
+        super(host, key, options);
+    }
+}
 
 module.exports = {
     constants,
@@ -50,15 +62,16 @@ module.exports = {
             ...assemblyObject
         }
     },
-    delta: {
-        ...deltaRegisters,
-        ...deltaAssemblyWindow,
-        ...deltaEdsInspect,
-        deviceTypes: deltaDeviceTypes
-    },
     EIPSession,
     Scanner,
+    Device,
     DeltaDevice,
+    DeviceProfile,
+    BatchBuilder,
+    registerProfile,
+    getProfile,
+    listProfiles,
+    vendors,
     EIPAdapter,
     IOConnection,
     SequenceTracker,
@@ -75,3 +88,4 @@ module.exports = {
     Subscription,
     normalizeTag
 };
+
