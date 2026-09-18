@@ -132,6 +132,7 @@ const CipClassCodes = Object.freeze({
     MessageRouter: 0x02,
     Assembly: 0x04,
     ConnectionManager: 0x06,
+    Parameter: 0x0f,
     TcpIpInterface: 0xf5,
     EthernetLink: 0xf6
 });

@@ -176,6 +176,21 @@ class Device {
             return op.parse(res.data);
         });
     }
+
+    /**
+     * Creates a tag subscription / watcher for this device.
+     *
+     * @param {object} [options]
+     * @param {'polling'|'udp'} [options.mode='polling']
+     * @param {number} [options.interval=100]
+     * @param {number} [options.rpiMs=20]
+     * @param {Array<string|object>} [options.tags=[]]
+     * @returns {import('../subscription').Subscription}
+     */
+    createSubscription(options = {}) {
+        const { Subscription } = require('../subscription');
+        return new Subscription(this, options);
+    }
 }
 
 module.exports = { Device };

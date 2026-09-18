@@ -16,12 +16,15 @@ class DeltaDevice extends Device {
 }
 
 const { createProfileFromEds, generateProfileCodeFromEds } = require('./eds-generator');
+const { DeviceBuilder, EIPDeviceBuilder } = require('./builder');
 
 module.exports = {
     DeviceProfile,
     BatchBuilder,
     Device,
     DeltaDevice,
+    DeviceBuilder,
+    EIPDeviceBuilder,
     registerProfile,
     getProfile,
     hasProfile,

@@ -29,7 +29,9 @@ const {
     BatchBuilder,
     registerProfile,
     getProfile,
-    listProfiles
+    listProfiles,
+    DeviceBuilder,
+    EIPDeviceBuilder
 } = require('./device');
 const vendors = require('./vendors');
 
@@ -68,6 +70,8 @@ module.exports = {
     DeltaDevice,
     DeviceProfile,
     BatchBuilder,
+    DeviceBuilder,
+    EIPDeviceBuilder,
     registerProfile,
     getProfile,
     listProfiles,

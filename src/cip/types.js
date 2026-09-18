@@ -325,9 +325,25 @@ function decodeCipString(buf, offset = 0) {
     return { value, bytesRead: 2 + len };
 }
 
+/**
+ * Resolves type info by name or numeric code.
+ */
+function getCipTypeInfo(typeOrCode) {
+    if (typeof typeOrCode === 'number') {
+        return CIP_DATA_TYPES[typeOrCode] || null;
+    }
+    const name = String(typeOrCode).trim().toUpperCase();
+    const code = CipDataTypeCode[name];
+    if (code !== undefined) {
+        return CIP_DATA_TYPES[code] || { code, name, size: 2 };
+    }
+    return null;
+}
+
 module.exports = {
     CipDataTypeCode,
     CIP_DATA_TYPES,
+    getCipTypeInfo,
     encodeType,
     decodeType,
     readBit,
