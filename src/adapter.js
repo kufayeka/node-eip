@@ -95,6 +95,7 @@ class EIPAdapter extends EventEmitter {
 
         this.connectionHandler = new ConnectionHandler({
             assemblyObject: this.assembly,
+            identity: this.identity,
             sendDatagram: (buf, remoteAddress, remotePort) => {
                 if (!this._udpIo) return;
                 const port = remotePort || this.ioPort;

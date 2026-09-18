@@ -19,11 +19,42 @@ const { buildIoDatagram, parseIoDatagram } = require('../cip/io-connection');
 const { CipGeneralStatus } = require('../constants');
 
 class ConnectionHandler {
-    constructor({ assemblyObject, sendDatagram }) {
+    constructor({ assemblyObject, identity, sendDatagram }) {
         this.assemblyObject = assemblyObject;
+        this.identity = identity; // optional — enables Electronic Key validation below
         this.sendDatagram = sendDatagram; // (buffer, remoteAddress) => void
         this.connections = new Map(); // otNetworkConnectionId -> state
         this._nextConnectionId = 1;
+    }
+
+    /**
+     * Validates an Electronic Key Segment (if the connection path carried
+     * one — real Scanners/PLCs always include one) against this Adapter's
+     * own Identity — CIP Vol 1, C-1.4.5.2. VendorID 0 is treated as a
+     * wildcard ("don't care"), matching common ODVA conformance-test
+     * tooling behavior, not just real devices.
+     */
+    _checkElectronicKey(key) {
+        if (!key || !this.identity) return null; // nothing to check
+        if (key.vendorId !== 0 && key.vendorId !== this.identity.vendorId) {
+            return { generalStatus: CipGeneralStatus.ConnectionFailure, extendedStatus: 0x0114 }; // Vendor ID or Product Code mismatch
+        }
+        if (key.deviceType !== 0 && key.deviceType !== this.identity.deviceType) {
+            return { generalStatus: CipGeneralStatus.ConnectionFailure, extendedStatus: 0x0115 }; // Device Type mismatch
+        }
+        if (key.productCode !== 0 && key.productCode !== this.identity.productCode) {
+            return { generalStatus: CipGeneralStatus.ConnectionFailure, extendedStatus: 0x0114 };
+        }
+        const ourRev = this.identity.revision || { major: 0, minor: 0 };
+        if (key.compatibility) {
+            // Compatible keying: accept any of our revision >= the requested one.
+            if (ourRev.major < key.majorRevision || (ourRev.major === key.majorRevision && ourRev.minor < key.minorRevision)) {
+                return { generalStatus: CipGeneralStatus.ConnectionFailure, extendedStatus: 0x0116 }; // Revision mismatch
+            }
+        } else if (key.majorRevision !== 0 && (ourRev.major !== key.majorRevision || ourRev.minor !== key.minorRevision)) {
+            return { generalStatus: CipGeneralStatus.ConnectionFailure, extendedStatus: 0x0116 };
+        }
+        return null;
     }
 
     /**
@@ -38,6 +69,12 @@ class ConnectionHandler {
         } catch {
             return { ok: false, generalStatus: CipGeneralStatus.PathSegmentError, extendedStatus: 0x0120 };
         }
+
+        const keyError = this._checkElectronicKey(path.electronicKey);
+        if (keyError) {
+            return { ok: false, ...keyError };
+        }
+
         const [o2tInstance, t2oInstance] = path.connectionPoints || [];
         if (o2tInstance === undefined || t2oInstance === undefined) {
             return { ok: false, generalStatus: CipGeneralStatus.PathSegmentError, extendedStatus: 0x0120 };

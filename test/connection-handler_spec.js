@@ -4,7 +4,7 @@ const assert = require('assert');
 const { ConnectionHandler } = require('../src/adapter/connection-handler');
 const { AssemblyObject } = require('../src/cip/objects/assembly');
 const { buildIoDatagram, parseIoDatagram } = require('../src/cip/io-connection');
-const { encodeAssemblyConnectionPath } = require('../src/cip/path');
+const { encodeAssemblyConnectionPath, encodeElectronicKeySegment, LogicalType, encodeLogicalSegment } = require('../src/cip/path');
 const { CipGeneralStatus } = require('../src/constants');
 
 function baseRequest(overrides = {}) {
@@ -110,5 +110,83 @@ describe('ConnectionHandler (Adapter-side Forward_Open/Forward_Close + cyclic I/
         const result = handler.closeConnection({ connectionSerialNumber: 0x9999, originatorVendorId: 0, originatorSerialNumber: 0 });
         assert.strictEqual(result.ok, false);
         assert.strictEqual(result.generalStatus, CipGeneralStatus.ConnectionFailure);
+    });
+
+    describe('Electronic Key Segment (CIP Vol 1, C-1.4.5.2)', function () {
+        function pathWithKey(key) {
+            return Buffer.concat([
+                encodeElectronicKeySegment(key),
+                encodeLogicalSegment(LogicalType.ClassId, 0x04),
+                encodeLogicalSegment(LogicalType.InstanceId, 0x80),
+                encodeLogicalSegment(LogicalType.ConnectionPoint, 100),
+                encodeLogicalSegment(LogicalType.ConnectionPoint, 101)
+            ]);
+        }
+
+        it('a real Forward_Open with an Electronic Key segment prepended no longer desyncs the path (the original bug)', function () {
+            // Before the fix, decodeEPath mis-parsed the 10-byte key as a
+            // 2-byte segment, corrupting every segment after it and
+            // causing a spurious Path Segment Error on every real PLC's
+            // Forward_Open (every conformant Scanner sends one of these).
+            const request = baseRequest({ connectionPath: pathWithKey({ vendorId: 799, deviceType: 14, productCode: 771, majorRevision: 1, minorRevision: 0 }) });
+            const result = handler.openConnection(request, { remoteAddress: '10.0.0.5' });
+            assert.strictEqual(result.ok, true);
+        });
+
+        it('accepts any key when the ConnectionHandler has no identity configured (back-compat)', function () {
+            const request = baseRequest({ connectionPath: pathWithKey({ vendorId: 1, deviceType: 99, productCode: 1, majorRevision: 9, minorRevision: 9 }) });
+            const result = handler.openConnection(request, { remoteAddress: '10.0.0.5' });
+            assert.strictEqual(result.ok, true);
+        });
+
+        it('rejects a Vendor ID mismatch with extended status 0x0114 when an identity is configured', function () {
+            const keyedHandler = new ConnectionHandler({
+                assemblyObject: assembly,
+                identity: { vendorId: 799, deviceType: 14, productCode: 771, revision: { major: 1, minor: 0 } },
+                sendDatagram: () => {}
+            });
+            const request = baseRequest({ connectionPath: pathWithKey({ vendorId: 1, deviceType: 14, productCode: 771, majorRevision: 1, minorRevision: 0 }) });
+            const result = keyedHandler.openConnection(request, { remoteAddress: '10.0.0.5' });
+            assert.strictEqual(result.ok, false);
+            assert.strictEqual(result.extendedStatus, 0x0114);
+            keyedHandler.closeAll();
+        });
+
+        it('accepts a Vendor ID of 0 as a wildcard even with an identity configured', function () {
+            const keyedHandler = new ConnectionHandler({
+                assemblyObject: assembly,
+                identity: { vendorId: 799, deviceType: 14, productCode: 771, revision: { major: 1, minor: 0 } },
+                sendDatagram: () => {}
+            });
+            const request = baseRequest({ connectionPath: pathWithKey({ vendorId: 0, deviceType: 0, productCode: 0, majorRevision: 0, minorRevision: 0 }) });
+            const result = keyedHandler.openConnection(request, { remoteAddress: '10.0.0.5' });
+            assert.strictEqual(result.ok, true);
+            keyedHandler.closeAll();
+        });
+
+        it('rejects a strict Revision mismatch with extended status 0x0116', function () {
+            const keyedHandler = new ConnectionHandler({
+                assemblyObject: assembly,
+                identity: { vendorId: 799, deviceType: 14, productCode: 771, revision: { major: 2, minor: 0 } },
+                sendDatagram: () => {}
+            });
+            const request = baseRequest({ connectionPath: pathWithKey({ vendorId: 799, deviceType: 14, productCode: 771, majorRevision: 1, minorRevision: 0 }) });
+            const result = keyedHandler.openConnection(request, { remoteAddress: '10.0.0.5' });
+            assert.strictEqual(result.ok, false);
+            assert.strictEqual(result.extendedStatus, 0x0116);
+            keyedHandler.closeAll();
+        });
+
+        it('accepts a Compatible-keying request whose Major.Minor is <= our own revision', function () {
+            const keyedHandler = new ConnectionHandler({
+                assemblyObject: assembly,
+                identity: { vendorId: 799, deviceType: 14, productCode: 771, revision: { major: 2, minor: 0 } },
+                sendDatagram: () => {}
+            });
+            const request = baseRequest({ connectionPath: pathWithKey({ vendorId: 799, deviceType: 14, productCode: 771, majorRevision: 1, minorRevision: 0, compatibility: true }) });
+            const result = keyedHandler.openConnection(request, { remoteAddress: '10.0.0.5' });
+            assert.strictEqual(result.ok, true);
+            keyedHandler.closeAll();
+        });
     });
 });

@@ -409,6 +409,59 @@ function encodeAssemblyConnectionPath({ configInstance, o2tInstance, t2oInstance
 }
 
 /**
+ * Encodes an Electronic Key Segment — CIP Vol 1, Appendix C (C-1.4.5.2).
+ * Segment byte: 0x34 (Logical Segment, Logical Type = Special (5), Logical
+ * Format = 0). Unlike every other Logical Segment, "format 0" here does
+ * NOT mean "8-bit value" — it means "this 10-byte structure follows":
+ *   Key Format   USINT  (always 4 = the only format ODVA has ever defined)
+ *   Vendor ID    UINT
+ *   Device Type  UINT
+ *   Product Code UINT
+ *   Major Rev    USINT  (bit 7 = Compatibility flag)
+ *   Minor Rev    USINT
+ * Real Scanners (any conformant PLC, not just Rockwell) prepend this to a
+ * Forward_Open connection path so the Target can verify it's actually
+ * talking to the device the configuration tool thinks it is — decoding it
+ * as if it were a plain Class/Instance/Attribute segment (a single 8-bit
+ * value, 2 bytes total) desyncs every segment after it in the path,
+ * which is exactly what caused this driver's Adapter to reject real
+ * Forward_Open requests with Path Segment Error (0x04).
+ */
+function encodeElectronicKeySegment({ vendorId, deviceType, productCode, majorRevision, minorRevision, compatibility = false }) {
+    const buf = Buffer.alloc(10);
+    buf[0] = 0x34;
+    buf[1] = 0x04; // Key Format 4 — the only one ODVA defines
+    buf.writeUInt16LE(vendorId & 0xffff, 2);
+    buf.writeUInt16LE(deviceType & 0xffff, 4);
+    buf.writeUInt16LE(productCode & 0xffff, 6);
+    buf[8] = (majorRevision & 0x7f) | (compatibility ? 0x80 : 0x00);
+    buf[9] = minorRevision & 0xff;
+    return buf;
+}
+
+function decodeElectronicKeySegment(buf, offset) {
+    if (offset + 10 > buf.length) {
+        throw new RangeError('decodeElectronicKeySegment: truncated Electronic Key Segment (need 10 bytes)');
+    }
+    const keyFormat = buf.readUInt8(offset + 1);
+    const vendorId = buf.readUInt16LE(offset + 2);
+    const deviceType = buf.readUInt16LE(offset + 4);
+    const productCode = buf.readUInt16LE(offset + 6);
+    const majorByte = buf.readUInt8(offset + 8);
+    const minorRevision = buf.readUInt8(offset + 9);
+    return {
+        keyFormat,
+        vendorId,
+        deviceType,
+        productCode,
+        majorRevision: majorByte & 0x7f,
+        minorRevision,
+        compatibility: Boolean(majorByte & 0x80),
+        bytesConsumed: 10
+    };
+}
+
+/**
  * Decodes one padded Logical Segment starting at `offset`.
  */
 function decodeLogicalSegment(buf, offset) {
@@ -418,6 +471,11 @@ function decodeLogicalSegment(buf, offset) {
     }
     const logicalType = (head >> 2) & 0x07;
     const format = head & 0x03;
+
+    if (logicalType === LogicalType.Special && format === 0x00) {
+        const key = decodeElectronicKeySegment(buf, offset);
+        return { logicalType, electronicKey: key, bytesConsumed: key.bytesConsumed };
+    }
 
     if (format === 0x00) {
         return { logicalType, value: buf.readUInt8(offset + 1), bytesConsumed: 2 };
@@ -462,6 +520,9 @@ function decodeEPath(buf) {
                 case LogicalType.ConnectionPoint:
                     (result.connectionPoints = result.connectionPoints || []).push(segment.value);
                     break;
+                case LogicalType.Special:
+                    if (segment.electronicKey) result.electronicKey = segment.electronicKey;
+                    break;
                 default:
                     break;
             }
@@ -483,6 +544,8 @@ module.exports = {
     LogicalType,
     encodeLogicalSegment,
     decodeLogicalSegment,
+    encodeElectronicKeySegment,
+    decodeElectronicKeySegment,
     encodePortSegment,
     decodePortSegment,
     encodeAnsiSymbolSegment,
