@@ -46,6 +46,12 @@ function decodeProductionTrigger(transportTypeTrigger) {
     return (transportTypeTrigger >> 4) & 0x07;
 }
 
+function productionTriggerLabel(trigger) {
+    if (trigger === ProductionTrigger.CYCLIC) return 'Cyclic';
+    if (trigger === ProductionTrigger.APPLICATION_OBJECT) return 'Application Object';
+    return 'Change-of-State';
+}
+
 class ConnectionHandler {
     constructor({ assemblyObject, identity, sendDatagram, connectionManagerObject, quiet = false, strictDuplicateConnections = false, tagStore = null, onTagWrite = null, tcpIpObject = null }) {
         this.assemblyObject = assemblyObject;
@@ -457,7 +463,7 @@ class ConnectionHandler {
 
         if (!this.quiet) {
             const rpiMs = Math.max(1, Math.round(request.toRpiUs / 1000));
-            const trigger = state.productionTrigger === ProductionTrigger.CYCLIC ? 'Cyclic' : 'Change-of-State';
+            const trigger = productionTriggerLabel(state.productionTrigger);
             const typeLabel = connType ? ` [${connType}]` : '';
             const mcastLabel = wantsMulticast ? (multicastOwner ? ' [multicast follower]' : ' [multicast owner]') : '';
             console.log(`\x1b[32m[PLC CLASS 1 I/O CONNECTED]\x1b[0m \x1b[1m${cleanAddress}\x1b[0m${typeLabel}${mcastLabel} | O->T: Assem ${o2tInstance} (${request.otSize}B), T->O: Assem ${t2oInstance} (${request.toSize}B), RPI: ${rpiMs}ms, Trigger: ${trigger} | ConnID: 0x${otNetworkConnectionId.toString(16)}`);
@@ -555,7 +561,7 @@ class ConnectionHandler {
 
         if (!this.quiet) {
             const dir = [consumes && 'Consumed', produces && 'Produced'].filter(Boolean).join('+');
-            const trigger = state.productionTrigger === ProductionTrigger.CYCLIC ? 'Cyclic' : 'Change-of-State';
+            const trigger = productionTriggerLabel(state.productionTrigger);
             console.log(`\x1b[32m[PLC CLASS 1 TAG CONNECTED]\x1b[0m \x1b[1m${remoteAddress}\x1b[0m | Tag: "${tagName}" (${dir}), Trigger: ${trigger} | ConnID: 0x${otNetworkConnectionId.toString(16)}`);
         }
 
@@ -578,10 +584,17 @@ class ConnectionHandler {
      * OR — when the Scanner selected Change-of-State at Forward_Open time —
      * event-driven production: send immediately when data actually changes,
      * with the RPI still acting as a maximum "heartbeat" interval so the
-     * Originator's connection watchdog never times out on an unchanging value.
+     * Originator's connection watchdog never times out on an unchanging value,
+     * OR — for Application Object trigger — no automatic timer at all: CIP
+     * Vol 1's own definition of this trigger type is that the APPLICATION
+     * decides exactly when to produce, not a fixed timer or automatic value
+     * comparison. Ported from OpENer's own public API for this
+     * (cipconnectionmanager.c's `TriggerConnections()`, which an OpENer-based
+     * device's application code calls directly) — see triggerProduction()
+     * below, this project's equivalent entry point.
      * Shared by both numeric Assembly connections and symbolic Tag connections.
      *
-     * @param {object} state - connection state (mutated: .timer, .sequenceNumber, .lastSentData, .lastSentAt)
+     * @param {object} state - connection state (mutated: .timer, .sequenceNumber, .lastSentData, .lastSentAt, ._send, ._getProducedData)
      * @param {() => Buffer} getRawData - reads the current T->O source buffer (Assembly or tag)
      * @param {() => void} [beforeProduce] - optional hook run just before each read (e.g. DeviceBuilder's onProduceData sync)
      */
@@ -627,6 +640,11 @@ class ConnectionHandler {
             sendAtCurrentSeq(data);
         };
 
+        // Exposed so triggerProduction() can produce on demand for Application Object trigger
+        // connections, from outside this closure.
+        state._send = send;
+        state._getProducedData = getProducedData;
+
         const rpiMs = Math.max(1, Math.round((state.toRpiUs || 20000) / 1000));
 
         // Immediate first packet dispatch to prevent PLC connection watchdog timeout,
@@ -636,7 +654,7 @@ class ConnectionHandler {
         // do not consume the first 2 bytes of data as sequence numbers.
         sendAtCurrentSeq(getProducedData());
 
-        if (state.productionTrigger === ProductionTrigger.CHANGE_OF_STATE || state.productionTrigger === ProductionTrigger.APPLICATION_OBJECT) {
+        if (state.productionTrigger === ProductionTrigger.CHANGE_OF_STATE) {
             // Poll faster than the RPI so a change is noticed promptly, but only
             // actually transmit when the data changed or the RPI heartbeat is due
             // — CIP Vol 1 3-4.5.2: for a Change of State connection the RPI is the
@@ -648,9 +666,39 @@ class ConnectionHandler {
                 const heartbeatDue = Date.now() - state.lastSentAt >= rpiMs;
                 if (changed || heartbeatDue) send(current);
             }, pollMs);
+        } else if (state.productionTrigger === ProductionTrigger.APPLICATION_OBJECT) {
+            // No automatic timer — production only happens via an explicit
+            // triggerProduction() call (plus the unconditional initial packet just above).
+            state.timer = null;
         } else {
             state.timer = setInterval(() => send(getProducedData()), rpiMs);
         }
+    }
+
+    /**
+     * Explicitly triggers production for Application-Object-trigger connections currently
+     * producing the given T->O Assembly instance or symbolic tag name — CIP Vol 1's definition
+     * of this trigger type is that the APPLICATION decides exactly when to produce, unlike
+     * Cyclic's fixed timer or Change-of-State's automatic value comparison. Ported from OpENer's
+     * own public `TriggerConnections()` API, which a device's application code calls the same
+     * way. A no-op (returns 0) for any connection using a different trigger type, or if no
+     * matching connection is currently open.
+     *
+     * @param {number|string} t2oInstanceOrTagName
+     * @returns {number} how many connections were actually triggered
+     */
+    triggerProduction(t2oInstanceOrTagName) {
+        let triggered = 0;
+        for (const state of this.connections.values()) {
+            const matches = state.tagName !== undefined
+                ? state.tagName === t2oInstanceOrTagName
+                : state.t2oInstance === t2oInstanceOrTagName;
+            if (matches && state.productionTrigger === ProductionTrigger.APPLICATION_OBJECT && typeof state._send === 'function') {
+                state._send(state._getProducedData());
+                triggered += 1;
+            }
+        }
+        return triggered;
     }
 
     /** @param {object} request - cip/connection-manager.js's parseForwardCloseRequest() output */

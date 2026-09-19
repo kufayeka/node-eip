@@ -428,6 +428,26 @@ class DeviceBuilder extends EventEmitter {
         return this;
     }
 
+    /**
+     * Explicitly triggers Class 1 production for a connection profile defined with
+     * `defineConnection()`, by name — only meaningful for a connection the Scanner opened with
+     * Application Object trigger (CIP Vol 1 Table 3-4.5): unlike Cyclic (fixed RPI timer) or
+     * Change-of-State (automatic value comparison), that trigger type produces ONLY when the
+     * application explicitly asks it to. Call this right after updating the data you want sent
+     * (e.g. after `setParam()`/`setTag()`/packing an Assembly buffer directly) — a no-op if the
+     * Scanner didn't actually select Application Object trigger for this connection, or if
+     * `createAdapter()` hasn't been called yet.
+     *
+     * @param {string} connectionName - the `name` passed to defineConnection()
+     * @returns {number} how many currently-open connections were actually triggered (0 or 1)
+     */
+    triggerConnection(connectionName) {
+        if (!this.adapter) return 0;
+        const conn = this.connections.find((c) => c.name === connectionName);
+        if (!conn) throw new Error(`DeviceBuilder.triggerConnection: no connection named "${connectionName}" (defineConnection() first)`);
+        return this.adapter.triggerProduction(conn.inputAssembly);
+    }
+
     _buildAssemblyMapping(assem) {
         const members = [];
         if (Array.isArray(assem.members) && assem.members.length > 0) {

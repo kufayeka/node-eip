@@ -92,6 +92,19 @@ Variable Frequency Drive — i.e. exactly the kind of device `DeviceBuilder` is 
   decodes the Scanner's chosen trigger and drives production accordingly; `eds-exporter.js`
   advertises both bits (`0x04030002`) for Exclusive-Owner connections, matching a real Delta SX3's
   own EDS.
+- Production Trigger: Application Object (CIP Vol 1 Table 3-4.5's third trigger type, not itemized
+  separately in PUB00070 but implied wherever it lists "trigger type" generically): **done**. Ported
+  from OpENer's own public `TriggerConnections()` API (`cipconnectionmanager.c`) rather than
+  aliasing it to Change-of-State as an earlier pass in this project did — a connection negotiated
+  with this trigger gets NO automatic timer at all beyond the mandatory initial packet;
+  `ConnectionHandler.triggerProduction(t2oInstanceOrTagName)` / `EIPAdapter.triggerProduction()` /
+  `DeviceBuilder.triggerConnection(name)` let the device's own application code produce on demand,
+  exactly matching CIP's own definition that the *application* — not a timer, not automatic value
+  comparison — decides when to send. Note this isn't advertised in the EDS capability mask
+  (`0x04030002` only sets the Cyclic/COS bits, matching this project's own real Delta SX3 ground
+  truth, which also doesn't set it) — a Scanner would need to request it explicitly via
+  `transportTypeTrigger` even though it isn't offered in a typical config tool's trigger dropdown;
+  this is a deliberate choice pending a real example of a Scanner/EDS pair that does advertise it.
 - #3h (Electronic Key incl. Null/no key): **done**, ported from OpENer's `CheckElectronicKeyData()`;
   `_checkElectronicKey()` no-ops when no key segment is present.
 - #3i (Run/Idle Header): **done** — `buildIoDatagram`/`handleIncomingDatagram` support it.

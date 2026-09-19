@@ -215,6 +215,21 @@ class EIPAdapter extends EventEmitter {
         return this;
     }
 
+    /**
+     * Explicitly triggers production for an Application-Object-trigger connection producing the
+     * given T->O Assembly instance or symbolic tag name — see
+     * ConnectionHandler.triggerProduction()'s doc comment for what this trigger type means and
+     * why it needs an explicit call at all (it's the one CIP production trigger a Scanner's RPI
+     * timer and Change-of-State comparison can't drive by themselves). No-op if no currently-open
+     * connection to that instance/tag actually negotiated Application Object trigger.
+     *
+     * @param {number|string} t2oInstanceOrTagName
+     * @returns {number} how many connections were actually triggered
+     */
+    triggerProduction(t2oInstanceOrTagName) {
+        return this.connectionHandler.triggerProduction(t2oInstanceOrTagName);
+    }
+
     async start() {
         await this._startTcp();
         await this._startUdpListen();

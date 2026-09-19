@@ -761,4 +761,71 @@ describe('ConnectionHandler (Adapter-side Forward_Open/Forward_Close + cyclic I/
             h.closeAll();
         });
     });
+
+    // CIP Vol 1 Table 3-4.5's third Production Trigger: unlike Cyclic (fixed RPI timer) or
+    // Change-of-State (automatic value comparison), the APPLICATION decides exactly when to
+    // produce. Ported from OpENer's own public API for this (cipconnectionmanager.c's
+    // TriggerConnections()), which an OpENer-based device's application code calls directly the
+    // same way this project's triggerProduction() is meant to be called.
+    describe('Application Object production trigger (CIP Vol 1 Table 3-4.5, ported from OpENer TriggerConnections())', function () {
+        it('sends only the mandatory initial packet — no automatic timer at all', function (done) {
+            const localDatagrams = [];
+            const h = new ConnectionHandler({ assemblyObject: assembly, sendDatagram: (buf) => localDatagrams.push({ buf }) });
+            h.openConnection(baseRequest({ toRpiUs: 5000, transportTypeTrigger: TransportTrigger.Class1ApplicationObject }), { remoteAddress: '10.0.0.5' });
+            setTimeout(() => {
+                assert.strictEqual(localDatagrams.length, 1); // no polling, no cyclic timer — just the initial send
+                h.closeAll();
+                done();
+            }, 60);
+        });
+
+        it('triggerProduction() sends the connection\'s current data on demand', function () {
+            const localDatagrams = [];
+            const h = new ConnectionHandler({ assemblyObject: assembly, sendDatagram: (buf) => localDatagrams.push({ buf }) });
+            const result = h.openConnection(baseRequest({ transportTypeTrigger: TransportTrigger.Class1ApplicationObject }), { remoteAddress: '10.0.0.5' });
+            assert.strictEqual(result.ok, true);
+            assert.strictEqual(localDatagrams.length, 1);
+
+            assembly.setData(101, Buffer.from([7, 7, 7, 7]));
+            const triggeredCount = h.triggerProduction(101);
+            assert.strictEqual(triggeredCount, 1);
+            assert.strictEqual(localDatagrams.length, 2);
+            const last = parseIoDatagram(localDatagrams[1].buf);
+            assert.deepStrictEqual(last.data.subarray(2), Buffer.from([7, 7, 7, 7]));
+            h.closeAll();
+        });
+
+        it('triggerProduction() is a no-op (returns 0) for a Cyclic or Change-of-State connection', function () {
+            const h = new ConnectionHandler({ assemblyObject: assembly, sendDatagram: () => {} });
+            h.openConnection(baseRequest(), { remoteAddress: '10.0.0.5' }); // default Cyclic
+            assert.strictEqual(h.triggerProduction(101), 0);
+            h.closeAll();
+        });
+
+        it('works for symbolic Tag connections too, matched by tag name', function () {
+            const localDatagrams = [];
+            const tagStore = new Map([['TotalCount', { type: 'DINT', buffer: Buffer.from([1, 0, 0, 0]), value: 1 }]]);
+            const h = new ConnectionHandler({ assemblyObject: assembly, tagStore, sendDatagram: (buf) => localDatagrams.push({ buf }) });
+            const result = h.openConnection({
+                connectionPath: encodeSymbolicPath('TotalCount'),
+                otSize: 0,
+                toSize: 4,
+                otRpiUs: 5000,
+                toRpiUs: 5000,
+                toNetworkConnectionId: 0xdeadbeef,
+                connectionSerialNumber: 0x1234,
+                originatorVendorId: 0xaaaa,
+                originatorSerialNumber: 0x11223344,
+                transportTypeTrigger: TransportTrigger.Class1ApplicationObject
+            }, { remoteAddress: '10.0.0.5' });
+            assert.strictEqual(result.ok, true);
+
+            tagStore.get('TotalCount').buffer = Buffer.from([42, 0, 0, 0]);
+            const triggeredCount = h.triggerProduction('TotalCount');
+            assert.strictEqual(triggeredCount, 1);
+            const last = parseIoDatagram(localDatagrams[localDatagrams.length - 1].buf);
+            assert.deepStrictEqual(last.data.subarray(2), Buffer.from([42, 0, 0, 0]));
+            h.closeAll();
+        });
+    });
 });

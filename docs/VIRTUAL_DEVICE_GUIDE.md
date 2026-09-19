@@ -15,7 +15,7 @@ underlying ODVA compliance sourcing.
 4. [Symbolic Tags](#4-symbolic-tags)
 5. [Assemblies (Class 1 I/O buffers)](#5-assemblies-class-1-io-buffers)
 6. [Connections](#6-connections)
-7. [Production Trigger Modes: Cyclic vs. Change-of-State](#7-production-trigger-modes-cyclic-vs-change-of-state)
+7. [Production Trigger Modes: Cyclic, Change-of-State, and Application Object](#7-production-trigger-modes-cyclic-change-of-state-and-application-object)
 8. [Symbolic Produced/Consumed Tag Connections](#8-symbolic-producedconsumed-tag-connections)
 9. [Generating the EDS and Starting the Server](#9-generating-the-eds-and-starting-the-server)
 10. [Watching Activity & Reacting to Writes](#10-watching-activity--reacting-to-writes)
@@ -176,14 +176,14 @@ Call this once per distinct connection profile you want to offer — e.g. one sm
 critical parameters" connection and one large "mirror everything" connection, both available as
 separate dropdown choices.
 
-## 7. Production Trigger Modes: Cyclic vs. Change-of-State
+## 7. Production Trigger Modes: Cyclic, Change-of-State, and Application Object
 
-Every Exclusive-Owner connection this library generates advertises support for **both** Cyclic and
-Change-of-State triggers in its EDS capability mask (`0x04030002` — bit16 Cyclic, bit17
-Change-of-State, bit26 Exclusive-Owner — matching a real Delta SX3's own EDS exactly). The
-**Scanner** (the PLC) picks which one to actually use at `Forward_Open` time (usually via a
-"Trigger Mode" dropdown in the config software's connection settings) — this device honors
-whichever was requested:
+CIP Vol 1 Table 3-4.5 defines three Production Trigger modes for a Class 1 connection. Every
+Exclusive-Owner connection this library generates advertises support for **Cyclic and
+Change-of-State** in its EDS capability mask (`0x04030002` — bit16 Cyclic, bit17 Change-of-State,
+bit26 Exclusive-Owner — matching a real Delta SX3's own EDS exactly). The **Scanner** (the PLC)
+picks which one to actually use at `Forward_Open` time (usually via a "Trigger Mode" dropdown in
+the config software's connection settings) — this device honors whichever was requested:
 
 - **Cyclic**: the device transmits the current T→O data unconditionally on every RPI tick, whether
   or not it changed since the last transmission. Simple, predictable bandwidth.
@@ -193,8 +193,41 @@ whichever was requested:
   network traffic for data that changes infrequently, at the cost of the Scanner needing to trust
   the heartbeat to detect a dead connection rather than a lack of data.
 
-You do not choose the mode in `DeviceBuilder` — it's a Scanner-side choice per connection, and this
-library's Adapter follows it automatically (`connection-handler.js`'s `_startProducer()`).
+You do not choose between these two in `DeviceBuilder` — it's a Scanner-side choice per connection,
+and this library's Adapter follows it automatically (`connection-handler.js`'s `_startProducer()`).
+
+### Application Object trigger — production driven by your own code
+
+The third trigger type is different in kind, not just timing: **the application itself decides
+exactly when to produce**, with no automatic timer and no automatic value comparison at all. Ported
+from OpENer's own public `TriggerConnections()` API (the same entry point an OpENer-based device's
+firmware calls), this device gives you three equivalent ways to trigger it:
+
+```js
+// Lowest level — by Assembly instance or tag name, directly on the ConnectionHandler:
+adapter.connectionHandler.triggerProduction(101);          // T->O Assembly instance 101
+adapter.connectionHandler.triggerProduction('Heartbeat');   // or a symbolic tag name
+
+// Slightly higher level — on the adapter itself, same arguments:
+adapter.triggerProduction(101);
+
+// Highest level — by the connection's own name, from DeviceBuilder:
+builder.triggerConnection('Parameter System IO (20 Bytes)');
+```
+
+A connection only actually produces via these calls if the Scanner negotiated Application Object
+trigger for it in the first place (`transportTypeTrigger`'s production-trigger bits = `2`) — calling
+`triggerProduction()`/`triggerConnection()` against a Cyclic or Change-of-State connection is a
+harmless no-op (returns `0`).
+
+**This mode is not currently advertised in the EDS capability mask** — unlike Cyclic/COS, this
+project's own real Delta SX3 ground truth doesn't set the Application Object bit either, and it
+isn't a typical option in mainstream config-tool "Trigger Mode" dropdowns. It's implemented and
+fully functional for a Scanner (or your own test code) that requests it explicitly, but don't
+expect to see it as a selectable option in Delta EIP Builder or similar. Typical use case: your
+device's own application logic — not a fixed timer or a value comparison — determines when new
+data is meaningful to send (e.g. "a batch just completed", "a barcode was just scanned") and calls
+`triggerConnection()` right after updating the relevant parameter/tag/assembly data.
 
 ## 8. Symbolic Produced/Consumed Tag Connections
 
