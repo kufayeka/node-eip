@@ -395,10 +395,16 @@ class ConnectionHandler {
         // This is Scanner/vendor-neutral: any PLC with a stale or wrong connection size now gets a
         // clear, immediate rejection instead of a silent, hard-to-diagnose misalignment.
         if (consumesO2T && outputBuf && request.otSize > 0 && outputBuf.length !== request.otSize) {
+            if (process.env.EIP_DEBUG_RAW) {
+                console.log(`\x1b[31m[SIZE MISMATCH]\x1b[0m O->T instance ${o2tInstance}: device has ${outputBuf.length}B, Scanner requested ${request.otSize}B`);
+            }
             this.connectionManagerObject?.recordOpenRequest(false, 'format');
             return { ok: false, generalStatus: CipGeneralStatus.ConnectionFailure, extendedStatus: 0x0109 };
         }
         if (inputBuf && request.toSize > 0 && inputBuf.length !== request.toSize) {
+            if (process.env.EIP_DEBUG_RAW) {
+                console.log(`\x1b[31m[SIZE MISMATCH]\x1b[0m T->O instance ${t2oInstance}: device has ${inputBuf.length}B, Scanner requested ${request.toSize}B`);
+            }
             this.connectionManagerObject?.recordOpenRequest(false, 'format');
             return { ok: false, generalStatus: CipGeneralStatus.ConnectionFailure, extendedStatus: 0x0109 };
         }
