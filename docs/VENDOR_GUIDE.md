@@ -36,7 +36,94 @@ Library ini memisahkan komunikasi industri menjadi dua lapisan yang bersih dan m
 
 ---
 
-## 2. Struktur Anatomi `DeviceProfile`
+## 2. Menerjemahkan Dokumentasi CIP Object Resmi Vendor ke `DeviceProfile`
+
+Kalau vendor PLC target Anda menerbitkan tabel object CIP resmi (seperti manual Delta di
+`docs/delta-cip-object-reference.md`, hasil transkripsi literal dari PDF resminya), langkah
+penerjemahannya ke `registers{}` selalu mengikuti pola yang sama. Contoh tabel object list resmi
+(format umum di manual vendor manapun):
+
+| Object Name | Class Code | # of Instance |
+|---|---|---|
+| Identity | 0x01 | 8 |
+| Assembly | 0x04 | 8 |
+| X input | 0x350 | 256 |
+| Y output | 0x351 | 256 |
+| D Register | 0x352 | 10000 |
+
+Dan tabel kedua yang HAMPIR SELALU menyertai tabel di atas — daftar attribute per instance (kadang
+disebut "Instance Attributes" atau "Object Instance Definition"):
+
+| Attribute ID | Access | Data Type | Description |
+|---|---|---|---|
+| 0 – 9999 | Get/Set | INT | D0 – D9999 |
+
+### Langkah penerjemahan
+
+1. **Class Code → `classId`**. Langsung salin nilai hex-nya.
+   ```javascript
+   D: { classId: 0x352, ... }
+   ```
+2. **Cari pola pengalamatan attribute**. Ini bagian paling penting — baca baris "Attribute ID"
+   dengan teliti, karena setiap vendor punya konvensi berbeda:
+   - **Attribute = nomor register langsung** (paling umum, seperti contoh D di atas: attribute 0
+     = D0, attribute 9999 = D9999) → `attribute` cukup default (tidak perlu didefinisikan, kode
+     akan pakai `index` sebagai attribute).
+   - **Instance = nomor register + offset tetap** (misal Delta DVP-12SE: `Instance = index + 1`,
+     attribute selalu tetap) → gunakan `instance: (idx) => idx + 1` dan `attribute: <angka tetap>`
+     (lihat Kasus D di §5 di bawah).
+   - **Attribute = rumus dari index** (misal bit-mode Delta SX3: `attribute = D_index * 16 +
+     bitIndex`) → gunakan `resolve()` custom (lihat Kasus C/E di §5).
+3. **Data Type resmi vendor → `dataType` ODVA**. Tabel data type manual vendor biasanya sudah
+   memakai istilah CIP standar (INT, DINT, BOOL, dst) — salin langsung. Kalau vendor pakai istilah
+   non-standar (misal "Word", "Short", "Long"), petakan ke tipe ODVA terdekat: Word→INT/UINT,
+   Long→DINT/UDINT, dst — cek lebar byte-nya di tabel "Data Types" manual (biasanya ada tabel
+   terpisah 8/16/32/64-bit seperti di `docs/delta-cip-object-reference.md`).
+4. **Access → `access`**. "Get" saja = `'r'`, "Set" saja = `'w'`, "Get/Set" = `'rw'`.
+   Sesuaikan dengan daftar CIP error code manual vendor: kalau vendor punya kode error spesifik
+   untuk "Attribute Not Settable" (biasanya `0x0E`), itu konfirmasi bahwa access control memang
+   ditegakkan di firmware, bukan cuma dokumentasi.
+5. **Range alamat → `range: [min, max]`**. Salin dari kolom "# of Instance" atau rentang attribute
+   yang didokumentasikan.
+6. **Bit/word, oktal, dan kasus dinamis** → lihat §5 di bawah untuk pola-pola yang sudah teruji.
+
+### Contoh lengkap: dari tabel resmi ke kode jadi
+
+Misalkan manual vendor fiktif "Acme PLC" mendokumentasikan:
+
+> Object: Holding Register (Class `0x64`). Instance 1. Attribute = register number (0-4999).
+> Data Type: INT (16-bit). Access: Get/Set.
+
+Terjemahan langsungnya:
+```javascript
+HR: {
+    classId: 0x64,
+    instance: 1,
+    dataType: 'INT',
+    access: 'rw',
+    isWord: true,
+    range: [0, 4999]
+}
+```
+Itu saja — tidak perlu `resolve()` custom kalau pola pengalamatannya sesederhana ini (Attribute =
+nomor register). `resolve()` custom HANYA diperlukan untuk pola non-linear (lihat Kasus C, D, E
+di §5).
+
+### Checklist verifikasi sebelum submit profile baru
+
+- [ ] Setiap `classId` di `registers{}` sudah dicocokkan persis dengan tabel object list resmi.
+- [ ] Sudah dites baca DAN tulis ke hardware asli (bukan cuma baca dokumentasi) — banyak manual
+      vendor punya kesalahan cetak kecil (off-by-one instance, access yang salah ketik).
+- [ ] Kalau ada mode bit DAN word untuk register yang sama (umum di PLC ladder logic), pastikan
+      `bitInstance` didefinisikan terpisah dari `instance` (lihat Kasus E di §5).
+- [ ] Rentang (`range`) sudah dicek tidak melebihi apa yang benar-benar didukung hardware — beda
+      model dalam satu keluarga PLC sering punya rentang berbeda (lihat kolom
+      "DVP12SE" vs "ES2-E" vs "26SE" di `docs/delta-cip-object-reference.md` sebagai contoh nyata
+      satu manual yang mendokumentasikan 3 model sekaligus dengan rentang berbeda-beda).
+
+---
+
+## 3. Struktur Anatomi `DeviceProfile`
 
 Untuk membuat profile PLC baru, instansiasi class `DeviceProfile` dengan konfigurasi berikut:
 
@@ -73,7 +160,7 @@ export const myPlcProfile = new DeviceProfile({
 
 ---
 
-## 3. Mendefinisikan Register & Skema CIP Objek
+## 4. Mendefinisikan Register & Skema CIP Objek
 
 Setiap item di dalam kamus `registers` dipetakan ke CIP Class ID, Instance, Attribute, dan tipe data biner ODVA.
 
@@ -93,7 +180,7 @@ Setiap item di dalam kamus `registers` dipetakan ke CIP Class ID, Instance, Attr
 
 ---
 
-## 4. Kasus-Kasus Khusus & Pola Solusinya
+## 5. Kasus-Kasus Khusus & Pola Solusinya
 
 ### Kasus A: Register Standar (16-bit Word flat)
 Contoh: Register `D` pada Delta ES2-E (Class `0x352`, Instance `1`, Attribute = nomor register):
@@ -209,7 +296,7 @@ customMethods: {
 
 ---
 
-## 5. Mendaftarkan Profile ke Registry
+## 6. Mendaftarkan Profile ke Registry
 
 Buat file `index.js` di dalam folder vendor Anda (misal `src/vendors/omron/index.js`):
 
@@ -230,7 +317,7 @@ require('./omron');
 
 ---
 
-## 6. Penggunaan oleh Pengembang Aplikasi (DX yang Seamless)
+## 7. Penggunaan oleh Pengembang Aplikasi (DX yang Seamless)
 
 Begitu profile didaftarkan, pengguna akhir mendapatkan Developer Experience yang sangat intuitif:
 

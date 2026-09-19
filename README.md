@@ -24,6 +24,7 @@ Ringkasnya:
 5. [Tutorial B — Membangun Virtual EtherNet/IP Device (DeviceBuilder)](#5-tutorial-b--membangun-virtual-ethernetip-device-devicebuilder)
 6. [Menjalankan Test Suite](#6-menjalankan-test-suite)
 7. [Keterbatasan yang Diketahui](#7-keterbatasan-yang-diketahui)
+8. [Dokumentasi Lanjutan & Sumber Rujukan](#8-dokumentasi-lanjutan--sumber-rujukan)
 
 ---
 
@@ -472,3 +473,26 @@ Bagian ini penting untuk dibaca sebelum melakukan investigasi terhadap perilaku 
 - **Menghubungkan perangkat ini sebagai client ke Produced Tag milik PLC sungguhan (arah sebaliknya — perangkat ini bertindak sebagai Scanner, PLC sebagai target) belum terverifikasi.** Format `connectionPath` yang tepat untuk Forward_Open ke Produced Tag pada firmware PLC Delta asli berbeda dari format yang diterima oleh perangkat virtual ini (telah diujicobakan dan ditolak dengan extended status `0x0127`, yang menurut manual Delta berarti "configuration path parameters mismatch"). Arah yang telah terverifikasi dan didukung penuh adalah **PLC (Scanner) menghubungi perangkat virtual (Adapter)**, bukan sebaliknya.
 - **Multicast Class 1 I/O belum diimplementasikan.** Bit tipe koneksi (Point-to-Point/Multicast) didekode dari Forward_Open request, tetapi produksi datagram T→O selalu dikirim secara unicast ke alamat Originator.
 - **Revision perangkat disimpan pada cache oleh software konfigurasi PLC.** Lihat catatan pada [§5.2](#52-langkah-1--menentukan-identity). Apabila perangkat "tidak ter-update" setelah perubahan kode, kemungkinan besar penyebabnya adalah cache pada software konfigurasi, bukan cacat pada generator EDS.
+
+---
+
+## 8. Dokumentasi Lanjutan & Sumber Rujukan
+
+Dokumen ini adalah titik masuk (entry point) yang ringkas. Untuk pembahasan yang lebih dalam:
+
+| Dokumen | Isi |
+|---|---|
+| [`.agents/skills/odva-cip-compliance/SKILL.md`](.agents/skills/odva-cip-compliance/SKILL.md) | Titik orientasi utama sebelum mengubah kode protokol — peta arsitektur file-by-file, daftar sumber rujukan resmi, dan aturan dasar sebelum menambah/mengubah perilaku CIP. **Baca ini dulu** sebelum menyentuh `src/cip/`, `src/adapter*`, atau `src/device/`. |
+| [`.agents/rules/ethernet-ip-standards.md`](.agents/rules/ethernet-ip-standards.md) | Aturan konkret & mekanis untuk repo ini (disiplin testing, konsistensi Identity/Revision, konvensi commit). |
+| [`docs/ODVA_COMPLIANCE_REFERENCE.md`](docs/ODVA_COMPLIANCE_REFERENCE.md) | Transkripsi lengkap persyaratan Scanner/Adapter dari publikasi resmi ODVA (PUB00070, PUB00213) yang bisa diunduh publik, disandingkan langsung dengan status implementasi proyek ini per-item. |
+| [`docs/VIRTUAL_DEVICE_GUIDE.md`](docs/VIRTUAL_DEVICE_GUIDE.md) | Tutorial super detail membangun Virtual EtherNet/IP Device — tiap opsi `DeviceBuilder`, mode trigger, Tag Connection beserta semua kejanggalan nyata Delta EIP Builder, dan tabel troubleshooting kode error yang benar-benar ditemui. |
+| [`docs/VENDOR_GUIDE.md`](docs/VENDOR_GUIDE.md) | Tutorial super detail membuat `DeviceProfile` untuk vendor/model PLC baru, termasuk cara menerjemahkan tabel object CIP resmi milik vendor menjadi skema `registers{}`. |
+| [`docs/ROADMAP.md`](docs/ROADMAP.md) | Prioritas pengembangan berikutnya, disusun dari gap nyata yang sudah teridentifikasi (bukan wishlist). |
+
+**Sumber resmi ODVA yang dipakai** (semua publik, tidak perlu keanggotaan ODVA):
+- [PUB00070 — Recommended Functionality for EtherNet/IP Devices](https://www.odva.org/wp-content/uploads/2020/05/PUB00070_Recommended-Functionality-for-EIP-Devices-v10.pdf)
+- [PUB00213 — EtherNet/IP Quick Start for Vendors Handbook](https://www.odva.org/wp-content/uploads/2020/05/PUB00213R0_EtherNetIP_Developers_Guide.pdf)
+- [ODVA Conformance Testing](https://www.odva.org/technology-standards/conformance-testing/)
+- [ODVA Document Library](https://www.odva.org/technology-standards/document-library/)
+- [OpENer](https://github.com/EIPStackGroup/OpENer) — reference stack ODVA-conformance-tested yang dipakai sebagai ground truth di banyak bagian kode ini
+- CIP Networks Library Volume 1 & 2 (spesifikasi normatif lengkap) memerlukan langganan berbayar dari ODVA — lihat [halaman spesifikasi ODVA](https://www.odva.org/subscriptions-services/specifications/)
