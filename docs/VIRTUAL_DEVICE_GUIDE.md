@@ -379,8 +379,8 @@ PLC this project, decoded from the `[ConnMgr Open REJECT]` console line `adapter
 |---|---|---|
 | `0x0100` | Connection in use / duplicate Forward_Open | Only occurs with `strictDuplicateConnections: true`; the Scanner re-sent an identical {Connection Serial, Vendor ID, Originator Serial} triple without closing the old one first. Either Forward_Close first, or leave strict mode off during development. |
 | `0x0107` | Connection not found at target | The requested Assembly instance (or tag name, for a Tag Connection) doesn't exist on this device. Check `defineAssembly()`/`addTag()` was actually called for that instance/name, and that the tag name is typed exactly (case-sensitive) in the config software. |
-| `0x0109` | Invalid connection size | The Forward_Open's requested O→T/T→O byte size doesn't match this device's actual Assembly/tag size. For a Tag Connection, this means the PLC-side variable's type doesn't match the device tag's real byte width — see §8. |
-| `0x0113` | Connection size mismatch | Similar to above; requested size exceeds this project's auto-adapt limits (511 bytes classic, 65535 Large_Forward_Open). |
+| `0x0109` | Invalid connection size | The Forward_Open's requested O→T/T→O byte size doesn't match this device's actual Assembly/tag size. This is a REJECTION, not something the adapter silently accepts by resizing the Assembly to match — a common real cause is the PLC's own config software (Data Exchange / connection table) still pointing at an OLDER connection definition from before the device's Assembly size changed. Re-import the CURRENT `EipDevice.eds` and re-create the connection in the PLC's software rather than reusing an old one. For a Tag Connection, this means the PLC-side variable's type doesn't match the device tag's real byte width — see §8. |
+| `0x0113` | Connection size mismatch | Requested size exceeds the CIP connection size limit (511 bytes classic Forward_Open, 65535 bytes Large_Forward_Open) — use Large_Forward_Open for anything over 511 bytes, or reduce the Assembly size. |
 | `0x0114` | Vendor ID or Product Code mismatch (Electronic Key) | The Scanner's cached device definition doesn't match this device's live identity — usually because the Scanner is still configured for an OLD version of this device (different `productCode` from an earlier test). Re-import the current EDS as a fresh device entry. |
 | `0x0116` | Revision mismatch (Electronic Key) | The Scanner's Electronic Key asks for a Major/Minor revision this device doesn't (compatibly) satisfy — almost always a live-identity-vs-EDS revision mismatch (see §2) or a genuinely stale cached device revision in the config software. Confirm the currently-RUNNING process's `revision` matches what the EDS on disk (and what the config software has actually re-imported) declares. |
 | `0x0120` | Invalid segment in connection path | Malformed or unsupported EPATH segment — e.g. a Tag Connection request with neither O→T nor T→O size populated. |
@@ -444,3 +444,24 @@ Neither cause is specific to Node.js — any process (regardless of language or 
 starved of CPU time by terminal I/O backpressure or a background scanner will show the same
 symptom. Rewriting the device stack in a different language does not address either root cause;
 diagnosing and removing the actual source of the stall does.
+
+### Never run two adapter instances on the same port at the same time
+
+`adapter.js`'s UDP sockets (both the port 44818 discovery listener and the Class 1 I/O port,
+2222 by default) bind with `reuseAddr: true`. This lets the SAME process restart quickly without
+an `EADDRINUSE` error while the OS is still releasing the port from the previous run, but it has a
+dangerous side effect: it also lets a COMPLETELY DIFFERENT process silently bind the same port at
+the same time, with no error at all. When that happens, the OS splits incoming UDP datagrams
+between the two processes unpredictably — whichever one you're actually watching quietly loses
+some of the PLC's own I/O packets. This looks exactly like corrupted, jumpy, or missing data, with
+no error message pointing at the real cause, because from either process's own point of view
+nothing went wrong — it just never received those particular packets.
+
+This is a real, confirmed way to produce exactly that symptom: running `eip_device.js` while a
+leftover `run-virtual-device.js` (or a stale `eip_device.js` from a previous terminal you forgot
+was still open) is also bound to port 2222. `adapter.js` runs a quick probe bind (without `reuseAddr`) before its own real bind and prints a
+`[WARNING]` line naming the port if something else already holds it — but the adapter still starts anyway (to preserve the
+fast-restart behavior), so the warning is easy to miss if you're not watching the console. Always
+confirm only ONE process is bound to your adapter's ports before trusting timing or data captured
+from a run: `netstat -ano | findstr :2222` on Windows (or `lsof -i :2222` on Linux/macOS) should
+show at most one process. Stop every other Node process using the same ports first.

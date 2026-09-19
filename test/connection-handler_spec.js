@@ -54,11 +54,32 @@ describe('ConnectionHandler (Adapter-side Forward_Open/Forward_Close + cyclic I/
         assert.strictEqual(result.extendedStatus, 0x0107);
     });
 
-    it('openConnection() rejects a size mismatch against the actual Assembly instance size', function () {
+    it('openConnection() rejects a requested size exceeding the CIP classic connection limit (511 bytes)', function () {
         const request = baseRequest({ otSize: 999 });
         const result = handler.openConnection(request, { remoteAddress: '10.0.0.5' });
         assert.strictEqual(result.ok, false);
         assert.strictEqual(result.extendedStatus, 0x0113);
+    });
+
+    it('openConnection() rejects an O->T size that does not match the Assembly instance\'s actual byte size with 0x0109, instead of silently resizing it', function () {
+        // Assembly 100 is defined as 4 bytes (see beforeEach). A Forward_Open asking for a
+        // DIFFERENT, still-within-limits size (8 bytes) must be rejected, not silently
+        // accepted by redefining the assembly out from under whatever byte layout the
+        // application (e.g. DeviceBuilder's param sync) was actually built around -- see
+        // docs/VIRTUAL_DEVICE_GUIDE.md §14's "stale PLC-side connection config" case.
+        const request = baseRequest({ otSize: 8 });
+        const result = handler.openConnection(request, { remoteAddress: '10.0.0.5' });
+        assert.strictEqual(result.ok, false);
+        assert.strictEqual(result.extendedStatus, 0x0109);
+        assert.deepStrictEqual(assembly.getData(100), Buffer.alloc(4), 'assembly 100 must still be its originally-defined 4 bytes');
+    });
+
+    it('openConnection() rejects a T->O size that does not match the Assembly instance\'s actual byte size with 0x0109, instead of silently resizing it', function () {
+        const request = baseRequest({ toSize: 8 });
+        const result = handler.openConnection(request, { remoteAddress: '10.0.0.5' });
+        assert.strictEqual(result.ok, false);
+        assert.strictEqual(result.extendedStatus, 0x0109);
+        assert.deepStrictEqual(assembly.getData(101), Buffer.alloc(4), 'assembly 101 must still be its originally-defined 4 bytes');
     });
 
     it('produces a T->O datagram at the negotiated RPI, tagged with the originator-supplied connection id', function (done) {

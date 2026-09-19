@@ -258,6 +258,44 @@ class EIPAdapter extends EventEmitter {
         });
     }
 
+    /**
+     * Probes whether another process already has `port` bound, WITHOUT the reuseAddr option
+     * that this adapter's own real sockets use. reuseAddr lets multiple sockets (including ones
+     * from a completely different process, e.g. a leftover eip_device.js from a previous test)
+     * silently share the same UDP port with no error at all — the OS then splits incoming
+     * datagrams between them unpredictably, so ONE of the processes quietly loses some of the
+     * PLC's own I/O packets. That looks exactly like corrupted/jumpy data with no diagnostic. A
+     * non-reuseAddr probe bind fails loudly (EADDRINUSE) if anything else already holds the
+     * port, so we can at least warn instead of silently sharing it.
+     * @returns {Promise<boolean>} true if the port already appears to be in use elsewhere.
+     */
+    _probePortInUse(port, address) {
+        return new Promise((resolve) => {
+            const probe = dgram.createSocket({ type: 'udp4', reuseAddr: false });
+            probe.once('error', () => {
+                try { probe.close(); } catch { /* already closed */ }
+                resolve(true);
+            });
+            probe.bind(port, address, () => {
+                probe.close(() => resolve(false));
+            });
+        });
+    }
+
+    async _warnIfPortInUse(port, address, label) {
+        const inUse = await this._probePortInUse(port, address);
+        if (inUse) {
+            console.warn(
+                `\x1b[33m[WARNING]\x1b[0m Port ${port} (${label}) appears to already be in use by ` +
+                `another process (e.g. a previous eip_device.js/adapter instance left running). ` +
+                `This socket binds with reuseAddr, so it will start anyway, but the OS can then ` +
+                `split incoming datagrams between the two processes unpredictably — this looks ` +
+                `like corrupted or dropped data with no error. Stop any other process bound to ` +
+                `this port before relying on timing/data captured from this run.`
+            );
+        }
+    }
+
     _startUdpListen() {
         return new Promise((resolve, reject) => {
             this._udpListen = dgram.createSocket({ type: 'udp4', reuseAddr: true });
@@ -274,12 +312,13 @@ class EIPAdapter extends EventEmitter {
         });
     }
 
-    _startUdpIo() {
+    async _startUdpIo() {
+        const bindAddr = (this.address && this.address !== '0.0.0.0') ? this.address : undefined;
+        await this._warnIfPortInUse(this.ioPort, bindAddr, 'Class 1 I/O');
         return new Promise((resolve, reject) => {
             this._udpIo = dgram.createSocket({ type: 'udp4', reuseAddr: true });
             this._udpIo.once('error', reject);
             this._udpIo.on('message', (msg, rinfo) => this.connectionHandler.handleIncomingDatagram(msg, rinfo));
-            const bindAddr = (this.address && this.address !== '0.0.0.0') ? this.address : undefined;
             this._udpIo.bind(this.ioPort, bindAddr, () => {
                 // TTL 1 for multicast Class 1 I/O production — matches OpENer's own default and
                 // the assumption behind the off-subnet rejection check in connection-handler.js
