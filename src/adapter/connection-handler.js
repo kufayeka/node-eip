@@ -746,32 +746,45 @@ class ConnectionHandler {
             if (!isTagConnection && state.consumesO2T === false) return; // Input-Only/Listen-Only — nothing to consume
 
             let payload = parsed.data;
+            const otSize = state.otSize;
 
-            // Strip CIP I/O transport headers:
-            // Case 1: 2-byte Sequence Count + 4-byte Run/Idle header (6 bytes prefix)
-            if (payload.length >= 6) {
-                const headerAt2 = payload.readUInt32LE(2);
-                if (headerAt2 === 0 || headerAt2 === 1) {
-                    state.runIdle = Boolean(headerAt2 & 0x01);
-                    payload = payload.subarray(6);
-                } else {
-                    // Case 2: 4-byte Run/Idle header at offset 0
+            // Strip CIP I/O transport headers by sniffing the data's own numeric value —
+            // the original, field-proven detection this project has run against real Delta
+            // hardware. It has exactly one known ambiguous case: application data whose first
+            // 4 bytes happen to equal 0 or 1 is indistinguishable from a genuine Run/Idle
+            // header by value alone. That case can ONLY occur when the datagram carries no
+            // extra bytes at all (payload.length === otSize, i.e. there is no room for a header
+            // or sequence count in the first place) — so skip sniffing entirely in that one
+            // situation instead of replacing the whole (working) detection strategy. See
+            // bench/rpi-stress.js, which surfaced the crash this guard fixes: a 4-byte all-zero
+            // payload (no header, negotiated otSize=4) was misread as a 4-byte Run/Idle header
+            // of value 0, corrupting the payload to 0 bytes.
+            if (!(otSize > 0 && payload.length === otSize)) {
+                // Case 1: 2-byte Sequence Count + 4-byte Run/Idle header (6 bytes prefix)
+                if (payload.length >= 6) {
+                    const headerAt2 = payload.readUInt32LE(2);
+                    if (headerAt2 === 0 || headerAt2 === 1) {
+                        state.runIdle = Boolean(headerAt2 & 0x01);
+                        payload = payload.subarray(6);
+                    } else {
+                        // Case 2: 4-byte Run/Idle header at offset 0
+                        const headerAt0 = payload.readUInt32LE(0);
+                        if (headerAt0 === 0 || headerAt0 === 1) {
+                            state.runIdle = Boolean(headerAt0 & 0x01);
+                            payload = payload.subarray(4);
+                        } else if (otSize > 0 && payload.length === otSize + 2) {
+                            // Case 3: 2-byte sequence count only
+                            payload = payload.subarray(2);
+                        }
+                    }
+                } else if (payload.length >= 4) {
                     const headerAt0 = payload.readUInt32LE(0);
                     if (headerAt0 === 0 || headerAt0 === 1) {
                         state.runIdle = Boolean(headerAt0 & 0x01);
                         payload = payload.subarray(4);
-                    } else if (state.otSize > 0 && payload.length === state.otSize + 2) {
-                        // Case 3: 2-byte sequence count only
+                    } else if (otSize > 0 && payload.length === otSize + 2) {
                         payload = payload.subarray(2);
                     }
-                }
-            } else if (payload.length >= 4) {
-                const headerAt0 = payload.readUInt32LE(0);
-                if (headerAt0 === 0 || headerAt0 === 1) {
-                    state.runIdle = Boolean(headerAt0 & 0x01);
-                    payload = payload.subarray(4);
-                } else if (state.otSize > 0 && payload.length === state.otSize + 2) {
-                    payload = payload.subarray(2);
                 }
             }
             if (isTagConnection) {

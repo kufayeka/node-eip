@@ -10,7 +10,6 @@
     "eip-profile-gen": "./bin/eds-to-profile.js"
   },
   "keywords": [
-
     "ethernet-ip",
     "cip",
     "odva",
@@ -20,5 +19,8 @@
     "kufayeka"
   ],
   "author": "kufayeka",
-  "private": true
+  "private": true,
+  "devDependencies": {
+    "koffi": "^3.3.1"
+  }
 }
