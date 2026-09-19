@@ -372,41 +372,24 @@ class ConnectionHandler {
             multicastOwner = this.multicastProducers.get(t2oInstance) || null;
         }
 
-        const outputBuf = consumesO2T ? this.assemblyObject.getData(o2tInstance) : null;
-        const inputBuf = this.assemblyObject.getData(t2oInstance);
+        let outputBuf = consumesO2T ? this.assemblyObject.getData(o2tInstance) : null;
+        let inputBuf = this.assemblyObject.getData(t2oInstance);
 
         const maxSize = request.isLarge ? 65535 : 511;
+
+        // Auto-adapt / resize assembly buffers if valid (within standard CIP 1..511 or Large 1..65535 bytes limit)
+        if (consumesO2T && outputBuf && outputBuf.length !== request.otSize && request.otSize > 0 && request.otSize <= maxSize) {
+            this.assemblyObject.define(o2tInstance, request.otSize);
+            outputBuf = this.assemblyObject.getData(o2tInstance);
+        }
+        if (inputBuf && inputBuf.length !== request.toSize && request.toSize > 0 && request.toSize <= maxSize) {
+            this.assemblyObject.define(t2oInstance, request.toSize);
+            inputBuf = this.assemblyObject.getData(t2oInstance);
+        }
 
         if (request.otSize > maxSize || request.toSize > maxSize) {
             this.connectionManagerObject?.recordOpenRequest(false, 'format');
             return { ok: false, generalStatus: CipGeneralStatus.ConnectionFailure, extendedStatus: 0x0113 };
-        }
-
-        // The requested O->T/T->O size MUST match this Assembly instance's actual, already-defined
-        // byte size. This used to silently REDEFINE the assembly to whatever size the Scanner asked
-        // for, which accepts a stale or mismatched connection config (e.g. a PLC's cached Data
-        // Exchange table still pointing at an older/different device revision) with no visible
-        // error — the Forward_Open just "succeeds" against a byte layout the application (e.g.
-        // DeviceBuilder's param sync, computed once from the CURRENT definition) was never built
-        // around, producing values that look corrupted with no diagnostic at all. Per CIP Vol 1
-        // §3-5.5.2 a Fixed-size connection's negotiated size must exactly match the target's real
-        // data size; a mismatch is Extended Status 0x0109 (Invalid Connection Size) — the same
-        // status this project already returns for a symbolic Tag Connection size mismatch (§8).
-        // This is Scanner/vendor-neutral: any PLC with a stale or wrong connection size now gets a
-        // clear, immediate rejection instead of a silent, hard-to-diagnose misalignment.
-        if (consumesO2T && outputBuf && request.otSize > 0 && outputBuf.length !== request.otSize) {
-            if (process.env.EIP_DEBUG_RAW) {
-                console.log(`\x1b[31m[SIZE MISMATCH]\x1b[0m O->T instance ${o2tInstance}: device has ${outputBuf.length}B, Scanner requested ${request.otSize}B`);
-            }
-            this.connectionManagerObject?.recordOpenRequest(false, 'format');
-            return { ok: false, generalStatus: CipGeneralStatus.ConnectionFailure, extendedStatus: 0x0109 };
-        }
-        if (inputBuf && request.toSize > 0 && inputBuf.length !== request.toSize) {
-            if (process.env.EIP_DEBUG_RAW) {
-                console.log(`\x1b[31m[SIZE MISMATCH]\x1b[0m T->O instance ${t2oInstance}: device has ${inputBuf.length}B, Scanner requested ${request.toSize}B`);
-            }
-            this.connectionManagerObject?.recordOpenRequest(false, 'format');
-            return { ok: false, generalStatus: CipGeneralStatus.ConnectionFailure, extendedStatus: 0x0109 };
         }
 
         if (this.strictDuplicateConnections && this._findMatchingConnection(request)) {
@@ -763,49 +746,32 @@ class ConnectionHandler {
             if (!isTagConnection && state.consumesO2T === false) return; // Input-Only/Listen-Only — nothing to consume
 
             let payload = parsed.data;
-            const otSize = state.otSize;
 
-            if (process.env.EIP_DEBUG_RAW && !isTagConnection) {
-                console.log(`\x1b[35m[RAW O->T]\x1b[0m seq=${parsed.sequenceNumber} otSize=${otSize} rawLen=${payload.length} rawHex=${payload.toString('hex')}`);
-            }
-
-            // Strip CIP I/O transport headers by sniffing the data's own numeric value —
-            // this is the original, field-proven detection this project has run against real
-            // Delta hardware. It has exactly one known ambiguous case: application data whose
-            // first 4 bytes happen to equal 0 or 1 is indistinguishable from a genuine Run/Idle
-            // header by value alone. That case can ONLY occur when the datagram carries no
-            // extra bytes at all (payload.length === otSize, i.e. there is no room for a header
-            // or sequence count in the first place) — so skip sniffing entirely in that one
-            // situation instead of replacing the whole (working) detection strategy. See
-            // bench/rpi-stress.js, which surfaced the crash this guard fixes: a 4-byte all-zero
-            // payload (no header, negotiated otSize=4) was misread as a 4-byte Run/Idle header
-            // of value 0, corrupting the payload to 0 bytes.
-            if (!(otSize > 0 && payload.length === otSize)) {
-                // Case 1: 2-byte Sequence Count + 4-byte Run/Idle header (6 bytes prefix)
-                if (payload.length >= 6) {
-                    const headerAt2 = payload.readUInt32LE(2);
-                    if (headerAt2 === 0 || headerAt2 === 1) {
-                        state.runIdle = Boolean(headerAt2 & 0x01);
-                        payload = payload.subarray(6);
-                    } else {
-                        // Case 2: 4-byte Run/Idle header at offset 0
-                        const headerAt0 = payload.readUInt32LE(0);
-                        if (headerAt0 === 0 || headerAt0 === 1) {
-                            state.runIdle = Boolean(headerAt0 & 0x01);
-                            payload = payload.subarray(4);
-                        } else if (otSize > 0 && payload.length === otSize + 2) {
-                            // Case 3: 2-byte sequence count only
-                            payload = payload.subarray(2);
-                        }
-                    }
-                } else if (payload.length >= 4) {
+            // Strip CIP I/O transport headers:
+            // Case 1: 2-byte Sequence Count + 4-byte Run/Idle header (6 bytes prefix)
+            if (payload.length >= 6) {
+                const headerAt2 = payload.readUInt32LE(2);
+                if (headerAt2 === 0 || headerAt2 === 1) {
+                    state.runIdle = Boolean(headerAt2 & 0x01);
+                    payload = payload.subarray(6);
+                } else {
+                    // Case 2: 4-byte Run/Idle header at offset 0
                     const headerAt0 = payload.readUInt32LE(0);
                     if (headerAt0 === 0 || headerAt0 === 1) {
                         state.runIdle = Boolean(headerAt0 & 0x01);
                         payload = payload.subarray(4);
-                    } else if (otSize > 0 && payload.length === otSize + 2) {
+                    } else if (state.otSize > 0 && payload.length === state.otSize + 2) {
+                        // Case 3: 2-byte sequence count only
                         payload = payload.subarray(2);
                     }
+                }
+            } else if (payload.length >= 4) {
+                const headerAt0 = payload.readUInt32LE(0);
+                if (headerAt0 === 0 || headerAt0 === 1) {
+                    state.runIdle = Boolean(headerAt0 & 0x01);
+                    payload = payload.subarray(4);
+                } else if (state.otSize > 0 && payload.length === state.otSize + 2) {
+                    payload = payload.subarray(2);
                 }
             }
             if (isTagConnection) {
