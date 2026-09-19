@@ -21,7 +21,7 @@ class IdentityObject extends EventEmitter {
         vendorId = 0xffff,
         deviceType = 0x0e,
         productCode = 0x0001,
-        revision = { major: 1, minor: 0 },
+        revision = { major: 1, minor: 1 }, // ODVA EDS spec: MinRev must be 1-255, never 0 (see builder.js's matching clamp)
         productName = 'EIP-Device',
         serialNumber = 0x12345678,
         status = 0x0060,

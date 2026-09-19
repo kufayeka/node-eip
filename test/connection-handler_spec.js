@@ -461,12 +461,14 @@ describe('ConnectionHandler (Adapter-side Forward_Open/Forward_Close + cyclic I/
             const datagram = buildIoDatagram({ connectionId: result.response.otNetworkConnectionId, sequenceNumber: 1, data: Buffer.from([99, 0, 0, 0]) });
             h.handleIncomingDatagram(datagram);
             assert.deepStrictEqual(tagStore.get('TotalCount').buffer, Buffer.from([99, 0, 0, 0]));
+            // Generous margin (30x the 2ms RPI) so this isn't flaky under system load —
+            // any cyclic tick from here on should reflect the just-written value.
             setTimeout(() => {
                 const last = parseIoDatagram(sentDatagrams[sentDatagrams.length - 1].buf);
                 assert.deepStrictEqual(last.data.subarray(2), Buffer.from([99, 0, 0, 0])); // produces the just-written value back
                 h.closeAll();
                 done();
-            }, 20);
+            }, 60);
         });
 
         it('rejects a tag path referencing an undefined tag with extended status 0x0107 (connection not found at target)', function () {

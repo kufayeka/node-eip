@@ -28,6 +28,21 @@ class DeviceBuilder extends EventEmitter {
      */
     constructor(options = {}) {
         super();
+        const rawRevision = options.revision || { major: 1, minor: 1 };
+        // ODVA CIP EDS Specification: both MajRev and MinRev must be integers
+        // between 1 and 255 (never 0) — clamped here, at construction, so the
+        // live Identity Object (checked against every Forward_Open's
+        // Electronic Key) can never drift out of sync with generateEds()'s
+        // own identical clamp. A caller passing e.g. { major: 1, minor: 0 }
+        // used to produce a device whose EDS declared "Revision = 1.1" (EDS
+        // exporter's clamp) while the live device actually answered 1.0 —
+        // any Scanner using compatible keying (the common case) would then
+        // reject every Forward_Open with a Revision mismatch (0x0116),
+        // because it always asks for the *exact* revision printed in the EDS.
+        const revision = {
+            major: Math.max(1, Math.min(255, Number(rawRevision.major) || 1)),
+            minor: Math.max(1, Math.min(255, Number(rawRevision.minor) || 1))
+        };
         this.identity = {
             vendorId: options.vendorId !== undefined ? options.vendorId : 799,
             vendorName: options.vendorName || 'Delta Electronics, Inc.',
@@ -36,7 +51,7 @@ class DeviceBuilder extends EventEmitter {
             catalog: options.catalog || 'KUF-EIP-NODE',
             deviceType: typeof options.deviceType === 'number' ? options.deviceType : this._resolveDeviceTypeCode(options.deviceType),
             deviceTypeStr: typeof options.deviceType === 'string' ? options.deviceType : 'Generic Device',
-            revision: options.revision || { major: 1, minor: 1 },
+            revision,
             serialNumber: options.serialNumber || (Math.floor(Math.random() * 0x7FFFFFFF) + 1)
         };
 
