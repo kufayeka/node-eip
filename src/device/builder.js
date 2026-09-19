@@ -458,7 +458,20 @@ class DeviceBuilder extends EventEmitter {
                 if (p) members.push({ param: p, offset, byteSize: bSize });
                 offset += bSize;
             }
-        } else if (this.params.length > 0 && assem.instance < 110) {
+        } else if (this.params.length > 0 && (assem.instance === 100 || assem.instance === 101)) {
+            // Convenience fallback for the legacy single-connection-profile convention (Assembly
+            // 100 = Output/Consumed, 101 = Input/Produced, no explicit `members` needed) -- NOT a
+            // general rule for "any assembly instance below 110". It used to be exactly that (a
+            // bare `assem.instance < 110`), which silently auto-mapped ALL registered params
+            // (packed byte-aligned, in registration order) into ANY OTHER Assembly in that range
+            // that was deliberately left without `members` for its own reason -- e.g. a bit-packed
+            // boolean Assembly (102/103), where this fallback stuffed the first Param that fit
+            // (by byte size) into the whole raw byte, running ALONGSIDE and fighting the
+            // application's own intentional bit-level pack/unpack of that same byte. Concretely:
+            // one BOOL param got silently bound to the ENTIRE byte's nonzero-ness, so it read back
+            // true whenever ANY of the real bit-packed flags was set, regardless of its own actual
+            // bit. Scoped to exactly 100/101 to match eds-exporter.js's own equivalent fallback
+            // condition for the EDS text itself, which was never broadened the same way.
             const targetParams = (assem.type === 'output')
                 ? (this.params.filter(p => p.access !== 'r').length > 0 ? this.params.filter(p => p.access !== 'r') : this.params)
                 : this.params;

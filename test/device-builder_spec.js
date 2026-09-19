@@ -286,6 +286,42 @@ describe('Universal EtherNet/IP Device Builder & EDS Exporter', () => {
         });
     });
 
+    describe('Fallback param<->Assembly auto-mapping scope (regression)', () => {
+        // Found via a real Delta PLC test session: a second, deliberately member-less,
+        // bit-packed boolean Assembly (102/103) got silently corrupted because
+        // _buildAssemblyMapping()'s convenience fallback for the legacy single-profile
+        // convention (Assembly 100 = Output, 101 = Input, no explicit `members`) used to
+        // match ANY assembly instance below 110, not just 100/101 -- so it ALSO auto-mapped
+        // the first Param that happened to fit into Assembly 102's raw byte, fighting the
+        // application's own intentional manual bit pack/unpack of that same byte.
+        it('does NOT auto-map params into a member-less Assembly other than 100/101', () => {
+            const b = new DeviceBuilder({ vendorId: 799, productName: 'Fallback Scope Test', syncIoParams: true });
+            b.addParam({ code: '01-00', name: 'Param1', dataType: 'DINT', default: 0, access: 'rw' });
+            b.addParam({ code: '02-00', name: 'BoolFlag1', dataType: 'BOOL', default: false, access: 'rw' });
+
+            // Assembly 100/101 use the legacy no-`members` convenience convention on purpose.
+            b.defineAssembly({ instance: 100, name: 'Out100', sizeBytes: 4, type: 'output' });
+            b.defineAssembly({ instance: 101, name: 'In101', sizeBytes: 4, type: 'input' });
+            // Assembly 102/103: deliberately member-less too, but NOT 100/101 -- e.g. a
+            // hand-packed bit buffer the application manages itself.
+            b.defineAssembly({ instance: 102, name: 'BitOut102', sizeBytes: 1, type: 'output' });
+            b.defineAssembly({ instance: 103, name: 'BitIn103', sizeBytes: 1, type: 'input' });
+
+            const adapter = b.createAdapter({ port: 0, address: '127.0.0.1', quiet: true });
+
+            // Writing a nonzero byte to 102 (e.g. some OTHER bit set, bit1) must NOT flip
+            // BoolFlag1 -- unlike Param1/100, which the legacy fallback SHOULD still cover.
+            adapter.assembly.setData(102, Buffer.from([0b00000010]));
+            assert.strictEqual(b.getParamValue('02-00'), false, 'BoolFlag1 must be untouched by writes to the unrelated member-less Assembly 102');
+
+            // The legacy 100/101 convenience mapping must still work (not a regression on its own).
+            const buf100 = Buffer.alloc(4);
+            buf100.writeInt32LE(4242, 0);
+            adapter.assembly.setData(100, buf100);
+            assert.strictEqual(b.getParamValue('01-00'), 4242, 'Assembly 100/101 fallback mapping must still work');
+        });
+    });
+
     describe('Live Server (EIPAdapter) & Client Control Loopback', () => {
         let builder;
         let adapter;
