@@ -348,7 +348,14 @@ ${scalingStr}
     }
 
     // 3. [Connection Manager] Section (Matches Delta EIP Builder & ODVA Standard exactly)
-    if (Array.isArray(connections) && connections.length > 0) {
+    // Also entered for a device with ONLY symbolic tags and no Assembly-based connections at all
+    // (hasTags true, connections empty) -- without this, such a device got NO Connection Manager
+    // section whatsoever, so its tags were reachable by explicit messaging but could never be
+    // selected as a Produced/Consumed Tag Class 1 connection in a Scanner's config tool, since
+    // there was no EDS Connection entry to select in the first place. The block below already
+    // handles an empty `connections` array correctly (connections.forEach() is a no-op, connIdx
+    // stays 0) and already computes totalConnections/tagConnIdx accounting for hasTags.
+    if ((Array.isArray(connections) && connections.length > 0) || hasTags) {
         const ownerCount = connections.length;
         const listenOnlyCount = connections.filter((c) => c.supportListenOnly !== false).length;
         const inputOnlyCount = connections.filter((c) => c.supportInputOnly !== false).length;

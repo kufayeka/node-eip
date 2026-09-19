@@ -198,6 +198,26 @@ describe('Universal EtherNet/IP Device Builder & EDS Exporter', () => {
             assert.ok(cm.includes('Connection4 ='));
         });
 
+        it('adds a Tag Connection entry even for a device with ONLY tags and no Assembly-based connection at all', () => {
+            // Previously, the [Connection Manager] section was only emitted when
+            // `connections.length > 0` -- a device with just addTag() calls and no
+            // defineAssembly()/defineConnection() at all got NO Connection Manager section
+            // whatsoever, so its tags were reachable by explicit messaging but could never be
+            // selected as a Produced/Consumed Tag Class 1 connection in a Scanner's config tool.
+            const b = new DeviceBuilder({ vendorId: 799, productName: 'Tags-Only Node' });
+            b.addTag('Tag1', 'BOOL', false);
+            b.addTag('Tag2', 'INT', 0);
+
+            const eds = b.generateEds();
+            assert.ok(eds.includes('[Connection Manager]'), 'must still emit a Connection Manager section');
+            const cm = eds.split('[Connection Manager]')[1].split('[Capacity]')[0];
+
+            assert.ok(cm.includes('"Tag Connection"'));
+            assert.ok(cm.includes('"SYMBOL_ANSI"'));
+            assert.ok(cm.includes('MaxInst = 1'), 'only the Tag Connection itself -- no Exclusive-Owner/Listen-Only/Input-Only variants without an Assembly');
+            assert.ok(cm.includes('Connection1 ='));
+        });
+
         it('does NOT add a Tag Connection entry when no tags are defined', () => {
             const b = new DeviceBuilder({ vendorId: 799, productName: 'No Tags Node' });
             b.defineAssembly({ instance: 100, name: 'Out', type: 'output', sizeBytes: 4 });
