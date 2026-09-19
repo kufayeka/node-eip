@@ -98,18 +98,35 @@ Variable Frequency Drive — i.e. exactly the kind of device `DeviceBuilder` is 
 - #7 (I/O Data via explicit messaging, size-mismatch rejection): **done** — `AssemblyObject`
   enforces exact size match, matching real Delta hardware's own observed behavior.
 - #6 (config via explicit messaging): **done** for `ParameterObject`/tags, always (Get/Set_Attribute_Single).
+- #2/#3f (simultaneous Exclusive-Owner + Listen-Only/Input-Only to the SAME connection point):
+  **done**. `connection-handler.js` now classifies a Forward_Open's (O→T, T→O) pair against
+  explicitly registered slots — `registerConnectionPoint()` / `_classifyConnectionType()`, ported
+  from OpENer's `appcontype.c` (`GetIoConnectionForConnectionData()` and its per-type helpers), the
+  actual reference-stack algorithm: classification is by which pre-declared slot pair the path
+  matches, NOT by O→T size. `DeviceBuilder.defineConnection()` auto-registers all three slot types
+  per profile (Exclusive-Owner at the real Assembly instances; Input-Only/Listen-Only at reserved
+  placeholder O→T instances, `0xC0`+ by convention, one pair per profile — matching this project's
+  own real Delta SX3 EDS's own placeholder-instance convention), and `eds-exporter.js` emits all
+  three as separate EDS `ConnectionN` entries. Enforced at runtime: a Listen-Only Forward_Open is
+  rejected with extended status `0x0119` if no Exclusive-Owner/Input-Only "master" connection
+  exists yet for that T→O instance (OpENer's own rule); a second Exclusive-Owner Forward_Open to
+  an already-owned T→O instance from a *different* originator is rejected with `0x0106` (Ownership
+  Conflict); multiple simultaneous Listen-Only connections from different originators to the same
+  T→O instance coexist correctly. A connection profile that never registers slots (e.g. every
+  pre-existing test predating this feature) keeps the original generic/legacy behavior unchanged —
+  this was an additive change, not a breaking one.
 
 **Not yet audited/implemented — flagged here rather than assumed:**
-- #2/#3d/#3f (simultaneous Exclusive-Owner + Listen-Only/Input-Only to the SAME connection
-  point, with real Listen-Only semantics): `connection-handler.js` does not currently distinguish
-  connection TYPE (Exclusive Owner vs. Listen-Only vs. Input-Only) at runtime at all — every
-  non-explicit Forward_Open is handled identically (bind O→T/T→O instances, produce/consume). A
-  second connection to the same instances from a different originator would currently be treated
-  as just another independent producer/consumer, not a semantically-correct Listen-Only tap. This
-  is a real, previously-undocumented gap worth fixing before relying on multi-scanner (owner +
-  monitor) scenarios.
-- #3d (multicast T→O): **not implemented** — see the Multicast gap already noted in the skill file
-  and README §7.
+- #3d (multicast T→O): **not implemented yet, but the exact algorithm is now sourced**: OpENer's
+  `CipTcpIpCalculateMulticastIp()` (`ciptcpipinterface.c`) implements CIP Vol 2 §3-5.3 "Multicast
+  Address Allocation for EtherNet/IP" — `base 239.192.1.0 + ((hostId - 1 & 0x3FF) << 5)`, where
+  `hostId` is the device's own IP masked to its host portion. Implementing this fully means: TCP/IP
+  Interface Object Multicast Configuration (Attribute 9), an actual UDP multicast send path, an
+  off-subnet rejection check (OpENer's `kConnectionManagerExtendedStatusCodeNotConfiguredForOffSubnetMulticast`
+  = `0x0813`, TTL=1 assumption), and — for real bandwidth benefit — reworking Listen-Only
+  connections to share one multicast producer per T→O instance instead of each running its own
+  independent unicast timer (which they currently still do; connection-type classification above
+  is orthogonal to and doesn't block this). Scoped out of this pass; see `docs/ROADMAP.md`.
 - #3g (heartbeat connection path with 0-length, no-header): not specifically modeled as a distinct
   path; the Listen-Only/Input-Only EDS fallback branches in `eds-exporter.js` declare `0x02010002`
   transport types but this hasn't been cross-checked against §3g's exact framing.

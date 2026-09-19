@@ -461,14 +461,24 @@ describe('ConnectionHandler (Adapter-side Forward_Open/Forward_Close + cyclic I/
             const datagram = buildIoDatagram({ connectionId: result.response.otNetworkConnectionId, sequenceNumber: 1, data: Buffer.from([99, 0, 0, 0]) });
             h.handleIncomingDatagram(datagram);
             assert.deepStrictEqual(tagStore.get('TotalCount').buffer, Buffer.from([99, 0, 0, 0]));
-            // Generous margin (30x the 2ms RPI) so this isn't flaky under system load —
-            // any cyclic tick from here on should reflect the just-written value.
-            setTimeout(() => {
-                const last = parseIoDatagram(sentDatagrams[sentDatagrams.length - 1].buf);
-                assert.deepStrictEqual(last.data.subarray(2), Buffer.from([99, 0, 0, 0])); // produces the just-written value back
-                h.closeAll();
-                done();
-            }, 60);
+            // Poll instead of a single fixed-delay check — under heavy system/CI load a lone
+            // setTimeout(60ms) can still land before the 2ms-RPI cyclic timer has actually
+            // ticked (Node's timers are a lower bound, not a guarantee), which isn't a real
+            // bug, just an unlucky scheduling race. Poll up to a generous ceiling instead.
+            const deadline = Date.now() + 500;
+            const poll = () => {
+                const last = sentDatagrams.length > 0 ? parseIoDatagram(sentDatagrams[sentDatagrams.length - 1].buf) : null;
+                if (last && last.data.subarray(2).equals(Buffer.from([99, 0, 0, 0]))) {
+                    h.closeAll();
+                    done();
+                } else if (Date.now() > deadline) {
+                    h.closeAll();
+                    done(new Error(`Expected a produced datagram carrying [99,0,0,0]; last seen: ${last ? last.data.subarray(2).toString('hex') : 'none'}`));
+                } else {
+                    setTimeout(poll, 10);
+                }
+            };
+            poll();
         });
 
         it('rejects a tag path referencing an undefined tag with extended status 0x0107 (connection not found at target)', function () {
@@ -491,6 +501,138 @@ describe('ConnectionHandler (Adapter-side Forward_Open/Forward_Close + cyclic I/
             const result = h.openConnection(tagRequest(), { remoteAddress: '10.0.0.5' });
             assert.strictEqual(result.ok, false);
             assert.strictEqual(result.extendedStatus, 0x0120);
+        });
+    });
+
+    // Ported from OpENer's appcontype.c — the ODVA-conformance-tested reference stack's own
+    // Exclusive-Owner/Input-Only/Listen-Only classification algorithm (GetIoConnectionForConnectionData()
+    // and its Get{ExclusiveOwner,InputOnly,ListenOnly}Connection() helpers). Real devices classify a
+    // Forward_Open purely by which pre-registered (O->T, T->O) slot pair its path matches — NOT by
+    // whether O->T size is zero — see connection-handler.js's registerConnectionPoint() doc comment.
+    describe('Connection-type classification (Exclusive-Owner / Input-Only / Listen-Only, ported from OpENer appcontype.c)', function () {
+        const OWNER_O2T = 100;
+        const TO_INST = 101;
+        const LISTEN_O2T = 0xC0;
+        const INPUT_O2T = 0xC1;
+
+        function ownerRequest(overrides = {}) {
+            return baseRequest({
+                connectionPath: encodeAssemblyConnectionPath({ configInstance: 0x80, o2tInstance: OWNER_O2T, t2oInstance: TO_INST }),
+                ...overrides
+            });
+        }
+        function listenOnlyRequest(overrides = {}) {
+            return baseRequest({
+                connectionPath: encodeAssemblyConnectionPath({ configInstance: 0x80, o2tInstance: LISTEN_O2T, t2oInstance: TO_INST }),
+                otSize: 0,
+                ...overrides
+            });
+        }
+        function inputOnlyRequest(overrides = {}) {
+            return baseRequest({
+                connectionPath: encodeAssemblyConnectionPath({ configInstance: 0x80, o2tInstance: INPUT_O2T, t2oInstance: TO_INST }),
+                otSize: 0,
+                ...overrides
+            });
+        }
+
+        function registeredHandler() {
+            const h = new ConnectionHandler({ assemblyObject: assembly, sendDatagram: (buf, addr) => sentDatagrams.push({ buf, addr }) });
+            h.registerConnectionPoint('exclusiveOwner', { outputAssembly: OWNER_O2T, inputAssembly: TO_INST });
+            h.registerConnectionPoint('inputOnly', { outputAssembly: INPUT_O2T, inputAssembly: TO_INST });
+            h.registerConnectionPoint('listenOnly', { outputAssembly: LISTEN_O2T, inputAssembly: TO_INST });
+            return h;
+        }
+
+        it('a numeric connection with NO registered slots keeps the legacy generic behavior (backward compatibility)', function () {
+            // handler (from the outer beforeEach) never calls registerConnectionPoint — every
+            // pre-existing test in this file relies on exactly this fallback still working.
+            const result = handler.openConnection(baseRequest(), { remoteAddress: '10.0.0.5' });
+            assert.strictEqual(result.ok, true);
+            const state = [...handler.connections.values()][0];
+            assert.strictEqual(state.connType, null);
+            assert.strictEqual(state.consumesO2T, true);
+        });
+
+        it('classifies a registered (O->T, T->O) pair matching the Exclusive-Owner slot', function () {
+            const h = registeredHandler();
+            const result = h.openConnection(ownerRequest(), { remoteAddress: '10.0.0.5' });
+            assert.strictEqual(result.ok, true);
+            const state = [...h.connections.values()][0];
+            assert.strictEqual(state.connType, 'exclusiveOwner');
+            h.closeAll();
+        });
+
+        it('rejects a Listen-Only Forward_Open with extended status 0x0119 when no master (Exclusive-Owner/Input-Only) connection exists yet', function () {
+            const h = registeredHandler();
+            const result = h.openConnection(listenOnlyRequest(), { remoteAddress: '10.0.0.6' });
+            assert.strictEqual(result.ok, false);
+            assert.strictEqual(result.generalStatus, CipGeneralStatus.ConnectionFailure);
+            assert.strictEqual(result.extendedStatus, 0x0119);
+            h.closeAll();
+        });
+
+        it('accepts a Listen-Only Forward_Open once an Exclusive-Owner connection is established, without requiring a real Assembly at the placeholder O->T instance', function () {
+            const h = registeredHandler();
+            assert.strictEqual(assembly.has(LISTEN_O2T), false); // no real Assembly at the placeholder — by design
+            const owner = h.openConnection(ownerRequest(), { remoteAddress: '10.0.0.5' });
+            assert.strictEqual(owner.ok, true);
+
+            const listener = h.openConnection(listenOnlyRequest(), { remoteAddress: '10.0.0.6' });
+            assert.strictEqual(listener.ok, true);
+            const listenerState = [...h.connections.values()].find((c) => c.remoteAddress === '10.0.0.6');
+            assert.strictEqual(listenerState.connType, 'listenOnly');
+            assert.strictEqual(listenerState.consumesO2T, false);
+            h.closeAll();
+        });
+
+        it('accepts an Input-Only Forward_Open independently, with no master required', function () {
+            const h = registeredHandler();
+            const result = h.openConnection(inputOnlyRequest(), { remoteAddress: '10.0.0.7' });
+            assert.strictEqual(result.ok, true);
+            const state = [...h.connections.values()][0];
+            assert.strictEqual(state.connType, 'inputOnly');
+            assert.strictEqual(state.consumesO2T, false);
+            h.closeAll();
+        });
+
+        it('rejects a second Exclusive-Owner Forward_Open for the same T->O instance from a DIFFERENT originator with 0x0106 (Ownership Conflict)', function () {
+            const h = registeredHandler();
+            const first = h.openConnection(ownerRequest(), { remoteAddress: '10.0.0.5' });
+            assert.strictEqual(first.ok, true);
+
+            const second = h.openConnection(
+                ownerRequest({ connectionSerialNumber: 0x9999, originatorSerialNumber: 0x55667788 }),
+                { remoteAddress: '10.0.0.9' }
+            );
+            assert.strictEqual(second.ok, false);
+            assert.strictEqual(second.extendedStatus, 0x0106);
+            assert.strictEqual(h.connections.size, 1);
+            h.closeAll();
+        });
+
+        it('allows the SAME originator to reconnect its own Exclusive-Owner connection without an Ownership Conflict', function () {
+            const h = registeredHandler();
+            const first = h.openConnection(ownerRequest(), { remoteAddress: '10.0.0.5' });
+            assert.strictEqual(first.ok, true);
+
+            const second = h.openConnection(ownerRequest(), { remoteAddress: '10.0.0.5' });
+            assert.strictEqual(second.ok, true);
+            assert.strictEqual(h.connections.size, 1); // superseded, not conflicting
+            h.closeAll();
+        });
+
+        it('supports multiple simultaneous Listen-Only connections (from different originators) to the same T->O instance', function () {
+            const h = registeredHandler();
+            const owner = h.openConnection(ownerRequest(), { remoteAddress: '10.0.0.5' });
+            assert.strictEqual(owner.ok, true);
+
+            const listenerA = h.openConnection(listenOnlyRequest({ connectionSerialNumber: 0xaaaa, originatorSerialNumber: 0x1 }), { remoteAddress: '10.0.0.6' });
+            const listenerB = h.openConnection(listenOnlyRequest({ connectionSerialNumber: 0xbbbb, originatorSerialNumber: 0x2 }), { remoteAddress: '10.0.0.7' });
+            assert.strictEqual(listenerA.ok, true);
+            assert.strictEqual(listenerB.ok, true);
+            assert.strictEqual(h.connections.size, 3); // owner + 2 listeners, none evicted the others
+            h.closeAll();
         });
     });
 });

@@ -179,7 +179,19 @@ touching related code:
   bit but always produces unicast to the Originator's address, which is a real, currently-unaddressed
   gap against §6.2.3.e above (relevant if this Adapter's connections are ever exercised by a Scanner
   requiring multicast — e.g. per §5.2.3.d's connection combinations, which assume the Adapter CAN
-  multicast).
+  multicast). The address-allocation algorithm is already sourced — OpENer's
+  `CipTcpIpCalculateMulticastIp()` implements CIP Vol 2 §3-5.3 exactly — see
+  `docs/ODVA_COMPLIANCE_REFERENCE.md` §2's Adapter gap list for the full formula and what's left
+  to wire up (TCP/IP Object Multicast Configuration, an actual multicast UDP send path, off-subnet
+  rejection, and sharing one producer per T→O instance instead of one per connection).
+- **Exclusive-Owner / Input-Only / Listen-Only connection-type classification is now implemented**
+  (`registerConnectionPoint()`/`_classifyConnectionType()` in `connection-handler.js`, ported from
+  OpENer's `appcontype.c`) — classification is by which pre-registered (O→T, T→O) slot pair a
+  Forward_Open's path matches, NOT by O→T size being zero. `DeviceBuilder.defineConnection()`
+  auto-registers all three slot types per profile. If you touch connection acceptance logic, run
+  `test/connection-handler_spec.js`'s "Connection-type classification" suite — it encodes the exact
+  OpENer rules (Ownership Conflict `0x0106`, "no master yet" `0x0119`) as executable tests, not just
+  documentation.
 
 ## 6. Ground rules before changing protocol-level code
 

@@ -192,8 +192,10 @@ describe('Universal EtherNet/IP Device Builder & EDS Exporter', () => {
 
             assert.ok(cm.includes('"Tag Connection"'));
             assert.ok(cm.includes('"SYMBOL_ANSI"'));
-            assert.ok(cm.includes('MaxInst = 2')); // the explicit connection + the tag connection
-            assert.ok(cm.includes('Connection2 ='));
+            // 1 Exclusive-Owner + 1 Listen-Only + 1 Input-Only (all on by default per
+            // PUB00070 §5.2.2) + 1 Tag Connection = 4.
+            assert.ok(cm.includes('MaxInst = 4'));
+            assert.ok(cm.includes('Connection4 ='));
         });
 
         it('does NOT add a Tag Connection entry when no tags are defined', () => {
@@ -206,7 +208,8 @@ describe('Universal EtherNet/IP Device Builder & EDS Exporter', () => {
             const cm = eds.split('[Connection Manager]')[1].split('[Capacity]')[0];
 
             assert.ok(!cm.includes('SYMBOL_ANSI'));
-            assert.ok(cm.includes('MaxInst = 1'));
+            // 1 Exclusive-Owner + 1 Listen-Only + 1 Input-Only, no Tag Connection.
+            assert.ok(cm.includes('MaxInst = 3'));
         });
 
         // Confirmed necessary against a real Delta EIP Builder test: with the

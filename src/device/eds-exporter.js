@@ -349,7 +349,10 @@ ${scalingStr}
 
     // 3. [Connection Manager] Section (Matches Delta EIP Builder & ODVA Standard exactly)
     if (Array.isArray(connections) && connections.length > 0) {
-        const totalConnections = connections.length + (hasTags ? 1 : 0);
+        const ownerCount = connections.length;
+        const listenOnlyCount = connections.filter((c) => c.supportListenOnly !== false).length;
+        const inputOnlyCount = connections.filter((c) => c.supportInputOnly !== false).length;
+        const totalConnections = ownerCount + listenOnlyCount + inputOnlyCount + (hasTags ? 1 : 0);
         eds += `[Connection Manager]
         Object_Name = "Connection Manager Object";
         Object_Class_Code = 0x06;
@@ -358,8 +361,8 @@ ${scalingStr}
         Number_Of_Static_Instances = ${totalConnections};
         Max_Number_Of_Dynamic_Instances = 0;\n\n`;
 
+        let connIdx = 0;
         connections.forEach((conn, index) => {
-            const connIdx = index + 1;
             const otAssem = assemblies.find(a => a.instance === conn.outputAssembly);
             const toAssem = assemblies.find(a => a.instance === conn.inputAssembly);
             const otInstHex = otAssem ? otAssem.instance.toString(16).padStart(2, '0').toUpperCase() : '64';
@@ -367,6 +370,7 @@ ${scalingStr}
             const otRef = otAssem ? `Assem${otAssem.instance}` : '';
             const toRef = toAssem ? `Assem${toAssem.instance}` : '';
 
+            connIdx += 1;
             eds += `        Connection${connIdx} =
                 0x04030002,             $ 1. Trigger: cyclic or change-of-state, Transport: Exclusive-Owner Class 1
                 0x44640405,             $ 2. Point-to-Point, 4-byte Run/Idle header
@@ -377,6 +381,42 @@ ${scalingStr}
                 ${JSON.stringify(conn.name || `Connection ${connIdx}`)},      $ 13. Connection Name
                 ${JSON.stringify(conn.help || conn.name || '')}, $ 14. Help String
                 "20 04 24 01 2C ${otInstHex} 2C ${toInstHex}"; $ 15. Path\n\n`;
+
+            // Listen-Only / Input-Only variants — CIP Vol 1 §5.2.3f / PUB00070 §5.2.2 require an
+            // Adapter with input data to support these alongside its Exclusive-Owner connection,
+            // so a second consumer (e.g. an HMI/SCADA) can independently observe the same T->O
+            // data while a PLC owns the Exclusive-Owner connection. The O->T side references a
+            // reserved placeholder instance (no real Assembly — see DeviceBuilder.defineConnection())
+            // rather than the real output Assembly, matching this project's own real Delta SX3 EDS
+            // convention (its own Connection2/3 "Listen only" entries use placeholder O->T points).
+            if (conn.supportListenOnly !== false && typeof conn.listenOnlyO2T === 'number') {
+                const loHex = conn.listenOnlyO2T.toString(16).padStart(2, '0').toUpperCase();
+                connIdx += 1;
+                eds += `        Connection${connIdx} =
+                0x01010002,             $ 1. Trigger: cyclic, Transport: Listen-Only Class 1
+                0x44240305,             $ 2. Point-to-Point
+                ,0,,                    $ 3, 4, 5. O->T RPI, Size 0, Format none
+                ,,${toRef},           $ 6, 7, 8. T->O RPI, Size, Format
+                ,,                      $ 9, 10. Proxy Config Size, Format
+                0,,                     $ 11, 12. Target Config Size (0), Format (none)
+                ${JSON.stringify(`${conn.name || `Connection ${index + 1}`} (Listen Only)`)},      $ 13. Connection Name
+                "Listen-Only — observe the same data without owning the connection", $ 14. Help String
+                "20 04 24 01 2C ${loHex} 2C ${toInstHex}"; $ 15. Path\n\n`;
+            }
+            if (conn.supportInputOnly !== false && typeof conn.inputOnlyO2T === 'number') {
+                const ioHex = conn.inputOnlyO2T.toString(16).padStart(2, '0').toUpperCase();
+                connIdx += 1;
+                eds += `        Connection${connIdx} =
+                0x02010002,             $ 1. Trigger: cyclic, Transport: Input-Only Class 1
+                0x44640305,             $ 2. Point-to-Point, 4-byte Run/Idle header
+                ,0,,                    $ 3, 4, 5. O->T RPI, Size 0, Format none
+                ,,${toRef},           $ 6, 7, 8. T->O RPI, Size, Format
+                ,,                      $ 9, 10. Proxy Config Size, Format
+                0,,                     $ 11, 12. Target Config Size (0), Format (none)
+                ${JSON.stringify(`${conn.name || `Connection ${index + 1}`} (Input Only)`)},      $ 13. Connection Name
+                "Input-Only — observe the same data without owning the connection", $ 14. Help String
+                "20 04 24 01 2C ${ioHex} 2C ${toInstHex}"; $ 15. Path\n\n`;
+            }
         });
 
         if (hasTags) {
@@ -400,7 +440,7 @@ ${scalingStr}
             // default and isn't editable, even after typing in a valid tag
             // name. Real SX3's own Tag Connection does the same (its Format
             // field references an Assembly of Params, not a blank field).
-            const tagConnIdx = connections.length + 1;
+            const tagConnIdx = connIdx + 1;
             const tagFormatRef = hasNumericTagParams ? `Assem${tagAssemblyInstance}` : '';
             eds += `        Connection${tagConnIdx} =
                 0x04010002,             $ 1. Trigger: cyclic, Transport: Exclusive-Owner Class 1

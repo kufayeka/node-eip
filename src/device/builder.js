@@ -221,16 +221,36 @@ class DeviceBuilder extends EventEmitter {
      * @param {string} [opts.help] - Description / help string
      * @param {number} opts.outputAssembly - Output / Consumed Assembly Instance ID (PLC -> Device)
      * @param {number} opts.inputAssembly - Input / Produced Assembly Instance ID (Device -> PLC)
+     * @param {boolean} [opts.listenOnly=true] - Also offer a Listen-Only variant (lets a second,
+     *   passive consumer — e.g. an HMI/SCADA — observe the same T->O data while a PLC owns the
+     *   Exclusive-Owner connection). Required for input-having Adapters per PUB00070 §5.2.2/§5.2.3f.
+     * @param {boolean} [opts.inputOnly=true] - Also offer an Input-Only variant.
      */
     defineConnection(opts) {
         if (!opts || typeof opts.name !== 'string') {
             throw new TypeError('defineConnection: options.name must be a string');
         }
+        // Placeholder O->T instances for the Input-Only/Listen-Only variants of this profile —
+        // CIP Vol 1 §5.2.3f / PUB00070 §5.2.2 require an Adapter with input data to support a
+        // Listen-Only or Input-Only connection alongside its Exclusive-Owner one, so more than
+        // one consumer (e.g. a PLC owning the connection plus an HMI/SCADA independently
+        // monitoring it) can read the same T->O data simultaneously. These placeholders carry no
+        // real data of their own — see ConnectionHandler.registerConnectionPoint()'s doc comment
+        // — they only exist so a Forward_Open's path can select which variant it wants. Matches
+        // this project's own real Delta SX3 EDS convention of reserved instances 0xC0/0xC1/...;
+        // each connection profile gets its own pair so multiple profiles never collide.
+        const index = this.connections.length;
+        const listenOnlyO2T = 0xC0 + index * 2;
+        const inputOnlyO2T = listenOnlyO2T + 1;
         this.connections.push({
             name: opts.name,
             help: opts.help || opts.name,
             outputAssembly: opts.outputAssembly,
-            inputAssembly: opts.inputAssembly
+            inputAssembly: opts.inputAssembly,
+            listenOnlyO2T,
+            inputOnlyO2T,
+            supportListenOnly: opts.listenOnly !== false,
+            supportInputOnly: opts.inputOnly !== false
         });
         return this;
     }
@@ -293,6 +313,29 @@ class DeviceBuilder extends EventEmitter {
 
         // 1. Register Parameter Object (Class 0x0F)
         adapter.registerObject(CipClassCodes.Parameter, this.parameterObject);
+
+        // 1b. Register connection-type slots (Exclusive-Owner always; Input-Only/Listen-Only
+        // when enabled) so the Connection Manager can classify Forward_Opens correctly instead
+        // of treating every connection identically — see connection-handler.js's
+        // registerConnectionPoint()/​_classifyConnectionType().
+        for (const conn of this.connections) {
+            adapter.connectionHandler.registerConnectionPoint('exclusiveOwner', {
+                outputAssembly: conn.outputAssembly,
+                inputAssembly: conn.inputAssembly
+            });
+            if (conn.supportInputOnly) {
+                adapter.connectionHandler.registerConnectionPoint('inputOnly', {
+                    outputAssembly: conn.inputOnlyO2T,
+                    inputAssembly: conn.inputAssembly
+                });
+            }
+            if (conn.supportListenOnly) {
+                adapter.connectionHandler.registerConnectionPoint('listenOnly', {
+                    outputAssembly: conn.listenOnlyO2T,
+                    inputAssembly: conn.inputAssembly
+                });
+            }
+        }
 
         // 2. Register Symbolic Tags
         for (const [tagName, tagDef] of this.tags.entries()) {

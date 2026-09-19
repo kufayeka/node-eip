@@ -53,6 +53,23 @@ class ConnectionHandler {
         // 'write' events play for numeric I/O.
         this.tagStore = tagStore instanceof Map ? tagStore : new Map();
         this.onTagWrite = typeof onTagWrite === 'function' ? onTagWrite : null;
+        // Connection TYPE (Exclusive-Owner / Input-Only / Listen-Only) classification —
+        // ported from OpENer's appcontype.c (GetIoConnectionForConnectionData() and its
+        // Get{ExclusiveOwner,InputOnly,ListenOnly}Connection() helpers), the ODVA-conformance-
+        // tested reference implementation. Real devices do NOT infer connection type from
+        // O->T size being zero — they pre-declare, per connection profile, three DISTINCT
+        // (O->T instance, T->O instance) slot pairs, and classify a Forward_Open purely by
+        // which slot's O->T instance number the request's path matches (Exclusive-Owner tried
+        // first, then Input-Only, then Listen-Only) — see registerConnectionPoint() below,
+        // called once per DeviceBuilder.defineConnection() with its own derived placeholder
+        // O->T instances for the Input-Only/Listen-Only slots (see eds-exporter.js).
+        // A Forward_Open whose (O->T, T->O) pair matches NONE of these registered slots falls
+        // back to the pre-existing generic/legacy behavior (treated as if Exclusive-Owner,
+        // consuming O->T normally) — this keeps every caller that never registers slots
+        // (including all of this project's own pre-existing tests) working unchanged.
+        this.exclusiveOwnerSlots = []; // [{ outputAssembly, inputAssembly }]
+        this.inputOnlySlots = [];
+        this.listenOnlySlots = [];
         // Default (false) is deliberately more lenient than strict ODVA
         // conformance: a repeat Forward_Open from the same originator
         // silently supersedes its own prior connection instead of being
@@ -64,6 +81,43 @@ class ConnectionHandler {
         // extended status 0x0100 "Connection in use or duplicate Forward
         // Open", exactly as OpENer's HandleNonNullMatchingForwardOpenRequest does.
         this.strictDuplicateConnections = Boolean(strictDuplicateConnections);
+    }
+
+    /**
+     * Declares one connection-type slot for a (O->T, T->O) instance pair — mirrors OpENer's
+     * ConfigureExclusiveOwnerConnectionPoint()/ConfigureInputOnlyConnectionPoint()/
+     * ConfigureListenOnlyConnectionPoint(). Call once per type per connection profile
+     * (DeviceBuilder does this automatically from defineConnection()).
+     *
+     * @param {'exclusiveOwner'|'inputOnly'|'listenOnly'} type
+     * @param {{ outputAssembly: number, inputAssembly: number }} slot
+     */
+    registerConnectionPoint(type, { outputAssembly, inputAssembly }) {
+        const slot = { outputAssembly, inputAssembly };
+        if (type === 'exclusiveOwner') this.exclusiveOwnerSlots.push(slot);
+        else if (type === 'inputOnly') this.inputOnlySlots.push(slot);
+        else if (type === 'listenOnly') this.listenOnlySlots.push(slot);
+        else throw new TypeError(`registerConnectionPoint: unknown type "${type}"`);
+        return this;
+    }
+
+    /**
+     * Classifies a Forward_Open's (O->T, T->O) pair against the registered slots, in the
+     * same priority order as OpENer's GetIoConnectionForConnectionData(): Exclusive-Owner,
+     * then Input-Only, then Listen-Only. Returns null if no slot was ever registered for
+     * this pair (legacy/generic behavior — see the constructor comment).
+     */
+    _classifyConnectionType(o2tInstance, t2oInstance) {
+        if (this.exclusiveOwnerSlots.some((s) => s.outputAssembly === o2tInstance && s.inputAssembly === t2oInstance)) {
+            return 'exclusiveOwner';
+        }
+        if (this.inputOnlySlots.some((s) => s.outputAssembly === o2tInstance && s.inputAssembly === t2oInstance)) {
+            return 'inputOnly';
+        }
+        if (this.listenOnlySlots.some((s) => s.outputAssembly === o2tInstance && s.inputAssembly === t2oInstance)) {
+            return 'listenOnly';
+        }
+        return null;
     }
 
     /** Finds an existing connection with the same triple OpENer uses to detect a "matching" Forward_Open. */
@@ -226,18 +280,58 @@ class ConnectionHandler {
             this.connectionManagerObject?.recordOpenRequest(false, 'format');
             return { ok: false, generalStatus: CipGeneralStatus.PathSegmentError, extendedStatus: 0x0120 };
         }
-        if (!this.assemblyObject.has(o2tInstance) || !this.assemblyObject.has(t2oInstance)) {
+
+        // Classify BEFORE checking O->T existence: Input-Only/Listen-Only slots deliberately
+        // use a placeholder O->T instance (e.g. 0xC0/0xC1) that isn't a real Assembly with
+        // actual data — see registerConnectionPoint()'s doc comment — so requiring it to
+        // exist would reject every legitimate Listen-Only/Input-Only Forward_Open outright.
+        const connType = this._classifyConnectionType(o2tInstance, t2oInstance); // null = legacy/generic, unaffected by any of this
+        const consumesO2T = connType !== 'inputOnly' && connType !== 'listenOnly';
+
+        if (consumesO2T && !this.assemblyObject.has(o2tInstance)) {
             this.connectionManagerObject?.recordOpenRequest(false, 'resource');
             return { ok: false, generalStatus: CipGeneralStatus.ConnectionFailure, extendedStatus: 0x0107 }; // connection not found at target
         }
+        if (!this.assemblyObject.has(t2oInstance)) {
+            this.connectionManagerObject?.recordOpenRequest(false, 'resource');
+            return { ok: false, generalStatus: CipGeneralStatus.ConnectionFailure, extendedStatus: 0x0107 };
+        }
 
-        let outputBuf = this.assemblyObject.getData(o2tInstance);
+        // A Listen-Only connection cannot be established unless a "master" (Exclusive-Owner or
+        // Input-Only) connection is already producing this T->O instance — ported from OpENer's
+        // GetListenOnlyConnection() (CIP's own extended status 0x0119).
+        if (connType === 'listenOnly') {
+            const hasMaster = [...this.connections.values()].some((c) =>
+                c.t2oInstance === t2oInstance && (c.connType === 'exclusiveOwner' || c.connType === 'inputOnly'));
+            if (!hasMaster) {
+                this.connectionManagerObject?.recordOpenRequest(false, 'resource');
+                return { ok: false, generalStatus: CipGeneralStatus.ConnectionFailure, extendedStatus: 0x0119 };
+            }
+        }
+
+        // Exclusive-Owner is, by definition, exclusive: a second one for the same T->O instance
+        // from a DIFFERENT originator is an Ownership Conflict — ported from OpENer's
+        // GetExclusiveOwnerConnection(). The SAME originator reconnecting still falls through to
+        // the lenient supersede cleanup below, matching every other connection type's existing
+        // reconnect-without-closing-first behavior.
+        if (connType === 'exclusiveOwner') {
+            const conflicting = [...this.connections.values()].find((c) =>
+                c.connType === 'exclusiveOwner' &&
+                c.t2oInstance === t2oInstance &&
+                !(c.originatorVendorId === request.originatorVendorId && c.originatorSerialNumber === request.originatorSerialNumber));
+            if (conflicting) {
+                this.connectionManagerObject?.recordOpenRequest(false, 'resource');
+                return { ok: false, generalStatus: CipGeneralStatus.ConnectionFailure, extendedStatus: 0x0106 };
+            }
+        }
+
+        let outputBuf = consumesO2T ? this.assemblyObject.getData(o2tInstance) : null;
         let inputBuf = this.assemblyObject.getData(t2oInstance);
 
         const maxSize = request.isLarge ? 65535 : 511;
 
         // Auto-adapt / resize assembly buffers if valid (within standard CIP 1..511 or Large 1..65535 bytes limit)
-        if (outputBuf && outputBuf.length !== request.otSize && request.otSize > 0 && request.otSize <= maxSize) {
+        if (consumesO2T && outputBuf && outputBuf.length !== request.otSize && request.otSize > 0 && request.otSize <= maxSize) {
             this.assemblyObject.define(o2tInstance, request.otSize);
             outputBuf = this.assemblyObject.getData(o2tInstance);
         }
@@ -279,6 +373,8 @@ class ConnectionHandler {
             originatorSerialNumber: request.originatorSerialNumber,
             o2tInstance,
             t2oInstance,
+            connType, // 'exclusiveOwner' | 'inputOnly' | 'listenOnly' | null (legacy/generic)
+            consumesO2T,
             otSize: request.otSize,
             toSize: request.toSize,
             toRpiUs: request.toRpiUs,
@@ -303,7 +399,8 @@ class ConnectionHandler {
         if (!this.quiet) {
             const rpiMs = Math.max(1, Math.round(request.toRpiUs / 1000));
             const trigger = state.productionTrigger === ProductionTrigger.CYCLIC ? 'Cyclic' : 'Change-of-State';
-            console.log(`\x1b[32m[PLC CLASS 1 I/O CONNECTED]\x1b[0m \x1b[1m${cleanAddress}\x1b[0m | O->T: Assem ${o2tInstance} (${request.otSize}B), T->O: Assem ${t2oInstance} (${request.toSize}B), RPI: ${rpiMs}ms, Trigger: ${trigger} | ConnID: 0x${otNetworkConnectionId.toString(16)}`);
+            const typeLabel = connType ? ` [${connType}]` : '';
+            console.log(`\x1b[32m[PLC CLASS 1 I/O CONNECTED]\x1b[0m \x1b[1m${cleanAddress}\x1b[0m${typeLabel} | O->T: Assem ${o2tInstance} (${request.otSize}B), T->O: Assem ${t2oInstance} (${request.toSize}B), RPI: ${rpiMs}ms, Trigger: ${trigger} | ConnID: 0x${otNetworkConnectionId.toString(16)}`);
         }
 
         return {
@@ -537,6 +634,7 @@ class ConnectionHandler {
             }
             const isTagConnection = state.tagName !== undefined;
             if (isTagConnection && !state.consumes) return; // produce-only tag connection — nothing to consume
+            if (!isTagConnection && state.consumesO2T === false) return; // Input-Only/Listen-Only — nothing to consume
 
             let payload = parsed.data;
 
