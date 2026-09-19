@@ -146,6 +146,41 @@ describe('Session Robustness & Reconnect Engine (§2.2, §38)', function () {
             assert.strictEqual(sawError.message, 'simulated');
         });
 
+        it('keeps the process alive during a reconnect attempt (regression: the reconnect timer used to be unref()\'d)', async function () {
+            // unref() tells Node "don't count this timer as a reason for the process to stay
+            // alive" -- correct for the heartbeat timer (a background ping nobody's specifically
+            // waiting on), but wrong for a reconnect attempt: a caller that enabled autoReconnect
+            // is, definitionally, relying on the process staying alive long enough for it to
+            // succeed. Found via a real long-running PLC I/O loop that exited silently (no error,
+            // no exception) mid-reconnect: once every in-flight request had already timed out via
+            // its OWN ref'd timer and nothing else happened to be ref'd at that instant, Node saw
+            // nothing left to wait for -- the unref'd reconnect timer didn't count -- and exited
+            // before that timer ever got to fire, well under maxReconnectAttempts.
+            const scanner = new Scanner('127.0.0.1', {
+                port: TEST_PORT,
+                autoReconnect: true,
+                reconnectDelayMs: 5000, // long enough that the timer is still pending when checked
+                maxReconnectAttempts: 5
+            });
+            await scanner.connect();
+            const firstHandle = scanner.session.sessionHandle;
+
+            const serverSocket = adapter._sessions.get(firstHandle);
+            assert.ok(serverSocket, 'Server-side socket found');
+            serverSocket.destroy();
+
+            await new Promise((resolve) => setTimeout(resolve, 100));
+
+            assert.ok(scanner.session._reconnectTimer, 'a reconnect timer must be scheduled');
+            assert.strictEqual(
+                scanner.session._reconnectTimer.hasRef(),
+                true,
+                'the reconnect timer must be ref\'d (NOT unref()\'d) so it alone can keep the process alive during a pending reconnect'
+            );
+
+            await scanner.disconnect();
+        });
+
         it('does not throw when a connection error occurs and NOTHING listens for "error" at all (the actual regression)', async function () {
             const scanner = new Scanner('127.0.0.1', { port: TEST_PORT, autoReconnect: false });
             await scanner.connect();

@@ -185,7 +185,17 @@ class EIPSession extends EventEmitter {
                 this._scheduleReconnect();
             }
         }, delay);
-        if (this._reconnectTimer.unref) this._reconnectTimer.unref();
+        // Deliberately NOT unref()'d, unlike the heartbeat timer below. unref() tells Node "don't
+        // let this be a reason for the process to stay alive" -- correct for a background
+        // heartbeat ping nobody's waiting on, but wrong for a reconnect attempt that autoReconnect
+        // callers are, definitionally, relying on to eventually restore the session. Found via a
+        // real long-running client (a PLC I/O loop) that silently exited mid-reconnect with no
+        // error at all: once every currently in-flight _transact() had already timed out/rejected
+        // (each had its OWN ref'd timer, which is why those specific failures WERE visible) and
+        // nothing else happened to be ref'd at that exact instant, Node's event loop saw nothing
+        // left to wait for -- the unref'd reconnect timer didn't count -- and exited the whole
+        // process before that timer ever got to fire, abandoning a reconnect that was still
+        // actively in progress (mid-attempt, well under maxReconnectAttempts).
     }
 
     /**
