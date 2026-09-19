@@ -125,15 +125,17 @@ class DeviceProfile {
             }
         }
 
-        if (!Number.isInteger(index) || index < 0) {
-            throw new RangeError(`Invalid register address "${indexOrLabel}" for ${regName}`);
-        }
-
-        if (reg.range && !reg.isScalar && (index < reg.range[0] || index > reg.range[1])) {
-            throw new RangeError(`Address ${index} is out of range [${reg.range[0]}..${reg.range[1]}] for register ${regName}`);
-        }
-
         const isBitMode = options.mode === 'bit' || (reg.isBit && options.mode !== 'word');
+        const hasBitIndex = options.bitIndex !== undefined;
+        let max = reg.range ? reg.range[1] : null;
+        if (isBitMode && reg.bitInstance && !hasBitIndex) {
+            max = reg.bitRange ? reg.bitRange[1] : (reg.range[1] + 1) * 16 - 1;
+        }
+
+        if (reg.range && !reg.isScalar && max !== null && (index < reg.range[0] || index > max)) {
+            throw new RangeError(`Address ${index} is out of range [${reg.range[0]}..${max}] for register ${regName}`);
+        }
+
         const instance = isBitMode
             ? (typeof reg.bitInstance === 'function' ? reg.bitInstance(index) : reg.bitInstance)
             : (typeof reg.instance === 'function' ? reg.instance(index) : reg.instance);

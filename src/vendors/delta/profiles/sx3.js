@@ -125,8 +125,8 @@ const sx3Profile = new DeviceProfile({
             return combined;
         },
         writeD32: async (target, n, value) => {
-            const low = value & 0xFFFF;
-            const high = (value >> 16) & 0xFFFF;
+            const low = (value & 0xFFFF) << 16 >> 16;
+            const high = (value >> 16) << 16 >> 16;
             await target.write('D', n, low);
             await target.write('D', n + 1, high);
             return true;

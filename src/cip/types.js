@@ -69,7 +69,11 @@ const CIP_DATA_TYPES = Object.freeze({
         size: 2,
         signed: true,
         read: (buf, offset = 0) => buf.readInt16LE(offset),
-        write: (buf, val, offset = 0) => { buf.writeInt16LE(val, offset); return 2; }
+        write: (buf, val, offset = 0) => {
+            const v = (val > 32767 && val <= 65535) ? val - 65536 : val;
+            buf.writeInt16LE(v, offset);
+            return 2;
+        }
     },
     [CipDataTypeCode.DINT]: {
         code: CipDataTypeCode.DINT,
@@ -77,7 +81,11 @@ const CIP_DATA_TYPES = Object.freeze({
         size: 4,
         signed: true,
         read: (buf, offset = 0) => buf.readInt32LE(offset),
-        write: (buf, val, offset = 0) => { buf.writeInt32LE(val, offset); return 4; }
+        write: (buf, val, offset = 0) => {
+            const v = (val > 2147483647 && val <= 4294967295) ? val - 4294967296 : val;
+            buf.writeInt32LE(v, offset);
+            return 4;
+        }
     },
     [CipDataTypeCode.LINT]: {
         code: CipDataTypeCode.LINT,
