@@ -102,6 +102,59 @@ describe('Session Robustness & Reconnect Engine (§2.2, §38)', function () {
 
             await scanner.disconnect();
         });
+
+        it('relays "reconnecting" events at the Scanner level (regression: used to be dead code)', async function () {
+            // Scanner used to be a plain `class Scanner {}`, not an EventEmitter at all -- its
+            // constructor's own event-relay code (`this.emit ? this.emit(...) : null`) was
+            // permanently dead (this.emit was always undefined), so scanner.on('error', ...) /
+            // scanner.on('reconnecting', ...) silently did nothing: a caller had no way to
+            // observe connection errors or reconnect progress at the Scanner/Device level, only
+            // by reaching into scanner.session directly (as the sibling test above does). Fixed
+            // by making Scanner extend EventEmitter for real -- see the next test for the 'error'
+            // side of this (crash prevention), verified separately since a real socket teardown
+            // doesn't reliably produce a client-side 'error' event (vs. just 'close') to assert on.
+            const scanner = new Scanner('127.0.0.1', {
+                port: TEST_PORT,
+                autoReconnect: true,
+                reconnectDelayMs: 50,
+                maxReconnectAttempts: 5
+            });
+            await scanner.connect();
+            const firstHandle = scanner.session.sessionHandle;
+
+            let sawReconnecting = false;
+            scanner.on('reconnecting', () => { sawReconnecting = true; });
+
+            const serverSocket = adapter._sessions.get(firstHandle);
+            assert.ok(serverSocket, 'Server-side socket found');
+            serverSocket.destroy();
+
+            await new Promise((resolve) => setTimeout(resolve, 200));
+
+            assert.strictEqual(sawReconnecting, true, 'scanner.on("reconnecting", ...) must now actually fire');
+            assert.strictEqual(scanner.connected, true, 'Scanner re-established connection');
+
+            await scanner.disconnect();
+        });
+
+        it('relays "error" events at the Scanner level, from the underlying session (regression)', function () {
+            const scanner = new Scanner('127.0.0.1', { port: TEST_PORT, autoReconnect: false });
+            let sawError = null;
+            scanner.on('error', (e) => { sawError = e; });
+            scanner.session.emit('error', new Error('simulated'));
+            assert.ok(sawError, 'scanner.on("error", ...) must now actually receive the error');
+            assert.strictEqual(sawError.message, 'simulated');
+        });
+
+        it('does not throw when a connection error occurs and NOTHING listens for "error" at all (the actual regression)', async function () {
+            const scanner = new Scanner('127.0.0.1', { port: TEST_PORT, autoReconnect: false });
+            await scanner.connect();
+            // No scanner.on('error', ...) attached at all -- this must not crash the process.
+            assert.doesNotThrow(() => {
+                scanner.session.emit('error', new Error('simulated, nobody is listening at the Scanner level'));
+            });
+            await scanner.disconnect();
+        });
     });
 
     describe('Session handle validation on SendRRData/SendUnitData (ported from OpENer CheckRegisteredSessions)', function () {

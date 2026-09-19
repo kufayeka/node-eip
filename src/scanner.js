@@ -12,6 +12,7 @@
  */
 
 const net = require('net');
+const { EventEmitter } = require('events');
 const { EIPSession } = require('./client');
 const { encodeEPath, encodeSymbolicPath } = require('./cip/path');
 const { buildRequest } = require('./cip/message-router');
@@ -32,8 +33,9 @@ function formatCipError(label, response) {
     return new Error(`${label}: general status 0x${response.generalStatus.toString(16)}${extra ? `, additional status: ${extra}` : ''}`);
 }
 
-class Scanner {
+class Scanner extends EventEmitter {
     constructor(hostOrOpts, opts) {
+        super();
         let host;
         let options;
         if (typeof hostOrOpts === 'object' && hostOrOpts !== null) {
@@ -45,9 +47,26 @@ class Scanner {
         }
         this.host = host;
         this.session = new EIPSession(host, options);
-        // Prevent uncaught 'error' exception if caller does not attach a listener
+        // Scanner previously did NOT extend EventEmitter at all (a plain `class Scanner {}`),
+        // so `this.emit` below was always undefined and this whole relay was dead code --
+        // scanner.on('error', ...) / scanner.on('reconnecting', ...) simply didn't exist, and a
+        // caller had no way to observe connection errors or auto-reconnect progress at the
+        // Scanner/Device level at all (Device wraps Scanner and adds nothing of its own here).
+        // Now that Scanner really is an EventEmitter, emitting 'error' with zero listeners would
+        // itself throw and crash the process (Node's own special-case for the 'error' event) --
+        // exactly the failure mode the original code's own comment says it's trying to prevent.
+        // This default no-op listener is what actually prevents that: a caller that wants to
+        // observe errors can still add their own scanner.on('error', ...) listener alongside it
+        // (EventEmitter supports multiple listeners for the same event).
+        this.on('error', () => {});
         this.session.on('error', (err) => {
-            this.emit ? this.emit('error', err) : null;
+            this.emit('error', err);
+        });
+        this.session.on('reconnecting', (info) => {
+            this.emit('reconnecting', info);
+        });
+        this.session.on('stateChange', (info) => {
+            this.emit('stateChange', info);
         });
     }
 
