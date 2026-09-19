@@ -378,11 +378,24 @@ ${scalingStr}
             const toRef = toAssem ? `Assem${toAssem.instance}` : '';
 
             connIdx += 1;
+            // TransportTypeTrigger word (CIP Vol 1 Table 3-4.5, EDS's own 32-bit expansion of it --
+            // see cip/eds.js's parser, the authoritative decode this mirrors): bits 0-15 (0x0002)
+            // and bit 26 (0x04000000, "Exclusive-Owner" connection-type marker) are fixed; bits
+            // 16/17/18 advertise which Production Trigger types a Scanner's config tool may offer
+            // to pick from (Cyclic/Change-of-State/Application Object) -- defaults to Cyclic+COS
+            // (0x04030002, this project's long-standing value) unless conn.triggers says otherwise.
+            const triggerBits =
+                (conn.triggers.includes('cyclic') ? 0x00010000 : 0) |
+                (conn.triggers.includes('cos') ? 0x00020000 : 0) |
+                (conn.triggers.includes('applicationObject') ? 0x00040000 : 0);
+            const transportTriggerWord = (0x04000002 | triggerBits) >>> 0;
+            const otRpiField = conn.otRpiUs !== undefined ? conn.otRpiUs : '';
+            const toRpiField = conn.toRpiUs !== undefined ? conn.toRpiUs : '';
             eds += `        Connection${connIdx} =
-                0x04030002,             $ 1. Trigger: cyclic or change-of-state, Transport: Exclusive-Owner Class 1
+                0x${transportTriggerWord.toString(16).padStart(8, '0')},             $ 1. Trigger: ${conn.triggers.join('+')}, Transport: Exclusive-Owner Class 1
                 0x44640405,             $ 2. Point-to-Point, 4-byte Run/Idle header
-                ,,${otRef},           $ 3, 4, 5. O->T RPI, Size, Format
-                ,,${toRef},           $ 6, 7, 8. T->O RPI, Size, Format
+                ${otRpiField},,${otRef},           $ 3, 4, 5. O->T RPI, Size, Format
+                ${toRpiField},,${toRef},           $ 6, 7, 8. T->O RPI, Size, Format
                 ,,                      $ 9, 10. Proxy Config Size, Proxy Config Format
                 0,,                     $ 11, 12. Target Config Size (0), Target Config Format (none)
                 ${JSON.stringify(conn.name || `Connection ${connIdx}`)},      $ 13. Connection Name

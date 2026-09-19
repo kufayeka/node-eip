@@ -745,11 +745,18 @@ class ConnectionHandler {
         sendAtCurrentSeq(getProducedData());
 
         if (state.productionTrigger === ProductionTrigger.CHANGE_OF_STATE) {
-            // Poll faster than the RPI so a change is noticed promptly, but only
-            // actually transmit when the data changed or the RPI heartbeat is due
-            // — CIP Vol 1 3-4.5.2: for a Change of State connection the RPI is the
-            // *maximum* production interval, not a fixed cadence.
-            const pollMs = Math.max(5, Math.min(rpiMs, 50));
+            // Poll at the RPI (capped at 50ms so a very slow RPI doesn't poll needlessly rarely),
+            // but only actually transmit when the data changed or the RPI heartbeat is due — CIP
+            // Vol 1 3-4.5.2: for a Change of State connection the RPI is the *maximum* production
+            // interval, not a fixed cadence. This floor used to be hardcoded to 5ms regardless of
+            // a lower RPI (e.g. a real Scanner negotiating RPI=1ms would still only get checked
+            // every 5ms) -- found via a real Delta PLC session logging every actual T->O send
+            // timestamp (see eip_device.js's --csv-to*/--hires flags and analyze-eip-dump.js): the
+            // measured average interval sat at a suspiciously exact ~5ms regardless of the
+            // negotiated RPI, which was this floor, not network/OS jitter (that showed up
+            // separately, as console-logging-induced event-loop stalls, and was a different fix).
+            // 1ms is the practical floor for setInterval itself; going lower would just busy-loop.
+            const pollMs = Math.max(1, Math.min(rpiMs, 50));
             state.timer = setInterval(() => {
                 const current = getProducedData();
                 const changed = !state.lastSentData || !current.equals(state.lastSentData);

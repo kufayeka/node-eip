@@ -225,6 +225,22 @@ class DeviceBuilder extends EventEmitter {
      *   passive consumer — e.g. an HMI/SCADA — observe the same T->O data while a PLC owns the
      *   Exclusive-Owner connection). Required for input-having Adapters per PUB00070 §5.2.2/§5.2.3f.
      * @param {boolean} [opts.inputOnly=true] - Also offer an Input-Only variant.
+     * @param {number} [opts.rpiUs] - Suggested default RPI (microseconds), both directions, shown
+     *   as the pre-filled value in a Scanner's config tool (e.g. Delta EIP Builder's Data Exchange
+     *   row) when this connection is first added — the Scanner can still request a different RPI
+     *   at Forward_Open time regardless; this is a config-tool convenience default only, not an
+     *   enforced limit. Omit to leave it blank (tool's own default / operator must type one in,
+     *   this project's previous behavior). @param {number} [opts.otRpiUs] - Overrides opts.rpiUs
+     *   for the O->T direction only. @param {number} [opts.toRpiUs] - ...for T->O only.
+     * @param {Array<'cyclic'|'cos'|'applicationObject'>} [opts.triggers=['cyclic','cos']] - Which
+     *   Production Trigger types this connection's Exclusive-Owner entry ADVERTISES as available
+     *   in the EDS (CIP Vol 1 Table 3-4.5) — a config tool that reads this may only let the
+     *   operator pick from what's advertised. This does NOT restrict what connection-handler.js
+     *   actually accepts at runtime (any Forward_Open naming a supported trigger works regardless,
+     *   per decodeProductionTrigger()) — it only affects what a Scanner's own UI offers to select.
+     *   Include 'applicationObject' to make Application-Object-triggered connections selectable in
+     *   tools that support it (see ConnectionHandler.triggerProduction()/DeviceBuilder.triggerConnection()
+     *   for driving one). Listen-Only/Input-Only variants are always Cyclic-only, unaffected by this.
      */
     defineConnection(opts) {
         if (!opts || typeof opts.name !== 'string') {
@@ -250,7 +266,10 @@ class DeviceBuilder extends EventEmitter {
             listenOnlyO2T,
             inputOnlyO2T,
             supportListenOnly: opts.listenOnly !== false,
-            supportInputOnly: opts.inputOnly !== false
+            supportInputOnly: opts.inputOnly !== false,
+            otRpiUs: opts.otRpiUs !== undefined ? opts.otRpiUs : opts.rpiUs,
+            toRpiUs: opts.toRpiUs !== undefined ? opts.toRpiUs : opts.rpiUs,
+            triggers: Array.isArray(opts.triggers) ? opts.triggers : ['cyclic', 'cos']
         });
         return this;
     }
