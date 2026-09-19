@@ -32,6 +32,41 @@ function bufferToIp(buf, offset = 0) {
     return `${buf[offset + 3]}.${buf[offset + 2]}.${buf[offset + 1]}.${buf[offset]}`;
 }
 
+/**
+ * Computes the CIP multicast base address for Class 1 I/O production from this device's own
+ * IP/netmask, per CIP Vol 2 §3-5.3 "Multicast Address Allocation for EtherNet/IP" — ported
+ * field-for-field from OpENer's CipTcpIpCalculateMulticastIp() (ciptcpipinterface.c), not
+ * re-derived from the spec text:
+ *
+ *   base = 239.192.1.0 (0xEFC00100)
+ *   hostId = ((ip & ~netmask) - 1) & 0x3FF   // host portion of this device's own IP, masked to 10 bits
+ *   multicastAddress = base + (hostId << 5)   // each device gets a block of 32 consecutive addresses
+ *
+ * Every 32-bit intermediate below is immediately reinterpreted as unsigned (`>>> 0`) after each
+ * bitwise op — plain `&`/`~`/`<<` in JS operate on signed 32-bit ints, which would otherwise
+ * silently corrupt any octet ≥ 128 (e.g. this formula's own 239.x.x.x base address).
+ */
+function calculateMulticastIp(ip, netmask) {
+    const toUint32 = (ipStr) => {
+        const parts = String(ipStr || '0.0.0.0').trim().split('.').map(Number);
+        return ((parts[0] * 256 + parts[1]) * 256 + parts[2]) * 256 + parts[3];
+    };
+    const ipInt = toUint32(ip);
+    const maskInt = toUint32(netmask);
+    const hostMask = (~maskInt) >>> 0;
+    let hostId = (ipInt & hostMask) >>> 0;
+    hostId = (hostId - 1) >>> 0;
+    hostId = (hostId & 0x3ff) >>> 0;
+    const CIP_MCAST_BASE = 0xEFC00100; // 239.192.1.0
+    const mcastInt = (CIP_MCAST_BASE + (hostId << 5)) >>> 0;
+    return [
+        (mcastInt >>> 24) & 0xff,
+        (mcastInt >>> 16) & 0xff,
+        (mcastInt >>> 8) & 0xff,
+        mcastInt & 0xff
+    ].join('.');
+}
+
 /** Encodes a CIP STRING (UINT 16-bit length prefix + ASCII bytes). */
 function encodeCipString(str = '') {
     const strBuf = Buffer.from(str, 'ascii');
@@ -103,6 +138,21 @@ class TcpIpInterfaceObject {
         this.inactivityTimeoutSec = inactivityTimeoutSec;
     }
 
+    /** Recomputed on every access (not cached) so it stays correct across setAttributeSingle(5) IP changes. */
+    get multicastAddress() {
+        return calculateMulticastIp(this.ip, this.netmask);
+    }
+
+    _buildMulticastConfigBuffer() {
+        // Mcast Config (STRUCT: Alloc_Control USINT, Reserved USINT, Num_Mcast UINT, Mcast_Start_Addr UDINT)
+        const b = Buffer.alloc(8);
+        b.writeUInt8(0, 0);  // Alloc_Control: 0 = the device itself computes the address (not user-input)
+        b.writeUInt8(0, 1);  // Reserved
+        b.writeUInt16LE(1, 2); // Num_Mcast: this device only ever allocates 1 (matches OpENer's own default)
+        ipToBuffer(this.multicastAddress).copy(b, 4);
+        return b;
+    }
+
     _buildInterfaceConfigBuffer() {
         const ipBuf = ipToBuffer(this.ip);
         const maskBuf = ipToBuffer(this.netmask);
@@ -170,8 +220,7 @@ class TcpIpInterfaceObject {
                 return ok(Buffer.from([1]));
             }
             case 9: {
-                // Mcast Config (STRUCT: Alloc_Control USINT, Reserved USINT, Num_Mcast UINT, Mcast_Start_Addr UDINT)
-                return ok(Buffer.alloc(8));
+                return ok(this._buildMulticastConfigBuffer());
             }
             case 10: {
                 // Select ACD (BOOL)
@@ -214,7 +263,7 @@ class TcpIpInterfaceObject {
         const hostName = encodeCipString(this.hostName);
         const safetyNetNum = Buffer.alloc(6);
         const ttlVal = Buffer.from([1]);
-        const mcastConfig = Buffer.alloc(8);
+        const mcastConfig = this._buildMulticastConfigBuffer();
         const remainBytes = Buffer.alloc(9);
 
         return ok(Buffer.concat([b, linkObj, ifConfig, hostName, safetyNetNum, ttlVal, mcastConfig, remainBytes]));
@@ -262,5 +311,6 @@ module.exports = {
     bufferToIp,
     encodeCipString,
     decodeCipString,
-    decodeInterfaceConfiguration
+    decodeInterfaceConfiguration,
+    calculateMulticastIp
 };

@@ -5,7 +5,8 @@ const { ConnectionHandler } = require('../src/adapter/connection-handler');
 const { AssemblyObject } = require('../src/cip/objects/assembly');
 const { buildIoDatagram, parseIoDatagram } = require('../src/cip/io-connection');
 const { encodeAssemblyConnectionPath, encodeSymbolicPath, encodeElectronicKeySegment, LogicalType, encodeLogicalSegment } = require('../src/cip/path');
-const { TransportTrigger } = require('../src/cip/connection-manager');
+const { TransportTrigger, ConnectionType } = require('../src/cip/connection-manager');
+const { TcpIpInterfaceObject, calculateMulticastIp } = require('../src/cip/objects/tcp-ip');
 const { CipGeneralStatus } = require('../src/constants');
 
 function baseRequest(overrides = {}) {
@@ -345,50 +346,82 @@ describe('ConnectionHandler (Adapter-side Forward_Open/Forward_Close + cyclic I/
     });
 
     describe('Production Trigger (Cyclic vs Change-of-State, CIP Vol 1 Table 3-4.5)', function () {
+        // Polls for a COUNT threshold (rather than a single fixed-delay check) so a slow tick
+        // under heavy full-suite system load — Node's timers are a lower bound, not a
+        // guarantee — reads as "still waiting", not a false failure. Ceiling is generous
+        // (1s) relative to the ~5-40ms RPIs these tests actually use.
+        function waitForCount(getLength, threshold, done, onDone) {
+            const deadline = Date.now() + 1000;
+            const poll = () => {
+                if (getLength() >= threshold) {
+                    onDone();
+                    done();
+                } else if (Date.now() > deadline) {
+                    onDone();
+                    done(new Error(`Expected at least ${threshold} datagram(s) within 1s, got ${getLength()}`));
+                } else {
+                    setTimeout(poll, 10);
+                }
+            };
+            poll();
+        }
+
         it('cyclic (default, no transportTypeTrigger given): keeps sending unconditionally at every RPI tick, even with unchanged data', function (done) {
-            const h = new ConnectionHandler({ assemblyObject: assembly, sendDatagram: (buf) => sentDatagrams.push({ buf }) });
+            // Local array — see the comment on the "sends promptly" test below for why: a shared
+            // array can pick up a stray packet from another test's not-yet-torn-down timer.
+            const localDatagrams = [];
+            const h = new ConnectionHandler({ assemblyObject: assembly, sendDatagram: (buf) => localDatagrams.push({ buf }) });
             h.openConnection(baseRequest({ toRpiUs: 5000 }), { remoteAddress: '10.0.0.5' }); // rpiMs = 5
-            setTimeout(() => {
-                assert.ok(sentDatagrams.length >= 4, `expected several cyclic packets, got ${sentDatagrams.length}`);
-                h.closeAll();
-                done();
-            }, 30);
+            waitForCount(() => localDatagrams.length, 4, done, () => h.closeAll());
         });
 
         it('change-of-state: after the initial packet, sends nothing more while the data stays unchanged (well under one RPI)', function (done) {
-            const h = new ConnectionHandler({ assemblyObject: assembly, sendDatagram: (buf) => sentDatagrams.push({ buf }) });
+            const localDatagrams = [];
+            const h = new ConnectionHandler({ assemblyObject: assembly, sendDatagram: (buf) => localDatagrams.push({ buf }) });
             h.openConnection(baseRequest({ toRpiUs: 300000, transportTypeTrigger: TransportTrigger.Class1ChangeOfState }), { remoteAddress: '10.0.0.5' }); // rpiMs = 300, pollMs = 50
             setTimeout(() => {
-                assert.strictEqual(sentDatagrams.length, 1); // only the mandatory initial packet
+                assert.strictEqual(localDatagrams.length, 1); // only the mandatory initial packet
                 h.closeAll();
                 done();
             }, 120);
         });
 
         it('change-of-state: sends promptly (within one poll interval) as soon as the produced data actually changes', function (done) {
-            const h = new ConnectionHandler({ assemblyObject: assembly, sendDatagram: (buf) => sentDatagrams.push({ buf }) });
+            // Uses a local array (not the shared outer `sentDatagrams`) and asserts growth-from-a-
+            // snapshot rather than an exact intermediate count, so this can't be confused by any
+            // stray packet from another test's not-yet-fully-torn-down timer landing in a shared
+            // array under heavy full-suite load — a real, if rare, hazard with real setInterval-
+            // based tests sharing mutable state across `it()` blocks.
+            const localDatagrams = [];
+            const h = new ConnectionHandler({ assemblyObject: assembly, sendDatagram: (buf) => localDatagrams.push({ buf }) });
             h.openConnection(baseRequest({ toRpiUs: 300000, transportTypeTrigger: TransportTrigger.Class1ChangeOfState }), { remoteAddress: '10.0.0.5' });
             setTimeout(() => {
-                assert.strictEqual(sentDatagrams.length, 1);
+                const countBeforeChange = localDatagrams.length;
                 assembly.setData(101, Buffer.from([9, 9, 9, 9]));
-                setTimeout(() => {
-                    assert.ok(sentDatagrams.length >= 2, `expected a change-triggered packet, got ${sentDatagrams.length}`);
-                    const last = parseIoDatagram(sentDatagrams[sentDatagrams.length - 1].buf);
-                    assert.deepStrictEqual(last.data.subarray(2), Buffer.from([9, 9, 9, 9]));
-                    h.closeAll();
-                    done();
-                }, 60);
+                const deadline = Date.now() + 500;
+                const poll = () => {
+                    const grew = localDatagrams.length > countBeforeChange;
+                    const last = grew ? parseIoDatagram(localDatagrams[localDatagrams.length - 1].buf) : null;
+                    const matches = last && last.data.subarray(2).equals(Buffer.from([9, 9, 9, 9]));
+                    if (matches) {
+                        h.closeAll();
+                        done();
+                    } else if (Date.now() > deadline) {
+                        h.closeAll();
+                        done(new Error(`Expected a change-triggered packet carrying [9,9,9,9]; last seen: ${last ? last.data.subarray(2).toString('hex') : 'none'}`));
+                    } else {
+                        setTimeout(poll, 10);
+                    }
+                };
+                poll();
             }, 10);
         });
 
         it('change-of-state: still sends a heartbeat at the RPI even when nothing changed, so the Originator watchdog never times out', function (done) {
-            const h = new ConnectionHandler({ assemblyObject: assembly, sendDatagram: (buf) => sentDatagrams.push({ buf }) });
+            const localDatagrams = [];
+            const h = new ConnectionHandler({ assemblyObject: assembly, sendDatagram: (buf) => localDatagrams.push({ buf }) });
             h.openConnection(baseRequest({ toRpiUs: 40000, transportTypeTrigger: TransportTrigger.Class1ChangeOfState }), { remoteAddress: '10.0.0.5' }); // rpiMs = 40, pollMs = 40
-            setTimeout(() => {
-                assert.ok(sentDatagrams.length >= 2, `expected an unconditional heartbeat resend, got ${sentDatagrams.length}`);
-                h.closeAll();
-                done();
-            }, 90);
+            waitForCount(() => localDatagrams.length, 2, done, () => h.closeAll());
         });
     });
 
@@ -632,6 +665,99 @@ describe('ConnectionHandler (Adapter-side Forward_Open/Forward_Close + cyclic I/
             assert.strictEqual(listenerA.ok, true);
             assert.strictEqual(listenerB.ok, true);
             assert.strictEqual(h.connections.size, 3); // owner + 2 listeners, none evicted the others
+            h.closeAll();
+        });
+    });
+
+    // Ported from OpENer's ciptcpipinterface.c (CipTcpIpCalculateMulticastIp(), CIP Vol 2 §3-5.3)
+    // and cipioconnection.c (OpenProducingMulticastConnection()/GetExistingProducerIoConnection()).
+    describe('Multicast Class 1 I/O production (CIP Vol 2 §3-5.3)', function () {
+        const DEVICE_IP = '192.168.1.10';
+        const NETMASK = '255.255.255.0';
+        const SAME_SUBNET_ORIGINATOR = '192.168.1.50';
+        const OFF_SUBNET_ORIGINATOR = '10.0.0.50';
+
+        function multicastHandler() {
+            const tcpIpObject = new TcpIpInterfaceObject({ ip: DEVICE_IP, netmask: NETMASK });
+            return new ConnectionHandler({
+                assemblyObject: assembly,
+                tcpIpObject,
+                sendDatagram: (buf, addr, port, opts) => sentDatagrams.push({ buf, addr, opts })
+            });
+        }
+
+        function multicastRequest(overrides = {}) {
+            return baseRequest({ toConnectionType: ConnectionType.Multicast, ...overrides });
+        }
+
+        it('computes the device multicast address per CIP Vol 2 §3-5.3 (matches OpENer\'s own formula)', function () {
+            // host portion of 192.168.1.10 under /24 is 10 -> hostId = 10-1 = 9 -> base + 9*32 = 239.192.1.0 + 288
+            assert.strictEqual(calculateMulticastIp('192.168.1.10', '255.255.255.0'), '239.192.2.32');
+        });
+
+        it('rejects a multicast Forward_Open from an Originator outside this device\'s own subnet with extended status 0x0813', function () {
+            const h = multicastHandler();
+            const result = h.openConnection(multicastRequest(), { remoteAddress: OFF_SUBNET_ORIGINATOR });
+            assert.strictEqual(result.ok, false);
+            assert.strictEqual(result.generalStatus, CipGeneralStatus.ConnectionFailure);
+            assert.strictEqual(result.extendedStatus, 0x0813);
+            h.closeAll();
+        });
+
+        it('accepts a same-subnet multicast Forward_Open and marks it as the multicast owner', function () {
+            const h = multicastHandler();
+            const result = h.openConnection(multicastRequest(), { remoteAddress: SAME_SUBNET_ORIGINATOR });
+            assert.strictEqual(result.ok, true);
+            const state = [...h.connections.values()][0];
+            assert.strictEqual(state.multicast, true);
+            assert.strictEqual(state.isMulticastFollower, false);
+            assert.ok(sentDatagrams.some((d) => d.opts && d.opts.multicast === true));
+            h.closeAll();
+        });
+
+        it('a second multicast Forward_Open to the SAME T->O instance becomes a follower sharing the owner\'s toNetworkConnectionId, without starting its own producer', function () {
+            const h = multicastHandler();
+            const owner = h.openConnection(multicastRequest(), { remoteAddress: SAME_SUBNET_ORIGINATOR });
+            assert.strictEqual(owner.ok, true);
+
+            const countAfterOwnerOpen = sentDatagrams.length;
+            const follower = h.openConnection(
+                multicastRequest({ connectionSerialNumber: 0x9999, originatorSerialNumber: 0x77889900, toNetworkConnectionId: 0xbadbadba }),
+                { remoteAddress: '192.168.1.51' }
+            );
+            assert.strictEqual(follower.ok, true);
+
+            // The follower's response must carry the OWNER's toNetworkConnectionId, not its own
+            // Scanner's proposed 0xbadbadba — every listener has to agree on one connection ID
+            // for the shared multicast stream.
+            assert.strictEqual(follower.response.toNetworkConnectionId, owner.response.toNetworkConnectionId);
+            assert.notStrictEqual(follower.response.toNetworkConnectionId, 0xbadbadba);
+
+            const followerState = [...h.connections.values()].find((c) => c.remoteAddress === '192.168.1.51');
+            assert.strictEqual(followerState.isMulticastFollower, true);
+            assert.strictEqual(followerState.timer, null); // no producer of its own
+
+            // Opening the follower must NOT have sent an extra datagram — it has nothing to
+            // produce, it shares the owner's already-running stream.
+            assert.strictEqual(sentDatagrams.length, countAfterOwnerOpen);
+            h.closeAll();
+        });
+
+        it('closing the multicast owner also closes any followers sharing its stream', function () {
+            const h = multicastHandler();
+            const owner = h.openConnection(multicastRequest(), { remoteAddress: SAME_SUBNET_ORIGINATOR });
+            h.openConnection(
+                multicastRequest({ connectionSerialNumber: 0x9999, originatorSerialNumber: 0x77889900 }),
+                { remoteAddress: '192.168.1.51' }
+            );
+            assert.strictEqual(h.connections.size, 2);
+
+            h.closeConnection({
+                connectionSerialNumber: owner.response.connectionSerialNumber,
+                originatorVendorId: owner.response.originatorVendorId,
+                originatorSerialNumber: owner.response.originatorSerialNumber
+            });
+            assert.strictEqual(h.connections.size, 0); // owner AND its follower both gone
             h.closeAll();
         });
     });

@@ -175,15 +175,15 @@ touching related code:
   doesn't have one either (its own EDS has no `[Symbol Class]`/0x6B section). Tag names in a
   Scanner's config tool are typed manually, not browsed. Don't add browsing/discovery for tag
   names expecting it to match a real Delta workflow — it wouldn't.
-- **No Multicast I/O production** — `connection-handler.js` decodes the requested connection type
-  bit but always produces unicast to the Originator's address, which is a real, currently-unaddressed
-  gap against §6.2.3.e above (relevant if this Adapter's connections are ever exercised by a Scanner
-  requiring multicast — e.g. per §5.2.3.d's connection combinations, which assume the Adapter CAN
-  multicast). The address-allocation algorithm is already sourced — OpENer's
-  `CipTcpIpCalculateMulticastIp()` implements CIP Vol 2 §3-5.3 exactly — see
-  `docs/ODVA_COMPLIANCE_REFERENCE.md` §2's Adapter gap list for the full formula and what's left
-  to wire up (TCP/IP Object Multicast Configuration, an actual multicast UDP send path, off-subnet
-  rejection, and sharing one producer per T→O instance instead of one per connection).
+- **Multicast Class 1 I/O production is now implemented** — `TcpIpInterfaceObject.multicastAddress`/
+  `calculateMulticastIp()` port OpENer's `CipTcpIpCalculateMulticastIp()` exactly (CIP Vol 2 §3-5.3),
+  exposed via Attribute 9. `connection-handler.js` rejects off-subnet multicast Forward_Opens
+  (`0x0813`) and implements OpENer's owner/follower model (`OpenProducingMulticastConnection()`):
+  the first multicast Forward_Open to a T→O instance starts the real producer and "owns" it; later
+  ones to the SAME instance share that stream and its `toNetworkConnectionId` instead of each
+  running a redundant unicast timer. If you touch this, read `_releaseMulticastOwnership()`'s doc
+  comment first — closing the owner currently closes its followers too, a deliberate simplification
+  of OpENer's own master-handover behavior (see `docs/ROADMAP.md` if improving this).
 - **Exclusive-Owner / Input-Only / Listen-Only connection-type classification is now implemented**
   (`registerConnectionPoint()`/`_classifyConnectionType()` in `connection-handler.js`, ported from
   OpENer's `appcontype.c`) — classification is by which pre-registered (O→T, T→O) slot pair a

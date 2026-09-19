@@ -60,7 +60,7 @@ Legenda: ✅ Selesai & terverifikasi · 🔶 Sebagian / dengan catatan · ❌ Be
 | ↳ Production Trigger: Cyclic | ✅ | Mengirim T→O tanpa syarat pada setiap RPI |
 | ↳ Production Trigger: Change of State | ✅ | Polling lebih cepat dari RPI, hanya mengirim bila data berubah atau RPI telah terlampaui (RPI berlaku sebagai interval maksimum, bukan interval tetap — CIP Vol 1 §3-4.5.2) |
 | ↳ Production Trigger: Application Object | 🔶 | Diperlakukan sama seperti Change of State; belum ada mekanisme trigger dari "application object" internal yang eksplisit |
-| ↳ Multicast Class 1 Connection | ❌ | Bit tipe koneksi didekode dari request, tetapi produksi datagram selalu dikirim unicast ke Originator terlepas dari nilai bit tersebut |
+| ↳ Multicast Class 1 Connection | ✅ | Alamat multicast dihitung dari IP/netmask device sendiri (CIP Vol 2 §3-5.3, formula persis dari `CipTcpIpCalculateMulticastIp()` OpENer), diekspos di TCP/IP Object Attribute 9. Forward_Open dari Originator di luar subnet ditolak (`0x0813`). Koneksi multicast pertama ke satu instance T→O jadi "owner" (satu-satunya yang benar-benar mengirim); koneksi berikutnya ke instance yang sama jadi "follower" yang berbagi stream & `toNetworkConnectionId` yang sama, bukan bikin unicast terpisah lagi |
 | TCP/IP Interface Object (0xF5) | ✅ | Instance-0 dan Attr 1 (Status), 2 (Config Capability), 3 (Config Control), 4 (Physical Link), 5 (Interface Config), 6 (Host Name), 13 (Inactivity Timeout) |
 | Ethernet Link Object (0xF6) | ✅ | Instance-0 dan Attr 1 (Speed), 2 (Flags), 3 (MAC), 10 (Label), 11 (Capability) |
 | QoS Object (0x48) | ✅ | Implementasi dasar |

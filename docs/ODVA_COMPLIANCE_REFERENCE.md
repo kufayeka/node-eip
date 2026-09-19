@@ -116,17 +116,20 @@ Variable Frequency Drive — i.e. exactly the kind of device `DeviceBuilder` is 
   pre-existing test predating this feature) keeps the original generic/legacy behavior unchanged —
   this was an additive change, not a breaking one.
 
+- #3d (multicast T→O): **done**. `TcpIpInterfaceObject.multicastAddress`/`calculateMulticastIp()`
+  implement OpENer's `CipTcpIpCalculateMulticastIp()` exactly (CIP Vol 2 §3-5.3), exposed via
+  Attribute 9 (Multicast Configuration). `connection-handler.js` rejects an off-subnet multicast
+  Forward_Open with extended status `0x0813` (OpENer's own `kConnectionManagerExtendedStatusCodeNotConfiguredForOffSubnetMulticast`,
+  TTL=1 assumption — set via `_udpIo.setMulticastTTL(1)` in `adapter.js`). Ported OpENer's
+  `OpenProducingMulticastConnection()`/`GetExistingProducerIoConnection()` design: the FIRST
+  multicast Forward_Open for a given T→O instance becomes the "owner" (starts the real producer);
+  every subsequent multicast Forward_Open to the SAME instance is a "follower" sharing the owner's
+  stream and `toNetworkConnectionId` (not a redundant unicast-per-listener stream) — realizing the
+  actual bandwidth benefit multicast exists for. Closing the owner also closes its followers
+  (a deliberate simplification of OpENer's own master-handover behavior — see
+  `_releaseMulticastOwnership()`'s doc comment and `docs/ROADMAP.md`).
+
 **Not yet audited/implemented — flagged here rather than assumed:**
-- #3d (multicast T→O): **not implemented yet, but the exact algorithm is now sourced**: OpENer's
-  `CipTcpIpCalculateMulticastIp()` (`ciptcpipinterface.c`) implements CIP Vol 2 §3-5.3 "Multicast
-  Address Allocation for EtherNet/IP" — `base 239.192.1.0 + ((hostId - 1 & 0x3FF) << 5)`, where
-  `hostId` is the device's own IP masked to its host portion. Implementing this fully means: TCP/IP
-  Interface Object Multicast Configuration (Attribute 9), an actual UDP multicast send path, an
-  off-subnet rejection check (OpENer's `kConnectionManagerExtendedStatusCodeNotConfiguredForOffSubnetMulticast`
-  = `0x0813`, TTL=1 assumption), and — for real bandwidth benefit — reworking Listen-Only
-  connections to share one multicast producer per T→O instance instead of each running its own
-  independent unicast timer (which they currently still do; connection-type classification above
-  is orthogonal to and doesn't block this). Scoped out of this pass; see `docs/ROADMAP.md`.
 - #3g (heartbeat connection path with 0-length, no-header): not specifically modeled as a distinct
   path; the Listen-Only/Input-Only EDS fallback branches in `eds-exporter.js` declare `0x02010002`
   transport types but this hasn't been cross-checked against §3g's exact framing.

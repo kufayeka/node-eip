@@ -16,7 +16,20 @@
 
 const { decodeEPath } = require('../cip/path');
 const { buildIoDatagram, parseIoDatagram } = require('../cip/io-connection');
+const { ConnectionType } = require('../cip/connection-manager');
 const { CipGeneralStatus } = require('../constants');
+
+/** IPv4 dotted-quad -> unsigned 32-bit integer (no BigInt/regex fuss needed for this use). */
+function ipToUint32(ip) {
+    const p = String(ip || '0.0.0.0').trim().split('.').map(Number);
+    return (((p[0] * 256 + p[1]) * 256 + p[2]) * 256 + p[3]) >>> 0;
+}
+
+/** True if two IPv4 addresses fall in the same subnet under the given netmask. */
+function isSameSubnet(ipA, ipB, netmask) {
+    const maskInt = ipToUint32(netmask);
+    return (ipToUint32(ipA) & maskInt) === (ipToUint32(ipB) & maskInt);
+}
 
 /**
  * Production Trigger — CIP Vol 1, Table 3-4.5 "Transport Type/Trigger" byte
@@ -34,10 +47,24 @@ function decodeProductionTrigger(transportTypeTrigger) {
 }
 
 class ConnectionHandler {
-    constructor({ assemblyObject, identity, sendDatagram, connectionManagerObject, quiet = false, strictDuplicateConnections = false, tagStore = null, onTagWrite = null }) {
+    constructor({ assemblyObject, identity, sendDatagram, connectionManagerObject, quiet = false, strictDuplicateConnections = false, tagStore = null, onTagWrite = null, tcpIpObject = null }) {
         this.assemblyObject = assemblyObject;
         this.identity = identity; // optional — enables Electronic Key validation below
-        this.sendDatagram = sendDatagram; // (buffer, remoteAddress) => void
+        this.sendDatagram = sendDatagram; // (buffer, remoteAddress, remotePort, opts?) => void — opts.multicast routes to tcpIpObject.multicastAddress instead
+        // Optional — the device's own TcpIpInterfaceObject (ip/netmask/multicastAddress),
+        // needed for Multicast Class 1 I/O: the off-subnet rejection check (CIP Vol 2 §3-5.3 /
+        // OpENer's own "for multicast, check if IP is within configured net because we send
+        // TTL 1" check) and the actual multicast group address to produce to. Without it,
+        // multicast Forward_Opens are rejected — see the numeric connection path below.
+        this.tcpIpObject = tcpIpObject;
+        // Tracks which connection currently OWNS multicast production for a given T->O
+        // instance, keyed by t2oInstance — ported from OpENer's OpenProducingMulticastConnection()/
+        // GetExistingProducerIoConnection(): only the FIRST multicast Forward_Open for a given
+        // T->O instance actually starts a producer (timer + multicast send); every subsequent
+        // multicast Forward_Open to the SAME instance is a "follower" that shares the owner's
+        // already-running stream and toNetworkConnectionId, rather than starting its own
+        // redundant unicast-per-listener stream — the entire point of multicast.
+        this.multicastProducers = new Map(); // t2oInstance -> { toNetworkConnectionId, ownerConnId }
         this.connectionManagerObject = connectionManagerObject; // optional — tracks CIP connection stats
         this.connections = new Map(); // otNetworkConnectionId -> state
         this._nextConnectionId = 1;
@@ -325,6 +352,20 @@ class ConnectionHandler {
             }
         }
 
+        // Multicast T->O — CIP Vol 2 §3-5.3. Ported from OpENer's own check (cipconnectionmanager.c):
+        // "for multicast, check if IP is within configured net because we send TTL 1" — a Scanner
+        // outside this device's own subnet could never receive a TTL-1 multicast datagram anyway,
+        // so reject it up front with the exact extended status OpENer uses for this.
+        const wantsMulticast = request.toConnectionType === ConnectionType.Multicast;
+        let multicastOwner = null;
+        if (wantsMulticast) {
+            if (!this.tcpIpObject || !isSameSubnet(cleanAddress, this.tcpIpObject.ip, this.tcpIpObject.netmask)) {
+                this.connectionManagerObject?.recordOpenRequest(false, 'format');
+                return { ok: false, generalStatus: CipGeneralStatus.ConnectionFailure, extendedStatus: 0x0813 };
+            }
+            multicastOwner = this.multicastProducers.get(t2oInstance) || null;
+        }
+
         let outputBuf = consumesO2T ? this.assemblyObject.getData(o2tInstance) : null;
         let inputBuf = this.assemblyObject.getData(t2oInstance);
 
@@ -365,9 +406,15 @@ class ConnectionHandler {
         }
 
         const otNetworkConnectionId = (Math.floor(Math.random() * 0x3FFFFFFF) + 0x10000000) >>> 0;
+        // A multicast FOLLOWER must use the OWNER's toNetworkConnectionId, not its own Scanner's
+        // proposed one — every listener has to recognize the SAME connection ID in the shared
+        // multicast stream's datagram header for the data to be accepted as theirs. Ported from
+        // OpENer's OpenProducingMulticastConnection() ("we need to inform our originator on the
+        // correct connection id").
+        const toNetworkConnectionId = multicastOwner ? multicastOwner.toNetworkConnectionId : request.toNetworkConnectionId;
         const state = {
             otNetworkConnectionId,
-            toNetworkConnectionId: request.toNetworkConnectionId,
+            toNetworkConnectionId,
             connectionSerialNumber: request.connectionSerialNumber,
             originatorVendorId: request.originatorVendorId,
             originatorSerialNumber: request.originatorSerialNumber,
@@ -384,14 +431,26 @@ class ConnectionHandler {
             productionTrigger: decodeProductionTrigger(request.transportTypeTrigger),
             useRunIdleHeader: Boolean(request.useRunIdleHeader),
             runIdle: true,
+            multicast: wantsMulticast,
+            isMulticastFollower: Boolean(multicastOwner),
             timer: null
         };
 
-        this._startProducer(state, () => this.assemblyObject.getData(t2oInstance), () => {
-            if (typeof this.onProduceData === 'function') {
-                try { this.onProduceData(t2oInstance); } catch {}
+        if (multicastOwner) {
+            // A follower shares the existing owner's already-running multicast stream — it gets
+            // no producer/timer of its own (the whole point of multicast: one stream, many
+            // listeners). It still needs its own entry in `connections` so Forward_Close and
+            // status reporting work normally for it.
+        } else {
+            this._startProducer(state, () => this.assemblyObject.getData(t2oInstance), () => {
+                if (typeof this.onProduceData === 'function') {
+                    try { this.onProduceData(t2oInstance); } catch {}
+                }
+            });
+            if (wantsMulticast) {
+                this.multicastProducers.set(t2oInstance, { toNetworkConnectionId, ownerConnId: otNetworkConnectionId });
             }
-        });
+        }
 
         this.connections.set(otNetworkConnectionId, state);
         this.connectionManagerObject?.recordOpenRequest(true);
@@ -400,14 +459,15 @@ class ConnectionHandler {
             const rpiMs = Math.max(1, Math.round(request.toRpiUs / 1000));
             const trigger = state.productionTrigger === ProductionTrigger.CYCLIC ? 'Cyclic' : 'Change-of-State';
             const typeLabel = connType ? ` [${connType}]` : '';
-            console.log(`\x1b[32m[PLC CLASS 1 I/O CONNECTED]\x1b[0m \x1b[1m${cleanAddress}\x1b[0m${typeLabel} | O->T: Assem ${o2tInstance} (${request.otSize}B), T->O: Assem ${t2oInstance} (${request.toSize}B), RPI: ${rpiMs}ms, Trigger: ${trigger} | ConnID: 0x${otNetworkConnectionId.toString(16)}`);
+            const mcastLabel = wantsMulticast ? (multicastOwner ? ' [multicast follower]' : ' [multicast owner]') : '';
+            console.log(`\x1b[32m[PLC CLASS 1 I/O CONNECTED]\x1b[0m \x1b[1m${cleanAddress}\x1b[0m${typeLabel}${mcastLabel} | O->T: Assem ${o2tInstance} (${request.otSize}B), T->O: Assem ${t2oInstance} (${request.toSize}B), RPI: ${rpiMs}ms, Trigger: ${trigger} | ConnID: 0x${otNetworkConnectionId.toString(16)}`);
         }
 
         return {
             ok: true,
             response: {
                 otNetworkConnectionId,
-                toNetworkConnectionId: request.toNetworkConnectionId,
+                toNetworkConnectionId,
                 connectionSerialNumber: request.connectionSerialNumber,
                 originatorVendorId: request.originatorVendorId,
                 originatorSerialNumber: request.originatorSerialNumber,
@@ -552,7 +612,7 @@ class ConnectionHandler {
                 runIdle: true,
                 includeSequenceCount: true
             });
-            this.sendDatagram(datagram, state.remoteAddress, state.remotePort);
+            this.sendDatagram(datagram, state.remoteAddress, state.remotePort, { multicast: Boolean(state.multicast) });
             // A copy, not the live reference: getRawData() (e.g. AssemblyObject.getData())
             // typically returns the SAME underlying Buffer every call, mutated in place —
             // caching that reference directly would make every future Change-of-State
@@ -603,6 +663,7 @@ class ConnectionHandler {
             ) {
                 clearInterval(state.timer);
                 this.connections.delete(id);
+                this._releaseMulticastOwnership(id, state);
                 this.connectionManagerObject?.recordCloseRequest(true);
                 return {
                     ok: true,
@@ -687,6 +748,29 @@ class ConnectionHandler {
     closeAll() {
         for (const state of this.connections.values()) clearInterval(state.timer);
         this.connections.clear();
+        this.multicastProducers.clear();
+    }
+
+    /**
+     * If the connection just closed/timed out was the multicast OWNER for its T->O instance,
+     * releases that ownership and closes every FOLLOWER connection still registered against it
+     * (they have no producer of their own and nothing left to share — see the constructor's
+     * multicastProducers doc comment). This is a deliberate simplification of OpENer's own
+     * behavior: the reference stack instead tries to hand ownership over to another still-active
+     * master connection first (transfer_master_connection()) before falling back to closing the
+     * listeners; this project always falls back directly. Acceptable for now — see docs/ROADMAP.md.
+     */
+    _releaseMulticastOwnership(closedId, closedState) {
+        if (!closedState.multicast || closedState.isMulticastFollower) return;
+        const owner = this.multicastProducers.get(closedState.t2oInstance);
+        if (!owner || owner.ownerConnId !== closedId) return;
+        this.multicastProducers.delete(closedState.t2oInstance);
+        for (const [id, state] of this.connections.entries()) {
+            if (state.isMulticastFollower && state.t2oInstance === closedState.t2oInstance) {
+                clearInterval(state.timer);
+                this.connections.delete(id);
+            }
+        }
     }
 }
 

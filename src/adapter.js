@@ -129,6 +129,7 @@ class EIPAdapter extends EventEmitter {
             quiet: this.quiet,
             strictDuplicateConnections: Boolean(strictDuplicateConnections),
             tagStore: this.tags,
+            tcpIpObject: this.tcpIp,
             // Lets the ConnectionHandler write incoming O->T Class 1 datagrams
             // into a symbolic tag (Produced/Consumed Tag connection) while
             // this object still owns value-decoding and event emission —
@@ -145,9 +146,9 @@ class EIPAdapter extends EventEmitter {
                     this.emit('tagChange', tagName, tag.value, oldVal, { source: 'io' });
                 }
             },
-            sendDatagram: (buf, remoteAddress, remotePort) => {
+            sendDatagram: (buf, remoteAddress, remotePort, options = {}) => {
                 if (!this._udpIo) return;
-                let targetIp = remoteAddress;
+                let targetIp = options.multicast ? this.tcpIp.multicastAddress : remoteAddress;
                 if (typeof targetIp === 'string' && targetIp.startsWith('::ffff:')) {
                     targetIp = targetIp.slice(7);
                 }
@@ -265,6 +266,11 @@ class EIPAdapter extends EventEmitter {
             this._udpIo.on('message', (msg, rinfo) => this.connectionHandler.handleIncomingDatagram(msg, rinfo));
             const bindAddr = (this.address && this.address !== '0.0.0.0') ? this.address : undefined;
             this._udpIo.bind(this.ioPort, bindAddr, () => {
+                // TTL 1 for multicast Class 1 I/O production — matches OpENer's own default and
+                // the assumption behind the off-subnet rejection check in connection-handler.js
+                // (a TTL-1 multicast datagram can't reach past the local subnet's first router
+                // anyway, so a Scanner outside it is rejected at Forward_Open time instead).
+                try { this._udpIo.setMulticastTTL(1); } catch {}
                 this._udpIo.removeAllListeners('error');
                 this._udpIo.on('error', (err) => {
                     console.error('\x1b[31m[UDP 2222 ERROR]\x1b[0m', err.message);
