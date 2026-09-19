@@ -397,19 +397,63 @@ class ConnectionHandler {
         const MAX_UDP_PAYLOAD_BYTES = 65507; // IPv4 max UDP payload (65535 - 8-byte UDP header - 20-byte IP header)
         const maxToSize = request.isLarge ? Math.min(maxSize - 2, MAX_UDP_PAYLOAD_BYTES - CPF_TO_FRAMING_OVERHEAD) : maxSize;
 
-        // Auto-adapt / resize assembly buffers if valid (within standard CIP 1..511 or Large 1..65535 bytes limit)
-        if (consumesO2T && outputBuf && outputBuf.length !== request.otSize && request.otSize > 0 && request.otSize <= maxSize) {
-            this.assemblyObject.define(o2tInstance, request.otSize);
-            outputBuf = this.assemblyObject.getData(o2tInstance);
-        }
-        if (inputBuf && inputBuf.length !== request.toSize && request.toSize > 0 && request.toSize <= maxToSize) {
-            this.assemblyObject.define(t2oInstance, request.toSize);
-            inputBuf = this.assemblyObject.getData(t2oInstance);
-        }
-
+        // The requested O->T/T->O size does NOT have to equal this Assembly's own declared byte
+        // size, and — this is the part earlier attempts at this check got backwards — this
+        // Assembly must NOT be resized to match it either. Real Scanners (confirmed live against
+        // Delta hardware, see EIP_DEBUG_RAW) commonly negotiate a Connection Size that already
+        // includes this driver's own on-the-wire transport overhead: a mandatory 2-byte Sequence
+        // Count on every Class 1 datagram (both directions), plus — for Exclusive-Owner/Input-Only
+        // O->T, whose EDS entry advertises "4-byte Run/Idle header" (eds-exporter.js) — an extra
+        // 4-byte Run/Idle header. So a device with a real 10-byte Assembly legitimately sees
+        // otSize=16 (10+2+4) and toSize=12 (10+2) from such a Scanner.
+        //
+        // Resizing the Assembly to match that (what this project's code did for a long time,
+        // including as recently as this same investigation) makes the Assembly's OWN length equal
+        // the wire size — which then makes it IMPOSSIBLE for handleIncomingDatagram to ever detect
+        // that a header is present, because "how many extra bytes are on the wire" is computed
+        // by comparing the incoming payload length against the Assembly's OWN length, and after a
+        // resize those are equal by construction. The transport header then lands unstripped at
+        // the FRONT of the Assembly buffer, silently shifting every application byte after it —
+        // this is exactly what DeviceBuilder's Parameter <-> Assembly member offsets assume can't
+        // happen (offset 0 = the first configured Param, always), so it manifests as a "parameter"
+        // that increments every packet (it's actually the raw wire Sequence Count) followed by one
+        // reading a constant 1 (the raw Run/Idle header) — see eip_device.js's own history for the
+        // exact live symptom this caused, and its own doc comment for why its previous fix (padding
+        // the Assembly itself out to the full negotiated size) was the wrong end of this to patch.
+        //
+        // So: leave the Assembly at whatever size the application actually declared, tolerate a
+        // request whose size is explained by that declared size plus the known transport overhead
+        // (bounded per direction — O->T can carry both the Sequence Count and Run/Idle header,
+        // T->O only ever carries the Sequence Count), and let handleIncomingDatagram's own
+        // per-packet length comparison do the actual stripping deterministically. Still reject
+        // anything outside that allowance (Extended Status 0x0109, CIP Vol 1 §3-5.5.2) — a size
+        // that can't be explained this way is a genuine stale/wrong connection config, not overhead.
+        // The absolute CIP protocol ceiling is checked first — a size that's nonsensically huge
+        // (e.g. a garbled request) should fail as "exceeds the connection size limit", not get a
+        // confusing "mismatched Assembly size" answer just because it also happens to be more
+        // than OT_MAX_OVERHEAD/TO_MAX_OVERHEAD bytes past the Assembly's own size.
         if (request.otSize > maxSize || request.toSize > maxToSize) {
             this.connectionManagerObject?.recordOpenRequest(false, 'format');
             return { ok: false, generalStatus: CipGeneralStatus.ConnectionFailure, extendedStatus: 0x0113 };
+        }
+
+        const OT_MAX_OVERHEAD = 6; // 2-byte Sequence Count + 4-byte Run/Idle header
+        const TO_MAX_OVERHEAD = 2; // 2-byte Sequence Count only — T->O never carries a Run/Idle header
+        if (consumesO2T && outputBuf && request.otSize > 0 &&
+            (request.otSize < outputBuf.length || request.otSize > outputBuf.length + OT_MAX_OVERHEAD)) {
+            if (process.env.EIP_DEBUG_RAW) {
+                console.log(`\x1b[31m[SIZE MISMATCH]\x1b[0m O->T instance ${o2tInstance}: device has ${outputBuf.length}B, Scanner requested ${request.otSize}B`);
+            }
+            this.connectionManagerObject?.recordOpenRequest(false, 'format');
+            return { ok: false, generalStatus: CipGeneralStatus.ConnectionFailure, extendedStatus: 0x0109 };
+        }
+        if (inputBuf && request.toSize > 0 &&
+            (request.toSize < inputBuf.length || request.toSize > inputBuf.length + TO_MAX_OVERHEAD)) {
+            if (process.env.EIP_DEBUG_RAW) {
+                console.log(`\x1b[31m[SIZE MISMATCH]\x1b[0m T->O instance ${t2oInstance}: device has ${inputBuf.length}B, Scanner requested ${request.toSize}B`);
+            }
+            this.connectionManagerObject?.recordOpenRequest(false, 'format');
+            return { ok: false, generalStatus: CipGeneralStatus.ConnectionFailure, extendedStatus: 0x0109 };
         }
 
         if (this.strictDuplicateConnections && this._findMatchingConnection(request)) {
@@ -641,17 +685,21 @@ class ConnectionHandler {
      * @param {() => void} [beforeProduce] - optional hook run just before each read (e.g. DeviceBuilder's onProduceData sync)
      */
     _startProducer(state, getRawData, beforeProduce) {
-        const targetDataSize = state.toSize;
+        // Always send the T->O source buffer's OWN natural length, never padded/truncated to
+        // state.toSize (the negotiated wire size). Those two are legitimately different numbers:
+        // a real Scanner's negotiated toSize commonly already includes this driver's own 2-byte
+        // Sequence Count overhead (see openConnection()'s doc comment), which sendAtCurrentSeq
+        // below adds separately via includeSequenceCount. Padding/truncating to toSize FIRST and
+        // then also adding the Sequence Count double-counts that overhead, producing a wire
+        // datagram 2 bytes longer than what was actually negotiated. The source buffer (an
+        // Assembly instance or a connected tag) is always fixed-length once defined/connected
+        // (AssemblyObject.setData and _openTagConnection's own size check both enforce this), so
+        // there's nothing to pad or truncate here in the first place.
         const getProducedData = () => {
             if (typeof beforeProduce === 'function') {
                 try { beforeProduce(); } catch {}
             }
-            const raw = getRawData();
-            if (raw.length === targetDataSize) return raw;
-            if (raw.length > targetDataSize) return raw.subarray(0, targetDataSize);
-            const padded = Buffer.alloc(targetDataSize);
-            raw.copy(padded);
-            return padded;
+            return getRawData();
         };
 
         // Sends at the CURRENT sequence number without advancing it — used
@@ -788,47 +836,45 @@ class ConnectionHandler {
             if (!isTagConnection && state.consumesO2T === false) return; // Input-Only/Listen-Only — nothing to consume
 
             let payload = parsed.data;
-            const otSize = state.otSize;
 
-            // Strip CIP I/O transport headers by sniffing the data's own numeric value —
-            // the original, field-proven detection this project has run against real Delta
-            // hardware. It has exactly one known ambiguous case: application data whose first
-            // 4 bytes happen to equal 0 or 1 is indistinguishable from a genuine Run/Idle
-            // header by value alone. That case can ONLY occur when the datagram carries no
-            // extra bytes at all (payload.length === otSize, i.e. there is no room for a header
-            // or sequence count in the first place) — so skip sniffing entirely in that one
-            // situation instead of replacing the whole (working) detection strategy. See
-            // bench/rpi-stress.js, which surfaced the crash this guard fixes: a 4-byte all-zero
-            // payload (no header, negotiated otSize=4) was misread as a 4-byte Run/Idle header
-            // of value 0, corrupting the payload to 0 bytes.
-            if (!(otSize > 0 && payload.length === otSize)) {
-                // Case 1: 2-byte Sequence Count + 4-byte Run/Idle header (6 bytes prefix)
-                if (payload.length >= 6) {
-                    const headerAt2 = payload.readUInt32LE(2);
-                    if (headerAt2 === 0 || headerAt2 === 1) {
-                        state.runIdle = Boolean(headerAt2 & 0x01);
-                        payload = payload.subarray(6);
-                    } else {
-                        // Case 2: 4-byte Run/Idle header at offset 0
-                        const headerAt0 = payload.readUInt32LE(0);
-                        if (headerAt0 === 0 || headerAt0 === 1) {
-                            state.runIdle = Boolean(headerAt0 & 0x01);
-                            payload = payload.subarray(4);
-                        } else if (otSize > 0 && payload.length === otSize + 2) {
-                            // Case 3: 2-byte sequence count only
-                            payload = payload.subarray(2);
-                        }
-                    }
-                } else if (payload.length >= 4) {
-                    const headerAt0 = payload.readUInt32LE(0);
-                    if (headerAt0 === 0 || headerAt0 === 1) {
-                        state.runIdle = Boolean(headerAt0 & 0x01);
-                        payload = payload.subarray(4);
-                    } else if (otSize > 0 && payload.length === otSize + 2) {
-                        payload = payload.subarray(2);
-                    }
-                }
+            if (process.env.EIP_DEBUG_RAW && !isTagConnection) {
+                console.log(`\x1b[35m[RAW O->T]\x1b[0m seq=${parsed.sequenceNumber} otSize=${state.otSize} rawLen=${payload.length} rawHex=${payload.toString('hex')}`);
             }
+
+            // Strip CIP I/O transport headers (a mandatory 2-byte Sequence Count, and — for
+            // Exclusive-Owner/Input-Only connections whose EDS entry advertises a 4-byte Run/Idle
+            // header — that too) by comparing the datagram's actual length against the REAL target
+            // buffer's own current length — NOT by sniffing the data's own numeric value (guessing
+            // "is this 4-byte word 0 or 1?" is genuinely ambiguous whenever live application data
+            // legitimately contains 0 or 1, e.g. status/command words), and NOT by resizing the
+            // target buffer to match the wire size either (that makes the two lengths equal by
+            // construction, so no header could ever be detected at all — see openConnection()'s own
+            // doc comment on this for the full story, including the live production incident that
+            // is why this comment exists). The target buffer's declared length is the one thing
+            // that's actually fixed and known in advance; the header length is simply whatever is
+            // left over once that's accounted for.
+            const targetBuf = isTagConnection
+                ? ((this.tagStore.get(state.tagName) || {}).buffer || Buffer.alloc(0))
+                : this.assemblyObject.getData(state.o2tInstance);
+
+            if (payload.length > targetBuf.length) {
+                const headerLen = payload.length - targetBuf.length;
+                // When a Run/Idle header is present it's always the 4 bytes immediately
+                // preceding the application data — recovered here only for the runIdle status
+                // flag; the strip itself doesn't depend on knowing this.
+                if (headerLen >= 4) {
+                    state.runIdle = Boolean(payload.readUInt32LE(headerLen - 4) & 0x01);
+                }
+                payload = payload.subarray(headerLen);
+            } else if (payload.length < targetBuf.length) {
+                // Genuinely too short to be this target's data plus known overhead — not a
+                // header we can strip. Drop rather than write a truncated/misaligned buffer.
+                if (!this.quiet) {
+                    console.warn(`[EIP] O->T payload (${payload.length}B) shorter than target (${targetBuf.length}B) on connection 0x${state.otNetworkConnectionId.toString(16)}; dropping`);
+                }
+                return;
+            }
+
             if (isTagConnection) {
                 if (payload.length === 0) return;
                 if (typeof this.onTagWrite === 'function') {
@@ -838,10 +884,6 @@ class ConnectionHandler {
                     if (tag) tag.buffer = Buffer.from(payload);
                 }
             } else {
-                const outputBuf = this.assemblyObject.getData(state.o2tInstance);
-                if (outputBuf.length !== payload.length && payload.length > 0) {
-                    this.assemblyObject.define(state.o2tInstance, payload.length);
-                }
                 this.assemblyObject.setData(state.o2tInstance, payload);
             }
             return;

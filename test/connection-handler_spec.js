@@ -100,6 +100,51 @@ describe('ConnectionHandler (Adapter-side Forward_Open/Forward_Close + cyclic I/
         assert.deepStrictEqual(assembly.getData(100), Buffer.from([10, 20, 30, 40]));
     });
 
+    it('regression (eip_device.js live incident): a Scanner negotiating otSize = Assembly size + transport overhead (Delta convention) must NOT resize the Assembly, and must still land only the real data at the real offsets', function () {
+        // Reproduces the exact production scenario that caused this: a 10-byte Assembly (5 INT
+        // params, 2 bytes each, at offsets 0,2,4,6,8 — matching DeviceBuilder's own Param<->
+        // Assembly member offset convention), and a real Scanner that negotiates otSize=16
+        // (10 real bytes + 2-byte Sequence Count + 4-byte Run/Idle header, confirmed live via
+        // EIP_DEBUG_RAW against a real Delta PLC). Previously, openConnection() RESIZED the
+        // Assembly to 16 bytes to match, which then made every future payload.length equal the
+        // Assembly's own (now 16-byte) length, so no header could ever be detected/stripped again
+        // — the header landed unstripped at offset 0, so what should have been the first param's
+        // value was actually the raw wire Sequence Count (incrementing every packet) and the
+        // second/third were the raw Run/Idle header (reading a constant 1, then 0).
+        const bigAssembly = new AssemblyObject().define(200, 10).define(201, 10);
+        const bigHandler = new ConnectionHandler({ assemblyObject: bigAssembly, sendDatagram: () => {} });
+        const req = {
+            connectionPath: encodeAssemblyConnectionPath({ configInstance: 0x80, o2tInstance: 200, t2oInstance: 201 }),
+            otSize: 16, // 10 real bytes + 2-byte Sequence Count + 4-byte Run/Idle header
+            toSize: 12, // 10 real bytes + 2-byte Sequence Count (T->O never carries Run/Idle)
+            otRpiUs: 20000,
+            toRpiUs: 20000,
+            toNetworkConnectionId: 0xdeadbeef,
+            connectionSerialNumber: 0x1234,
+            originatorVendorId: 0xaaaa,
+            originatorSerialNumber: 0x11223344
+        };
+        const result = bigHandler.openConnection(req, { remoteAddress: '10.0.0.5' });
+        assert.strictEqual(result.ok, true);
+        // The Assembly must stay at its own real, declared size -- NOT get resized to 16.
+        assert.strictEqual(bigAssembly.getData(200).length, 10, 'Assembly must NOT be resized to the negotiated wire size');
+
+        // Real param values a PLC would write: 5 INT16 values at their real byte offsets.
+        const realParamBytes = Buffer.from(new Int16Array([111, -222, 333, -444, 555]).buffer);
+        const wirePayload = Buffer.concat([
+            Buffer.from([0x01, 0x00]),       // 2-byte Sequence Count (e.g. seq=1)
+            Buffer.from([0x01, 0x00, 0x00, 0x00]), // 4-byte Run/Idle header, Run=1
+            realParamBytes                   // 10 bytes of real application data
+        ]);
+        assert.strictEqual(wirePayload.length, 16);
+
+        const datagram = buildIoDatagram({ connectionId: result.response.otNetworkConnectionId, sequenceNumber: 1, data: wirePayload });
+        bigHandler.handleIncomingDatagram(datagram);
+
+        assert.deepStrictEqual(bigAssembly.getData(200), realParamBytes, 'only the real 10 bytes of param data must land in the Assembly -- the header must be stripped, not stored as param values');
+        bigHandler.closeAll();
+    });
+
     it('ignores an incoming datagram whose connection id matches no open connection', function () {
         handler.openConnection(baseRequest(), { remoteAddress: '10.0.0.5' });
         const datagram = buildIoDatagram({ connectionId: 0xffffffff, sequenceNumber: 1, data: Buffer.from([9, 9, 9, 9]) });
