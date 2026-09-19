@@ -376,18 +376,38 @@ class ConnectionHandler {
         let inputBuf = this.assemblyObject.getData(t2oInstance);
 
         const maxSize = request.isLarge ? 65535 : 511;
+        // T->O is what WE produce (_startProducer's sendAtCurrentSeq) as a real UDP datagram, and
+        // that datagram has TWO layers of overhead on top of the raw Assembly data that the CIP
+        // Large Forward Open 65535B ceiling alone doesn't account for:
+        //   1. This driver's own mandatory 2-byte transport Sequence Count, prepended
+        //      unconditionally (includeSequenceCount: true — see that function's own comment).
+        //   2. CPF framing (encapsulation/cpf.js's encodeCpf): 2-byte item count + a 12-byte
+        //      Sequenced Address item (4-byte header + 8-byte data) + a 4-byte Connected Data item
+        //      header = 18 bytes, before the Sequence Count and Assembly data even start.
+        // Two failure modes follow from ignoring this: right at the Large Forward Open ceiling,
+        // the Connected Data item's own length (UInt16LE in encodeCpf) overflows past 65535 and
+        // crashes Buffer.writeUInt16LE outright; short of that, the full UDP datagram (all of the
+        // above, ~20 bytes, plus the Assembly data) can still exceed IPv4's actual max UDP payload
+        // (65507 bytes, i.e. 65535 - 20-byte UDP+IP header — no jumbograms here), which fails the
+        // socket .send() call itself with EMSGSIZE. Both found via bench/tag-scale.js sweeping up
+        // to a Large connection's real ceiling. O->T has no equivalent risk here: it's only ever
+        // CONSUMED (parsed), never built by us, so whatever a Scanner actually sends is its own
+        // problem to keep under the wire limit, not something our own code can overflow.
+        const CPF_TO_FRAMING_OVERHEAD = 2 /* item count */ + 12 /* Sequenced Address item */ + 4 /* Connected Data item header */ + 2 /* our own Sequence Count */;
+        const MAX_UDP_PAYLOAD_BYTES = 65507; // IPv4 max UDP payload (65535 - 8-byte UDP header - 20-byte IP header)
+        const maxToSize = request.isLarge ? Math.min(maxSize - 2, MAX_UDP_PAYLOAD_BYTES - CPF_TO_FRAMING_OVERHEAD) : maxSize;
 
         // Auto-adapt / resize assembly buffers if valid (within standard CIP 1..511 or Large 1..65535 bytes limit)
         if (consumesO2T && outputBuf && outputBuf.length !== request.otSize && request.otSize > 0 && request.otSize <= maxSize) {
             this.assemblyObject.define(o2tInstance, request.otSize);
             outputBuf = this.assemblyObject.getData(o2tInstance);
         }
-        if (inputBuf && inputBuf.length !== request.toSize && request.toSize > 0 && request.toSize <= maxSize) {
+        if (inputBuf && inputBuf.length !== request.toSize && request.toSize > 0 && request.toSize <= maxToSize) {
             this.assemblyObject.define(t2oInstance, request.toSize);
             inputBuf = this.assemblyObject.getData(t2oInstance);
         }
 
-        if (request.otSize > maxSize || request.toSize > maxSize) {
+        if (request.otSize > maxSize || request.toSize > maxToSize) {
             this.connectionManagerObject?.recordOpenRequest(false, 'format');
             return { ok: false, generalStatus: CipGeneralStatus.ConnectionFailure, extendedStatus: 0x0113 };
         }
@@ -397,13 +417,28 @@ class ConnectionHandler {
             return { ok: false, generalStatus: CipGeneralStatus.ConnectionFailure, extendedStatus: 0x0100 };
         }
 
-        // Clean up any existing connection from the same originator or endpoint
-        // (skipped in strict mode — see the matching comment in the explicit-connection branch above).
+        // Clean up any existing connection to this SAME (O->T, T->O) point pair from the same
+        // originator or endpoint (skipped in strict mode — see the matching comment in the
+        // explicit-connection branch above). Scoped to the same connection points deliberately:
+        // originatorVendorId/originatorSerialNumber are a per-CLIENT identity (client.js's
+        // buildForwardOpenRequest defaults both to fixed placeholders unless the caller overrides
+        // them — i.e. every connection a given Scanner instance opens shares the same values,
+        // by design, same as a real PLC's fixed station identity across all the connections it
+        // opens), NOT a per-connection one — matching on originator alone, without also requiring
+        // the SAME point pair, silently evicted any OTHER still-live connection that same
+        // client/PLC had open to a DIFFERENT assembly pair the moment it opened a second one.
+        // That breaks the ordinary case of one Scanner (or one real PLC's Data Exchange table)
+        // holding several simultaneous connections to the same device — found via
+        // bench/tag-scale.js splitting a large tag count across multiple connections from one
+        // Scanner, where connections 2-4 each silently killed the ones opened before them.
         if (!this.strictDuplicateConnections) {
             for (const [id, existing] of this.connections.entries()) {
                 if (
-                    (existing.originatorSerialNumber === request.originatorSerialNumber && existing.originatorVendorId === request.originatorVendorId) ||
-                    (existing.remoteAddress === cleanAddress && existing.o2tInstance === o2tInstance && existing.t2oInstance === t2oInstance)
+                    existing.o2tInstance === o2tInstance && existing.t2oInstance === t2oInstance &&
+                    (
+                        (existing.originatorSerialNumber === request.originatorSerialNumber && existing.originatorVendorId === request.originatorVendorId) ||
+                        existing.remoteAddress === cleanAddress
+                    )
                 ) {
                     if (existing.timer) clearInterval(existing.timer);
                     this.connections.delete(id);
@@ -520,11 +555,18 @@ class ConnectionHandler {
             this.connectionManagerObject?.recordOpenRequest(false, 'duplicate');
             return { ok: false, generalStatus: CipGeneralStatus.ConnectionFailure, extendedStatus: 0x0100 };
         }
+        // Scoped to the same tag name — see the matching comment on the numeric-Assembly cleanup
+        // above for why matching on originator alone (without also requiring the same tag) is
+        // wrong: it silently evicts any OTHER still-live symbolic Tag connection that same
+        // client/PLC had open to a DIFFERENT tag.
         if (!this.strictDuplicateConnections) {
             for (const [id, existing] of this.connections.entries()) {
                 if (
-                    (existing.originatorSerialNumber === request.originatorSerialNumber && existing.originatorVendorId === request.originatorVendorId) ||
-                    (existing.remoteAddress === remoteAddress && existing.tagName === tagName)
+                    existing.tagName === tagName &&
+                    (
+                        (existing.originatorSerialNumber === request.originatorSerialNumber && existing.originatorVendorId === request.originatorVendorId) ||
+                        existing.remoteAddress === remoteAddress
+                    )
                 ) {
                     if (existing.timer) clearInterval(existing.timer);
                     this.connections.delete(id);
