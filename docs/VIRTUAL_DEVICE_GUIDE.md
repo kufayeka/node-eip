@@ -409,3 +409,38 @@ A working reference implementation of both the capture (`eip_device.js`) and the
 (`analyze-eip-dump.js`) lives alongside this package in the parent workspace
 (`packages/node_modules/`) — read those two files for the exact pattern; they're intentionally
 dependency-free (`fs` + arithmetic only) so they're easy to adapt into your own device script.
+
+### Diagnosing repeated reconnects / "sluggish" Scanner behavior at low RPI
+
+A device that appears to reconnect on its own (new Forward_Open, new Connection ID, every 1-2
+seconds) at a short RPI (e.g. 10ms) is almost always a symptom of the *host process* stalling long
+enough to blow past the Scanner's own connection timeout, not a bug in this library's connection
+handling. Two real causes were found and confirmed this way, using the CSV capture/analysis
+pattern above to measure exact stall duration and correlate it against reconnect timestamps in the
+console log:
+
+1. **Per-packet console logging.** `builder.watch({ logParams: true, ... })` logs on every
+   parameter change. At a 10ms RPI with values changing almost every packet, that is potentially
+   hundreds of ANSI-colored `console.log` calls per second. Windows terminals (`cmd.exe`,
+   PowerShell, and VS Code's integrated terminal) can block the writing process when output is
+   produced faster than the terminal can drain it, stalling the Node.js event loop for
+   hundreds of milliseconds to over a second at a time — long enough to trip the Scanner's
+   watchdog and force a reconnect. Fix: disable per-packet logging in production runs (pass
+   `--quiet` in `eip_device.js`, or simply don't call `builder.watch()` with `logParams: true`
+   at high RPI) and confirm via a before/after CSV capture — this alone cut measured jitter
+   (stdev vs. expected interval) from over 1500% to around 270% in testing.
+2. **Antivirus real-time scanning.** Even with logging disabled, a remaining cluster of large
+   gaps (multiple stalls up to ~2.4 seconds within a ~10 second window) was traced to Windows
+   Defender's real-time protection scanning the project folder — likely triggered by the
+   continuously-growing CSV dump file. Excluding the working folder from real-time scanning
+   (`Add-MpPreference -ExclusionPath "<path>"` in an elevated PowerShell, or Windows Security →
+   Virus & threat protection → Manage settings → Exclusions) eliminated every gap above 200ms in
+   a 9-minute capture (max gap dropped from 2400.7ms to 136.3ms, stdev from ~270% to ~52% of the
+   expected interval). Only exclude a folder you trust and control; this trades a small amount of
+   real-time scanning coverage for consistent I/O timing, so weigh it against your own security
+   policy before applying it to a production machine.
+
+Neither cause is specific to Node.js — any process (regardless of language or runtime) that gets
+starved of CPU time by terminal I/O backpressure or a background scanner will show the same
+symptom. Rewriting the device stack in a different language does not address either root cause;
+diagnosing and removing the actual source of the stall does.
