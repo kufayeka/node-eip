@@ -142,15 +142,17 @@ class Subscription extends EventEmitter {
         this.rpiMs = Math.max(1, Number(options.rpiMs || 20));
         this.deadband = Number(options.deadband || 0);
 
-        // In ODVA CIP Class 1 (Transport Class 1), Connected Transport Data prepends a
-        // 16-bit Sequence Count (2 bytes LE) before the application assembly data.
-        // For 'udp' mode, dataOffset defaults to 2; for 'polling', it is 0.
+        // IOConnection strips the 2-byte transport sequence count before emitting 'data',
+        // so application assembly data starts at index 0.
         this.dataOffset = options.dataOffset !== undefined
             ? Number(options.dataOffset)
-            : (this.mode === 'udp' ? 2 : 0);
+            : 0;
 
         this.assemblyInstance = options.assemblyInstance || 0x65;
         this.assemblySize = options.assemblySize || 200;
+        this.o2tInstance = options.o2tInstance !== undefined ? options.o2tInstance : 0x64;
+        this.configInstance = options.configInstance !== undefined ? options.configInstance : 0x80;
+        this.ioPort = options.ioPort || 2222;
 
         this._tags = new Map();
         this._values = new Map();
@@ -244,23 +246,31 @@ class Subscription extends EventEmitter {
         if (this._running) return this;
         this._running = true;
 
-        if (this.mode === 'polling') {
-            // Polling Mode (TCP 44818)
-            this._pollTimer = setInterval(() => {
+        try {
+            if (this.mode === 'polling') {
+                // Polling Mode (TCP 44818)
+                this._pollTimer = setInterval(() => {
+                    this._pollOnce().catch((err) => {
+                        this.emit('error', err);
+                    });
+                }, this.interval);
+
+                // Execute initial poll immediately
                 this._pollOnce().catch((err) => {
                     this.emit('error', err);
                 });
-            }, this.interval);
-
-            // Execute initial poll immediately
-            this._pollOnce().catch((err) => {
-                this.emit('error', err);
-            });
-        } else if (this.mode === 'udp') {
-            // Real-Time UDP 2222 Mode
-            await this._initUdpMode();
-        } else {
-            throw new Error(`Subscription: invalid mode "${this.mode}". Expected "polling" or "udp"`);
+            } else if (this.mode === 'udp') {
+                // Real-Time UDP 2222 Mode
+                await this._initUdpMode();
+            } else {
+                throw new Error(`Subscription: invalid mode "${this.mode}". Expected "polling" or "udp"`);
+            }
+        } catch (err) {
+            // _running must not stay stuck true on a failed start -- otherwise a caller's retry
+            // (e.g. a Node-RED node re-attempting after a transient error) silently no-ops forever
+            // on the `if (this._running) return this;` guard above, instead of actually retrying.
+            this._running = false;
+            throw err;
         }
 
         if (!this._sigintHandler) {
@@ -326,11 +336,23 @@ class Subscription extends EventEmitter {
         if (!this._ioConnection) {
             // Auto-open Class 1 I/O connection via Forward_Open
             const connectionPath = encodeAssemblyConnectionPath({
-                configInstance: 0x80,
-                o2tInstance: 0x64, // Assembly 100 (200 bytes)
+                configInstance: this.configInstance,
+                o2tInstance: this.o2tInstance,
                 t2oInstance: this.assemblyInstance // Assembly 101 (200 bytes)
             });
 
+            // openConnection() above is the point of no return: once it resolves, the Target has
+            // already granted this connection and considers it Exclusive-Owner-ed by us. Everything
+            // from here down (createIoConnection, starting the UDP socket/timers) is local and CAN
+            // fail on its own (e.g. EADDRINUSE on the local UDP port) with no involvement from the
+            // Target at all -- if that happens and we just let the exception propagate, the caller
+            // is left holding a connection handle it doesn't know it owns, and this Subscription
+            // never sends the matching Forward_Close. The real symptom this caused: a Node-RED node
+            // whose 'udp' mode start() throws once (e.g. a transient error) leaves the real PLC
+            // believing that connection point is still exclusively owned forever, since nothing
+            // else on our side will ever ask it to release it -- every subsequent Forward_Open
+            // attempt to the same connection point then fails with extended status 0x0106 (Ownership
+            // Conflict), regardless of what is or isn't running locally afterward.
             this._connectionHandle = await scanner.openConnection({
                 connectionPath,
                 rpiUs: this.rpiMs * 1000,
@@ -338,12 +360,22 @@ class Subscription extends EventEmitter {
                 toSize: this.assemblySize
             });
 
-            this._ioConnection = scanner.createIoConnection(this._connectionHandle, {
-                rpiMs: this.rpiMs,
-                initialOutputData: Buffer.alloc(this.assemblySize)
-            });
-            this._ownsIoConnection = true;
-            await this._ioConnection.start();
+            try {
+                this._ioConnection = scanner.createIoConnection(this._connectionHandle, {
+                    port: this.ioPort,
+                    rpiMs: this.rpiMs,
+                    initialOutputData: Buffer.alloc(this.assemblySize)
+                });
+                this._ownsIoConnection = true;
+                await this._ioConnection.start();
+            } catch (err) {
+                try { if (this._ioConnection) await this._ioConnection.stop(); } catch {}
+                try { await scanner.closeConnection(this._connectionHandle); } catch {}
+                this._connectionHandle = null;
+                this._ioConnection = null;
+                this._ownsIoConnection = false;
+                throw err;
+            }
         }
 
         this._ioConnection.on('data', this._onUdpData);

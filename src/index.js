@@ -38,6 +38,7 @@ const {
     BatchBuilder,
     registerProfile,
     getProfile,
+    hasProfile,
     listProfiles,
     DeviceBuilder,
     EIPDeviceBuilder
@@ -92,6 +93,7 @@ module.exports = {
     EIPDeviceBuilder,
     registerProfile,
     getProfile,
+    hasProfile,
     listProfiles,
     vendors,
     EIPAdapter,

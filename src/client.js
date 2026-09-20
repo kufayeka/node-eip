@@ -160,6 +160,35 @@ class EIPSession extends EventEmitter {
         });
     }
 
+    /**
+     * Closes the TCP session, sends UnRegisterSession, and cleans up timers.
+     */
+    async close() {
+        this.autoReconnect = false;
+        this._stopHeartbeat();
+        if (this._reconnectTimer) {
+            clearTimeout(this._reconnectTimer);
+            this._reconnectTimer = null;
+        }
+        if (this.socket && !this.socket.destroyed) {
+            if (this.sessionHandle) {
+                try {
+                    const unreg = buildUnRegisterSessionRequest(this.sessionHandle);
+                    this.socket.write(unreg);
+                } catch {}
+            }
+            this.socket.destroy();
+            this.socket = null;
+        }
+        this.sessionHandle = 0;
+        this._setState(SessionState.Disconnected);
+        this._rejectAllPending(new Error('EIPSession closed'));
+    }
+
+    async disconnect() {
+        return this.close();
+    }
+
     _scheduleReconnect() {
         if (this._reconnecting || this.state === SessionState.Destroyed) return;
         this._reconnecting = true;
