@@ -38,6 +38,23 @@ describe('Universal Device & Vendor Profile Architecture', () => {
             assert.strictEqual(found.vendor, 'Omron');
             assert.strictEqual(found.hasRegister('HR'), true);
         });
+
+        it('resolves an EXTRA alias declared in config.aliases, beyond the automatic vendor:model/model keys -- regression: DeviceProfile never actually stored config.aliases, so registerProfile()\'s own alias-registration loop always saw undefined and silently did nothing', () => {
+            // 'delta:es2' and 'es2' (tested above) are registered automatically from
+            // vendor/model alone, so they can't catch this -- 'es2e' only exists because
+            // es2.js declares it explicitly in its own `aliases` array.
+            assert.strictEqual(getProfile('es2e'), es2Profile);
+            assert.strictEqual(getProfile('delta:es2e'), es2Profile);
+
+            const customProfile = new DeviceProfile({
+                vendor: 'Omron',
+                model: 'NX1P2Custom',
+                aliases: ['nx1p2-shorthand'],
+                registers: {}
+            });
+            registerProfile(customProfile);
+            assert.strictEqual(getProfile('nx1p2-shorthand'), customProfile);
+        });
     });
 
     describe('Schema-Driven Address Resolution', () => {

@@ -26,6 +26,12 @@ class DeviceProfile {
         this.model = config.model;
         this.description = config.description || `${this.vendor} ${this.model}`;
         this.name = config.name || this.description;
+        // Extra lookup keys for registerProfile() (src/device/registry.js), beyond the automatic
+        // "<vendor>:<model>" and bare "<model>" keys it always registers -- e.g. alternate model
+        // names/spellings ('es2e', 'se2') or a vendor:alias shorthand ('rockwell:logix'). This was
+        // read by registerProfile() but never actually set here, so every profile's own declared
+        // `aliases` silently did nothing; only the automatic vendor:model/model keys ever worked.
+        this.aliases = Array.isArray(config.aliases) ? config.aliases.map(String) : [];
 
         this.capabilities = Object.freeze({
             multipleServicePacket: config.capabilities?.multipleServicePacket !== false,
