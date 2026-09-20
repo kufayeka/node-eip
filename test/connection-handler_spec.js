@@ -830,13 +830,15 @@ describe('ConnectionHandler (Adapter-side Forward_Open/Forward_Close + cyclic I/
             let timeoutsRecorded = 0;
             const connectionManagerObject = { recordOpenRequest() {}, recordCloseRequest() {}, recordTimeout() { timeoutsRecorded++; } };
             const h = new ConnectionHandler({ assemblyObject: assembly, sendDatagram: () => {}, connectionManagerObject });
-            const result = h.openConnection(baseRequest({ otRpiUs: 5000, connectionTimeoutMultiplier: 2 }), { remoteAddress: '10.0.0.5' }); // 5ms * 2 = 10ms
+            // connectionTimeoutMultiplier is the raw Forward_Open wire byte -- an exponent N per CIP
+            // Vol 1 Table 3-5.16, decoded as actual = 4 * 2^N. N=2 -> actual=16 -> 5ms * 16 = 80ms.
+            const result = h.openConnection(baseRequest({ otRpiUs: 5000, connectionTimeoutMultiplier: 2 }), { remoteAddress: '10.0.0.5' });
             assert.strictEqual(result.ok, true);
             assert.strictEqual(h.connections.size, 1);
 
             // Never call handleIncomingDatagram -- simulates the Originator going silent
             // (network drop, crash, cable pull with no Forward_Close). The watchdog tick runs
-            // every 100ms; 250ms gives it two chances to catch a 10ms-old timeout comfortably.
+            // every 100ms; 250ms gives it two chances to catch an 80ms-old timeout comfortably.
             setTimeout(() => {
                 assert.strictEqual(h.connections.size, 0, 'timed-out connection must be closed/removed');
                 assert.strictEqual(timeoutsRecorded, 1, 'ConnectionManagerObject.recordTimeout() must be called');
@@ -847,11 +849,12 @@ describe('ConnectionHandler (Adapter-side Forward_Open/Forward_Close + cyclic I/
 
         it('does NOT close a connection that keeps receiving O->T datagrams within the timeout window', function (done) {
             const h = new ConnectionHandler({ assemblyObject: assembly, sendDatagram: () => {} });
-            // A generous 100ms timeout (otRpiUs=25000 * multiplier=4) fed every 10ms leaves wide
-            // margin against setInterval jitter under full-suite load -- a tighter margin here
-            // (an earlier version used 5ms feed / 10ms timeout) was itself flaky under load,
-            // not a bug in the watchdog: a single delayed tick could exceed a too-tight timeout.
-            const result = h.openConnection(baseRequest({ otRpiUs: 25000, connectionTimeoutMultiplier: 4 }), { remoteAddress: '10.0.0.5' }); // 100ms timeout
+            // A generous 1600ms timeout (otRpiUs=25000 * decoded-multiplier=64, i.e. wire byte N=4 ->
+            // actual = 4*2^4 = 64) fed every 10ms leaves wide margin against setInterval jitter under
+            // full-suite load -- a tighter margin here (an earlier version used 5ms feed / 10ms
+            // timeout) was itself flaky under load, not a bug in the watchdog: a single delayed tick
+            // could exceed a too-tight timeout.
+            const result = h.openConnection(baseRequest({ otRpiUs: 25000, connectionTimeoutMultiplier: 4 }), { remoteAddress: '10.0.0.5' });
             assert.strictEqual(result.ok, true);
             const connId = result.response.otNetworkConnectionId;
 
@@ -865,6 +868,25 @@ describe('ConnectionHandler (Adapter-side Forward_Open/Forward_Close + cyclic I/
                 h.closeAll();
                 done();
             }, 250);
+        });
+
+        it('decodes connectionTimeoutMultiplier as the CIP wire exponent (actual = 4 * 2^N), not the raw byte -- regression: a real Delta SX3 sending N=0 for a 20ms-RPI connection was watchdog-closed after ~20ms of ordinary jitter instead of the correct 80ms, producing a permanent connect/timeout/reconnect loop in production', function (done) {
+            const h = new ConnectionHandler({ assemblyObject: assembly, sendDatagram: () => {} });
+            // N=0 -> actual multiplier = 4 -> timeout = 20ms * 4 = 80ms. The bug used the raw byte (0)
+            // directly, which (via the `|| 4` fallback on falsy 0) also produced 80ms by accident for
+            // N=0 specifically -- the regression is visible at N=1: bug gives 20ms*1=20ms, correct
+            // decode gives 20ms*8=160ms. A 60ms-old datagram must survive under the fix but would
+            // have been killed under the bug.
+            const result = h.openConnection(baseRequest({ otRpiUs: 20000, connectionTimeoutMultiplier: 1 }), { remoteAddress: '10.0.0.5' });
+            assert.strictEqual(result.ok, true);
+            const connId = result.response.otNetworkConnectionId;
+            h.handleIncomingDatagram(buildIoDatagram({ connectionId: connId, sequenceNumber: 1, data: Buffer.from([1, 2, 3, 4]) }));
+
+            setTimeout(() => {
+                assert.strictEqual(h.connections.size, 1, 'a 60ms-old datagram must NOT trip an N=1 (actual=8x, 160ms) watchdog -- the pre-fix code would have closed this at 20ms');
+                h.closeAll();
+                done();
+            }, 60);
         });
 
         it('does not watchdog a Listen-Only/Input-Only connection (it never consumes O->T in the first place)', function (done) {

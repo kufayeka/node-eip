@@ -153,7 +153,18 @@ class ConnectionHandler {
             if (state.isExplicit) continue; // Class 3 explicit "connections" aren't Class 1 I/O, no O->T stream to watchdog
             const consumes = state.tagName !== undefined ? state.consumes : state.consumesO2T !== false;
             if (!consumes || !state.otRpiUs || !state.lastO2TRxTime) continue;
-            const timeoutMs = (state.otRpiUs / 1000) * (state.connectionTimeoutMultiplier || 4);
+            // request.connectionTimeoutMultiplier (and hence state.connectionTimeoutMultiplier) is
+            // the RAW wire byte from the Forward_Open request — CIP Vol 1 Table 3-5.16 encodes it as
+            // an exponent N (valid range 0-7), not the actual multiplier: actual = 4 * 2^N (4, 8, 16,
+            // 32, 64, 128, 256, 512). Using the raw byte directly (as this code used to) silently
+            // shrank the real timeout by up to 128x — e.g. a Delta SX3 sending N=0 for a 20ms-RPI
+            // connection got a 20ms watchdog limit instead of the correct 80ms one, which normal
+            // network/event-loop jitter trips on nearly every cycle, closing the connection right
+            // after it opens and driving a permanent connect/timeout/reconnect loop. Found from a
+            // live production log showing exactly this pattern on real hardware.
+            const rawMultiplier = state.connectionTimeoutMultiplier;
+            const actualMultiplier = Number.isInteger(rawMultiplier) ? 4 * (2 ** (rawMultiplier & 0x07)) : 4;
+            const timeoutMs = (state.otRpiUs / 1000) * actualMultiplier;
             if (now - state.lastO2TRxTime <= timeoutMs) continue;
 
             if (!this.quiet) {
