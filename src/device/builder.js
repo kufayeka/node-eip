@@ -470,12 +470,32 @@ class DeviceBuilder extends EventEmitter {
     _buildAssemblyMapping(assem) {
         const members = [];
         if (Array.isArray(assem.members) && assem.members.length > 0) {
-            let offset = 0;
+            // Tracked in BITS, not bytes, so a run of `bitLength: 1` members (this project's own
+            // single-bit BOOL-packing convention -- see eip_device.js) actually shares one byte
+            // instead of each silently claiming a whole byte of its own. A byte-level member
+            // (no bitLength) always starts at the next byte boundary, so it can freely follow a
+            // bit-packed run (e.g. padding out to a full byte) without the two overlapping.
+            let bitPos = 0;
             for (const m of assem.members) {
                 const p = this.getParam(m.paramId || m.id);
+                if (m.bitLength) {
+                    // Only single-bit fields are implemented -- the only case this project (or any
+                    // known caller) actually needs; a wider bitLength falls back to the old
+                    // whole-byte-per-member placement rather than silently mis-packing.
+                    if (m.bitLength === 1) {
+                        if (typeof m.bitOffset === 'number') bitPos = m.bitOffset;
+                        const byteOffset = Math.floor(bitPos / 8);
+                        const bitOffset = bitPos % 8;
+                        if (p) members.push({ param: p, offset: byteOffset, byteSize: 1, bitOffset, bitLength: 1 });
+                        bitPos += 1;
+                        continue;
+                    }
+                }
+                if (bitPos % 8 !== 0) bitPos = Math.ceil(bitPos / 8) * 8; // align to the next byte
+                const offset = bitPos / 8;
                 const bSize = m.byteSize || (m.bitLength ? Math.ceil(m.bitLength / 8) : (p ? p.byteSize : 2));
                 if (p) members.push({ param: p, offset, byteSize: bSize });
-                offset += bSize;
+                bitPos += bSize * 8;
             }
         } else if (this.params.length > 0 && (assem.instance === 100 || assem.instance === 101)) {
             // Convenience fallback for the legacy single-connection-profile convention (Assembly
@@ -512,10 +532,15 @@ class DeviceBuilder extends EventEmitter {
         const currentBuf = this.adapter.assembly.getData(instance);
         if (!currentBuf) return;
         const newBuf = Buffer.from(currentBuf);
-        const { encodeType } = require('../cip/types');
+        const { encodeType, writeBit } = require('../cip/types');
         for (const item of mapping) {
-            const { param, offset, byteSize } = item;
-            if (!param || offset + byteSize > newBuf.length) continue;
+            const { param, offset, byteSize, bitOffset, bitLength } = item;
+            if (!param || offset >= newBuf.length) continue;
+            if (bitLength === 1) {
+                writeBit(newBuf, offset, bitOffset, param.value);
+                continue;
+            }
+            if (offset + byteSize > newBuf.length) continue;
             if (param.buffer && param.buffer.length >= byteSize) {
                 param.buffer.copy(newBuf, offset, 0, byteSize);
             } else {
@@ -533,18 +558,27 @@ class DeviceBuilder extends EventEmitter {
     _unpackAssemblyToParams(instance, buffer, source = 'plc') {
         const mapping = this._assemblyMappings ? this._assemblyMappings.get(instance) : null;
         if (!mapping || !mapping.length) return;
-        const { decodeType } = require('../cip/types');
+        const { decodeType, encodeType, readBit } = require('../cip/types');
         for (const item of mapping) {
-            const { param, offset, byteSize } = item;
-            if (!param || offset + byteSize > buffer.length) continue;
+            const { param, offset, byteSize, bitOffset, bitLength } = item;
+            if (!param) continue;
             try {
-                const slice = buffer.subarray(offset, offset + byteSize);
-                const decoded = decodeType(param.dataType, slice, 0);
-                const newVal = decoded.value;
+                let newVal;
+                let newBuffer;
+                if (bitLength === 1) {
+                    if (offset >= buffer.length) continue;
+                    newVal = readBit(buffer, offset, bitOffset);
+                    newBuffer = encodeType(param.dataType, newVal);
+                } else {
+                    if (offset + byteSize > buffer.length) continue;
+                    const slice = buffer.subarray(offset, offset + byteSize);
+                    newVal = decodeType(param.dataType, slice, 0).value;
+                    newBuffer = Buffer.from(slice);
+                }
                 if (newVal !== param.value) {
                     const oldVal = param.value;
                     param.value = newVal;
-                    param.buffer = Buffer.from(slice);
+                    param.buffer = newBuffer;
                     this.emit('paramChange', param.code || param.id, newVal, oldVal, param, source, instance);
                     this.emit('paramWrite', param.code || param.id, newVal, oldVal, param, source, instance);
                 }

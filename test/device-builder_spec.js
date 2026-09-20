@@ -322,6 +322,63 @@ describe('Universal EtherNet/IP Device Builder & EDS Exporter', () => {
         });
     });
 
+    describe('Bit-level member packing (`bitLength: 1`) -- regression: documented but never actually implemented', () => {
+        // defineAssembly()'s own JSDoc has always advertised `{ paramId, bitOffset, bitLength }`
+        // members, but _buildAssemblyMapping() only ever rounded bitLength up to a whole byte
+        // (Math.ceil(bitLength / 8)) and placed every member at its own byte-aligned offset -- so
+        // e.g. 5 BOOL members with bitLength:1 silently needed 5 separate bytes, not 1 shared byte,
+        // and anything past the Assembly's actual (correctly-sized, 1-byte) buffer was dropped
+        // outright. This is exactly why eip_device.js had to hand-roll packBits()/unpackBits() and
+        // bypass DeviceBuilder's member system entirely for its own boolean connection -- found
+        // when a user's own from-scratch device script, written the way defineAssembly()'s JSDoc
+        // says it should work, didn't.
+        it('packs multiple bitLength:1 members into the same byte, consume direction (PLC writes)', () => {
+            const b = new DeviceBuilder({ vendorId: 799, productName: 'Bit Pack Test', syncIoParams: true });
+            for (let i = 1; i <= 5; i++) b.addParam({ code: `02-0${i - 1}`, name: `Bit${i}`, dataType: 'BOOL', min: 0, max: 1, default: 0 });
+
+            const members = [
+                { paramId: '02-00', bitLength: 1 },
+                { paramId: '02-01', bitLength: 1 },
+                { paramId: '02-02', bitLength: 1 },
+                { paramId: '02-03', bitLength: 1 },
+                { paramId: '02-04', bitLength: 1 },
+                { bitLength: 3 } // padding, no paramId -- must consume bits without emitting a mapping entry
+            ];
+            b.defineAssembly({ instance: 102, name: 'BitOut', sizeBytes: 1, type: 'output', members });
+            b.defineAssembly({ instance: 103, name: 'BitIn', sizeBytes: 1, type: 'input', members });
+            const adapter = b.createAdapter({ port: 0, address: '127.0.0.1', quiet: true });
+
+            adapter.assembly.setData(102, Buffer.from([0b00010101])); // bits 0, 2, 4 set
+            assert.strictEqual(b.getParamValue('02-00'), true);
+            assert.strictEqual(b.getParamValue('02-01'), false);
+            assert.strictEqual(b.getParamValue('02-02'), true);
+            assert.strictEqual(b.getParamValue('02-03'), false);
+            assert.strictEqual(b.getParamValue('02-04'), true);
+        });
+
+        it('packs multiple bitLength:1 members into the same byte, produce direction (application writes)', () => {
+            const b = new DeviceBuilder({ vendorId: 799, productName: 'Bit Pack Test 2', syncIoParams: true });
+            for (let i = 1; i <= 5; i++) b.addParam({ code: `02-0${i - 1}`, name: `Bit${i}`, dataType: 'BOOL', min: 0, max: 1, default: 0 });
+
+            const members = [
+                { paramId: '02-00', bitLength: 1 },
+                { paramId: '02-01', bitLength: 1 },
+                { paramId: '02-02', bitLength: 1 },
+                { paramId: '02-03', bitLength: 1 },
+                { paramId: '02-04', bitLength: 1 },
+                { bitLength: 3 }
+            ];
+            b.defineAssembly({ instance: 102, name: 'BitOut', sizeBytes: 1, type: 'output', members });
+            b.defineAssembly({ instance: 103, name: 'BitIn', sizeBytes: 1, type: 'input', members });
+            const adapter = b.createAdapter({ port: 0, address: '127.0.0.1', quiet: true });
+
+            b.setParam('02-01', true);
+            b.setParam('02-04', true);
+            b._syncParamsToAssembly(103);
+            assert.deepStrictEqual(adapter.assembly.getData(103), Buffer.from([0b00010010])); // bits 1, 4 set
+        });
+    });
+
     describe('Live Server (EIPAdapter) & Client Control Loopback', () => {
         let builder;
         let adapter;
