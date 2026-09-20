@@ -91,9 +91,13 @@ class IdentityObject extends EventEmitter {
 
         const nameBuf = Buffer.from(this.productName, 'ascii');
         const shortString = Buffer.concat([Buffer.from([nameBuf.length]), nameBuf]);
-        const stateBuf = Buffer.from([this.state]);
 
-        return ok(Buffer.concat([b, shortString, stateBuf]));
+        // Get_Attribute_All for Identity Object (CIP Vol 1 Table 5-2.2) is Attributes 1-7 only
+        // (Vendor ID, Device Type, Product Code, Revision, Status, Serial Number, Product Name);
+        // Attribute 8 (State) is optional and reachable via Get_Attribute_Single alone (see the
+        // case 8 branch above) -- appending it here used to make every Get_Attribute_All response
+        // one byte longer than a strictly-conformant client expects for this object.
+        return ok(Buffer.concat([b, shortString]));
     }
 
     setAttributeSingle() {

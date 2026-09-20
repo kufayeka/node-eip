@@ -204,8 +204,16 @@ class IOConnection extends EventEmitter {
      * @param {number} options.otConnectionId - O->T network connection ID (received from Forward_Open)
      * @param {number} options.toConnectionId - T->O network connection ID (sent in Forward_Open)
      * @param {number} [options.rpiMs=20] - Requested Packet Interval in milliseconds
-     * @param {boolean} [options.useRunIdleHeader=false] - 32-bit Run/Idle header mode
+     * @param {boolean} [options.useRunIdleHeader=false] - 32-bit Run/Idle header mode (O->T only)
      * @param {boolean} [options.runIdle=true] - Initial Run (true) or Idle (false) status
+     * @param {boolean} [options.includeSequenceCount=false] - Prepend a 2-byte transport Sequence
+     *   Count to every O->T datagram this connection sends. Off by default: this is NOT a
+     *   universal CIP requirement (a plain ControlLogix-style Target's Assembly data has no such
+     *   prefix, and would see its own first 2 bytes silently swallowed by this connection's own
+     *   size negotiation if this were forced on) -- it matches specific real hardware (Delta,
+     *   confirmed empirically -- see connection-handler.js's own doc comments) that expects it on
+     *   O->T the same way this project's own T->O production always includes it. Enable explicitly
+     *   when this Scanner is known to be talking to a Target with that same convention.
      * @param {Buffer} [options.initialOutputData] - Initial output buffer
      * @param {number} [options.timeoutMultiplier=4] - Multiplier of RPI before watchdog fires
      * @param {import('dgram').Socket} [options.socket] - Optional shared UDP socket
@@ -219,6 +227,7 @@ class IOConnection extends EventEmitter {
         rpiMs = 20,
         useRunIdleHeader = false,
         runIdle = true,
+        includeSequenceCount = false,
         initialOutputData = null,
         timeoutMultiplier = 4,
         socket = null
@@ -237,6 +246,7 @@ class IOConnection extends EventEmitter {
         this.rpiMs = Math.max(1, Math.round(rpiMs));
         this.useRunIdleHeader = Boolean(useRunIdleHeader);
         this.runIdle = Boolean(runIdle);
+        this.includeSequenceCount = Boolean(includeSequenceCount);
         this.outputData = initialOutputData ? Buffer.from(initialOutputData) : Buffer.alloc(0);
         this.timeoutMultiplier = timeoutMultiplier || 4;
         this.timeoutMs = this.rpiMs * this.timeoutMultiplier;
@@ -345,7 +355,8 @@ class IOConnection extends EventEmitter {
             sequenceNumber: seq,
             data: this.outputData,
             useRunIdleHeader: this.useRunIdleHeader,
-            runIdle: this.runIdle
+            runIdle: this.runIdle,
+            includeSequenceCount: this.includeSequenceCount
         });
 
         try {
@@ -370,7 +381,15 @@ class IOConnection extends EventEmitter {
 
         let parsed;
         try {
-            parsed = parseIoDatagram(msg, { expectRunIdleHeader: this.useRunIdleHeader });
+            // Never expectRunIdleHeader here: `this.useRunIdleHeader` describes the O->T direction
+            // this connection SENDS (see _sendCyclicPacket() below) -- T->O is what the Target
+            // produces to US, and per CIP Vol 1 3-4.5.1.2 a Run/Idle header only ever appears on
+            // O->T, never T->O, regardless of what this same connection's O->T side uses. Passing
+            // the O->T flag in here used to make a Run/Idle-using connection wrongly strip 4 bytes
+            // off every T->O packet as if it were a Run/Idle header that was never actually there
+            // -- found via an ODVA compliance audit; confirmed by rereading this project's own
+            // extensive doc comments elsewhere (connection-handler.js) stating this exact rule.
+            parsed = parseIoDatagram(msg);
         } catch {
             return; // Ignore non-I/O or malformed datagrams
         }
@@ -399,8 +418,12 @@ class IOConnection extends EventEmitter {
             this.emit('recovered');
         }
 
+        // Strip the leading 2-byte transport Sequence Count this project's own T->O production
+        // always includes (connection-handler.js's sendAtCurrentSeq, includeSequenceCount: true
+        // unconditionally) -- independent of this connection's OWN O->T useRunIdleHeader setting,
+        // which (as above) has no bearing on the T->O direction at all.
         let appData = parsed.data;
-        if (appData.length >= 2 && !this.useRunIdleHeader) {
+        if (appData.length >= 2) {
             appData = appData.subarray(2);
         }
 

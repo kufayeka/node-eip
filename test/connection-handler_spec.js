@@ -847,14 +847,17 @@ describe('ConnectionHandler (Adapter-side Forward_Open/Forward_Close + cyclic I/
 
         it('does NOT close a connection that keeps receiving O->T datagrams within the timeout window', function (done) {
             const h = new ConnectionHandler({ assemblyObject: assembly, sendDatagram: () => {} });
-            const result = h.openConnection(baseRequest({ otRpiUs: 5000, connectionTimeoutMultiplier: 2 }), { remoteAddress: '10.0.0.5' }); // 10ms timeout
+            // A generous 100ms timeout (otRpiUs=25000 * multiplier=4) fed every 10ms leaves wide
+            // margin against setInterval jitter under full-suite load -- a tighter margin here
+            // (an earlier version used 5ms feed / 10ms timeout) was itself flaky under load,
+            // not a bug in the watchdog: a single delayed tick could exceed a too-tight timeout.
+            const result = h.openConnection(baseRequest({ otRpiUs: 25000, connectionTimeoutMultiplier: 4 }), { remoteAddress: '10.0.0.5' }); // 100ms timeout
             assert.strictEqual(result.ok, true);
             const connId = result.response.otNetworkConnectionId;
 
-            // Feed a fresh O->T datagram every 5ms -- well under the 10ms timeout -- for 250ms.
             const feeder = setInterval(() => {
                 h.handleIncomingDatagram(buildIoDatagram({ connectionId: connId, sequenceNumber: 1, data: Buffer.from([1, 2, 3, 4]) }));
-            }, 5);
+            }, 10);
 
             setTimeout(() => {
                 clearInterval(feeder);

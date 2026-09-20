@@ -34,6 +34,31 @@ describe('Server-side Identity Object', function () {
         assert.strictEqual(res.data.subarray(1).toString('ascii'), 'node-eip-adapter');
     });
 
+    it('getAttributesAll() returns exactly Attributes 1-7, NOT the optional Attribute 8 (State) (regression)', function () {
+        // CIP Vol 1 Table 5-2.2: Get_Attribute_All for this object is Attributes 1-7 (Vendor ID,
+        // Device Type, Product Code, Revision, Status, Serial Number, Product Name) only --
+        // Attribute 8 (State) is optional and reachable via Get_Attribute_Single alone (see the
+        // "answers Product Name" test above and identity.js's own case 8 branch). Appending it
+        // here used to make every response one byte longer than a strictly-conformant client
+        // expects for this object.
+        const attr1to6 = Buffer.alloc(10);
+        attr1to6.writeUInt16LE(identity.vendorId, 0);
+        attr1to6.writeUInt16LE(identity.deviceType, 2);
+        attr1to6.writeUInt16LE(identity.productCode, 4);
+        attr1to6.writeUInt8(identity.revision.major, 6);
+        attr1to6.writeUInt8(identity.revision.minor, 7);
+        attr1to6.writeUInt16LE(identity.status, 8);
+        const serialBuf = Buffer.alloc(4);
+        serialBuf.writeUInt32LE(identity.serialNumber >>> 0, 0);
+        const nameBuf = Buffer.from(identity.productName, 'ascii');
+        const shortString = Buffer.concat([Buffer.from([nameBuf.length]), nameBuf]);
+        const expected = Buffer.concat([attr1to6, serialBuf, shortString]);
+
+        const res = identity.getAttributesAll(1);
+        assert.strictEqual(res.generalStatus, CipGeneralStatus.Success);
+        assert.deepStrictEqual(res.data, expected);
+    });
+
     it('rejects any instance other than 1', function () {
         const res = identity.getAttributeSingle(2, 1);
         assert.strictEqual(res.generalStatus, CipGeneralStatus.PathDestinationUnknown);

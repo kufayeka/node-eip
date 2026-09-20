@@ -154,13 +154,21 @@ describe('Class 1 Real-Time I/O Subsystem (§14, §15, §16, §17)', function ()
                 const parsed = parseIoDatagram(msg, { expectRunIdleHeader: true });
                 if (parsed.connectionId === otConnId) {
                     receivedAtServer++;
-                    // Reply with T->O datagram
+                    // Reply with a T->O datagram -- per CIP Vol 1 3-4.5.1.2, T->O NEVER carries a
+                    // Run/Idle header regardless of what the O->T side of this same connection
+                    // uses (that's an O->T-only concept); this project's own T->O production
+                    // convention is a 2-byte transport Sequence Count instead (see
+                    // connection-handler.js's sendAtCurrentSeq, includeSequenceCount: true
+                    // unconditionally). A previous version of this test had the fake server send a
+                    // Run/Idle header on T->O too, which the client-side bug this test exists to
+                    // catch (IOConnection wrongly reusing its own useRunIdleHeader flag to decide
+                    // how to parse INCOMING T->O data) then "correctly" un-stripped -- two bugs
+                    // cancelling out into a passing test that verified the wrong behavior.
                     const reply = buildIoDatagram({
                         connectionId: toConnId,
                         sequenceNumber: receivedAtServer,
                         data: Buffer.from([0x10, 0x20, 0x30]),
-                        useRunIdleHeader: true,
-                        runIdle: true
+                        includeSequenceCount: true
                     });
                     serverSocket.send(reply, 0, reply.length, rinfo.port, rinfo.address);
                 }
@@ -193,7 +201,9 @@ describe('Class 1 Real-Time I/O Subsystem (§14, §15, §16, §17)', function ()
             assert(receivedAtServer >= 2, `Expected at least 2 packets at server, got ${receivedAtServer}`);
             assert(receivedAtClient.length >= 2, `Expected at least 2 packets at client, got ${receivedAtClient.length}`);
             assert.deepStrictEqual(receivedAtClient[0].data, Buffer.from([0x10, 0x20, 0x30]));
-            assert.strictEqual(receivedAtClient[0].meta.runIdle, true);
+            // T->O never carries Run/Idle -- meta.runIdle is always null for received data,
+            // regardless of this same connection's own O->T useRunIdleHeader setting.
+            assert.strictEqual(receivedAtClient[0].meta.runIdle, null);
 
             const stats = client.getStats();
             assert.strictEqual(stats.state, IOConnectionState.CLOSED);
