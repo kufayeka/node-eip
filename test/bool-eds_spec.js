@@ -29,15 +29,23 @@ describe('BOOL Parameter EDS numeric metadata', () => {
         const p1 = b.getParam('02-00');
         const p2 = b.getParam('02-01');
 
+        // min/max are pure EDS/config-time bounds with no "decoded from the wire" equivalent, so
+        // they normalize to the numeric 0..1 domain unconditionally. default/value, by contrast,
+        // stay exactly what the caller passed (boolean here) -- decodeType('BOOL', ...) elsewhere
+        // in this codebase (a PLC write arriving through the member-mapped Assembly path) always
+        // produces a real JS boolean too, so forcing these two fields to numeric only at
+        // construction time would just make the live value's type flip the first time the PLC
+        // writes to it. Only the actual EDS file TEXT needs numeric 0/1 (see the EDS assertions
+        // below) -- that's eds-exporter.js's job, not this object's own runtime value semantics.
         assert.strictEqual(p1.min, 0);
         assert.strictEqual(p1.max, 1);
-        assert.strictEqual(p1.default, 0);
-        assert.strictEqual(p1.value, 0);
+        assert.strictEqual(p1.default, false);
+        assert.strictEqual(p1.value, false);
 
         assert.strictEqual(p2.min, 0);
         assert.strictEqual(p2.max, 1);
-        assert.strictEqual(p2.default, 1);
-        assert.strictEqual(p2.value, 1);
+        assert.strictEqual(p2.default, true);
+        assert.strictEqual(p2.value, true);
 
         const eds = b.generateEds();
         assert.ok(eds.includes('"02-00 BoolParam1"'));

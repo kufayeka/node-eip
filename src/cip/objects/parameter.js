@@ -60,14 +60,14 @@ class ParameterObject extends EventEmitter {
         const dataType = (options.dataType || 'INT').toUpperCase();
         const typeInfo = getCipTypeInfo(dataType);
 
-        // EDS Parameter metadata is numeric. CIP BOOL (0xC1) uses the
-        // numeric domain 0..1 in EDS Min/Max/Default fields, while the live
-        // JS value may still be boolean for application ergonomics.
+        // EDS Parameter metadata is numeric. CIP BOOL (0xC1) uses the numeric domain 0..1 in EDS
+        // Min/Max fields -- but the live value (`.default`/`.value`, what getParamValue() returns)
+        // stays whatever the caller passed (boolean by convention for BOOL params); only
+        // eds-exporter.js coerces to 0/1 when actually emitting the EDS file's text, so this object's
+        // own internal value semantics for the running device are never affected by the EDS format's
+        // own numeric-only requirement.
         const isBool = dataType === 'BOOL';
-        const normalizeBool = (value) => value ? 1 : 0;
-        const defVal = isBool
-            ? normalizeBool(options.default !== undefined ? options.default : 0)
-            : (options.default !== undefined ? options.default : 0);
+        const defVal = options.default !== undefined ? options.default : 0;
         const initialVal = options.value !== undefined ? options.value : defVal;
         const buffer = encodeType(dataType, initialVal);
         const byteSize = typeInfo ? typeInfo.size : buffer.length;
