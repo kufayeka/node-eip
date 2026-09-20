@@ -403,6 +403,40 @@ class Scanner extends EventEmitter {
     }
 
     /**
+     * Opens a Class 3 Connected Explicit Messaging connection (CIP Vol 2 §2-4.9) — a Forward_Open
+     * to the Message Router (Class 0x02) itself, with no I/O data in either direction, matching
+     * connection-handler.js's own `isExplicit` classification on the Adapter side. Use the
+     * returned connection with sendConnected() to send Connected (rather than Unconnected/
+     * SendRRData) explicit messages over it.
+     *
+     * @param {object} [opts] - Forward_Open overrides (e.g. rpiUs, connectionSerialNumber).
+     */
+    async openExplicitConnection(opts = {}) {
+        const connectionPath = encodeEPath({ classId: 0x02, instance: 1 });
+        return this.openConnection({
+            connectionPath,
+            otSize: 0,
+            toSize: 0,
+            otRpiUs: opts.rpiUs || 0,
+            toRpiUs: opts.rpiUs || 0,
+            ...opts
+        });
+    }
+
+    /**
+     * Sends a Connected Explicit Message (Class 3, SendUnitData 0x0070) over a connection
+     * previously opened by openExplicitConnection(). See EIPSession.sendConnected() for the
+     * full explanation of why this exists (this driver could previously only RECEIVE and answer
+     * a SendUnitData, via adapter.js, never originate one as a Scanner).
+     *
+     * @param {object} connection - Return value of openExplicitConnection().
+     * @param {Buffer} cipRequest - Raw CIP request bytes (cip/message-router.js's buildRequest()).
+     */
+    async sendConnected(connection, cipRequest) {
+        return this.session.sendConnected(connection, cipRequest);
+    }
+
+    /**
      * Opens a connection configured automatically from an ODVA EDS profile (§43, §44, §45).
      * @param {import('./cip/eds').EdsFile} eds - Parsed EdsFile instance
      * @param {number|string} [connectionNameOrId=1] - Connection profile (e.g. 1 or "Connection1")

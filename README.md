@@ -40,7 +40,7 @@ Legenda: ✅ Selesai & terverifikasi · 🔶 Sebagian / dengan catatan · ❌ Be
 |---|---|---|
 | RegisterSession / UnregisterSession | ✅ | |
 | SendRRData (Unconnected Explicit Messaging) | ✅ | |
-| SendUnitData (Connected Explicit Messaging) | ✅ | |
+| SendUnitData (Connected Explicit Messaging) | ✅ | Adapter menerima & menjawabnya (Forward_Open Class 3 ke Message Router + SendUnitData); Scanner dapat mengirimkannya via `scanner.openExplicitConnection()` + `scanner.sendConnected()` |
 | NOP (heartbeat) | ✅ | |
 | ListIdentity (UDP broadcast/unicast discovery) | ✅ | `Scanner.discover()`, `Scanner.discoverAt()` |
 | ListServices | ✅ | |

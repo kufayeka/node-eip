@@ -9,7 +9,9 @@ const {
 const { decodeMessage } = require('../src/encapsulation/header');
 const { EIPAdapter } = require('../src/adapter');
 const { Scanner } = require('../src/scanner');
-const { CipClassCodes, EncapsulationCommands, EncapsulationStatus } = require('../src/constants');
+const { buildRequest } = require('../src/cip/message-router');
+const { encodeEPath } = require('../src/cip/path');
+const { CipClassCodes, EncapsulationCommands, EncapsulationStatus, CipCommonServices, CipGeneralStatus } = require('../src/constants');
 
 describe('ListServices (0x0004) & Get_Attribute_All (0x01) (§1.2, §7)', function () {
 
@@ -128,6 +130,38 @@ describe('ListServices (0x0004) & Get_Attribute_All (0x01) (§1.2, §7)', functi
             // Speed(4) + Flags(4) + MAC(6) = 14 bytes
             assert.strictEqual(res.data.length, 14);
             assert.strictEqual(res.data.readUInt32LE(0), 100); // 100 Mbps
+        });
+
+        describe('Connected Explicit Messaging (Class 3, SendUnitData 0x0070) — regression: Scanner could previously only RECEIVE one, never originate one', function () {
+            it('opens a Class 3 explicit connection and sends a Connected request over it', async function () {
+                const conn = await scanner.openExplicitConnection();
+                assert(conn.otNetworkConnectionId > 0);
+                assert(conn.toNetworkConnectionId > 0);
+
+                const req = buildRequest({ service: CipCommonServices.GetAttributeSingle, path: encodeEPath({ classId: CipClassCodes.Identity, instance: 1, attribute: 1 }) });
+                const res = await scanner.sendConnected(conn, req);
+                assert.strictEqual(res.generalStatus, CipGeneralStatus.Success);
+                assert.strictEqual(res.data.readUInt16LE(0), 799); // Vendor ID, matches the shared adapter's identity above
+
+                await scanner.closeConnection(conn);
+            });
+
+            it('sends multiple Connected requests over the same connection, each with its own Sequence Count', async function () {
+                const conn = await scanner.openExplicitConnection();
+                const req = buildRequest({ service: CipCommonServices.GetAttributeSingle, path: encodeEPath({ classId: CipClassCodes.Identity, instance: 1, attribute: 3 }) }); // Product Code
+
+                const res1 = await scanner.sendConnected(conn, req);
+                const res2 = await scanner.sendConnected(conn, req);
+                assert.strictEqual(res1.data.readUInt16LE(0), 3846);
+                assert.strictEqual(res2.data.readUInt16LE(0), 3846);
+                assert.notStrictEqual(conn._sendUnitDataSeq, undefined);
+
+                await scanner.closeConnection(conn);
+            });
+
+            it('sendConnected() rejects a plain object that is not an opened connection', async function () {
+                await assert.rejects(() => scanner.sendConnected({}, Buffer.alloc(0)), /requires a connection object/);
+            });
         });
     });
 });

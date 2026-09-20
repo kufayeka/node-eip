@@ -5,6 +5,7 @@ const EventEmitter = require('events');
 const { decodeMessage } = require('./encapsulation/header');
 const { buildRegisterSessionRequest, readRegisterSessionResponse, buildUnRegisterSessionRequest } = require('./encapsulation/session');
 const { buildSendRRData, readSendRRDataResponse } = require('./encapsulation/rrdata');
+const { buildSendUnitData, readSendUnitDataResponse } = require('./encapsulation/unitdata');
 const { buildNopRequest } = require('./encapsulation/services');
 const { buildRequest: buildCipRequest, parseResponse: parseCipResponse } = require('./cip/message-router');
 const {
@@ -261,6 +262,35 @@ class EIPSession extends EventEmitter {
             buildSendRRData(this.sessionHandle, cipRequest, { timeoutSec, senderContext })
         );
         const { cipResponse } = readSendRRDataResponse(msg);
+        return parseCipResponse(cipResponse);
+    }
+
+    /**
+     * Sends a Connected Explicit Message (Class 3, SendUnitData 0x0070) over a connection already
+     * established by openConnection() — CIP Vol 2 §2-4.9. This is what the README's own compliance
+     * table long claimed as a plain "✅ SendUnitData (Connected Explicit Messaging)" without
+     * qualification, but this driver could previously only RECEIVE and answer one (adapter.js's
+     * own SendUnitData case) — a Scanner had no way to ORIGINATE one at all, only the unconnected
+     * SendRRData path via sendUnconnected() above. Found via an ODVA compliance audit.
+     *
+     * @param {object} connection - Return value of openConnection() to a Class 3 explicit
+     *   connection (see openExplicitConnection() below — a connectionPath with no connection
+     *   points and no I/O data, matching connection-handler.js's own `isExplicit` classification).
+     * @param {Buffer} cipRequest - Raw CIP request bytes (message-router.js's buildRequest()).
+     */
+    async sendConnected(connection, cipRequest) {
+        if (!connection || connection.otNetworkConnectionId === undefined) {
+            throw new TypeError('EIPSession.sendConnected: requires a connection object returned by openConnection() to a Class 3 explicit connection');
+        }
+        if (!this.sessionHandle && !this._reconnecting) {
+            throw new Error('EIPSession.sendConnected: no active session — call connect() first');
+        }
+        connection._sendUnitDataSeq = ((connection._sendUnitDataSeq || 0) + 1) & 0xffff || 1;
+        const seq = connection._sendUnitDataSeq;
+        const msg = await this._transact((senderContext) =>
+            buildSendUnitData(this.sessionHandle, connection.otNetworkConnectionId, seq, cipRequest, { senderContext })
+        );
+        const { cipResponse } = readSendUnitDataResponse(msg);
         return parseCipResponse(cipResponse);
     }
 
