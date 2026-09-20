@@ -75,15 +75,23 @@ class PortObject {
                 b.writeUInt16LE(this.portNumber, 0);
                 return ok(b);
             }
-            case 3: { // Link Object (EPATH pointing to Ethernet Link Class 0xF6 Instance 1: 0x20, 0xF6, 0x24, 0x01)
-                return ok(Buffer.from([0x20, 0xf6, 0x24, 0x01]));
+            case 3: { // Link Object: STRUCT of {Path Size (UINT, word count), Padded EPATH}
+                      // pointing to Ethernet Link Class 0xF6 Instance 1.
+                const path = Buffer.from([0x20, 0xf6, 0x24, 0x01]);
+                const sizeBuf = Buffer.alloc(2);
+                sizeBuf.writeUInt16LE(path.length / 2, 0);
+                return ok(Buffer.concat([sizeBuf, path]));
             }
             case 4: { // Port Name (SHORT_STRING)
                 const strBuf = Buffer.from(this.portName, 'ascii');
                 return ok(Buffer.concat([Buffer.from([strBuf.length]), strBuf]));
             }
-            case 7: { // Node Address (EPATH pointing to TCP/IP Class 0xF5 Instance 1: 0x20, 0xF5, 0x24, 0x01)
-                return ok(Buffer.from([0x20, 0xf5, 0x24, 0x01]));
+            case 7: { // Node Address: STRUCT of {Path Size (UINT, word count), Padded EPATH}
+                      // pointing to TCP/IP Interface Class 0xF5 Instance 1.
+                const path = Buffer.from([0x20, 0xf5, 0x24, 0x01]);
+                const sizeBuf = Buffer.alloc(2);
+                sizeBuf.writeUInt16LE(path.length / 2, 0);
+                return ok(Buffer.concat([sizeBuf, path]));
             }
             case 10: { // Routing Capabilities (UDINT)
                 const b = Buffer.alloc(4);
@@ -107,15 +115,17 @@ class PortObject {
             return { generalStatus: CipGeneralStatus.PathDestinationUnknown, data: Buffer.alloc(0) };
         }
 
-        // Instance 1 Attributes All: Type(2), Number(2), Link Object(4), Port Name(SHORT_STRING)
+        // Instance 1 Attributes All: Type(2), Number(2), Link Object (Path Size(2) + EPATH(4)), Port Name(SHORT_STRING)
         const header = Buffer.alloc(4);
         header.writeUInt16LE(this.portType, 0);
         header.writeUInt16LE(this.portNumber, 2);
-        const linkObj = Buffer.from([0x20, 0xf6, 0x24, 0x01]);
+        const linkPath = Buffer.from([0x20, 0xf6, 0x24, 0x01]);
+        const linkSize = Buffer.alloc(2);
+        linkSize.writeUInt16LE(linkPath.length / 2, 0);
         const nameBuf = Buffer.from(this.portName, 'ascii');
         const shortStr = Buffer.concat([Buffer.from([nameBuf.length]), nameBuf]);
 
-        return ok(Buffer.concat([header, linkObj, shortStr]));
+        return ok(Buffer.concat([header, linkSize, linkPath, shortStr]));
     }
 
     setAttributeSingle() {

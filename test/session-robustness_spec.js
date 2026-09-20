@@ -246,4 +246,54 @@ describe('Session Robustness & Reconnect Engine (§2.2, §38)', function () {
             socket.destroy();
         });
     });
+
+    describe('Encapsulation Session Inactivity Timeout (CIP Vol 2 §2-4.6, TCP/IP Interface Object Attribute 13) — regression: was never enforced at all', function () {
+        it('closes a registered session that goes silent for longer than inactivityTimeoutSec', async function () {
+            const timeoutAdapter = new EIPAdapter({ port: TEST_PORT + 1, address: '127.0.0.1', tcpIp: { inactivityTimeoutSec: 0.05 } }); // 50ms
+            await timeoutAdapter.start();
+            try {
+                const session = new EIPSession('127.0.0.1', { port: TEST_PORT + 1 });
+                await session.connect();
+                assert.strictEqual(session.state, SessionState.Registered);
+
+                const closed = new Promise((resolve) => session.socket.once('close', resolve));
+                // Send nothing at all -- not even a NOP -- and wait comfortably past the 50ms limit.
+                await Promise.race([closed, new Promise((_, reject) => setTimeout(() => reject(new Error('socket was not closed by the server within 500ms')), 500))]);
+            } finally {
+                await timeoutAdapter.stop();
+            }
+        });
+
+        it('does NOT close a session kept alive by periodic traffic (NOP) within the timeout window', async function () {
+            const timeoutAdapter = new EIPAdapter({ port: TEST_PORT + 2, address: '127.0.0.1', tcpIp: { inactivityTimeoutSec: 0.1 } }); // 100ms
+            await timeoutAdapter.start();
+            try {
+                const session = new EIPSession('127.0.0.1', { port: TEST_PORT + 2 });
+                await session.connect();
+
+                const pinger = setInterval(() => { session.sendNop().catch(() => {}); }, 30); // well under 100ms
+                await new Promise((resolve) => setTimeout(resolve, 300));
+                clearInterval(pinger);
+
+                assert.strictEqual(session.state, SessionState.Registered, 'a session with ongoing traffic must not be inactivity-closed');
+                await session.close();
+            } finally {
+                await timeoutAdapter.stop();
+            }
+        });
+
+        it('inactivityTimeoutSec = 0 disables the timeout entirely', async function () {
+            const timeoutAdapter = new EIPAdapter({ port: TEST_PORT + 3, address: '127.0.0.1', tcpIp: { inactivityTimeoutSec: 0 } });
+            await timeoutAdapter.start();
+            try {
+                const session = new EIPSession('127.0.0.1', { port: TEST_PORT + 3 });
+                await session.connect();
+                await new Promise((resolve) => setTimeout(resolve, 200)); // no traffic at all
+                assert.strictEqual(session.state, SessionState.Registered, 'inactivityTimeoutSec=0 must mean "never time out"');
+                await session.close();
+            } finally {
+                await timeoutAdapter.stop();
+            }
+        });
+    });
 });

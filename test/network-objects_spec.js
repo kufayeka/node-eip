@@ -102,6 +102,29 @@ describe('TCP/IP Interface (0xF5) & Ethernet Link (0xF6) Objects (§10, §11)', 
             assert.strictEqual(obj.setAttributeSingle(1, 13, setTimeoutBuf).generalStatus, CipGeneralStatus.Success);
             assert.strictEqual(obj.inactivityTimeoutSec, 300);
         });
+
+        it('getAttributesAll() on Instance 1 returns exactly Attributes 1-6, nothing past Host Name (regression)', function () {
+            // Previously also appended a Safety Network Number placeholder (6 bytes), TTL Value (1
+            // byte), Multicast Config, and a bare 9-byte block of zeros with no attribute meaning
+            // at all -- none of which are part of Attributes 1-6, and the trailing zero padding in
+            // particular had no basis in the spec or any documented real-hardware finding. Every
+            // one of Attributes 7+ (TTL Value, Multicast Config, Select ACD, etc.) is optional and
+            // reachable via Get_Attribute_Single alone, matching how Identity Object's own
+            // getAttributesAll() already stops at its own last mandatory attribute.
+            const obj = new TcpIpInterfaceObject({ status: 1, hostName: 'DVP-SX3' });
+            const res = obj.getAttributesAll(1);
+            assert.strictEqual(res.generalStatus, CipGeneralStatus.Success);
+
+            const status = obj.getAttributeSingle(1, 1).data;
+            const capability = obj.getAttributeSingle(1, 2).data;
+            const control = obj.getAttributeSingle(1, 3).data;
+            const physicalLink = obj.getAttributeSingle(1, 4).data;
+            const ifConfig = obj.getAttributeSingle(1, 5).data;
+            const hostName = obj.getAttributeSingle(1, 6).data;
+            const expected = Buffer.concat([status, capability, control, physicalLink, ifConfig, hostName]);
+
+            assert.deepStrictEqual(res.data, expected);
+        });
     });
 
     describe('EthernetLinkObject (0xF6)', function () {

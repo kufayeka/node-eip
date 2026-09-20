@@ -79,8 +79,8 @@ describe('Full Standard CIP Object Model & Encapsulation Services', function () 
             assert.strictEqual(r1.data.readUInt16LE(0), 4);
             const r2 = port.getAttributeSingle(1, 2); // Port Number
             assert.strictEqual(r2.data.readUInt16LE(0), 1);
-            const r3 = port.getAttributeSingle(1, 3); // Link Object EPATH
-            assert.deepStrictEqual(r3.data, Buffer.from([0x20, 0xf6, 0x24, 0x01]));
+            const r3 = port.getAttributeSingle(1, 3); // Link Object: STRUCT of {Path Size (word count), Padded EPATH}
+            assert.deepStrictEqual(r3.data, Buffer.from([0x02, 0x00, 0x20, 0xf6, 0x24, 0x01]));
             const r4 = port.getAttributeSingle(1, 4); // Port Name
             assert.strictEqual(r4.data.subarray(1).toString('ascii'), 'Port 1');
             const rAll = port.getAttributesAll(1);

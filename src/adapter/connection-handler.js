@@ -114,6 +114,57 @@ class ConnectionHandler {
         // extended status 0x0100 "Connection in use or duplicate Forward
         // Open", exactly as OpENer's HandleNonNullMatchingForwardOpenRequest does.
         this.strictDuplicateConnections = Boolean(strictDuplicateConnections);
+        // Connection (Inactivity) Watchdog — CIP Vol 1 §3-4.5.3 / §5-4.4: a Target that consumes
+        // O->T data must detect the Originator going silent (network drop, crash, cable pull with
+        // no Forward_Close) and close the connection once `otRpiUs/1000 * connectionTimeoutMultiplier`
+        // milliseconds pass with no O->T datagram received — otherwise a dead connection lingers
+        // forever, producing T->O to nobody and blocking that connection point from a genuinely new
+        // Originator (until the same one reconnects and supersedes it — see openConnection()'s own
+        // eviction-scope fix). Previously connectionTimeoutMultiplier was parsed off every
+        // Forward_Open request and then never read again, and ConnectionManagerObject's own
+        // recordTimeout() counter (exposed to Delta EIP Builder's diagnostics) was permanently dead
+        // — found via an ODVA compliance audit of this file, confirmed by grepping the whole
+        // source tree for both symbols. Started lazily (on the first connection) and stopped in
+        // closeAll(), rather than unconditionally in the constructor: a ConnectionHandler that's
+        // constructed but never actually opens a connection (every test in this file that doesn't
+        // touch this feature, for instance) would otherwise leak a live setInterval for the rest
+        // of the process — the exact same class of bug as this session's own reconnect-timer
+        // incident on the Scanner side, just inverted (there, a timer was wrongly unref()'d and
+        // let the process die early; here, an always-on timer was never torn down and kept a test
+        // process alive well past every test finishing, hanging a bare `mocha` run with no --exit).
+        this._watchdogTimer = null;
+    }
+
+    /** Starts the watchdog interval if it isn't already running. Idempotent. */
+    _ensureWatchdogRunning() {
+        if (this._watchdogTimer) return;
+        this._watchdogTimer = setInterval(() => this._checkWatchdogs(), 100);
+    }
+
+    /**
+     * Periodic tick (see _ensureWatchdogRunning()): closes any connection that consumes O->T data
+     * (Exclusive-Owner or legacy/generic — Listen-Only/Input-Only and produce-only Tag connections
+     * never consume O->T, so they have nothing to watchdog here) whose Originator has gone silent
+     * for longer than its own negotiated otRpiUs * connectionTimeoutMultiplier.
+     */
+    _checkWatchdogs() {
+        const now = Date.now();
+        for (const [id, state] of this.connections) {
+            if (state.isExplicit) continue; // Class 3 explicit "connections" aren't Class 1 I/O, no O->T stream to watchdog
+            const consumes = state.tagName !== undefined ? state.consumes : state.consumesO2T !== false;
+            if (!consumes || !state.otRpiUs || !state.lastO2TRxTime) continue;
+            const timeoutMs = (state.otRpiUs / 1000) * (state.connectionTimeoutMultiplier || 4);
+            if (now - state.lastO2TRxTime <= timeoutMs) continue;
+
+            if (!this.quiet) {
+                const label = state.tagName !== undefined ? `tag "${state.tagName}"` : `O->T Assembly ${state.o2tInstance}`;
+                console.warn(`\x1b[31m[CONNECTION WATCHDOG TIMEOUT]\x1b[0m ${label} from ${state.remoteAddress} — no O->T datagram for ${Math.round(now - state.lastO2TRxTime)}ms (limit ${Math.round(timeoutMs)}ms) — closing ConnID 0x${id.toString(16)}`);
+            }
+            clearInterval(state.timer);
+            this.connections.delete(id);
+            this._releaseMulticastOwnership(id, state);
+            this.connectionManagerObject?.recordTimeout();
+        }
     }
 
     /**
@@ -180,15 +231,25 @@ class ConnectionHandler {
         if (!key || !this.identity) return null; // nothing to check
         const id = this.identity;
 
+        // Extended status codes below per this project's OWN reference table
+        // (cip/connection-manager.js's ForwardOpenExtendedStatus): 0x0116 Vendor ID or Product
+        // Code mismatch, 0x0117 Product Type mismatch (Device Type), 0x0118 Revision mismatch.
+        // Previously this used 0x0114/0x0115/0x0116 — sequential values that didn't match that
+        // same table at all (0x0114 there is "Requested Packet Interval not supported", 0x0115 is
+        // "No more connections available") — found via an ODVA compliance audit cross-checking
+        // this function against the project's own status-code table, not against a fresh reading
+        // of the ODVA spec (which would have caught it just as well, but the internal
+        // inconsistency alone was enough to prove it wrong without needing the spec at hand).
+        //
         // VendorID and ProductCode are checked together, before DeviceType
         // (OpENer's own priority order — matters when more than one thing
         // is wrong at once, since only the first mismatch found is reported).
         if ((key.vendorId !== 0 && key.vendorId !== id.vendorId) ||
             (key.productCode !== 0 && key.productCode !== id.productCode)) {
-            return { generalStatus: CipGeneralStatus.ConnectionFailure, extendedStatus: 0x0114 }; // Vendor ID or Product Code mismatch
+            return { generalStatus: CipGeneralStatus.ConnectionFailure, extendedStatus: 0x0116 }; // Vendor ID or Product Code mismatch
         }
         if (key.deviceType !== 0 && key.deviceType !== id.deviceType) {
-            return { generalStatus: CipGeneralStatus.ConnectionFailure, extendedStatus: 0x0115 }; // Device Type mismatch
+            return { generalStatus: CipGeneralStatus.ConnectionFailure, extendedStatus: 0x0117 }; // Product Type (Device Type) mismatch
         }
 
         const ourRev = id.revision || { major: 0, minor: 0 };
@@ -200,10 +261,10 @@ class ConnectionHandler {
             // implementation doesn't).
             if (key.majorRevision === 0) return null;
             if (key.majorRevision !== ourRev.major) {
-                return { generalStatus: CipGeneralStatus.ConnectionFailure, extendedStatus: 0x0116 };
+                return { generalStatus: CipGeneralStatus.ConnectionFailure, extendedStatus: 0x0118 }; // Revision mismatch
             }
             if (key.minorRevision !== 0 && key.minorRevision !== ourRev.minor) {
-                return { generalStatus: CipGeneralStatus.ConnectionFailure, extendedStatus: 0x0116 };
+                return { generalStatus: CipGeneralStatus.ConnectionFailure, extendedStatus: 0x0118 }; // Revision mismatch
             }
         } else {
             // Compatible keying is NARROWER than it sounds: Major must match
@@ -213,7 +274,7 @@ class ConnectionHandler {
             // unlike strict mode) and <= our own Minor Revision.
             const ok = key.majorRevision === ourRev.major && key.minorRevision > 0 && key.minorRevision <= ourRev.minor;
             if (!ok) {
-                return { generalStatus: CipGeneralStatus.ConnectionFailure, extendedStatus: 0x0116 };
+                return { generalStatus: CipGeneralStatus.ConnectionFailure, extendedStatus: 0x0118 }; // Revision mismatch
             }
         }
         return null;
@@ -509,7 +570,10 @@ class ConnectionHandler {
             consumesO2T,
             otSize: request.otSize,
             toSize: request.toSize,
+            otRpiUs: request.otRpiUs,
             toRpiUs: request.toRpiUs,
+            connectionTimeoutMultiplier: request.connectionTimeoutMultiplier,
+            lastO2TRxTime: Date.now(), // see _checkWatchdogs() — updated on every real O->T datagram
             remoteAddress: cleanAddress,
             remotePort: null,
             sequenceNumber: 1,
@@ -538,6 +602,7 @@ class ConnectionHandler {
         }
 
         this.connections.set(otNetworkConnectionId, state);
+        this._ensureWatchdogRunning();
         this.connectionManagerObject?.recordOpenRequest(true);
 
         if (!this.quiet) {
@@ -630,7 +695,10 @@ class ConnectionHandler {
             produces,
             otSize: request.otSize,
             toSize: request.toSize,
+            otRpiUs: request.otRpiUs,
             toRpiUs: request.toRpiUs,
+            connectionTimeoutMultiplier: request.connectionTimeoutMultiplier,
+            lastO2TRxTime: Date.now(), // see _checkWatchdogs()
             remoteAddress,
             remotePort: null,
             sequenceNumber: 1,
@@ -643,6 +711,7 @@ class ConnectionHandler {
         }
 
         this.connections.set(otNetworkConnectionId, state);
+        this._ensureWatchdogRunning();
         this.connectionManagerObject?.recordOpenRequest(true);
 
         if (!this.quiet) {
@@ -842,6 +911,8 @@ class ConnectionHandler {
             if (isTagConnection && !state.consumes) return; // produce-only tag connection — nothing to consume
             if (!isTagConnection && state.consumesO2T === false) return; // Input-Only/Listen-Only — nothing to consume
 
+            state.lastO2TRxTime = Date.now(); // feeds _checkWatchdogs()'s inactivity timeout
+
             let payload = parsed.data;
 
             if (process.env.EIP_DEBUG_RAW && !isTagConnection) {
@@ -901,6 +972,8 @@ class ConnectionHandler {
         for (const state of this.connections.values()) clearInterval(state.timer);
         this.connections.clear();
         this.multicastProducers.clear();
+        clearInterval(this._watchdogTimer);
+        this._watchdogTimer = null; // _ensureWatchdogRunning() restarts it on the next openConnection()
     }
 
     /**

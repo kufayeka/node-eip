@@ -202,7 +202,7 @@ describe('ConnectionHandler (Adapter-side Forward_Open/Forward_Close + cyclic I/
             assert.strictEqual(result.ok, true);
         });
 
-        it('rejects a Vendor ID mismatch with extended status 0x0114 when an identity is configured', function () {
+        it('rejects a Vendor ID mismatch with extended status 0x0116 when an identity is configured', function () {
             const keyedHandler = new ConnectionHandler({
                 assemblyObject: assembly,
                 identity: { vendorId: 799, deviceType: 14, productCode: 771, revision: { major: 1, minor: 0 } },
@@ -211,7 +211,20 @@ describe('ConnectionHandler (Adapter-side Forward_Open/Forward_Close + cyclic I/
             const request = baseRequest({ connectionPath: pathWithKey({ vendorId: 1, deviceType: 14, productCode: 771, majorRevision: 1, minorRevision: 0 }) });
             const result = keyedHandler.openConnection(request, { remoteAddress: '10.0.0.5' });
             assert.strictEqual(result.ok, false);
-            assert.strictEqual(result.extendedStatus, 0x0114);
+            assert.strictEqual(result.extendedStatus, 0x0116); // per ForwardOpenExtendedStatus: Vendor ID or Product Code mismatch
+            keyedHandler.closeAll();
+        });
+
+        it('rejects a Device Type mismatch with extended status 0x0117 (regression: previously used 0x0115, which the project\'s own status table assigns to a different meaning entirely)', function () {
+            const keyedHandler = new ConnectionHandler({
+                assemblyObject: assembly,
+                identity: { vendorId: 799, deviceType: 14, productCode: 771, revision: { major: 1, minor: 0 } },
+                sendDatagram: () => {}
+            });
+            const request = baseRequest({ connectionPath: pathWithKey({ vendorId: 799, deviceType: 99, productCode: 771, majorRevision: 1, minorRevision: 0 }) });
+            const result = keyedHandler.openConnection(request, { remoteAddress: '10.0.0.5' });
+            assert.strictEqual(result.ok, false);
+            assert.strictEqual(result.extendedStatus, 0x0117); // per ForwardOpenExtendedStatus: Product Type mismatch
             keyedHandler.closeAll();
         });
 
@@ -227,7 +240,7 @@ describe('ConnectionHandler (Adapter-side Forward_Open/Forward_Close + cyclic I/
             keyedHandler.closeAll();
         });
 
-        it('rejects a strict Revision mismatch with extended status 0x0116', function () {
+        it('rejects a strict Revision mismatch with extended status 0x0118', function () {
             const keyedHandler = new ConnectionHandler({
                 assemblyObject: assembly,
                 identity: { vendorId: 799, deviceType: 14, productCode: 771, revision: { major: 2, minor: 0 } },
@@ -236,7 +249,7 @@ describe('ConnectionHandler (Adapter-side Forward_Open/Forward_Close + cyclic I/
             const request = baseRequest({ connectionPath: pathWithKey({ vendorId: 799, deviceType: 14, productCode: 771, majorRevision: 1, minorRevision: 0 }) });
             const result = keyedHandler.openConnection(request, { remoteAddress: '10.0.0.5' });
             assert.strictEqual(result.ok, false);
-            assert.strictEqual(result.extendedStatus, 0x0116);
+            assert.strictEqual(result.extendedStatus, 0x0118); // per ForwardOpenExtendedStatus: Revision mismatch
             keyedHandler.closeAll();
         });
 
@@ -266,7 +279,7 @@ describe('ConnectionHandler (Adapter-side Forward_Open/Forward_Close + cyclic I/
                 const request = baseRequest({ connectionPath: pathWithKey({ vendorId: 799, deviceType: 14, productCode: 771, majorRevision: 1, minorRevision: 0, compatibility: true }) });
                 const result = h.openConnection(request, { remoteAddress: '10.0.0.5' });
                 assert.strictEqual(result.ok, false);
-                assert.strictEqual(result.extendedStatus, 0x0116);
+                assert.strictEqual(result.extendedStatus, 0x0118); // per ForwardOpenExtendedStatus: Revision mismatch
                 h.closeAll();
             });
 
@@ -275,7 +288,7 @@ describe('ConnectionHandler (Adapter-side Forward_Open/Forward_Close + cyclic I/
                 const request = baseRequest({ connectionPath: pathWithKey({ vendorId: 799, deviceType: 14, productCode: 771, majorRevision: 2, minorRevision: 0, compatibility: true }) });
                 const result = h.openConnection(request, { remoteAddress: '10.0.0.5' });
                 assert.strictEqual(result.ok, false);
-                assert.strictEqual(result.extendedStatus, 0x0116);
+                assert.strictEqual(result.extendedStatus, 0x0118); // per ForwardOpenExtendedStatus: Revision mismatch
                 h.closeAll();
             });
 
@@ -284,7 +297,7 @@ describe('ConnectionHandler (Adapter-side Forward_Open/Forward_Close + cyclic I/
                 const request = baseRequest({ connectionPath: pathWithKey({ vendorId: 799, deviceType: 14, productCode: 771, majorRevision: 2, minorRevision: 6, compatibility: true }) });
                 const result = h.openConnection(request, { remoteAddress: '10.0.0.5' });
                 assert.strictEqual(result.ok, false);
-                assert.strictEqual(result.extendedStatus, 0x0116);
+                assert.strictEqual(result.extendedStatus, 0x0118); // per ForwardOpenExtendedStatus: Revision mismatch
                 h.closeAll();
             });
         });
@@ -812,6 +825,71 @@ describe('ConnectionHandler (Adapter-side Forward_Open/Forward_Close + cyclic I/
     // produce. Ported from OpENer's own public API for this (cipconnectionmanager.c's
     // TriggerConnections()), which an OpENer-based device's application code calls directly the
     // same way this project's triggerProduction() is meant to be called.
+    describe('Connection (Inactivity) Watchdog (CIP Vol 1 §3-4.5.3 / §5-4.4) — regression: connectionTimeoutMultiplier was parsed and then never used', function () {
+        it('closes a connection that receives no O->T datagram within otRpiUs * connectionTimeoutMultiplier', function (done) {
+            let timeoutsRecorded = 0;
+            const connectionManagerObject = { recordOpenRequest() {}, recordCloseRequest() {}, recordTimeout() { timeoutsRecorded++; } };
+            const h = new ConnectionHandler({ assemblyObject: assembly, sendDatagram: () => {}, connectionManagerObject });
+            const result = h.openConnection(baseRequest({ otRpiUs: 5000, connectionTimeoutMultiplier: 2 }), { remoteAddress: '10.0.0.5' }); // 5ms * 2 = 10ms
+            assert.strictEqual(result.ok, true);
+            assert.strictEqual(h.connections.size, 1);
+
+            // Never call handleIncomingDatagram -- simulates the Originator going silent
+            // (network drop, crash, cable pull with no Forward_Close). The watchdog tick runs
+            // every 100ms; 250ms gives it two chances to catch a 10ms-old timeout comfortably.
+            setTimeout(() => {
+                assert.strictEqual(h.connections.size, 0, 'timed-out connection must be closed/removed');
+                assert.strictEqual(timeoutsRecorded, 1, 'ConnectionManagerObject.recordTimeout() must be called');
+                h.closeAll();
+                done();
+            }, 250);
+        });
+
+        it('does NOT close a connection that keeps receiving O->T datagrams within the timeout window', function (done) {
+            const h = new ConnectionHandler({ assemblyObject: assembly, sendDatagram: () => {} });
+            const result = h.openConnection(baseRequest({ otRpiUs: 5000, connectionTimeoutMultiplier: 2 }), { remoteAddress: '10.0.0.5' }); // 10ms timeout
+            assert.strictEqual(result.ok, true);
+            const connId = result.response.otNetworkConnectionId;
+
+            // Feed a fresh O->T datagram every 5ms -- well under the 10ms timeout -- for 250ms.
+            const feeder = setInterval(() => {
+                h.handleIncomingDatagram(buildIoDatagram({ connectionId: connId, sequenceNumber: 1, data: Buffer.from([1, 2, 3, 4]) }));
+            }, 5);
+
+            setTimeout(() => {
+                clearInterval(feeder);
+                assert.strictEqual(h.connections.size, 1, 'a connection with ongoing O->T traffic must NOT be watchdog-closed');
+                h.closeAll();
+                done();
+            }, 250);
+        });
+
+        it('does not watchdog a Listen-Only/Input-Only connection (it never consumes O->T in the first place)', function (done) {
+            const h = new ConnectionHandler({ assemblyObject: assembly, sendDatagram: () => {} });
+            h.registerConnectionPoint('exclusiveOwner', { outputAssembly: 100, inputAssembly: 101 });
+            h.registerConnectionPoint('listenOnly', { outputAssembly: 0xC0, inputAssembly: 101 });
+            const owner = h.openConnection(baseRequest({ otRpiUs: 5000, connectionTimeoutMultiplier: 2 }), { remoteAddress: '10.0.0.5' });
+            assert.strictEqual(owner.ok, true);
+            const listenPath = encodeAssemblyConnectionPath({ configInstance: 0x80, o2tInstance: 0xC0, t2oInstance: 101 });
+            const listener = h.openConnection(baseRequest({
+                connectionPath: listenPath, otSize: 0, otRpiUs: 5000, connectionTimeoutMultiplier: 2,
+                connectionSerialNumber: 0x5555, originatorSerialNumber: 0x99887766
+            }), { remoteAddress: '10.0.0.6' });
+            assert.strictEqual(listener.ok, true);
+            assert.strictEqual(h.connections.size, 2);
+
+            setTimeout(() => {
+                // The owner (consumes O->T, never fed one) IS watchdog-closed; the Listen-Only
+                // (never consumes O->T at all) must survive regardless.
+                assert.strictEqual(h.connections.size, 1);
+                const [remaining] = [...h.connections.values()];
+                assert.strictEqual(remaining.connType, 'listenOnly');
+                h.closeAll();
+                done();
+            }, 250);
+        });
+    });
+
     describe('Application Object production trigger (CIP Vol 1 Table 3-4.5, ported from OpENer TriggerConnections())', function () {
         it('sends only the mandatory initial packet — no automatic timer at all', function (done) {
             const localDatagrams = [];

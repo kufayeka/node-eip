@@ -261,12 +261,19 @@ class TcpIpInterfaceObject {
 
         const ifConfig = this._buildInterfaceConfigBuffer();
         const hostName = encodeCipString(this.hostName);
-        const safetyNetNum = Buffer.alloc(6);
-        const ttlVal = Buffer.from([1]);
-        const mcastConfig = this._buildMulticastConfigBuffer();
-        const remainBytes = Buffer.alloc(9);
 
-        return ok(Buffer.concat([b, linkObj, ifConfig, hostName, safetyNetNum, ttlVal, mcastConfig, remainBytes]));
+        // Get_Attribute_All for this object returns exactly Attributes 1-6 (Status, Config
+        // Capability, Config Control, Physical Link Object, Interface Configuration, Host Name) --
+        // Attributes 7 onward (TTL Value, Multicast Config, Select ACD, etc.) are all optional and
+        // only reachable via Get_Attribute_Single, same as every other CIP object's Get_Attribute_All
+        // convention this project follows elsewhere (e.g. Identity Object's own getAttributesAll,
+        // which stops at Attribute 7 and does NOT append the optional Attribute 8 State). This used
+        // to also append a Safety Network Number placeholder, TTL, Multicast Config, and a bare
+        // 9-byte block of zeros with no attribute meaning at all -- found via an ODVA compliance
+        // audit; the trailing zero padding in particular had no basis in the spec or in any
+        // documented real-hardware finding (contrast the Assembly Object's own TooMuchData choice,
+        // which IS explicitly documented as empirically matched against real Delta hardware).
+        return ok(Buffer.concat([b, linkObj, ifConfig, hostName]));
     }
 
     setAttributeSingle(instance, attribute, data) {

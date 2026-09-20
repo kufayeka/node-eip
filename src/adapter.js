@@ -365,6 +365,27 @@ class EIPAdapter extends EventEmitter {
         let buffer = Buffer.alloc(0);
         let sessionHandle = 0;
 
+        // Encapsulation Session Inactivity Timeout — CIP Vol 2 §2-4.6, TCP/IP Interface Object
+        // Attribute 13 (this.tcpIp.inactivityTimeoutSec, default 120s per its own constructor).
+        // Without this, a session that registers and then goes silent (a half-hung client, one
+        // that never sends a proper UnRegisterSession or FIN) leaks its socket and session handle
+        // forever — found via an ODVA compliance audit of this file, confirmed by grepping for any
+        // socket.setTimeout()/inactivity handling here and finding none. Read once per connection
+        // at accept time (a later Set_Attribute_Single change to the timeout value applies to
+        // subsequent connections, not retroactively to ones already open — a reasonable, simple
+        // choice, not a spec requirement either way). 0 means "disabled", matching the attribute's
+        // own documented semantics for this object.
+        const inactivityTimeoutSec = this.tcpIp.inactivityTimeoutSec;
+        if (inactivityTimeoutSec > 0) {
+            socket.setTimeout(inactivityTimeoutSec * 1000);
+            socket.on('timeout', () => {
+                if (!this.quiet) {
+                    console.warn(`[TCP INACTIVITY TIMEOUT] closing session after ${inactivityTimeoutSec}s of silence`);
+                }
+                socket.destroy();
+            });
+        }
+
         socket.on('data', (chunk) => {
             buffer = Buffer.concat([buffer, chunk]);
             for (;;) {
