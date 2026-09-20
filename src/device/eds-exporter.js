@@ -87,7 +87,9 @@ function exportToEds(deviceSpec) {
                 byteSize,
                 min,
                 max,
-                defVal: typeof t.value === 'number' ? t.value : 0
+                defVal: String(dataType).toUpperCase() === 'BOOL'
+                    ? (t.value ? 1 : 0)
+                    : (typeof t.value === 'number' ? t.value : 0)
             };
         });
     const hasNumericTagParams = tagParams.length > 0;
@@ -171,9 +173,14 @@ $ Timestamp: ${now.toISOString()}
             const fullName = p.code ? `${p.code} ${p.name}` : p.name;
             const units = p.units || '';
             const help = p.help || '';
-            const min = p.min !== undefined ? p.min : 0;
-            const max = p.max !== undefined ? p.max : 65535;
-            const defVal = p.default !== undefined ? p.default : 0;
+            const isBool = String(p.dataType || '').toUpperCase() === 'BOOL' || typeCode === CipDataTypeCode.BOOL;
+            // EDS numeric fields must contain numeric literals. CIP BOOL uses
+            // the numeric domain 0..1 in Min/Max/Default even if the JS API
+            // accepts boolean true/false values.
+            const boolNumeric = (value) => value ? 1 : 0;
+            const min = isBool ? 0 : (p.min !== undefined ? p.min : 0);
+            const max = isBool ? 1 : (p.max !== undefined ? p.max : 65535);
+            const defVal = isBool ? boolNumeric(p.default !== undefined ? p.default : 0) : (p.default !== undefined ? p.default : 0);
 
             const scalingStr = hasScaling
                 ? `                ${p.scaling.multiplier || 1},${p.scaling.divider || 1},${p.scaling.base !== undefined ? p.scaling.base : 1},${p.scaling.offset || 0},\n                ,,,,\n                ${p.scaling.decimalPlaces !== undefined ? p.scaling.decimalPlaces : 0};`
