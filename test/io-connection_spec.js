@@ -240,6 +240,40 @@ describe('Class 1 Real-Time I/O Subsystem (§14, §15, §16, §17)', function ()
 
             await client.stop();
         });
+
+        it('includes the 16-bit Sequence Count on O->T by default -- regression: this was previously OFF by default and mislabeled as a Delta-specific convention, when ODVA CIP and the Family of CIP Networks (PUB00123R1) §3.3.12.2/Figure 39 and the EtherNet/IP Developer\'s Guide (PUB00213R0) p.26 both mandate it for every Transport Class 1 connection -- the only class this project ever negotiates', async function () {
+            const otConnId = 0x5555;
+            const toConnId = 0x6666;
+
+            const received = [];
+            serverSocket.on('message', (msg) => {
+                const parsed = parseIoDatagram(msg, { expectRunIdleHeader: false });
+                if (parsed.connectionId === otConnId) received.push(parsed);
+            });
+
+            const client = new IOConnection({
+                host: '127.0.0.1',
+                port: serverPort,
+                localPort: 0,
+                otConnectionId: otConnId,
+                toConnectionId: toConnId,
+                rpiMs: 15,
+                initialOutputData: Buffer.from([0xaa, 0xbb])
+                // includeSequenceCount deliberately omitted -- must default to true
+            });
+
+            await client.start();
+            await new Promise((resolve) => setTimeout(resolve, 40));
+            await client.stop();
+
+            assert(received.length >= 1, 'expected at least one O->T datagram at the server');
+            const first = received[0];
+            // Wire payload must be [2-byte Sequence Count LE][application data], not the raw
+            // 2-byte application data alone -- the pre-fix default would have sent only
+            // Buffer.from([0xaa, 0xbb]) with no Sequence Count prefix at all.
+            assert.strictEqual(first.data.length, 4, 'expected 2-byte Sequence Count + 2-byte application data');
+            assert.deepStrictEqual(first.data.subarray(2), Buffer.from([0xaa, 0xbb]));
+        });
     });
 
     describe('EIPAdapter Class 1 Loopback Integration', function () {

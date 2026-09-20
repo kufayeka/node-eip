@@ -9,9 +9,15 @@
  * Wire format is a 2-item Common Packet Format payload:
  *   Sequenced Address Item (type 0x8002, 8 bytes):
  *     Connection ID   UDINT (4 bytes) - chosen by receiver
- *     Sequence Number  UDINT (4 bytes) - 32-bit counter incremented per datagram
- *   Connected Transport Data Item (type 0x00B1, N bytes):
- *     Optional 32-bit Run/Idle Header (4 bytes LE) when configured:
+ *     Sequence Number  UDINT (4 bytes) - 32-bit counter incremented per datagram (encapsulation-
+ *       layer duplicate/reorder detection -- distinct from the in-band Sequence Count below)
+ *   Connected Transport Data Item (type 0x00B1, N bytes), per ODVA CIP and the Family of CIP
+ *   Networks (PUB00123R1) §3.3.12.2 Figure 39:
+ *     16-bit Sequence Count (2 bytes LE) -- mandatory for Transport Class 1 (the only class this
+ *       project negotiates; see connection-manager.js's TransportTrigger presets), absent only for
+ *       Class 0 or CIP Safety connections
+ *     Optional 32-bit Run/Idle Header (4 bytes LE) when configured -- O->T only, never T->O
+ *       (CIP Vol 1 §3-4.5.1.2):
  *       bit 0: Run (1) / Idle (0)
  *       bits 1..31: Reserved (0)
  *     Application I/O Data buffer
@@ -48,6 +54,10 @@ const IOConnectionState = Object.freeze({
  * @param {Buffer} [params.data] - Application I/O data
  * @param {boolean} [params.useRunIdleHeader=false] - Whether to prepend 32-bit Run/Idle header
  * @param {boolean} [params.runIdle=true] - Run (true) or Idle (false) status
+ * @param {boolean} [params.includeSequenceCount=false] - Whether to prepend the 16-bit Sequence
+ *   Count mandated for Transport Class 1 (see the module doc comment above). Low-level primitive
+ *   default is false so every caller states its own intent explicitly; IOConnection itself
+ *   defaults this to true, since Class 1 is the only class this project negotiates.
  * @returns {Buffer} Encoded CPF payload
  */
 function buildIoDatagram({
@@ -206,14 +216,17 @@ class IOConnection extends EventEmitter {
      * @param {number} [options.rpiMs=20] - Requested Packet Interval in milliseconds
      * @param {boolean} [options.useRunIdleHeader=false] - 32-bit Run/Idle header mode (O->T only)
      * @param {boolean} [options.runIdle=true] - Initial Run (true) or Idle (false) status
-     * @param {boolean} [options.includeSequenceCount=false] - Prepend a 2-byte transport Sequence
-     *   Count to every O->T datagram this connection sends. Off by default: this is NOT a
-     *   universal CIP requirement (a plain ControlLogix-style Target's Assembly data has no such
-     *   prefix, and would see its own first 2 bytes silently swallowed by this connection's own
-     *   size negotiation if this were forced on) -- it matches specific real hardware (Delta,
-     *   confirmed empirically -- see connection-handler.js's own doc comments) that expects it on
-     *   O->T the same way this project's own T->O production always includes it. Enable explicitly
-     *   when this Scanner is known to be talking to a Target with that same convention.
+     * @param {boolean} [options.includeSequenceCount=true] - Prepend a 2-byte transport Sequence
+     *   Count to every O->T datagram this connection sends. On by default: per ODVA CIP and the
+     *   Family of CIP Networks (PUB00123R1) §3.3.12.2 / Figure 39, and the EtherNet/IP Developer's
+     *   Guide (PUB00213R0) p.26, Transport Class 1 Connected Data is ALWAYS prepended with a 16-bit
+     *   Sequence Count (data without it is a Class 0 or CIP Safety connection) -- and this project
+     *   only ever negotiates Class 1 (see connection-manager.js's TransportTrigger presets, all
+     *   Class1*). This was previously mislabeled here as a Delta-specific convention and left off
+     *   by default, inconsistent with this same project's own Adapter-side T->O production
+     *   (connection-handler.js's sendAtCurrentSeq), which already includes it unconditionally for
+     *   the same reason. Set false only to interoperate with a genuine Class 0 connection, which
+     *   this project does not otherwise construct.
      * @param {Buffer} [options.initialOutputData] - Initial output buffer
      * @param {number} [options.timeoutMultiplier=4] - Multiplier of RPI before watchdog fires
      * @param {import('dgram').Socket} [options.socket] - Optional shared UDP socket
@@ -227,7 +240,7 @@ class IOConnection extends EventEmitter {
         rpiMs = 20,
         useRunIdleHeader = false,
         runIdle = true,
-        includeSequenceCount = false,
+        includeSequenceCount = true,
         initialOutputData = null,
         timeoutMultiplier = 4,
         socket = null
