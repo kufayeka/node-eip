@@ -26,7 +26,8 @@
 
 const EventEmitter = require('events');
 const { decodeType } = require('./cip/types');
-const { encodeAssemblyConnectionPath } = require('./cip/path');
+const { encodeAssemblyConnectionPath, encodeListenOnlyConnectionPath } = require('./cip/path');
+const { ConnectionType } = require('./cip/connection-manager');
 
 /**
  * Parses a tag name or descriptor into a normalized tag definition.
@@ -148,10 +149,20 @@ class Subscription extends EventEmitter {
             ? Number(options.dataOffset)
             : 0;
 
+        this.listenOnly = Boolean(options.listenOnly || options.connectionType === 'listen_only');
+        this.multicast = Boolean(options.multicast || this.listenOnly || options.connectionType === 'multicast_owner');
+        this.multicastAddress = options.multicastAddress ? String(options.multicastAddress).trim() : null;
+
         this.assemblyInstance = options.assemblyInstance || 0x65;
         this.assemblySize = options.assemblySize || 200;
-        this.o2tInstance = options.o2tInstance !== undefined ? options.o2tInstance : 0x64;
+        this.connectionType = options.connectionType || (this.listenOnly ? 'listen_only' : (this.multicast ? 'multicast_owner' : 'exclusive'));
+        this.o2tInstance = options.o2tInstance !== undefined
+            ? options.o2tInstance
+            : (this.listenOnly || this.connectionType === 'input_only' ? 0xC7 : 0x64);
         this.configInstance = options.configInstance !== undefined ? options.configInstance : 0x80;
+        this.otSize = options.otSize !== undefined
+            ? Number(options.otSize)
+            : (this.listenOnly || this.connectionType === 'input_only' ? 0 : this.assemblySize);
         this.ioPort = options.ioPort || 2222;
 
         this._tags = new Map();
@@ -334,12 +345,25 @@ class Subscription extends EventEmitter {
         const scanner = this.target.scanner || this.target;
 
         if (!this._ioConnection) {
-            // Auto-open Class 1 I/O connection via Forward_Open
-            const connectionPath = encodeAssemblyConnectionPath({
-                configInstance: this.configInstance,
-                o2tInstance: this.o2tInstance,
-                t2oInstance: this.assemblyInstance // Assembly 101 (200 bytes)
-            });
+            let multicastAddress = this.multicastAddress;
+            if (this.multicast && !multicastAddress && typeof scanner.resolveMulticastAddress === 'function') {
+                try {
+                    multicastAddress = await scanner.resolveMulticastAddress();
+                    this.multicastAddress = multicastAddress;
+                } catch {}
+            }
+
+            const connectionPath = this.listenOnly
+                ? encodeListenOnlyConnectionPath({
+                    configInstance: this.configInstance,
+                    heartbeatInstance: this.o2tInstance,
+                    t2oInstance: this.assemblyInstance
+                })
+                : encodeAssemblyConnectionPath({
+                    configInstance: this.configInstance,
+                    o2tInstance: this.o2tInstance,
+                    t2oInstance: this.assemblyInstance // Assembly 101 (200 bytes)
+                });
 
             // openConnection() above is the point of no return: once it resolves, the Target has
             // already granted this connection and considers it Exclusive-Owner-ed by us. Everything
@@ -353,18 +377,24 @@ class Subscription extends EventEmitter {
             // else on our side will ever ask it to release it -- every subsequent Forward_Open
             // attempt to the same connection point then fails with extended status 0x0106 (Ownership
             // Conflict), regardless of what is or isn't running locally afterward.
+            const otSize = this.otSize;
             this._connectionHandle = await scanner.openConnection({
                 connectionPath,
                 rpiUs: this.rpiMs * 1000,
-                otSize: this.assemblySize,
-                toSize: this.assemblySize
+                otSize: otSize,
+                toSize: this.assemblySize,
+                toConnectionType: this.multicast ? ConnectionType.Multicast : ConnectionType.PointToPoint,
+                multicast: this.multicast,
+                multicastAddress: this.multicastAddress
             });
 
             try {
                 this._ioConnection = scanner.createIoConnection(this._connectionHandle, {
                     port: this.ioPort,
                     rpiMs: this.rpiMs,
-                    initialOutputData: Buffer.alloc(this.assemblySize)
+                    initialOutputData: Buffer.alloc(otSize),
+                    multicast: this.multicast,
+                    multicastAddress: this.multicastAddress
                 });
                 this._ownsIoConnection = true;
                 await this._ioConnection.start();
@@ -386,9 +416,11 @@ class Subscription extends EventEmitter {
      * @param {Buffer} buffer
      * @private
      */
-    _handleUdpData(buffer) {
+    _handleUdpData(buffer, meta) {
         if (!this._running || !Buffer.isBuffer(buffer)) return;
-        this._decodeBuffer(buffer, Date.now());
+        const timestamp = (meta && meta.timestamp) || Date.now();
+        this.emit('raw', buffer, meta || { timestamp });
+        this._decodeBuffer(buffer, timestamp);
     }
 
     /**

@@ -31,6 +31,7 @@ const { EdsFile } = eds;
 const fragmentation = require('./cip/fragmentation');
 const { FragmentReader, FragmentWriter, readLargeData, writeLargeData } = fragmentation;
 const { Subscription, normalizeTag } = require('./subscription');
+const { IoSocketManager, getGlobalIoSocketManager } = require('./cip/io-socket-manager');
 
 const {
     Device,
@@ -109,6 +110,9 @@ module.exports = {
     encodeAnsiSymbolSegment: path.encodeAnsiSymbolSegment,
     decodeAnsiSymbolSegment: path.decodeAnsiSymbolSegment,
     encodeTagConnectionPath: path.encodeTagConnectionPath,
+    encodeListenOnlyConnectionPath: path.encodeListenOnlyConnectionPath,
+    IoSocketManager,
+    getGlobalIoSocketManager,
     Subscription,
     normalizeTag
 };

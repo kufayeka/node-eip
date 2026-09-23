@@ -25,8 +25,9 @@
 
 const EventEmitter = require('events');
 const dgram = require('dgram');
-const { encodeCpf, decodeCpf, CpfItemType } = require('../encapsulation/cpf');
 const { EIP_IO_UDP_PORT } = require('../constants');
+const { buildIoDatagram, parseIoDatagram } = require('./io-datagram');
+const { getSharedIoSocketManager } = require('./io-socket-manager');
 
 const RealTimeFormat = Object.freeze({
     Modeless: 0,
@@ -44,94 +45,6 @@ const IOConnectionState = Object.freeze({
     TIMED_OUT: 'TIMED_OUT',
     CLOSED: 'CLOSED'
 });
-
-/**
- * Builds an I/O datagram with Sequenced Address (0x8002) and Connected Data (0x00B1).
- *
- * @param {object} params
- * @param {number} params.connectionId - 32-bit network connection ID
- * @param {number} params.sequenceNumber - 32-bit sequence number
- * @param {Buffer} [params.data] - Application I/O data
- * @param {boolean} [params.useRunIdleHeader=false] - Whether to prepend 32-bit Run/Idle header
- * @param {boolean} [params.runIdle=true] - Run (true) or Idle (false) status
- * @param {boolean} [params.includeSequenceCount=false] - Whether to prepend the 16-bit Sequence
- *   Count mandated for Transport Class 1 (see the module doc comment above). Low-level primitive
- *   default is false so every caller states its own intent explicitly; IOConnection itself
- *   defaults this to true, since Class 1 is the only class this project negotiates.
- * @returns {Buffer} Encoded CPF payload
- */
-function buildIoDatagram({
-    connectionId,
-    sequenceNumber,
-    data = Buffer.alloc(0),
-    useRunIdleHeader = false,
-    runIdle = true,
-    includeSequenceCount = false
-}) {
-    const address = Buffer.alloc(8);
-    address.writeUInt32LE(connectionId >>> 0, 0);
-    address.writeUInt32LE(sequenceNumber >>> 0, 4);
-
-    let payload = data || Buffer.alloc(0);
-    if (useRunIdleHeader) {
-        const header = Buffer.alloc(4);
-        header.writeUInt32LE(runIdle ? 1 : 0, 0);
-        payload = Buffer.concat([header, payload]);
-    }
-    if (includeSequenceCount) {
-        const seqBuf = Buffer.alloc(2);
-        seqBuf.writeUInt16LE((sequenceNumber & 0xFFFF) || 1, 0);
-        payload = Buffer.concat([seqBuf, payload]);
-    }
-
-    return encodeCpf([
-        { typeId: CpfItemType.SequencedAddress, data: address },
-        { typeId: CpfItemType.ConnectedTransportData, data: payload }
-    ]);
-}
-
-/**
- * Parses an incoming Class 1 I/O datagram.
- *
- * @param {Buffer} buf - Raw UDP datagram buffer
- * @param {object} [options]
- * @param {boolean} [options.expectRunIdleHeader=false] - Whether to parse 32-bit Run/Idle header
- * @returns {{ connectionId: number, sequenceNumber: number, runIdle: boolean|null, data: Buffer }}
- */
-function parseIoDatagram(buf, { expectRunIdleHeader = false } = {}) {
-    const { items } = decodeCpf(buf);
-    const addressItem = items.find((item) => item.typeId === CpfItemType.SequencedAddress);
-    const dataItem = items.find((item) => item.typeId === CpfItemType.ConnectedTransportData);
-
-    if (!addressItem || !dataItem) {
-        throw new Error('parseIoDatagram: expected a Sequenced Address item (0x8002) and a Connected Data item (0x00B1)');
-    }
-    if (addressItem.data.length !== 8) {
-        throw new RangeError('parseIoDatagram: Sequenced Address item must be exactly 8 bytes');
-    }
-
-    const connectionId = addressItem.data.readUInt32LE(0);
-    const sequenceNumber = addressItem.data.readUInt32LE(4);
-
-    let runIdle = null;
-    let data = dataItem.data;
-
-    if (expectRunIdleHeader) {
-        if (data.length < 4) {
-            throw new RangeError(`parseIoDatagram: expected 32-bit Run/Idle header, but data length is ${data.length} bytes`);
-        }
-        const headerVal = data.readUInt32LE(0);
-        runIdle = Boolean(headerVal & 0x01);
-        data = data.slice(4);
-    }
-
-    return {
-        connectionId,
-        sequenceNumber,
-        runIdle,
-        data
-    };
-}
 
 /**
  * SequenceTracker implements ODVA §17 Sequence Tracking for Class 1 I/O streams.
@@ -243,7 +156,11 @@ class IOConnection extends EventEmitter {
         includeSequenceCount = true,
         initialOutputData = null,
         timeoutMultiplier = 4,
-        socket = null
+        socket = null,
+        multicast = false,
+        multicastAddress = null,
+        multicastInterface = null,
+        useSharedSocket
     }) {
         super();
         if (!host) throw new Error('IOConnection: host is required');
@@ -264,6 +181,16 @@ class IOConnection extends EventEmitter {
         this.timeoutMultiplier = timeoutMultiplier || 4;
         this.timeoutMs = this.rpiMs * this.timeoutMultiplier;
 
+        this.multicast = Boolean(multicast);
+        this.multicastAddress = multicastAddress ? String(multicastAddress).trim() : null;
+        this.multicastInterface = multicastInterface || null;
+
+        // By default use shared UDP manager if localPort is standard 2222 and no custom socket was supplied
+        this.useSharedSocket = useSharedSocket !== undefined
+            ? Boolean(useSharedSocket && !socket)
+            : Boolean(!socket && localPort === EIP_IO_UDP_PORT);
+        this._socketManager = null;
+
         this.state = IOConnectionState.IDLE;
         this.sequenceTracker = new SequenceTracker();
         this.sentCount = 0;
@@ -271,7 +198,7 @@ class IOConnection extends EventEmitter {
         this._sendTimer = null;
         this._watchdogTimer = null;
         this._socket = socket;
-        this._ownsSocket = !socket;
+        this._ownsSocket = !socket && !this.useSharedSocket;
         this._lastRxTime = 0;
         this._boundPort = null;
 
@@ -285,34 +212,52 @@ class IOConnection extends EventEmitter {
     async start() {
         if (this.state === IOConnectionState.RUNNING) return this;
 
-        if (!this._socket) {
-            this._socket = dgram.createSocket({ type: 'udp4', reuseAddr: true });
-            this._socket.on('error', (err) => {
-                this.emit('error', err);
-            });
+        if (this.useSharedSocket) {
+            this._socketManager = getSharedIoSocketManager({ port: this.localPort });
+            this._socketManager.on('error', (err) => this.emit('error', err));
+            await this._socketManager.registerConnection(this);
+            this._boundPort = this._socketManager.port;
+        } else {
+            if (!this._socket) {
+                this._socket = dgram.createSocket({ type: 'udp4', reuseAddr: true });
+                this._socket.on('error', (err) => {
+                    this.emit('error', err);
+                });
 
-            await new Promise((resolve, reject) => {
-                const tryBind = (portToTry, fallbackToEphemeral) => {
-                    this._socket.once('error', (err) => {
-                        if (fallbackToEphemeral && err.code === 'EADDRINUSE') {
-                            // Port 2222 in use, fallback to ephemeral port
-                            tryBind(0, false);
-                        } else {
-                            reject(err);
-                        }
-                    });
+                await new Promise((resolve, reject) => {
+                    const tryBind = (portToTry, fallbackToEphemeral) => {
+                        this._socket.once('error', (err) => {
+                            if (fallbackToEphemeral && err.code === 'EADDRINUSE') {
+                                // Port 2222 in use, fallback to ephemeral port
+                                tryBind(0, false);
+                            } else {
+                                reject(err);
+                            }
+                        });
 
-                    this._socket.bind(portToTry, () => {
-                        this._boundPort = this._socket.address().port;
-                        resolve();
-                    });
-                };
+                        this._socket.bind(portToTry, () => {
+                            this._boundPort = this._socket.address().port;
+                            if (this.multicast && this.multicastAddress) {
+                                try {
+                                    this._socket.addMembership(this.multicastAddress, this.multicastInterface || undefined);
+                                } catch (mcastErr) {
+                                    this.emit('warn', `IOConnection: addMembership failed: ${mcastErr.message}`);
+                                }
+                            }
+                            resolve();
+                        });
+                    };
 
-                tryBind(this.localPort, true);
-            });
+                    tryBind(this.localPort, true);
+                });
+            } else if (this.multicast && this.multicastAddress) {
+                try {
+                    this._socket.addMembership(this.multicastAddress, this.multicastInterface || undefined);
+                } catch {}
+            }
+
+            this._socket.on('message', this._onSocketMessage);
         }
-
-        this._socket.on('message', this._onSocketMessage);
 
         this.state = IOConnectionState.RUNNING;
         this._lastRxTime = Date.now();
@@ -372,40 +317,36 @@ class IOConnection extends EventEmitter {
             includeSequenceCount: this.includeSequenceCount
         });
 
-        try {
-            this._socket.send(datagram, 0, datagram.length, this.port, this.host, (err) => {
+        if (this.useSharedSocket && this._socketManager) {
+            this._socketManager.sendDatagram(datagram, this.port, this.host, (err) => {
                 if (err) {
                     this.emit('error', err);
                 } else {
                     this.sentCount++;
                 }
             });
-        } catch (err) {
-            this.emit('error', err);
+        } else if (this._socket) {
+            try {
+                this._socket.send(datagram, 0, datagram.length, this.port, this.host, (err) => {
+                    if (err) {
+                        this.emit('error', err);
+                    } else {
+                        this.sentCount++;
+                    }
+                });
+            } catch (err) {
+                this.emit('error', err);
+            }
         }
     }
 
     /**
-     * Handles incoming UDP datagrams.
-     * @private
+     * Handles incoming parsed datagram (called either directly or via IoSocketManager demux).
+     * @param {object} parsed
+     * @param {object} [rinfo]
      */
-    _handleSocketMessage(msg, rinfo) {
+    handleIncomingParsedDatagram(parsed, rinfo) {
         if (this.state === IOConnectionState.CLOSED) return;
-
-        let parsed;
-        try {
-            // Never expectRunIdleHeader here: `this.useRunIdleHeader` describes the O->T direction
-            // this connection SENDS (see _sendCyclicPacket() below) -- T->O is what the Target
-            // produces to US, and per CIP Vol 1 3-4.5.1.2 a Run/Idle header only ever appears on
-            // O->T, never T->O, regardless of what this same connection's O->T side uses. Passing
-            // the O->T flag in here used to make a Run/Idle-using connection wrongly strip 4 bytes
-            // off every T->O packet as if it were a Run/Idle header that was never actually there
-            // -- found via an ODVA compliance audit; confirmed by rereading this project's own
-            // extensive doc comments elsewhere (connection-handler.js) stating this exact rule.
-            parsed = parseIoDatagram(msg);
-        } catch {
-            return; // Ignore non-I/O or malformed datagrams
-        }
 
         // Must match our T->O network connection ID
         if (parsed.connectionId !== this.toConnectionId) {
@@ -431,10 +372,7 @@ class IOConnection extends EventEmitter {
             this.emit('recovered');
         }
 
-        // Strip the leading 2-byte transport Sequence Count this project's own T->O production
-        // always includes (connection-handler.js's sendAtCurrentSeq, includeSequenceCount: true
-        // unconditionally) -- independent of this connection's OWN O->T useRunIdleHeader setting,
-        // which (as above) has no bearing on the T->O direction at all.
+        // Strip the leading 2-byte transport Sequence Count
         let appData = parsed.data;
         if (appData.length >= 2) {
             appData = appData.subarray(2);
@@ -443,8 +381,26 @@ class IOConnection extends EventEmitter {
         this.emit('data', appData, {
             sequenceNumber: parsed.sequenceNumber,
             runIdle: parsed.runIdle,
-            status: trackResult.status
+            status: trackResult.status,
+            rinfo
         });
+    }
+
+    /**
+     * Handles incoming raw UDP datagrams when using dedicated socket.
+     * @private
+     */
+    _handleSocketMessage(msg, rinfo) {
+        if (this.state === IOConnectionState.CLOSED) return;
+
+        let parsed;
+        try {
+            parsed = parseIoDatagram(msg);
+        } catch {
+            return; // Ignore non-I/O or malformed datagrams
+        }
+
+        this.handleIncomingParsedDatagram(parsed, rinfo);
     }
 
     /**
@@ -474,8 +430,16 @@ class IOConnection extends EventEmitter {
         this._sendTimer = null;
         this._watchdogTimer = null;
 
-        if (this._socket) {
+        if (this.useSharedSocket && this._socketManager) {
+            await this._socketManager.unregisterConnection(this);
+            this._socketManager = null;
+        } else if (this._socket) {
             this._socket.removeListener('message', this._onSocketMessage);
+            if (this.multicast && this.multicastAddress) {
+                try {
+                    this._socket.dropMembership(this.multicastAddress, this.multicastInterface || undefined);
+                } catch {}
+            }
             if (this._ownsSocket) {
                 await new Promise((resolve) => {
                     try {

@@ -10,6 +10,7 @@ const { buildNopRequest } = require('./encapsulation/services');
 const { buildRequest: buildCipRequest, parseResponse: parseCipResponse } = require('./cip/message-router');
 const {
     ConnectionManagerServices,
+    ConnectionType,
     connectionManagerPath,
     buildForwardOpenRequest,
     parseForwardOpenResponse,
@@ -361,12 +362,17 @@ class EIPSession extends EventEmitter {
             }
 
             const opened = parseLargeForwardOpenResponse(response.data);
+            const isMulticast = forwardOpenParams.toConnectionType === ConnectionType.Multicast ||
+                forwardOpenParams.multicast === true;
             return {
                 ...opened,
                 connectionPath: forwardOpenParams.connectionPath,
                 connectionSerialNumber: built.connectionSerialNumber,
                 originatorVendorId: built.originatorVendorId,
                 originatorSerialNumber: built.originatorSerialNumber,
+                toConnectionType: forwardOpenParams.toConnectionType,
+                multicast: isMulticast,
+                multicastAddress: forwardOpenParams.multicastAddress || null,
                 isLarge: true
             };
         }
@@ -384,12 +390,17 @@ class EIPSession extends EventEmitter {
         }
 
         const opened = parseForwardOpenResponse(response.data);
+        const isMulticast = forwardOpenParams.toConnectionType === ConnectionType.Multicast ||
+            forwardOpenParams.multicast === true;
         return {
             ...opened,
             connectionPath: forwardOpenParams.connectionPath,
             connectionSerialNumber: built.connectionSerialNumber,
             originatorVendorId: built.originatorVendorId,
             originatorSerialNumber: built.originatorSerialNumber,
+            toConnectionType: forwardOpenParams.toConnectionType,
+            multicast: isMulticast,
+            multicastAddress: forwardOpenParams.multicastAddress || null,
             isLarge: false
         };
     }
@@ -429,11 +440,20 @@ class EIPSession extends EventEmitter {
             throw new Error('createIoConnection: requires a valid connection object returned by openConnection()');
         }
         const rpiMs = options.rpiMs || (connection.toApiUs ? Math.max(1, Math.round(connection.toApiUs / 1000)) : 20);
+        const isMulticast = options.multicast !== undefined
+            ? Boolean(options.multicast)
+            : Boolean(connection.multicast || connection.toConnectionType === ConnectionType.Multicast);
+        const multicastAddress = options.multicastAddress || connection.multicastAddress || null;
+        const multicastInterface = options.multicastInterface || (this.socket ? this.socket.localAddress : null);
+
         return new IOConnection({
             host: this.host,
             otConnectionId: connection.otNetworkConnectionId,
             toConnectionId: connection.toNetworkConnectionId,
             rpiMs,
+            multicast: isMulticast,
+            multicastAddress,
+            multicastInterface,
             ...options
         });
     }

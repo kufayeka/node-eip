@@ -237,6 +237,57 @@ io.setOutput(Buffer.from([0x01, 0x00, 0x00, 0x00]));
 > hanya tahu, misalnya, "Assembly 101 = buffer 32 byte" tanpa tahu isinya. `DeviceProfile` mengisi
 > kekosongan itu. Untuk baca/tulis register PLC, pakai `Device` dengan profile (§5.1), bukan EDS.
 
+### 5.7 Multicast & Listen-Only Scanner (1 PLC Dibaca Banyak Device)
+
+Sesuai spesifikasi ODVA CIP (Vol 1 & Vol 2 §3-5.3), jika satu PLC memiliki data Class 1 I/O yang ingin
+dikonsumsi oleh banyak perangkat/aplikasi secara bersamaan:
+1. **Device Pertama (Owner)** membuka koneksi Class 1 I/O dengan mode **Multicast** (`Exclusive Owner`). PLC akan memproduksi datagram I/O ke IP Multicast CIP (dihitung otomatis via formula CIP Vol 2 §3-5.3 `239.255.x.y` atau alamat yang ditentukan).
+2. **Device Kedua dst. (Followers / Listeners)** membuka koneksi **Listen-Only** (`listenOnly: true`). Koneksi Listen-Only menggunakan Heartbeat Assembly (`0xC7` / 199 pada Delta SX3, size 0) untuk arah O->T, sehingga **tidak memperebutkan kepemilikan output PLC** (mencegah error CIP `0x0106 Ownership Conflict`). PLC akan mengembalikan multicast stream dan Connection ID yang sama.
+3. **Penerimaan Port UDP 2222**: Semua instance I/O di dalam proses Node.js berbagi satu socket UDP 2222 secara otomatis melalui `IoSocketManager`. Datagram didistribusikan secara $O(1)$ berdasarkan 32-bit Connection ID, dan otomatis bergabung ke IGMP multicast group via `socket.addMembership()`.
+
+#### Menggunakan `Scanner`:
+```js
+const { Scanner } = require('@kufayeka/ethernet-ip');
+
+// Device 1: Multicast Owner (menulis output & menerima input multicast)
+const ownerScanner = new Scanner('192.168.1.50');
+await ownerScanner.connect();
+const ownerConn = await ownerScanner.openMulticastConnection({
+    outputAssembly: 100,
+    inputAssembly: 101,
+    rpiUs: 20000 // 20ms
+});
+const ownerIo = ownerScanner.createIoConnection(ownerConn);
+ownerIo.on('data', (buf) => console.log('Owner received T->O:', buf));
+await ownerIo.start();
+
+// Device 2: Listen-Only Follower (hanya mendengar data input multicast)
+const followerScanner = new Scanner('192.168.1.50');
+await followerScanner.connect();
+const followerConn = await followerScanner.openMulticastConnection({
+    inputAssembly: 101,
+    listenOnly: true, // Otomatis memakai Heartbeat Assem 199, otSize = 0
+    rpiUs: 20000
+});
+const followerIo = followerScanner.createIoConnection(followerConn);
+followerIo.on('data', (buf) => console.log('Follower received T->O:', buf));
+await followerIo.start();
+```
+
+#### Menggunakan `Subscription` Real-Time UDP:
+```js
+// Follower / Listener via Subscription:
+const sub = new Subscription(scanner, {
+    mode: 'udp',
+    multicast: true,
+    listenOnly: true,
+    rpi: 20, // 20ms
+    tags: ['D0', 'D10:REAL']
+});
+sub.on('change', (tag, val) => console.log(`${tag} changed:`, val));
+await sub.start();
+```
+
 ---
 
 ## 6. Panduan DeviceBuilder (Virtual Device)

@@ -14,7 +14,8 @@
 const net = require('net');
 const { EventEmitter } = require('events');
 const { EIPSession } = require('./client');
-const { encodeEPath, encodeSymbolicPath } = require('./cip/path');
+const { encodeEPath, encodeSymbolicPath, encodeAssemblyConnectionPath, encodeListenOnlyConnectionPath } = require('./cip/path');
+const { ConnectionType } = require('./cip/connection-manager');
 const { buildRequest } = require('./cip/message-router');
 const { decodeMessage } = require('./encapsulation/header');
 const { scanUdp, scanUdpUnicast, scanSubnet, probeTcp } = require('./encapsulation/discovery');
@@ -22,7 +23,7 @@ const { buildListServicesRequest, parseListServicesResponse } = require('./encap
 const { buildMultipleServiceRequest, parseMultipleServiceResponse } = require('./cip/multiple-service');
 const { CipCommonServices, CipGeneralStatus, CipClassCodes, EIP_ENCAPSULATION_PORT } = require('./constants');
 const { decodeIdentityAttributesAll } = require('./cip/objects/identity');
-const { decodeInterfaceConfiguration, decodeCipString } = require('./cip/objects/tcp-ip');
+const { decodeInterfaceConfiguration, decodeCipString, calculateMulticastIp } = require('./cip/objects/tcp-ip');
 const { formatMacAddress, decodeInterfaceFlags } = require('./cip/objects/ethernet-link');
 const { readLargeData, writeLargeData } = require('./cip/fragmentation');
 const { encodeType, decodeType } = require('./cip/types');
@@ -434,6 +435,73 @@ class Scanner extends EventEmitter {
      */
     async sendConnected(connection, cipRequest) {
         return this.session.sendConnected(connection, cipRequest);
+    }
+
+    /**
+     * Resolves the target device's CIP Multicast IP address per CIP Vol 2 §3-5.3.
+     * Checks TCP/IP Interface Object (Class 0xF5) for configured multicast address or netmask,
+     * falling back to the standard formula calculateMulticastIp(host, netmask).
+     *
+     * @param {object} [options]
+     * @param {string} [options.netmask='255.255.255.0'] Fallback netmask
+     * @returns {Promise<string>} Multicast IP address string (e.g. '239.192.1.32')
+     */
+    async resolveMulticastAddress({ netmask = '255.255.255.0' } = {}) {
+        let detectedMask = netmask;
+        try {
+            const config = await this.getTcpIpConfig();
+            if (config && config.netmask) {
+                detectedMask = config.netmask;
+            }
+        } catch {}
+        return calculateMulticastIp(this.host, detectedMask);
+    }
+
+    /**
+     * Opens a Class 1 Real-Time Multicast I/O connection.
+     * Supports both primary Multicast Owner and Listen-Only secondary subscriber modes.
+     *
+     * @param {object} [params]
+     * @param {Buffer} [params.connectionPath] Custom connection path
+     * @param {boolean} [params.listenOnly=false] Whether to open as Listen-Only (no output ownership)
+     * @param {number} [params.configInstance=0x80] Config instance (default 128 / 0x80)
+     * @param {number} [params.heartbeatInstance=0xC7] Heartbeat instance for Listen-Only (default 199 / 0xC7 for Delta SX3)
+     * @param {number} [params.o2tInstance=0x64] O->T Output instance for Owner (default 100 / 0x64)
+     * @param {number} [params.t2oInstance=0x65] T->O Input instance (default 101 / 0x65)
+     * @param {number} [params.rpiMs=20] RPI in milliseconds
+     * @param {number} [params.otSize=200] Output size (forced to 0 if listenOnly)
+     * @param {number} [params.toSize=200] Input size
+     * @param {string} [params.multicastAddress] Explicit multicast IP (auto-resolved if omitted)
+     * @returns {Promise<object>} Connection handle with multicast metadata
+     */
+    async openMulticastConnection(params = {}) {
+        const {
+            listenOnly = false,
+            configInstance = 0x80,
+            heartbeatInstance = 0xC7,
+            o2tInstance = 0x64,
+            t2oInstance = 0x65,
+            rpiMs = 20,
+            otSize = 200,
+            toSize = 200,
+            netmask = '255.255.255.0'
+        } = params;
+
+        const multicastAddress = params.multicastAddress || await this.resolveMulticastAddress({ netmask });
+        const connectionPath = params.connectionPath || (listenOnly
+            ? encodeListenOnlyConnectionPath({ configInstance, heartbeatInstance, t2oInstance })
+            : encodeAssemblyConnectionPath({ configInstance, o2tInstance, t2oInstance }));
+
+        return this.openConnection({
+            connectionPath,
+            rpiUs: rpiMs * 1000,
+            otSize: listenOnly ? 0 : otSize,
+            toSize: toSize,
+            toConnectionType: ConnectionType.Multicast,
+            multicast: true,
+            multicastAddress,
+            ...params
+        });
     }
 
     /**

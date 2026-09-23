@@ -409,6 +409,27 @@ function encodeAssemblyConnectionPath({ configInstance, o2tInstance, t2oInstance
 }
 
 /**
+ * Encodes a Listen-Only Assembly Connection Path per ODVA CIP specifications.
+ * Uses a Heartbeat Assembly instance (default 0xC7 / 199 for Delta SX3 and standard CIP)
+ * for the O->T direction so secondary subscribers do not claim exclusive ownership.
+ *
+ * @param {object} [params]
+ * @param {number} [params.configInstance=0x80] Config instance (default 128 / 0x80)
+ * @param {number} [params.heartbeatInstance=0xC7] O->T Heartbeat instance (default 199 / 0xC7)
+ * @param {number} [params.t2oInstance=0x65] T->O Produced instance (default 101 / 0x65)
+ * @param {number} [params.inputInstance] Alias for t2oInstance
+ * @returns {Buffer}
+ */
+function encodeListenOnlyConnectionPath({ configInstance = 0x80, heartbeatInstance = 0xC7, t2oInstance = 0x65, inputInstance } = {}) {
+    const t2o = t2oInstance !== undefined ? t2oInstance : inputInstance;
+    return encodeAssemblyConnectionPath({
+        configInstance,
+        o2tInstance: heartbeatInstance,
+        t2oInstance: t2o
+    });
+}
+
+/**
  * Encodes an Electronic Key Segment — CIP Vol 1, Appendix C (C-1.4.5.2).
  * Segment byte: 0x34 (Logical Segment, Logical Type = Special (5), Logical
  * Format = 0). Unlike every other Logical Segment, "format 0" here does
@@ -556,5 +577,6 @@ module.exports = {
     encodeRoutePath,
     encodeEPath,
     decodeEPath,
-    encodeAssemblyConnectionPath
+    encodeAssemblyConnectionPath,
+    encodeListenOnlyConnectionPath
 };
